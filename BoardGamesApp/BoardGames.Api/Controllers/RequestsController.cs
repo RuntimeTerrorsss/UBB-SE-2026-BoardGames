@@ -6,7 +6,7 @@ using BoardRentAndProperty.Api.Utilities;
 using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardRentAndProperty.Api.Controllers
+namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/requests")]
@@ -22,25 +22,25 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("owner/{ownerAccountId:guid}")]
         public ActionResult<IReadOnlyList<RequestDTO>> GetForOwner(Guid ownerAccountId)
         {
-            return Ok(this.requestService.GetRequestsForOwner(ownerAccountId));
+            return Ok(requestService.GetRequestsForOwner(ownerAccountId));
         }
 
         [HttpGet("renter/{renterAccountId:guid}")]
         public ActionResult<IReadOnlyList<RequestDTO>> GetForRenter(Guid renterAccountId)
         {
-            return Ok(this.requestService.GetRequestsForRenter(renterAccountId));
+            return Ok(requestService.GetRequestsForRenter(renterAccountId));
         }
 
         [HttpGet("owner/{ownerAccountId:guid}/open")]
         public ActionResult<IReadOnlyList<RequestDTO>> GetOpenForOwner(Guid ownerAccountId)
         {
-            return Ok(this.requestService.GetOpenRequestsForOwner(ownerAccountId));
+            return Ok(requestService.GetOpenRequestsForOwner(ownerAccountId));
         }
 
         [HttpPost]
         public ActionResult<int> Create([FromBody] CreateRequestDataTransferObject body)
         {
-            var result = this.requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
+            var result = requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
             if (!result.IsSuccess)
             {
                 return MapCreateError(result.Error);
@@ -52,7 +52,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPut("{requestId:int}/approve")]
         public ActionResult<int> Approve(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = this.requestService.ApproveRequest(requestId, body.AccountId);
+            var result = requestService.ApproveRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
                 return MapApproveError(result.Error);
@@ -64,7 +64,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPut("{requestId:int}/deny")]
         public IActionResult Deny(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = this.requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
+            var result = requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
             if (!result.IsSuccess)
             {
                 return MapDenyError(result.Error);
@@ -76,7 +76,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPut("{requestId:int}/cancel")]
         public IActionResult Cancel(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = this.requestService.CancelRequest(requestId, body.AccountId);
+            var result = requestService.CancelRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
                 return MapCancelError(result.Error);
@@ -88,7 +88,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPut("{requestId:int}/offer")]
         public ActionResult<int> Offer(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = this.requestService.OfferGame(requestId, body.AccountId);
+            var result = requestService.OfferGame(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
                 return MapOfferError(result.Error);
@@ -100,7 +100,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("games/{gameId:int}/booked-dates")]
         public ActionResult<IReadOnlyList<BookedDateRangeDataTransferObject>> GetBookedDates(int gameId, [FromQuery] int month = 0, [FromQuery] int year = 0)
         {
-            var ranges = this.requestService.GetBookedDates(gameId, month, year)
+            var ranges = requestService.GetBookedDates(gameId, month, year)
                 .Select(range => new BookedDateRangeDataTransferObject
                 {
                     StartDate = range.StartDate,
@@ -113,7 +113,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("games/{gameId:int}/availability")]
         public ActionResult<bool> CheckAvailability(int gameId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            return Ok(this.requestService.CheckAvailability(gameId, startDate, endDate));
+            return Ok(requestService.CheckAvailability(gameId, startDate, endDate));
         }
 
         private ActionResult MapApproveError(ApproveRequestError error) =>

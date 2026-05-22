@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 
-namespace BookingBoardGames.Data.Interfaces
+namespace BoardGames.Data.Interfaces
 {
     public interface InterfaceGamesRepository : IRepository<Game>
     {

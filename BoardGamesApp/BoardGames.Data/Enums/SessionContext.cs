@@ -4,7 +4,7 @@
 
 using System;
 
-namespace BookingBoardGames.Data.Enum
+namespace BoardGames.Data.Enums
 {
     /// <summary>
     /// Provides a context for managing the current user's session state, including authentication status and user
@@ -29,8 +29,8 @@ namespace BookingBoardGames.Data.Enum
         /// intended for internal use to establish a default session state.</remarks>
         private SessionContext()
         {
-            this.userId = UnregisteredUserID;
-            this.IsLoggedIn = false;
+            userId = UnregisteredUserID;
+            IsLoggedIn = false;
         }
 
         /// <summary>
@@ -38,13 +38,13 @@ namespace BookingBoardGames.Data.Enum
         /// </summary>
         public int UserId 
         { 
-            get => this.userId; 
+            get => userId; 
             set 
             {
-                if (this.userId != value)
+                if (userId != value)
                 {
-                    this.userId = value;
-                    this.OnUserChanged?.Invoke();
+                    userId = value;
+                    OnUserChanged?.Invoke();
                 }
             }
         }
@@ -79,8 +79,8 @@ namespace BookingBoardGames.Data.Enum
         {
             if (user != null)
             {
-                this.UserId = user.Id;
-                this.IsLoggedIn = true;
+                UserId = user.Id;
+                IsLoggedIn = true;
             }
         }
 
@@ -91,8 +91,8 @@ namespace BookingBoardGames.Data.Enum
         /// unregistered state. After calling this method, the user will be considered logged out.</remarks>
         public void Clear()
         {
-            this.UserId = UnregisteredUserID;
-            this.IsLoggedIn = false;
+            UserId = UnregisteredUserID;
+            IsLoggedIn = false;
         }
     }
 }

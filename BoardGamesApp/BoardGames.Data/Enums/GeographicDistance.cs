@@ -4,7 +4,7 @@
 
 using System;
 
-namespace BookingBoardGames.Data.Enum
+namespace BoardGames.Data.Enums
 {
     /// <summary>
     /// Provides methods for calculating the distance between two geographic coordinates using the Haversine formula.
@@ -42,9 +42,9 @@ namespace BookingBoardGames.Data.Enum
             var lat2Rad = DegreesToRadians(latitudeSecondCity);
 
             var haversineValue =
-                (Math.Sin(deltaLatitude / 2) * Math.Sin(deltaLatitude / 2)) +
-                (Math.Cos(lat1Rad) * Math.Cos(lat2Rad) *
-                Math.Sin(deltaLongitude / 2) * Math.Sin(deltaLongitude / 2));
+                Math.Sin(deltaLatitude / 2) * Math.Sin(deltaLatitude / 2) +
+                Math.Cos(lat1Rad) * Math.Cos(lat2Rad) *
+                Math.Sin(deltaLongitude / 2) * Math.Sin(deltaLongitude / 2);
 
             var centralAngle =
                 2 * Math.Atan2(Math.Sqrt(haversineValue), Math.Sqrt(1 - haversineValue));

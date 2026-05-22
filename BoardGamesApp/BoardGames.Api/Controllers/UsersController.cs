@@ -4,7 +4,7 @@ using BoardRentAndProperty.Api.Services;
 using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardRentAndProperty.Api.Controllers
+namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/users")]
@@ -20,7 +20,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("except/{excludeAccountId:guid}")]
         public ActionResult<IReadOnlyList<UserDTO>> GetUsersExcept(Guid excludeAccountId)
         {
-            return Ok(this.userService.GetUsersExcept(excludeAccountId));
+            return Ok(userService.GetUsersExcept(excludeAccountId));
         }
     }
 }

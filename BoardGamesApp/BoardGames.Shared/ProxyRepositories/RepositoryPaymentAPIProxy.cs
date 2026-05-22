@@ -13,7 +13,7 @@ using BookingBoardGames.Data.Constants;
 using BookingBoardGames.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BoardGames.Shared.Repositories
+namespace BoardGames.Shared.ProxyRepositories
 {
     public class RepositoryPaymentAPIProxy : IRepositoryPayment
     {

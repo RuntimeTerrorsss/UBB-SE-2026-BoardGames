@@ -1,9 +1,9 @@
 using System;
-using BoardRentAndProperty.Api.Models;
+using BoardGames.Data.Models;
 using BoardRentAndProperty.Api.Utilities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BoardRentAndProperty.Api.Data
+namespace BoardGames.Data
 {
     public class AppDbContext : DbContext
     {

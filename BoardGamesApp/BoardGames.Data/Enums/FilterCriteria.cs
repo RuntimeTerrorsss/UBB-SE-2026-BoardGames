@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BookingBoardGames.Data.Enum;
+namespace BoardGames.Data.Enums;
 
 /// <summary>
 /// Represents the criteria used for searching and filtering games.
@@ -15,7 +15,7 @@ public class FilterCriteria
     /// </summary>
     public FilterCriteria()
     {
-        this.Reset();
+        Reset();
     }
 
     /// <summary>
@@ -58,13 +58,13 @@ public class FilterCriteria
     /// </summary>
     public void Reset()
     {
-        this.Name = null;
-        this.City = null;
-        this.AvailabilityRange = null;
-        this.MaximumPrice = null;
-        this.PlayerCount = null;
-        this.SortOption = SortOption.None;
-        this.UserId = null;
+        Name = null;
+        City = null;
+        AvailabilityRange = null;
+        MaximumPrice = null;
+        PlayerCount = null;
+        SortOption = SortOption.None;
+        UserId = null;
     }
 
     /// <summary>
@@ -73,11 +73,11 @@ public class FilterCriteria
     /// <returns>True if the range is valid or null; otherwise, false.</returns>
     public bool HasValidAvailabilityRange()
     {
-        if (this.AvailabilityRange == null)
+        if (AvailabilityRange == null)
         {
             return true;
         }
 
-        return this.AvailabilityRange.StartTime < this.AvailabilityRange.EndTime;
+        return AvailabilityRange.StartTime < AvailabilityRange.EndTime;
     }
 }

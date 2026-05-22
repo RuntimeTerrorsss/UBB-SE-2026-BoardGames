@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BookingBoardGames.Data.Interfaces
+namespace BoardGames.Data.Interfaces
 {
     /// <summary>
     /// Defines methods for retrieving payment common records from a data source.

@@ -1,7 +1,7 @@
 using System;
 using BoardRentAndProperty.Contracts.Models;
 
-namespace BoardRentAndProperty.Api.Models
+namespace BoardGames.Data.Models
 {
     public class Notification
     {
@@ -20,7 +20,7 @@ namespace BoardRentAndProperty.Api.Models
         public Notification(int id, Account? recipientAccount, DateTime timestamp, string title, string body,
                             NotificationType notificationType = NotificationType.Informational, Request? relatedRequest = null)
         {
-            this.Id = id;
+            Id = id;
             Recipient = recipientAccount;
             Timestamp = timestamp;
             Title = title;

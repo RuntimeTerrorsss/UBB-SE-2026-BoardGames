@@ -1,6 +1,6 @@
 using System;
 
-namespace BoardRentAndProperty.Api.Models
+namespace BoardGames.Data.Models
 {
     public class Role
     {

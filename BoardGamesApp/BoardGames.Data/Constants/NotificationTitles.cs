@@ -1,4 +1,4 @@
-namespace BoardRentAndProperty.Api.Constants
+namespace BoardGames.Data.Constants
 {
     public static class NotificationTitles
     {

@@ -6,7 +6,7 @@ using BoardRentAndProperty.Api.Utilities;
 using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardRentAndProperty.Api.Controllers
+namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/games")]
@@ -22,7 +22,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet]
         public ActionResult<IReadOnlyList<GameDTO>> GetAll()
         {
-            return Ok(this.gameService.GetAllGames());
+            return Ok(gameService.GetAllGames());
         }
 
         [HttpGet("{gameId:int}")]
@@ -30,7 +30,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                return Ok(this.gameService.GetGameByIdentifier(gameId));
+                return Ok(gameService.GetGameByIdentifier(gameId));
             }
             catch (KeyNotFoundException)
             {
@@ -41,19 +41,19 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("owner/{ownerAccountId:guid}")]
         public ActionResult<IReadOnlyList<GameDTO>> GetByOwner(Guid ownerAccountId)
         {
-            return Ok(this.gameService.GetGamesForOwner(ownerAccountId));
+            return Ok(gameService.GetGamesForOwner(ownerAccountId));
         }
 
         [HttpGet("owner/{ownerAccountId:guid}/active")]
         public ActionResult<IReadOnlyList<GameDTO>> GetActiveByOwner(Guid ownerAccountId)
         {
-            return Ok(this.gameService.GetActiveGamesForOwner(ownerAccountId));
+            return Ok(gameService.GetActiveGamesForOwner(ownerAccountId));
         }
 
         [HttpGet("renter/{renterAccountId:guid}/available")]
         public ActionResult<IReadOnlyList<GameDTO>> GetAvailableForRenter(Guid renterAccountId)
         {
-            return Ok(this.gameService.GetAvailableGamesForRenter(renterAccountId));
+            return Ok(gameService.GetAvailableGamesForRenter(renterAccountId));
         }
 
         [HttpPost]
@@ -61,7 +61,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                this.gameService.AddGame(body);
+                gameService.AddGame(body);
                 return Ok();
             }
             catch (ArgumentException exception)
@@ -75,7 +75,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                this.gameService.UpdateGameByIdentifier(gameId, body);
+                gameService.UpdateGameByIdentifier(gameId, body);
                 return NoContent();
             }
             catch (ArgumentException exception)
@@ -93,7 +93,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                return Ok(this.gameService.DeleteGameByIdentifier(gameId));
+                return Ok(gameService.DeleteGameByIdentifier(gameId));
             }
             catch (InvalidOperationException exception)
             {

@@ -15,7 +15,7 @@ using BoardGames.Data.Enum;
 using BoardGames.Data.Interfaces;
 using BoardGames.Shared.DTO;
 
-namespace BoardGames.Shared.Repositories
+namespace BoardGames.Shared.ProxyRepositories
 {
     public class ConversationAPIProxy : IConversationRepository
     {

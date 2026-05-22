@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace BoardRentAndProperty.Api.Controllers
+namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/auth")]
@@ -21,7 +21,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDataTransferObject body)
         {
-            var result = await this.authService.RegisterAsync(body);
+            var result = await authService.RegisterAsync(body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
@@ -34,7 +34,7 @@ namespace BoardRentAndProperty.Api.Controllers
         public async Task<ActionResult<AccountProfileDataTransferObject>> Login([FromBody] LoginDataTransferObject body)
         {
 
-            var result = await this.authService.LoginAsync(body);
+            var result = await authService.LoginAsync(body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
@@ -46,7 +46,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var result = await this.authService.LogoutAsync();
+            var result = await authService.LogoutAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
@@ -58,7 +58,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("forgot-password")]
         public async Task<ActionResult<string>> ForgotPassword()
         {
-            var result = await this.authService.ForgotPasswordAsync();
+            var result = await authService.ForgotPasswordAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);

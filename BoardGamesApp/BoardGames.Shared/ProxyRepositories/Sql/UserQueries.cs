@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BoardGames.Shared.Repositories.Sql
+namespace BoardGames.Shared.ProxyRepositories.Sql
 {
     /// <summary>
     /// Provides predefined SQL query strings for retrieving user-related data from the database.

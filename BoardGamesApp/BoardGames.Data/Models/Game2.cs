@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BoardRentAndProperty.Api.Models
+namespace BoardGames.Data.Models
 {
     [Table("Games")]
     public class Game
@@ -39,15 +39,15 @@ namespace BoardRentAndProperty.Api.Models
 
         public Game(int id, Account? gameOwner, string name, decimal price,int minimumPlayerNumber, int maximumPlayerNumber,string description, byte[]? image, bool isActive)
         {
-            this.Id = id;
-            this.Owner = gameOwner;
-            this.Name = name;
-            this.Price = price;
-            this.MinimumPlayerNumber = minimumPlayerNumber;
-            this.MaximumPlayerNumber = maximumPlayerNumber;
-            this.Description = description;
-            this.Image = image;
-            this.IsActive = isActive;
+            Id = id;
+            Owner = gameOwner;
+            Name = name;
+            Price = price;
+            MinimumPlayerNumber = minimumPlayerNumber;
+            MaximumPlayerNumber = maximumPlayerNumber;
+            Description = description;
+            Image = image;
+            IsActive = isActive;
         }
     }
 }

@@ -5,7 +5,7 @@ using BoardRentAndProperty.Api.Utilities;
 using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardRentAndProperty.Api.Controllers
+namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/notifications")]
@@ -21,7 +21,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("user/{accountId:guid}")]
         public ActionResult<IReadOnlyList<NotificationDTO>> GetForUser(Guid accountId)
         {
-            return Ok(this.notificationService.GetNotificationsForUser(accountId));
+            return Ok(notificationService.GetNotificationsForUser(accountId));
         }
 
         [HttpGet("{notificationId:int}")]
@@ -29,7 +29,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                return Ok(this.notificationService.GetNotificationByIdentifier(notificationId));
+                return Ok(notificationService.GetNotificationByIdentifier(notificationId));
             }
             catch (KeyNotFoundException)
             {
@@ -42,7 +42,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                this.notificationService.UpdateNotificationByIdentifier(notificationId, body);
+                notificationService.UpdateNotificationByIdentifier(notificationId, body);
                 return NoContent();
             }
             catch (KeyNotFoundException)
@@ -56,7 +56,7 @@ namespace BoardRentAndProperty.Api.Controllers
         {
             try
             {
-                return Ok(this.notificationService.DeleteNotificationByIdentifier(notificationId));
+                return Ok(notificationService.DeleteNotificationByIdentifier(notificationId));
             }
             catch (KeyNotFoundException)
             {

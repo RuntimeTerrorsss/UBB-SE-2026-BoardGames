@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BookingBoardGames.Data.Enum
+namespace BoardGames.Data.Enums
 {
     public enum FilterType
     {

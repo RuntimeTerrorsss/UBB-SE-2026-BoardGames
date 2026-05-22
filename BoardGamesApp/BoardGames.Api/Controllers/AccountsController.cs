@@ -7,7 +7,7 @@ using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardRentAndProperty.Api.Controllers
+namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/accounts")]
@@ -27,7 +27,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpGet("{accountId:guid}")]
         public async Task<ActionResult<AccountProfileDataTransferObject>> GetProfile(Guid accountId)
         {
-            var result = await this.accountService.GetProfileAsync(accountId);
+            var result = await accountService.GetProfileAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
@@ -39,7 +39,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPut("{accountId:guid}")]
         public async Task<IActionResult> UpdateProfile(Guid accountId, [FromBody] AccountProfileDataTransferObject body)
         {
-            var result = await this.accountService.UpdateProfileAsync(accountId, body);
+            var result = await accountService.UpdateProfileAsync(accountId, body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
@@ -51,7 +51,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpPut("{accountId:guid}/password")]
         public async Task<IActionResult> ChangePassword(Guid accountId, [FromBody] ChangePasswordDataTransferObject body)
         {
-            var result = await this.accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
+            var result = await accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
@@ -73,13 +73,13 @@ namespace BoardRentAndProperty.Api.Controllers
             string relativeUrl;
             await using (var stream = file.OpenReadStream())
             {
-                relativeUrl = await this.avatarStorageService.SaveAsync(accountId, stream, extension);
+                relativeUrl = await avatarStorageService.SaveAsync(accountId, stream, extension);
             }
 
-            var result = await this.accountService.SetAvatarUrlAsync(accountId, relativeUrl);
+            var result = await accountService.SetAvatarUrlAsync(accountId, relativeUrl);
             if (!result.Success)
             {
-                this.avatarStorageService.Delete(relativeUrl);
+                avatarStorageService.Delete(relativeUrl);
                 return this.FromServiceError(result.Error);
             }
 
@@ -89,7 +89,7 @@ namespace BoardRentAndProperty.Api.Controllers
         [HttpDelete("{accountId:guid}/avatar")]
         public async Task<IActionResult> RemoveAvatar(Guid accountId)
         {
-            var result = await this.accountService.RemoveAvatarAsync(accountId);
+            var result = await accountService.RemoveAvatarAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);

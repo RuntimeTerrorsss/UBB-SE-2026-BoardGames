@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace BookingBoardGames.Data.Interfaces
+namespace BoardGames.Data.Interfaces
 {
     /// <summary>
     /// Defines methods for retrieving payment history records from a data source.

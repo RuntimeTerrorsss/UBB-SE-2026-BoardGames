@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BookingBoardGames.Data.Constants
+namespace BoardGames.Data.Constants
 {
     public class PaymentConstrants
     {

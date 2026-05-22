@@ -3,7 +3,7 @@ using System.Linq;
 using BoardRentAndProperty.Api.Models;
 using BoardRentAndProperty.Contracts.DataTransferObjects;
 
-namespace BoardRentAndProperty.Api.Mappers
+namespace BoardGames.Shared.Mapper
 {
     public class AccountProfileMapper
     {

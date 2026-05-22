@@ -4,9 +4,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
 
-namespace BookingBoardGames.Data.Interfaces
+namespace BoardGames.Data.Interfaces
 {
     public interface IConversationRepository
     {

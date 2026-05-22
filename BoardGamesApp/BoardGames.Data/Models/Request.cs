@@ -1,7 +1,7 @@
 using System;
 using BoardRentAndProperty.Contracts.Models;
 
-namespace BoardRentAndProperty.Api.Models
+namespace BoardGames.Data.Models
 {
     public class Request
     {
@@ -21,7 +21,7 @@ namespace BoardRentAndProperty.Api.Models
         public Request(int id, Game? requestedGame, Account? renterAccount, Account? ownerAccount, DateTime startDate, DateTime endDate,
                        RequestStatus status = RequestStatus.Open, Account? offeringUser = null)
         {
-            this.Id = id;
+            Id = id;
             Game = requestedGame;
             Renter = renterAccount;
             Owner = ownerAccount;

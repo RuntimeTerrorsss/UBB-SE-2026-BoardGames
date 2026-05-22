@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BoardRentAndProperty.Api.Migrations
+namespace BoardGames.Data.Migrations
 {
     /// <inheritdoc />
     public partial class FixNotificationMappings : Migration

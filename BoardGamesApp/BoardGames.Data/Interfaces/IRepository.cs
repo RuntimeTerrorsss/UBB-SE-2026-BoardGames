@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookingBoardGames.Data.Interfaces
+namespace BoardGames.Data.Interfaces
 {
     /// <summary>
     /// Interface defining basic repository operations for managing entities of type T, including retrieval by ID and fetching all entities.

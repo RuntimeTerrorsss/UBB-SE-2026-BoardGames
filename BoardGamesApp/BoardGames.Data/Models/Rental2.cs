@@ -1,6 +1,6 @@
 using System;
 
-namespace BoardRentAndProperty.Api.Models
+namespace BoardGames.Data.Models
 {
     public class Rental
     {
@@ -17,7 +17,7 @@ namespace BoardRentAndProperty.Api.Models
 
         public Rental(int id, Game? rentedGame, Account? renterAccount, Account? ownerAccount, DateTime startDate, DateTime endDate)
         {
-            this.Id = id;
+            Id = id;
             Game = rentedGame;
             Renter = renterAccount;
             Owner = ownerAccount;

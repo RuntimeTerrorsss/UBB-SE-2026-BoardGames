@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookingBoardGames.Data.Constants
+namespace BoardGames.Data.Constants
 {
     public class PaymentHistoryViewModelConstants
     {

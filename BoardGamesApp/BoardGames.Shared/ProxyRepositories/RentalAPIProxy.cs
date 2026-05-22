@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using BookingBoardGames.Data;
 using BookingBoardGames.Data.Interfaces;
 
-namespace BoardGames.Shared.Repositories
+namespace BoardGames.Shared.ProxyRepositories
 {
     public class RentalAPIProxy : IRentalRepository
     {

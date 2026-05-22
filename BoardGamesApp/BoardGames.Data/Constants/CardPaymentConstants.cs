@@ -4,7 +4,7 @@
 
 using System;
 
-namespace BookingBoardGames.Data.Constants
+namespace BoardGames.Data.Constants
 {
     public class CardPaymentConstants : PaymentConstrants
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BoardRentAndProperty.Api.Models
+namespace BoardGames.Data.Models
 {
     public class Account
     {
