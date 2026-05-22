@@ -1,108 +1,67 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using System.Threading.Tasks;
+using BookingBoardGames.Data;
+using BookingBoardGames.Data.Enum;
+using BookingBoardGames.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
-    [Route("api/games")]
+    [Route("api/[controller]")]
     public class GamesController : ControllerBase
     {
-        private readonly IGameService gameService;
+        private readonly InterfaceGamesRepository gamesRepository;
 
-        public GamesController(IGameService gameService)
+        public GamesController(InterfaceGamesRepository gamesRepository)
         {
-            this.gameService = gameService;
+            this.gamesRepository = gamesRepository;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Game>> GetGame(int id)
+        {
+            var game = await gamesRepository.GetGameById(id);
+            if (game == null) return NotFound();
+            return Ok(game);
         }
 
         [HttpGet]
-        public ActionResult<IReadOnlyList<GameDTO>> GetAll()
+        public async Task<ActionResult<List<Game>>> GetAll()
         {
-            return Ok(gameService.GetAllGames());
+            return await gamesRepository.GetAll();
         }
 
-        [HttpGet("{gameId:int}")]
-        public ActionResult<GameDTO> GetById(int gameId)
+        [HttpGet("filter")]
+        public async Task<ActionResult<List<Game>>> Filter([FromQuery] string? name)
         {
-            try
-            {
-                return Ok(gameService.GetGameByIdentifier(gameId));
-            }
-            catch (KeyNotFoundException)
-            {
-                return this.ApiNotFound("Game not found.", "game_not_found");
-            }
+            var filter = new FilterCriteria { Name = name };
+            return await gamesRepository.GetGamesByFilter(filter);
         }
 
-        [HttpGet("owner/{ownerAccountId:guid}")]
-        public ActionResult<IReadOnlyList<GameDTO>> GetByOwner(Guid ownerAccountId)
+        [HttpGet("{id}/price")]
+        public async Task<ActionResult<decimal>> GetPrice(int id)
         {
-            return Ok(gameService.GetGamesForOwner(ownerAccountId));
+            var price = await gamesRepository.GetPriceGameById(id);
+            return Ok(price);
         }
 
-        [HttpGet("owner/{ownerAccountId:guid}/active")]
-        public ActionResult<IReadOnlyList<GameDTO>> GetActiveByOwner(Guid ownerAccountId)
+        [HttpPost("search")]
+        public async Task<ActionResult<List<Game>>> SearchGames([FromBody] FilterCriteria filter)
         {
-            return Ok(gameService.GetActiveGamesForOwner(ownerAccountId));
+            return await gamesRepository.GetGamesByFilter(filter);
         }
 
-        [HttpGet("renter/{renterAccountId:guid}/available")]
-        public ActionResult<IReadOnlyList<GameDTO>> GetAvailableForRenter(Guid renterAccountId)
+        [HttpGet("feed/tonight")]
+        public async Task<ActionResult<List<Game>>> GetGamesFeedAvailableTonight([FromQuery] int userId)
         {
-            return Ok(gameService.GetAvailableGamesForRenter(renterAccountId));
+            return await gamesRepository.GetGamesForFeedAvailableTonight(userId);
         }
 
-        [HttpPost]
-        public IActionResult Create([FromBody] GameDTO body)
+        [HttpGet("feed/remaining")]
+        public async Task<ActionResult<List<Game>>> GetRemainingGamesForFeed([FromQuery] int userId)
         {
-            try
-            {
-                gameService.AddGame(body);
-                return Ok();
-            }
-            catch (ArgumentException exception)
-            {
-                return this.ApiValidation(exception.Message, "game_validation_failed");
-            }
-        }
-
-        [HttpPut("{gameId:int}")]
-        public IActionResult Update(int gameId, [FromBody] GameDTO body)
-        {
-            try
-            {
-                gameService.UpdateGameByIdentifier(gameId, body);
-                return NoContent();
-            }
-            catch (ArgumentException exception)
-            {
-                return this.ApiValidation(exception.Message, "game_validation_failed");
-            }
-            catch (KeyNotFoundException)
-            {
-                return this.ApiNotFound("Game not found.", "game_not_found");
-            }
-        }
-
-        [HttpDelete("{gameId:int}")]
-        public ActionResult<GameDTO> Delete(int gameId)
-        {
-            try
-            {
-                return Ok(gameService.DeleteGameByIdentifier(gameId));
-            }
-            catch (InvalidOperationException exception)
-            {
-                return this.ApiConflict(exception.Message, "game_delete_conflict");
-            }
-            catch (KeyNotFoundException)
-            {
-                return this.ApiNotFound("Game not found.", "game_not_found");
-            }
+            return await gamesRepository.GetRemainingGamesForFeed(userId);
         }
     }
 }

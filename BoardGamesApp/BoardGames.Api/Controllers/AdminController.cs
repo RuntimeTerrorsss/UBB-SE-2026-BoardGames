@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Api.Services;
+using BoardGames.Api.Services;
 using BoardRentAndProperty.Api.Utilities;
 using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;

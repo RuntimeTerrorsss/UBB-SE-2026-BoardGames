@@ -1,0 +1,25 @@
+<Page
+    x:Class="BookingBoardGames.Src.Views.Test.GameCardTestPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:BookingBoardGames.Src.Views.Controls">
+
+    <Grid Padding="40">
+
+        <controls:GameCard
+            Width="320"
+            HorizontalAlignment="Left"
+            Title="Catan"
+            Location="Cluj-Napoca"
+            PlayersText="3 - 4 players"
+            PriceText="10 RON / day">
+
+            <controls:GameCard.ImageSource>
+                <BitmapImage UriSource="ms-appx:///Assets/SeedImages/catan.png"/>
+            </controls:GameCard.ImageSource>
+
+        </controls:GameCard>
+
+    </Grid>
+
+</Page>

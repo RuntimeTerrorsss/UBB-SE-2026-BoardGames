@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="BookingBoardGames.Src.Views.CashPaymentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BookingBoardGames.Src.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="using:BookingBoardGames.Src.ViewModels"
+    mc:Ignorable="d">
+	
+	<StackPanel 
+		Padding="30, 50, 30, 30" 
+		HorizontalAlignment="Center" >
+		<RichTextBlock TextWrapping="Wrap" Width="700">
+			<Paragraph FontSize="20">
+				Cash Payment Overview
+			</Paragraph>
+			<Paragraph Margin="0,20,0,0">
+				Game:
+				<Bold>
+					<Run Text="{Binding GameName}"/>
+				</Bold>
+				<LineBreak />
+
+				Owner:
+				<Bold>
+					<Run Text="{Binding OwnerName}"/>
+				</Bold>
+				<LineBreak />
+
+				Request Dates:
+				<Bold>
+					<Run Text="{Binding RequestDates}"/>
+				</Bold>
+				<LineBreak />
+				
+				Delivery Address:
+				<Bold>
+					<Run Text="{Binding DeliveryAddress}"/>
+				</Bold>
+				<LineBreak />
+
+				Price:
+				<Bold>
+                    <Run Text="{Binding PaidAmount, Mode=OneWay, FallbackValue='0'}"/>
+				</Bold>
+			</Paragraph>
+			<Paragraph Margin="0,20,0,0">
+				Thank you for you purchase!
+			</Paragraph>
+			<Paragraph Margin="0,20,0,0">
+				<Italic>IMPORTANT</Italic>
+				
+				<LineBreak />
+				- For the next step, a
+				<Run FontWeight="SemiBold">
+					confirmation button
+				</Run> will appear in the chat for you to press once
+				<Run FontWeight="SemiBold">
+					the game has been delivered
+				</Run> to you and it corresponds with the expected rented game.
+				
+				<LineBreak />
+				- The owner will also receive a confirmation button to press once they have received the cash payment.
+				
+				<LineBreak />
+				- When both confirmations are completed,
+				<Run FontWeight="SemiBold">
+					a receipt
+				</Run> containing all transaction details and agreement between parties will be
+				<Run FontWeight="SemiBold">
+					automatically generated
+				</Run>.
+				
+				<LineBreak />
+				- A
+				<Run FontWeight="SemiBold"> 
+					link to the receipt
+				</Run> will be
+				<Run FontWeight="SemiBold">
+					sent in the chat with the owner
+				</Run> of the game where you can open it and save it for your records.
+			</Paragraph>
+			<Paragraph Margin="0,20,0,0">
+				<Italic>
+					If you have any questions or need more details about the rented game, please contact the owner directly in the chat.
+				</Italic>
+			</Paragraph>
+			
+		</RichTextBlock>
+		<Button x:Name="NavigateToChatButton"
+				Content="Back to Chat"
+				Click="NavigateToChatButton_Click"
+				ClickMode="Press"
+				Margin="0,30,0,0"/>
+	</StackPanel>
+</Page>

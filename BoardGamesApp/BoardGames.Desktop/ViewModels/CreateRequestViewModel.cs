@@ -1,0 +1,150 @@
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
+using BoardRentAndProperty.ApiClient;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.Utilities;
+
+namespace BoardGames.Desktop.ViewModels
+{
+    public class CreateRequestViewModel : INotifyPropertyChanged
+    {
+        private readonly IGameService gameListingService;
+        private readonly IRequestService rentalRequestService;
+        private readonly ICurrentUserContext currentUserContext;
+
+        public Guid CurrentUserId => currentUserContext.CurrentUserId;
+
+        public ObservableCollection<GameDTO> AvailableGamesToRequest { get; set; } = new();
+
+        private GameDTO selectedGameToRequest;
+        public GameDTO SelectedGame
+        {
+            get => selectedGameToRequest;
+            set
+            {
+                selectedGameToRequest = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DateTimeOffset? requestedStartDate;
+        public DateTimeOffset? StartDate
+        {
+            get => requestedStartDate;
+            set
+            {
+                requestedStartDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DateTimeOffset? requestedEndDate;
+        public DateTimeOffset? EndDate
+        {
+            get => requestedEndDate;
+            set
+            {
+                requestedEndDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public CreateRequestViewModel(IGameService gameListingService, IRequestService rentalRequestService,
+                                      ICurrentUserContext currentUserContext)
+        {
+            this.gameListingService = gameListingService;
+            this.rentalRequestService = rentalRequestService;
+            this.currentUserContext = currentUserContext;
+            _ = LoadAvailableGamesAsync();
+        }
+
+        public async Task LoadAvailableGamesAsync()
+        {
+            AvailableGamesToRequest.Clear();
+            var availableGamesResult = await gameListingService.GetAvailableGamesForRenterAsync(CurrentUserId);
+            if (availableGamesResult.Success && availableGamesResult.Data != null)
+            {
+                foreach (var availableGame in availableGamesResult.Data)
+                {
+                    AvailableGamesToRequest.Add(availableGame);
+                }
+            }
+        }
+
+        public bool ValidateRequestInputs()
+        {
+            if (SelectedGame == null)
+            {
+                return false;
+            }
+
+            return StartDate != null && EndDate != null;
+        }
+
+        public async Task<ViewOperationResult> SubmitRequestAsync()
+        {
+            if (!ValidateRequestInputs())
+            {
+                return ViewOperationResult.Failure(
+                    Constants.DialogTitles.ValidationError,
+                    Constants.DialogMessages.CreateRequestValidationError);
+            }
+
+            var requestDataTransferObject = new CreateRequestDataTransferObject
+            {
+                GameId = SelectedGame.Id,
+                RenterAccountId = CurrentUserId,
+                OwnerAccountId = SelectedGame.Owner?.Id ?? Guid.Empty,
+                StartDate = StartDate.Value.DateTime,
+                EndDate = EndDate.Value.DateTime,
+            };
+
+            var requestCreationResult = await rentalRequestService.CreateRequestAsync(requestDataTransferObject);
+
+            if (requestCreationResult.Success)
+            {
+                return ViewOperationResult.Success();
+            }
+
+            var createRequestError = RequestErrorMapper.MapCreate(requestCreationResult);
+            if (createRequestError == CreateRequestError.InvalidDateRange)
+            {
+                return ViewOperationResult.Failure(
+                    Constants.DialogTitles.ValidationError,
+                    Constants.DialogMessages.CreateRequestValidationError);
+            }
+
+            return ViewOperationResult.Failure(
+                Constants.DialogTitles.RequestFailed,
+                BuildCreateRequestErrorMessage(createRequestError));
+        }
+
+        private static string BuildCreateRequestErrorMessage(CreateRequestError createRequestError)
+        {
+            return createRequestError switch
+            {
+                CreateRequestError.OwnerCannotRent => "You cannot rent your own game.",
+                CreateRequestError.DatesUnavailable => "The selected dates are not available.",
+                CreateRequestError.GameDoesNotExist => "The selected game no longer exists.",
+                CreateRequestError.InvalidDateRange => "The selected date range is invalid.",
+                _ => Constants.DialogMessages.UnexpectedErrorOccurred
+            };
+        }
+
+        public async Task<string?> TrySubmitRequestAsync()
+        {
+            var requestSubmissionResult = await SubmitRequestAsync();
+            return requestSubmissionResult.IsSuccess ? null : requestSubmissionResult.DialogMessage;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}

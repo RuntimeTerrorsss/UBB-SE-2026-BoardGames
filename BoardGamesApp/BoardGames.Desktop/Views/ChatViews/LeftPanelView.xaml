@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+	x:Class="BookingBoardGames.Src.Views.ChatViews.LeftPanelView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dtos="using:BookingBoardGames.Src.DTO"
+	xmlns:local="using:BookingBoardGames.Src.Views.ChatViews"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vms="using:BookingBoardGames.Src.ViewModels"
+	mc:Ignorable="d">
+
+	<Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+		<Grid.RowDefinitions>
+			<!--  Header: title + search bar  -->
+			<RowDefinition Height="Auto" />
+			<!--  Conversation list / empty / no-match states  -->
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<!--
+			Header area
+		-->
+		<StackPanel
+			Grid.Row="0"
+			Padding="12,14,12,8"
+			Spacing="8">
+			<TextBlock
+				FontSize="20"
+				FontWeight="SemiBold"
+				Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+				Text="Messages" />
+
+			<!--  Search bar  -->
+			<TextBox
+				x:Name="SearchBox"
+				CornerRadius="6"
+				PlaceholderText="Search conversations…"
+				Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+		</StackPanel>
+
+		<!--  Thin separator under header  -->
+		<Border
+			Grid.Row="0"
+			Height="1"
+			VerticalAlignment="Bottom"
+			Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+		<!--
+			No conversations at all
+		-->
+		<StackPanel
+			x:Name="EmptyStatePanel"
+			Grid.Row="1"
+			Padding="24"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Spacing="10"
+			Visibility="Collapsed">
+
+			<!--  Icon placeholder  -->
+			<FontIcon
+				HorizontalAlignment="Center"
+				FontSize="40"
+				Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+				Glyph="&#xE8BD;" />
+
+			<TextBlock
+				HorizontalAlignment="Center"
+				FontSize="15"
+				FontWeight="SemiBold"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				Text="No conversations yet" />
+
+			<TextBlock
+				FontSize="12"
+				Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+				Text="Chats created via bookings or pressing the &#x60;Chat with seller&#x60; button will be displayed here."
+				TextAlignment="Center"
+				TextWrapping="Wrap" />
+		</StackPanel>
+
+		<!--
+			Search returned no matches
+			(dummy: set Visibility="Collapsed" to hide)
+		-->
+		<StackPanel
+			x:Name="NoMatchesPanel"
+			Grid.Row="1"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Spacing="6"
+			Visibility="Collapsed">
+
+			<FontIcon
+				HorizontalAlignment="Center"
+				FontSize="32"
+				Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+				Glyph="&#xE721;" />
+
+			<TextBlock
+				HorizontalAlignment="Center"
+				FontSize="14"
+				FontWeight="SemiBold"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				Text="No matches" />
+		</StackPanel>
+
+		<!--
+			State 3 — Normal: conversation list
+			CP-04: ScrollViewer is implicit inside ListView
+			CP-06: ordered by most recent (dummy data below)
+		-->
+		<ListView
+			x:Name="ConversationList"
+			Grid.Row="1"
+			Padding="4,8"
+			ItemsSource="{x:Bind ViewModel.Conversations, Mode=OneWay}"
+			SelectedItem="{x:Bind ViewModel.SelectedConversation, Mode=OneWay}"
+			SelectionChanged="ConversationList_SelectionChanged"
+			SelectionMode="Single"
+			Visibility="Collapsed">
+
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+					<Setter Property="Padding" Value="4,2" />
+					<Setter Property="CornerRadius" Value="6" />
+				</Style>
+			</ListView.ItemContainerStyle>
+
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="vms:ConversationPreviewModel">
+					<local:ConversationItemView
+						AvatarUrl="{x:Bind AvatarUrl, Mode=OneWay}"
+						DisplayName="{x:Bind DisplayName, Mode=OneWay}"
+						MessagePreview="{x:Bind LastMessageText, Mode=OneWay}"
+						Timestamp="{x:Bind Timestamp, Mode=OneWay}"
+						UnreadCount="{x:Bind UnreadCount, Mode=OneWay}" />
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
+</UserControl>

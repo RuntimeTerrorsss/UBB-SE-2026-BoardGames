@@ -1,31 +1,37 @@
+// <copyright file="MainWindow.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+using System;
+using BookingBoardGames.Src.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
-
-namespace BoardGames.Desktop
+namespace BookingBoardGames
 {
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        public static int loggedInUserAlice = 2;
+        public static int loggedInUserBob = 3;
+
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+
+            this.RootFrame.Navigate(typeof(RegisterView));
+            //this.RootFrame.Navigate(typeof(DiscoveryView));
+
+            this.Closed += this.MainWindow_Closed;
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            Environment.Exit(0);
         }
     }
 }

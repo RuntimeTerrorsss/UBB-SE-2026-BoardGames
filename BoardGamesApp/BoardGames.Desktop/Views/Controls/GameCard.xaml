@@ -1,0 +1,53 @@
+<UserControl
+    x:Class="BookingBoardGames.Src.Views.Controls.GameCard"
+    x:Name="root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Button
+        Click="OnCardClicked"
+        Background="Transparent"
+        BorderThickness="0">
+
+        <Border
+            Padding="16"
+            CornerRadius="10"
+            BorderBrush="Gray"
+            BorderThickness="1">
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+
+                <!-- IMAGE -->
+                <Image
+                    Source="{Binding ImageSource, ElementName=root}"
+                    Width="120"
+                    Height="120"
+                    Stretch="UniformToFill"/>
+
+                <!-- TEXT -->
+                <StackPanel Grid.Column="1" Spacing="6">
+
+                    <TextBlock
+                        Text="{Binding Title, ElementName=root}"
+                        FontSize="18"
+                        FontWeight="Bold"/>
+
+                    <TextBlock
+                        Text="{Binding Location, ElementName=root}"/>
+
+                    <TextBlock
+                        Text="{Binding PlayersText, ElementName=root}"/>
+
+                    <TextBlock
+                        Text="{Binding PriceText, ElementName=root}"
+                        FontWeight="SemiBold"/>
+
+                </StackPanel>
+
+            </Grid>
+
+        </Border>
+
+    </Button>
+
+</UserControl>

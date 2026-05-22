@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="BookingBoardGames.Src.Views.FilteredSearchView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="Root"
+    xmlns:viewModels="using:BookingBoardGames.Src.ViewModels"
+    xmlns:DTO="using:BookingBoardGames.Sharing.DTO"
+    mc:Ignorable="d">
+
+    <Grid Padding="20" RowSpacing="20" ColumnSpacing="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0"
+                Content="← Back"
+                Command="{Binding GoBackCommand}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"/>
+
+        <Border Grid.Row="1"
+                Padding="16"
+                CornerRadius="8"
+                BorderBrush="LightGray"
+                BorderThickness="1">
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <TextBlock Text="Game name"/>
+                    <TextBox Text="{Binding CurrentFilter.Name, Mode=TwoWay}"
+                             PlaceholderText="Enter game name"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="6">
+                    <TextBlock Text="City"/>
+                    <AutoSuggestBox PlaceholderText="Enter city"
+                                    Text="{Binding CitySearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding CitySuggestions, Mode=OneWay}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Spacing="6">
+                    <TextBlock Text="Start date"/>
+                    <CalendarDatePicker PlaceholderText="Today"
+                        MinDate="{Binding MinStartDate}"
+                        Date="{Binding SelectedStartDate, Mode=TwoWay}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Spacing="6">
+                    <TextBlock Text="End date"/>
+                    <CalendarDatePicker PlaceholderText="Tomorrow"
+                        MinDate="{Binding MinEndDate}"
+                        Date="{Binding SelectedEndDate, Mode=TwoWay}"/>
+                </StackPanel>
+
+                <Button Grid.Column="4"
+                        Content="Filter"
+                        Height="40"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding SearchCommand}"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnSpacing="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Padding="16"
+                    CornerRadius="8"
+                    BorderBrush="LightGray"
+                    BorderThickness="1">
+                <StackPanel Spacing="16">
+
+                    <TextBlock Text="Filters"
+                               FontSize="22"
+                               FontWeight="SemiBold"/>
+
+                    <TextBlock Text="Maximum Price"/>
+                    <Slider
+                        Minimum="1"
+                        Maximum="100"
+                        Value="{Binding SelectedMaximumPrice, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Number of players"/>
+                    <Slider
+                        Minimum="1"
+                        Maximum="20"
+                        Value="{Binding SelectedMinimumPlayers, Mode=TwoWay}"/>
+
+                    <TextBlock
+                        Text="Sort by"
+                        FontWeight="Bold"
+                        Margin="0,10,0,0"/>
+
+                    <RadioButtons SelectedItem="{Binding SelectedSortOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <x:String>Price: lowest to highest</x:String>
+                        <x:String>Price: highest to lowest</x:String>
+                        <x:String>Closest to me</x:String>
+                    </RadioButtons>
+
+                    <TextBlock Text="{Binding LocationError}" 
+                               Foreground="Red" 
+                               TextWrapping="Wrap" 
+                               Margin="0,5,0,0" />
+
+                    <Button Content="Apply filters"
+                            Command="{Binding ApplySelectedUiFiltersCommand}" 
+                            Margin="0,10,0,0"/>
+
+                    <Button Content="Clear filters"
+                            Command="{Binding ClearFiltersCommand}" />
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Column="1" RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <TextBlock Grid.Row="0"
+                               Text="Results"
+                               FontSize="22"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding NoResultsMessage}"
+                               FontSize="16"
+                               Foreground="Gray"/>
+                </StackPanel>
+
+                <ListView Grid.Row="1"
+                          ItemsSource="{Binding VisibleGames, Mode=OneWay}"
+                          SelectionMode="Single"
+                          SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="DTO:GameDTO">
+                            <Border BorderBrush="LightGray"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Margin="0,0,0,10"
+                                    Height="180">
+                                <Grid ColumnDefinitions="220,*" ColumnSpacing="20">
+
+                                    <Border Grid.Column="0"
+                                            CornerRadius="8,0,0,8">
+
+                                        <Border.Background>
+                                            <ImageBrush
+                                                ImageSource="{x:Bind Image, Mode=OneWay}"
+                                                Stretch="UniformToFill"/>
+                                        </Border.Background>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" 
+                                                VerticalAlignment="Center" 
+                                                Spacing="8">
+
+                                        <TextBlock Text="{x:Bind Name}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"/>
+
+                                        <TextBlock Foreground="Gray">
+                                            <Run Text="Price: " FontWeight="SemiBold"/>
+                                            <Run Text="{x:Bind Price}"/>
+                                            <Run Text=" RON/day"/>
+                                        </TextBlock>
+
+                                        <TextBlock Foreground="Gray">
+                                            <Run Text="City: " FontWeight="SemiBold"/>
+                                            <Run Text="{x:Bind City}"/>
+                                        </TextBlock>
+
+                                        <TextBlock Foreground="Gray">
+                                            <Run Text="Players: " FontWeight="SemiBold"/>
+                                            <Run Text="{x:Bind MinimumPlayerNumber}"/>
+                                            <Run Text=" - "/>
+                                            <Run Text="{x:Bind MaximumPlayerNumber}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Spacing="10">
+                    <Button Content="Previous"
+                            Command="{Binding PreviousPageCommand}"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding CurrentPage}"/>
+                        <TextBlock Text="/"/>
+                        <TextBlock Text="{Binding TotalPages}"/>
+                    </StackPanel>
+
+                    <Button Content="Next"
+                            Command="{Binding NextPageCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
