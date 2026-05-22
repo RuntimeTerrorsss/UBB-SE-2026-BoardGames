@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BoardGames.Desktop (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "BoardGames.Desktop (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

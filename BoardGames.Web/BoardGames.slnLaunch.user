@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "..\\BoardGames.Desktop\\BoardGames.Desktop.csproj",
+        "Action": "Start",
+        "DebugTarget": "BoardGames.Desktop (Unpackaged)"
+      }
+    ]
+  }
+]

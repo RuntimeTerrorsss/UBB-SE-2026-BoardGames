@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BoardGames.Tests (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "BoardGames.Tests (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

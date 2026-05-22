@@ -1,0 +1,97 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Web\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9DC6C66B-9921-48FF-A081-9183E3217BB1}|..\\BoardGames.Tests\\BoardGames.Tests.csproj|d:\\documents\\ubb_info_eng\\sem4\\iss\\ubb-se-2026-boardgames\\boardgames.tests\\unittests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F09D895E-7FE7-4170-81C4-64C5C96EA324}|BoardGames.Web.csproj|d:\\documents\\ubb_info_eng\\sem4\\iss\\ubb-se-2026-boardgames\\boardgames.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F09D895E-7FE7-4170-81C4-64C5C96EA324}|BoardGames.Web.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C69B8F83-D019-4347-930F-3B7D9E76B99D}|..\\BoardGames.Shared\\BoardGames.Shared.csproj|d:\\documents\\ubb_info_eng\\sem4\\iss\\ubb-se-2026-boardgames\\boardgames.shared\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E558C7C9-F7D4-4B01-AE5E-D986035A6168}|..\\BoardGames.Data\\BoardGames.Data.csproj|d:\\documents\\ubb_info_eng\\sem4\\iss\\ubb-se-2026-boardgames\\boardgames.data\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UnitTests.cs",
+              "DocumentMoniker": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Tests\\UnitTests.cs",
+              "RelativeDocumentMoniker": "..\\BoardGames.Tests\\UnitTests.cs",
+              "ToolTip": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Tests\\UnitTests.cs",
+              "RelativeToolTip": "..\\BoardGames.Tests\\UnitTests.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-22T17:41:29.527Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Web\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Web\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-22T17:22:40.713Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Shared\\Class1.cs",
+              "RelativeDocumentMoniker": "..\\BoardGames.Shared\\Class1.cs",
+              "ToolTip": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Shared\\Class1.cs",
+              "RelativeToolTip": "..\\BoardGames.Shared\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-22T17:05:46.74Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Data\\Class1.cs",
+              "RelativeDocumentMoniker": "..\\BoardGames.Data\\Class1.cs",
+              "ToolTip": "D:\\Documents\\ubb_info_eng\\sem4\\iss\\UBB-SE-2026-BoardGames\\BoardGames.Data\\Class1.cs",
+              "RelativeToolTip": "..\\BoardGames.Data\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-22T17:05:09.737Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
