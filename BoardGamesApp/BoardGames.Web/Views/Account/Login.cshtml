@@ -1,0 +1,160 @@
+@using BoardGames.Web.Models.Account
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<style>
+    .login-wrapper {
+        min-height: calc(100vh - 160px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .login-card {
+        background: #fff;
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 4px 32px rgba(0, 0, 0, 0.10);
+        padding: 2.5rem 2rem;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .login-card h2 {
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #1a1a2e;
+        margin-bottom: 0.2rem;
+    }
+
+    .login-card .subtitle {
+        color: #6c757d;
+        font-size: 0.92rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #343a40;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-control {
+        border-radius: 0.5rem;
+        border: 1.5px solid #dee2e6;
+        font-size: 0.95rem;
+        padding: 0.55rem 0.85rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.13);
+    }
+
+    .form-check-input:checked {
+        background-color: #4361ee;
+        border-color: #4361ee;
+    }
+
+    .btn-login {
+        background: #4361ee;
+        border: none;
+        border-radius: 0.5rem;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.65rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-login:hover { background: #3451d1; color: #fff; }
+    .btn-login:active { transform: scale(0.99); }
+    .btn-login:disabled { background: #7c93f3; cursor: not-allowed; }
+
+    .divider {
+        border: none;
+        border-top: 1.5px solid #f1f3f5;
+        margin: 1.5rem 0 1rem;
+    }
+
+    .register-link {
+        text-align: center;
+        font-size: 0.88rem;
+        color: #6c757d;
+    }
+
+    .register-link a {
+        color: #4361ee;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .register-link a:hover { text-decoration: underline; }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <h2>Sign in</h2>
+        <p class="subtitle">Welcome back to BoardGamesApp</p>
+
+        <form id="loginForm" asp-controller="Account" asp-action="Login" method="post" novalidate>
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(string.Empty))
+            {
+                <div class="alert alert-danger py-2 small">
+                    @Html.ValidationSummary(true)
+                </div>
+            }
+
+            <div class="mb-3">
+                <label asp-for="Identifier" class="form-label"></label>
+                <input asp-for="Identifier" class="form-control" placeholder="Enter username or email" autocomplete="username" />
+                <span asp-validation-for="Identifier" class="text-danger small d-block"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" placeholder="Enter password" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger small d-block"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-login" id="submitBtn">
+                Sign in
+            </button>
+        </form>
+
+        <hr class="divider" />
+
+        <p class="register-link mt-3">
+            Don't have an account? <a asp-controller="Account" asp-action="Register">Create one</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $(function () {
+            $("#loginForm").on("submit", function () {
+                if ($(this).valid()) {
+                    $("#submitBtn").prop("disabled", true).text("Signing in...");
+                }
+            });
+        });
+    </script>
+}

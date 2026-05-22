@@ -1,0 +1,148 @@
+@using BookingBoardGames.Sharing.DTO
+@using BookingBoardGames.Data.Enum
+@model BookingBoardGames.Sharing.DTO.PagedResult<PaymentDataTransferObject>
+
+@{
+    ViewData["Title"] = "Payment History";
+    var initialTotal = Model.Items.Sum(i => i.Amount);
+    var initialCount = Model.Items.Count();
+}
+
+<link rel="stylesheet" href="~/css/paymentHistory.css" asp-append-version="true" />
+
+<div class="ph-page">
+
+    <div class="ph-header">
+        <div>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary mb-3">← Back to Homepage</a>
+            <h2 class="ph-title">Payment History</h2>
+            @if (ViewBag.IsLoggedIn == true)
+            {
+                <span class="ph-subtitle">Welcome, <strong>@ViewBag.CurrentDisplayName</strong></span>
+            }
+        </div>
+        <button class="ph-hamburger" id="hamburgerBtn" aria-label="Open filters">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <div class="ph-filter-panel" id="filterPanel">
+        <div class="ph-filter-inner">
+            <h5 class="ph-filter-title">Filters &amp; Sort</h5>
+
+            <div class="ph-filter-group">
+                <label for="searchQuery" class="form-label">Search by game name</label>
+                <input type="text" id="searchQuery" class="form-control form-control-sm"
+                       placeholder="e.g. Catan..." maxlength="100" />
+            </div>
+
+            <div class="ph-filter-group">
+                <label for="filterType" class="form-label">Sort / Filter by date</label>
+                <select id="filterType" class="form-select form-select-sm">
+                    <option value="2">Newest first</option>
+                    <option value="3">Oldest first</option>
+                    <option value="4">Last 3 months</option>
+                    <option value="5">Last 6 months</option>
+                    <option value="6">Last 9 months</option>
+                    <option value="7">All time</option>
+                    <option value="0">A &#8594; Z</option>
+                    <option value="1">Z &#8594; A</option>
+                </select>
+            </div>
+
+            <div class="ph-filter-group">
+                <label class="form-label">Payment method</label>
+                <div class="ph-method-btns" id="methodBtns">
+                    <button class="ph-method-btn active" data-value="0">All</button>
+                    <button class="ph-method-btn" data-value="2">Card</button>
+                    <button class="ph-method-btn" data-value="1">Cash</button>
+                </div>
+                <input type="hidden" id="selectedMethod" value="0" />
+            </div>
+
+            <div class="ph-filter-actions">
+                <button class="btn btn-primary btn-sm" id="applyFiltersBtn">Apply</button>
+                <button class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ph-summary-row">
+        <div class="ph-total-card">
+            <span class="ph-total-label">Total displayed</span>
+            <span class="ph-total-amount" id="totalAmount">@initialTotal.ToString("C")</span>
+        </div>
+        <div class="ph-count-info">
+            <span id="countInfo">Showing @initialCount of @Model.TotalCount records</span>
+        </div>
+    </div>
+
+    <div class="ph-table-wrapper">
+        <table class="table ph-table" id="paymentsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Game</th>
+                    <th>Role</th>
+                    <th>Period</th>
+                    <th>Status</th>
+                    <th>Method</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Receipt</th>
+                </tr>
+            </thead>
+            <tbody id="paymentsBody">
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.DateText</td>
+                        <td>@item.ProductName</td>
+                        <td>@item.Role</td>
+                        <td>@item.Period</td>
+                        <td>@item.Status</td>
+                        <td>
+                            <span class="ph-badge ph-badge--@(item.PaymentMethod?.ToLower() ?? "unknown")">
+                                @(item.PaymentMethod ?? "—")
+                            </span>
+                        </td>
+                        <td class="text-end fw-semibold">@item.AmountText</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary ph-receipt-btn"
+                               asp-action="DownloadReceipt"
+                               asp-controller="PaymentHistory"
+                               asp-route-paymentId="@(item.HasPayment ? item.PaymentId : (int?)null)"
+                               asp-route-rentalId="@(item.HasPayment ? (int?)null : item.RentalId)"
+                               title="Download receipt PDF">Receipt</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="ph-empty">No rentals or payments found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="ph-pagination" id="paginationRow">
+        <button class="ph-page-btn" id="prevBtn" @(Model.PageNumber <= 1 ? "disabled" : "")>&#8592;</button>
+        <span class="ph-page-info" id="pageInfo">Page @Model.PageNumber of @Model.TotalPages</span>
+        <button class="ph-page-btn" id="nextBtn" @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")>&#8594;</button>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/paymentHistory.js" asp-append-version="true"></script>
+    <script>
+        window.phState = {
+            currentPage: @Model.PageNumber,
+            totalPages: @Model.TotalPages,
+            totalCount: @Model.TotalCount
+        };
+    </script>
+}

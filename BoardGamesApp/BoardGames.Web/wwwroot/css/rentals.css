@@ -1,0 +1,114 @@
+.rentals-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+.rentals-header {
+    margin-bottom: 1.25rem;
+}
+
+.rentals-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+    color: #212529;
+}
+
+.rentals-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.rentals-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.rentals-summary-card {
+    flex: 1;
+    min-width: 180px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+}
+
+.rentals-summary-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.25rem;
+}
+
+.rentals-summary-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.rentals-table-wrapper {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.rentals-table {
+    margin-bottom: 0;
+}
+
+.rentals-table thead th {
+    background: #f8f9fa;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #495057;
+    border-bottom-width: 1px;
+}
+
+.rentals-table tbody td {
+    vertical-align: middle;
+}
+
+.rentals-empty {
+    text-align: center;
+    color: #6c757d;
+    padding: 2rem 1rem !important;
+}
+
+.rentals-badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.rentals-badge--borrowing {
+    background: #cfe2ff;
+    color: #084298;
+}
+
+.rentals-badge--lending {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.rentals-badge--active {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.rentals-badge--upcoming {
+    background: #e2e3e5;
+    color: #41464b;
+}
+
+.rentals-badge--completed {
+    background: #f8d7da;
+    color: #842029;
+}

@@ -1,0 +1,243 @@
+﻿@using BoardGames.Web.Helpers
+@using BookingBoardGames.Data.Enum
+@using BookingBoardGames.Web.Helpers
+@model BookingBoardGames.Sharing.DTO.ConversationDTO
+@{
+    var otherAvatarUrl = ViewBag.OtherUserAvatarUrl as string;
+}
+
+<div class="d-flex flex-column h-100 w-100">
+
+    <div class="p-3 border-bottom bg-white d-flex align-items-center shadow-sm z-1 flex-shrink-0">
+        @if (!string.IsNullOrEmpty(otherAvatarUrl))
+        {
+            <img src="@otherAvatarUrl" alt="@ViewBag.OtherUserName" class="rounded-circle me-3 flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        }
+        <div class="rounded-circle bg-secondary d-flex justify-content-center align-items-center text-white me-3 flex-shrink-0 @(string.IsNullOrEmpty(otherAvatarUrl) ? "" : "d-none")" style="width: 40px; height: 40px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+            </svg>
+        </div>
+        <h5 class="mb-0 fw-bold">@ViewBag.OtherUserName</h5>
+    </div>
+
+    <div class="flex-grow-1 p-4 overflow-auto" id="chatScrollArea" style="background-color: #f3f2f1;">
+        @if (Model.MessageList == null || !Model.MessageList.Any())
+        {
+            <div class="text-center text-muted mt-4"><small>No messages yet. Say hi!</small></div>
+        }
+        else
+        {
+            foreach (var message in Model.MessageList)
+            {
+                if (message.Type == MessageType.MessageSystem)
+                {
+                    <div class="text-center my-3">
+                        <span class="badge bg-secondary rounded-pill py-2 px-3 fw-normal shadow-sm" style="opacity: 0.85;">
+                            @message.Content
+                        </span>
+                    </div>
+                    continue;
+                }
+
+                bool isMine = message.SenderId == ViewBag.CurrentUserId;
+
+                if (message.Type == MessageType.MessageRentalRequest)
+                {
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="rental-request-card p-3 rounded-3 shadow-sm bg-white border" style="max-width: 420px; width: 100%;">
+                            <div class="d-flex align-items-center justify-content-center mb-2 pb-2 border-bottom">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2 text-primary" viewBox="0 0 16 16">
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                                </svg>
+                                <strong>Rental Request</strong>
+                            </div>
+                            <p class="text-center text-secondary mb-3 small" style="word-wrap: break-word;">@message.Content</p>
+
+                            @if (!message.IsResolved && !message.IsAccepted && !isMine)
+                            {
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm rental-accept-btn"
+                                            data-message-id="@message.Id" data-conversation-id="@Model.Id">Accept</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm rental-decline-btn"
+                                            data-message-id="@message.Id" data-conversation-id="@Model.Id">Decline</button>
+                                </div>
+                            }
+                            else if (isMine && !message.IsResolved && !message.IsAccepted)
+                            {
+                                <div class="text-center">
+                                    <span class="badge bg-warning text-dark mb-2 d-block">Awaiting owner response</span>
+                                    <button type="button" class="btn btn-outline-danger btn-sm rental-cancel-btn"
+                                            data-message-id="@message.Id" data-conversation-id="@Model.Id">Cancel request</button>
+                                </div>
+                            }
+                            else if (isMine && message.IsAccepted && !message.IsResolved)
+                            {
+                                <div class="text-center">
+                                    <a asp-controller="Rentals" asp-action="Checkout"
+                                       asp-route-rentalId="@message.RequestId" asp-route-messageId="@message.Id"
+                                       class="btn btn-success btn-sm">Proceed to payment</a>
+                                </div>
+                            }
+                            else if (message.IsResolved && !message.IsAccepted)
+                            {
+                                <div class="text-center">
+                                    <span class="badge bg-danger">Declined</span>
+                                </div>
+                            }
+                            else if (message.IsResolved)
+                            {
+                                <div class="text-center">
+                                    <span class="badge bg-success">Completed</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    continue;
+                }
+
+                <div class="d-flex mb-3 @(isMine ? "justify-content-end" : "justify-content-start")">
+                    <div class="p-2 rounded-3 shadow-sm" style="max-width: 75%; background-color: @(isMine ? "#0078d4" : "#ffffff"); color: @(isMine ? "#ffffff" : "#242424");">
+
+                        @if (message.Type == MessageType.MessageCashAgreement)
+                        {
+                            <div class="d-flex align-items-center mb-2 pb-2 border-bottom @(isMine ? "border-light" : "border-secondary")" style="opacity: 0.9;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                                    <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
+                                    <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2z" />
+                                </svg>
+                                <strong>Cash Agreement</strong>
+                            </div>
+                        }
+
+                        @{
+                            var messageImageUrl = MediaUrlHelper.ResolveMessageImageUrl(message.ImageUrl);
+                        }
+                        @if (!string.IsNullOrEmpty(messageImageUrl))
+                        {
+                            <img src="@messageImageUrl" class="img-fluid rounded mb-2 d-block" style="max-height: 240px; max-width: 100%;" alt="Shared image" />
+                        }
+
+                        @if (message.Type != MessageType.MessageImage && !string.IsNullOrWhiteSpace(message.Content) && message.Content != "[Image]")
+                        {
+                            <div style="word-wrap: break-word;">@message.Content</div>
+                        }
+
+                        <div class="text-end mt-1" style="font-size: 0.7rem; opacity: @(isMine ? "0.8" : "0.5");">
+                            @{
+                                var sentAt = message.SentAt.Kind == DateTimeKind.Utc
+                                    ? message.SentAt.ToLocalTime()
+                                    : message.SentAt;
+                            }
+                            @sentAt.ToString("HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="p-3 bg-white border-top flex-shrink-0">
+        <form id="sendMessageForm" class="d-flex align-items-center gap-2 m-0" enctype="multipart/form-data">
+            <input type="hidden" id="activeConversationId" value="@Model.Id" />
+            <input type="file" id="imageInput" accept="image/jpeg,image/png,image/gif,image/webp" class="d-none" />
+
+            <button type="button" id="attachImageBtn" class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center" style="width: 44px; height: 44px;" title="Send image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                    <path d="M2 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m2 1a1 1 0 0 0-1 1v10l2.5-3 2 1.5 2.5-3.5 2.5 3V2z" />
+                </svg>
+            </button>
+
+            <input type="text" id="messageInput" class="form-control rounded-pill px-3" placeholder="Type a message..." autocomplete="off" />
+
+            <button type="submit" class="btn btn-primary rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 44px; height: 44px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z" />
+                </svg>
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        var conversationId = @Model.Id;
+
+        function reloadChat() {
+            loadMessages(conversationId);
+        }
+
+        $('.rental-cancel-btn').off('click').on('click', function () {
+            var btn = $(this);
+            if (!confirm('Cancel this rental request?')) return;
+
+            btn.prop('disabled', true);
+            $.post('@Url.Action("CancelRentalRequest", "Chats")', {
+                messageId: btn.data('message-id'),
+                conversationId: conversationId
+            }).done(reloadChat).fail(function () {
+                alert('Could not cancel the rental request.');
+                btn.prop('disabled', false);
+            });
+        });
+
+        $('.rental-accept-btn, .rental-decline-btn').off('click').on('click', function () {
+            var btn = $(this);
+            var messageId = btn.data('message-id');
+            var accepted = btn.hasClass('rental-accept-btn');
+
+            btn.prop('disabled', true);
+
+            $.post('@Url.Action("ResolveRentalRequest", "Chats")', {
+                messageId: messageId,
+                conversationId: conversationId,
+                accepted: accepted
+            }).done(reloadChat).fail(function () {
+                alert('Could not update the rental request. Please try again.');
+                btn.prop('disabled', false);
+            });
+        });
+
+        $('#attachImageBtn').off('click').on('click', function () {
+            $('#imageInput').click();
+        });
+
+        $('#imageInput').off('change').on('change', function () {
+            var file = this.files && this.files[0];
+            if (!file) return;
+
+            var formData = new FormData();
+            formData.append('conversationId', conversationId);
+            formData.append('image', file);
+
+            $.ajax({
+                url: '@Url.Action("SendImage", "Chats")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    $('#imageInput').val('');
+                    reloadChat();
+                },
+                error: function (xhr) {
+                    var message = xhr.responseText || 'Could not send the image.';
+                    alert(message);
+                    $('#imageInput').val('');
+                }
+            });
+        });
+
+        $('#sendMessageForm').off('submit').on('submit', function (e) {
+            e.preventDefault();
+            var text = $('#messageInput').val();
+            if (text.trim() === '') return;
+
+            $('#messageInput').val('');
+
+            $.post('@Url.Action("SendMessage", "Chats")', { conversationId: conversationId, content: text }, reloadChat);
+        });
+    })();
+</script>

@@ -1,0 +1,141 @@
+﻿@using BoardGames.Web.Models.Chats
+@model IEnumerable<ConversationListItemViewModel>
+@{
+    ViewData["Title"] = "Messages";
+}
+
+<style>
+    .chat-container {
+        height: calc(100vh - 100px);
+    }
+
+    .chat-left-panel {
+        overflow-y: auto;
+        height: 100%;
+        border-right: 1px solid #dee2e6;
+    }
+
+    .chat-right-panel {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .conversation-item {
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+        .conversation-item:hover {
+            background-color: #f8f9fa;
+        }
+
+    .conversation-selected {
+        background-color: #e9ecef;
+        border-left: 4px solid #0078d4;
+    }
+
+    .chat-avatar {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+    }
+
+    .chat-avatar-fallback {
+        width: 44px;
+        height: 44px;
+    }
+</style>
+
+<div class="container-fluid chat-container mt-3">
+    <div class="row h-100 border rounded shadow-sm bg-white">
+
+        <div class="col-md-4 p-0 chat-left-panel">
+            <div class="p-3 border-bottom sticky-top bg-white">
+                <h4 class="mb-3 fw-bold">Messages</h4>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control bg-light border-start-0" placeholder="Search conversations..." id="searchBox" />
+                </div>
+            </div>
+
+            <div class="p-2" id="conversationList">
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="text-center text-muted mt-5">
+                        <p class="fw-bold mt-2 mb-0">No conversations yet</p>
+                    </div>
+                }
+                else
+                {
+                    foreach (var convo in Model)
+                    {
+                        <div class="d-flex align-items-center p-2 mb-1 conversation-item" id="convo-@convo.ConversationId" onclick="loadMessages(@convo.ConversationId)">
+                            <div class="flex-shrink-0">
+                                @if (!string.IsNullOrEmpty(convo.OtherUserAvatarUrl))
+                                {
+                                    <img src="@convo.OtherUserAvatarUrl" alt="@convo.OtherUserName" class="rounded-circle chat-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                    <div class="bg-secondary rounded-circle text-white d-none justify-content-center align-items-center chat-avatar-fallback">
+                                        <i class="bi bi-person-fill fs-5"></i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary rounded-circle text-white d-flex justify-content-center align-items-center chat-avatar-fallback">
+                                        <i class="bi bi-person-fill fs-5"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="flex-grow-1 ms-3 overflow-hidden">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 text-truncate fw-semibold">@convo.OtherUserName</h6>
+                                </div>
+                                <small class="text-muted text-truncate d-block">@convo.LastMessagePreview</small>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="col-md-8 p-0 chat-right-panel bg-light" id="rightPanelArea">
+            <div class="h-100 d-flex justify-content-center align-items-center text-muted flex-column">
+                <h5>Select a conversation to start chatting</h5>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#searchBox').on('input', function () {
+            var query = $(this).val().toLowerCase();
+            $('#conversationList .conversation-item').each(function () {
+                var name = $(this).find('h6').text().toLowerCase();
+                $(this).toggle(name.indexOf(query) >= 0);
+            });
+        });
+
+        function loadMessages(conversationId) {
+            $('.conversation-item').removeClass('conversation-selected');
+            $('#convo-' + conversationId).addClass('conversation-selected');
+            $('#rightPanelArea').html('<div class="h-100 d-flex justify-content-center align-items-center"><div class="spinner-border text-primary" role="status"></div></div>');
+
+            $.ajax({
+                url: '@Url.Action("GetChat", "Chats")',
+                type: 'GET',
+                data: { conversationId: conversationId },
+                success: function (result) {
+                    $('#rightPanelArea').html(result);
+                    var chatBox = document.getElementById("chatScrollArea");
+                    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+                },
+                error: function () {
+                    $('#rightPanelArea').html('<div class="h-100 d-flex justify-content-center align-items-center text-danger"><h5>Error loading messages.</h5></div>');
+                }
+            });
+        }
+    </script>
+}
