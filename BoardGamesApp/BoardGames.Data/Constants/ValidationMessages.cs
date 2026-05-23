@@ -1,6 +1,6 @@
 namespace BoardGames.Data.Constants
 {
-    public static class ValidationMessages
+    public static class ValidationMessages2
     {
         public const string MaximumPlayerCountComparedToMinimum =
             "Maximum player count must be greater than or equal to minimum player count.";

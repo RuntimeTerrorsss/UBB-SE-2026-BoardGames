@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BoardGames.Data;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 

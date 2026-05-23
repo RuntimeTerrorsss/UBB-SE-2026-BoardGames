@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using ApiNotificationService = BoardRentAndProperty.ApiClient.INotificationService;
-using CurrentUserContextInterface = BoardRentAndProperty.Utilities.ICurrentUserContext;
+using BoardGames.Api.ProxyServices;
+using BoardGames.Shared.DTO;
+using ApiNotificationService = BoardGames.ApiClient.INotificationService;
+using CurrentUserContextInterface = BoardGames.Utilities.ICurrentUserContext;
 
 namespace BoardGames.Desktop.Services
 {

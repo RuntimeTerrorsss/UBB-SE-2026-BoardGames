@@ -2,8 +2,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +25,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("{accountId:guid}")]
-        public async Task<ActionResult<AccountProfileDataTransferObject>> GetProfile(Guid accountId)
+        public async Task<ActionResult<AccountProfileDTO>> GetProfile(Guid accountId)
         {
             var result = await accountService.GetProfileAsync(accountId);
             if (!result.Success)
@@ -37,7 +37,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{accountId:guid}")]
-        public async Task<IActionResult> UpdateProfile(Guid accountId, [FromBody] AccountProfileDataTransferObject body)
+        public async Task<IActionResult> UpdateProfile(Guid accountId, [FromBody] AccountProfileDTO body)
         {
             var result = await accountService.UpdateProfileAsync(accountId, body);
             if (!result.Success)

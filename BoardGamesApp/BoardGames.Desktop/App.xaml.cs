@@ -5,11 +5,10 @@
 using System;
 using System.Diagnostics;
 using BoardGames.Desktop;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.Mapper;
-using BookingBoardGames.Sharing.Repositories;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.Mapper;
+using BoardGames.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 

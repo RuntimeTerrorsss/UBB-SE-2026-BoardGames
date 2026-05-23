@@ -8,10 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Desktop.Commands;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Interfaces;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {

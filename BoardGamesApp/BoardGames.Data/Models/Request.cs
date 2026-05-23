@@ -1,5 +1,5 @@
 using System;
-using BoardRentAndProperty.Contracts.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Data.Models
 {

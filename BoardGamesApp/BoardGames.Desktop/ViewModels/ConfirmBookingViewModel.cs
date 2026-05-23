@@ -6,9 +6,9 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Enum;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Services;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace BoardGames.Desktop.ViewModels

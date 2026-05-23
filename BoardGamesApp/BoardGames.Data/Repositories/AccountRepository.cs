@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Api.Data;
-using BoardRentAndProperty.Api.Models;
+using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories

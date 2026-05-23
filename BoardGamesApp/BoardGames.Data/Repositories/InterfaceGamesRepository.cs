@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Data.Repositories
 {

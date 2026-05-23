@@ -4,8 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Constants;
+using BoardGames.Data.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories

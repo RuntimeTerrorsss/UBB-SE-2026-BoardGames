@@ -1,11 +1,10 @@
 using System;
 using BoardGames.Data.Models;
-using BoardRentAndProperty.Api.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext2 : DbContext
     {
         private static readonly Guid AdminRoleId = new Guid("00000000-0000-0000-0000-000000000001");
         private static readonly Guid StandardUserRoleId = new Guid("00000000-0000-0000-0000-000000000002");

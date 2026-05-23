@@ -1,9 +1,9 @@
 ﻿using System;
 using BoardGames.Web.Helpers;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Mapper;
+using BoardGames.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

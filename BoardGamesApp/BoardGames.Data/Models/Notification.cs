@@ -1,5 +1,4 @@
 using System;
-using BoardRentAndProperty.Contracts.Models;
 
 namespace BoardGames.Data.Models
 {

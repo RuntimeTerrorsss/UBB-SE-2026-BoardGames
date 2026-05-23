@@ -4,17 +4,17 @@ namespace BoardGames.Desktop.ViewModels
     using System.Collections.Immutable;
     using System.Threading.Tasks;
     using BoardGames.Desktop.Services;
-    using BoardRentAndProperty.ApiClient;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
+    using BoardGames.Shared;
+    using BoardGames.Shared.DTO;
     using CommunityToolkit.Mvvm.Input;
 
-    public class AdminViewModel : PagedViewModel<AccountProfileDataTransferObject>
+    public class AdminViewModel : PagedViewModel<AccountProfileDTO>
     {
         private const string AdminAccessDeniedMessage = "Unauthorized access. Administrator role is required.";
 
         private readonly IAdminService adminService;
         private readonly IDesktopAuthorizationService authorizationService;
-        private AccountProfileDataTransferObject selectedAccount;
+        private AccountProfileDTO selectedAccount;
         private string errorMessage;
         private bool isLoading;
 

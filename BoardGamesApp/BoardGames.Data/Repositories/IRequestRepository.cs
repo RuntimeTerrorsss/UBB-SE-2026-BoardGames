@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.Models;
+using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories
 {

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Immutable;
-using BoardRentAndProperty.Api.Models;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories
 {

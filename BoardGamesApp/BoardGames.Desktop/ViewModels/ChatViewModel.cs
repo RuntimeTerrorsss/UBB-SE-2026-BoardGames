@@ -9,8 +9,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Enum;
+using BoardGames.Shared.DTO;
 using Microsoft.UI.Xaml.Controls;
 
 namespace BoardGames.Desktop.ViewModels;
@@ -88,14 +88,14 @@ public class ChatViewModel : INotifyPropertyChanged
     protected void OnPropertyChanged([CallerMemberName] string name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-    public void LoadConversation(ConversationPreviewModel conversation, List<MessageDataTransferObject> messages, int theirUnreadCount)
+    public void LoadConversation(ConversationPreviewModel conversation, List<MessageDTO> messages, int theirUnreadCount)
     {
         ConversationId = conversation.ConversationId;
         DisplayName = conversation.DisplayName;
         Initials = conversation.Initials;
         AvatarUrl = conversation.AvatarUrl;
 
-        List<MessageDataTransferObject> orderedMessages = messages
+        List<MessageDTO> orderedMessages = messages
             .OrderBy(messageItem => messageItem.SentAt)
             .ThenBy(messageItem => messageItem.Id)
             .ToList();
@@ -114,7 +114,7 @@ public class ChatViewModel : INotifyPropertyChanged
         }
     }
 
-    public void HandleIncomingMessage(MessageDataTransferObject message)
+    public void HandleIncomingMessage(MessageDTO message)
     {
         if (message.ConversationId != ConversationId)
         {
@@ -142,7 +142,7 @@ public class ChatViewModel : INotifyPropertyChanged
 
         int unassignedIdentifier = -1;
 
-        var messageDataTransferObject = new MessageDataTransferObject(
+        var messageDataTransferObject = new MessageDTO(
             unassignedIdentifier,
             ConversationId,
             CurrentUserId,
@@ -193,7 +193,7 @@ public class ChatViewModel : INotifyPropertyChanged
     {
         int unassignedIdentifier = -1;
 
-        var messageDataTransferObject = new MessageDataTransferObject(
+        var messageDataTransferObject = new MessageDTO(
             unassignedIdentifier,
             ConversationId,
             CurrentUserId,
@@ -224,7 +224,7 @@ public class ChatViewModel : INotifyPropertyChanged
         CashAgreementAccept?.Invoke(messageId, conversationId);
     }
 
-    public void RaiseMessageSent(MessageDataTransferObject message)
+    public void RaiseMessageSent(MessageDTO message)
     {
         MessageSent?.Invoke(message);
     }

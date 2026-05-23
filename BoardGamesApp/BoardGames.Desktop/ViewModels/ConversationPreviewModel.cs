@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.ViewModels;
 

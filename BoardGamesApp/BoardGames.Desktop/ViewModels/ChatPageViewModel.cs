@@ -8,11 +8,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Repositories;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Services;
 
 namespace BoardGames.Desktop.ViewModels;
 
