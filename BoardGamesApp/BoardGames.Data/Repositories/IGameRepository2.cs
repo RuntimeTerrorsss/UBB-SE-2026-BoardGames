@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Immutable;
 using BoardGames.Data.Models;
@@ -14,3 +15,4 @@ namespace BoardGames.Data.Repositories
         ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId);
     }
 }
+*/

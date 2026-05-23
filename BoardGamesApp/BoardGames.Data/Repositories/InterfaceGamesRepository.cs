@@ -1,14 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoardGames.Data.Enums;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories
 {
     public interface InterfaceGamesRepository : IRepository<Game>
     {
+        // --- Project 1 methods ---
+
         /// <summary>
         /// Retrieves a list of games that match the specified filter criteria.
         /// </summary>
@@ -31,5 +35,12 @@ namespace BoardGames.Data.Repositories
         Task<List<Game>> GetRemainingGamesForFeed(int userId);
 
         Task<decimal> GetPriceGameById(int gameId);
+
+        // --- Project 2 methods (merged from IGameRepository / IGameRepository2.cs) ---
+        void AddGame(Game game);
+        Game DeleteGame(int id);
+        void UpdateGame(int id, Game updated);
+        Game GetGame(int id);
+        ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId);
     }
 }

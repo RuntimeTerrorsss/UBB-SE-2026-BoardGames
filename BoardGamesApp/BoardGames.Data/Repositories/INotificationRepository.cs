@@ -12,6 +12,7 @@ namespace BoardGames.Data.Repositories
         void Update(int id, Notification updated);
         Notification Get(int id);
         ImmutableList<Notification> GetNotificationsByUser(Guid accountId);
+        (ImmutableList<Notification> Items, int TotalCount) GetPagedNotificationsByUser(Guid accountId, int page, int pageSize);
         void DeleteNotificationsLinkedToRequest(int relatedRequestId);
     }
 }

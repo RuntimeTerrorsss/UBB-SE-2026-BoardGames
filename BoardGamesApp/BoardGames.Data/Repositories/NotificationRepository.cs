@@ -31,7 +31,7 @@ namespace BoardGames.Data.Repositories
         {
             using var dbContext = dbContextFactory.CreateDbContext();
 
-            notification.Recipient = ResolveAccount(dbContext, notification.Recipient);
+            notification.Recipient = ResolveUser(dbContext, notification.Recipient);
             if (notification.RelatedRequest != null)
             {
                 notification.RelatedRequest = ResolveRequest(dbContext, notification.RelatedRequest);
@@ -66,7 +66,7 @@ namespace BoardGames.Data.Repositories
 
             if (updated.Recipient != null)
             {
-                existing.Recipient = ResolveAccount(dbContext, updated.Recipient);
+                existing.Recipient = ResolveUser(dbContext, updated.Recipient);
             }
 
             existing.Timestamp = updated.Timestamp;
@@ -96,15 +96,15 @@ namespace BoardGames.Data.Repositories
         {
             using var dbContext = dbContextFactory.CreateDbContext();
 
-            var account = dbContext.Accounts.FirstOrDefault(inputAccount => inputAccount.Id == accountId);
+            var user = dbContext.Users.FirstOrDefault(u => u.Id == accountId);
 
-            if (account == null || account.PamUserId == 0)
+            if (user == null || user.PamUserId == 0)
             {
                 return ImmutableList<Notification>.Empty;
             }
 
             return NotificationsWithRecipient(dbContext)
-                .Where(notification => notification.Recipient != null && notification.Recipient.PamUserId == account.PamUserId)
+                .Where(notification => notification.Recipient != null && notification.Recipient.PamUserId == user.PamUserId)
                 .OrderByDescending(notification => notification.Id)
                 .ToImmutableList();
         }
@@ -114,14 +114,14 @@ namespace BoardGames.Data.Repositories
         {
             using var dbContext = dbContextFactory.CreateDbContext();
 
-            var account = dbContext.Accounts.FirstOrDefault(account => account.Id == accountId);
-            if (account == null || account.PamUserId == 0)
+            var user = dbContext.Users.FirstOrDefault(u => u.Id == accountId);
+            if (user == null || user.PamUserId == 0)
             {
                 return (ImmutableList<Notification>.Empty, 0);
             }
 
             var query = NotificationsWithRecipient(dbContext)
-                .Where(notification => notification.Recipient != null && notification.Recipient.PamUserId == account.PamUserId);
+                .Where(notification => notification.Recipient != null && notification.Recipient.PamUserId == user.PamUserId);
 
             int totalCount = query.Count();
 
@@ -143,14 +143,14 @@ namespace BoardGames.Data.Repositories
                 .ExecuteDelete();
         }
 
-        private static Account? ResolveAccount(AppDbContext dbContext, Account? account)
+        private static User? ResolveUser(AppDbContext dbContext, User? user)
         {
-            if (account == null)
+            if (user == null)
             {
                 return null;
             }
 
-            return dbContext.Accounts.Find(account.Id);
+            return dbContext.Users.Find(user.Id);
         }
 
         private static Request? ResolveRequest(AppDbContext dbContext, Request? request)

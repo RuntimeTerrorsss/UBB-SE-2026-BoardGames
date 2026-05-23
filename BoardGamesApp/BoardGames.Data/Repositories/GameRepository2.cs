@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -31,7 +32,7 @@ namespace BoardGames.Data.Repositories
 
             if (game.Owner != null)
             {
-                var owner = ResolveAccount(dbContext, game.Owner);
+                var owner = ResolveUser(dbContext, game.Owner);
                 game.Owner = owner;
                 game.OwnerId = owner.PamUserId;
             }
@@ -59,11 +60,11 @@ namespace BoardGames.Data.Repositories
 
             if (updated.Owner != null)
             {
-                existing.Owner = ResolveAccount(dbContext, updated.Owner);
+                existing.Owner = ResolveUser(dbContext, updated.Owner);
             }
 
             existing.Name = updated.Name;
-            existing.Price = updated.Price;
+            existing.PricePerDay = updated.PricePerDay;
             existing.MinimumPlayerNumber = updated.MinimumPlayerNumber;
             existing.MaximumPlayerNumber = updated.MaximumPlayerNumber;
             existing.Description = updated.Description;
@@ -99,27 +100,28 @@ namespace BoardGames.Data.Repositories
             return game;
         }
 
-        private Account ResolveAccount(AppDbContext dbContext, Account account)
+        private User ResolveUser(AppDbContext dbContext, User user)
         {
-            if (account == null) return null!;
+            if (user == null) return null!;
 
-            if (account.PamUserId != 0)
+            if (user.PamUserId != 0)
             {
-                var tracked = dbContext.Accounts.Local.FirstOrDefault(a => a.PamUserId == account.PamUserId)
-                             ?? dbContext.Accounts.SingleOrDefault(a => a.PamUserId == account.PamUserId);
+                var tracked = dbContext.Users.Local.FirstOrDefault(u => u.PamUserId == user.PamUserId)
+                             ?? dbContext.Users.SingleOrDefault(u => u.PamUserId == user.PamUserId);
                 if (tracked != null) return tracked;
-                throw new InvalidOperationException($"Account with PamUserId {account.PamUserId} was not found.");
+                throw new InvalidOperationException($"User with PamUserId {user.PamUserId} was not found.");
             }
 
-            if (account.Id != Guid.Empty)
+            if (user.Id != Guid.Empty)
             {
-                var tracked = dbContext.Accounts.Local.FirstOrDefault(inputAccount => inputAccount.Id == account.Id)
-                             ?? dbContext.Accounts.SingleOrDefault(inputAccount => inputAccount.Id == account.Id);
+                var tracked = dbContext.Users.Local.FirstOrDefault(u => u.Id == user.Id)
+                             ?? dbContext.Users.SingleOrDefault(u => u.Id == user.Id);
                 if (tracked != null) return tracked;
-                throw new InvalidOperationException($"Account with Id {account.Id} was not found.");
+                throw new InvalidOperationException($"User with Id {user.Id} was not found.");
             }
 
             throw new InvalidOperationException("Owner must include a valid PamUserId or Id.");
         }
     }
 }
+*/

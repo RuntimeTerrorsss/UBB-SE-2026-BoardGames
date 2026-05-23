@@ -1,6 +1,8 @@
-﻿//// <copyright file="IUserRepository.cs" company="PlaceholderCompany">
+//// <copyright file="IUserRepository.cs" company="PlaceholderCompany">
 //// Copyright (c) PlaceholderCompany. All rights reserved.
 //// </copyright>
+
+using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories
 {

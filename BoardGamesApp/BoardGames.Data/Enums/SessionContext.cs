@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Enums
 {

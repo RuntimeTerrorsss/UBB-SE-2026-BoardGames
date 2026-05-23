@@ -2,14 +2,13 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Data.Constants;
+using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using BoardGames.Data;
 
 namespace BoardGames.Data.Repositories
 {
@@ -24,7 +23,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task<User?> GetById(int id)
         {
-            return await context.Users.FirstOrDefaultAsync(user => user.Id == id);
+            return await context.Users.FirstOrDefaultAsync(user => user.PamUserId == id);
         }
 
         public async Task<User?> GetGameById(int id)
@@ -39,7 +38,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task SaveAddress(int id, Address address)
         {
-            var foundUser = await context.Users.FirstOrDefaultAsync(user => user.Id == id);
+            var foundUser = await context.Users.FirstOrDefaultAsync(user => user.PamUserId == id);
 
             if (foundUser is null)
             {
@@ -48,7 +47,7 @@ namespace BoardGames.Data.Repositories
 
             foundUser.Country = address.Country;
             foundUser.City = address.City;
-            foundUser.Street = address.Street;
+            foundUser.StreetName = address.Street;
             foundUser.StreetNumber = address.StreetNumber;
 
             await context.SaveChangesAsync();
@@ -57,14 +56,14 @@ namespace BoardGames.Data.Repositories
         public async Task<decimal> GetUserBalance(int userId)
         {
             return await context.Users
-                .Where(user => user.Id == userId)
+                .Where(user => user.PamUserId == userId)
                 .Select(user => (decimal?)user.Balance)
                 .FirstOrDefaultAsync() ?? 0m;
         }
 
         public async Task UpdateBalance(int userId, decimal newBalance)
         {
-            var foundUser = await context.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            var foundUser = await context.Users.FirstOrDefaultAsync(user => user.PamUserId == userId);
 
             if (foundUser is null)
             {

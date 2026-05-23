@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using BoardGames.Data.Models;
 
 [JsonDerivedType(typeof(TextMessage), typeDiscriminator: "text")]
 [JsonDerivedType(typeof(ImageMessage), typeDiscriminator: "image")]

@@ -1,10 +1,11 @@
+/*
 using System;
 using System.Collections.Immutable;
 using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories
 {
-    public interface IRentalRepository
+    public interface IRentalRepository2
     {
         ImmutableList<Rental> GetAll();
         void Add(Rental rental);
@@ -17,3 +18,4 @@ namespace BoardGames.Data.Repositories
         ImmutableList<Rental> GetRentalsByGame(int gameId);
     }
 }
+*/

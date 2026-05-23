@@ -16,69 +16,69 @@ namespace BoardGames.Data.Repositories
             this.dbContextFactory = dbContextFactory;
         }
 
-        public async Task<Account?> GetByIdAsync(Guid id)
+        public async Task<User?> GetByIdAsync(Guid id)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            return await dbContext.Accounts.Include(account => account.Roles)
-                .FirstOrDefaultAsync(account => account.Id == id);
+            return await dbContext.Users.Include(user => user.Roles)
+                .FirstOrDefaultAsync(user => user.Id == id);
         }
 
-        public async Task<Account?> GetByUsernameAsync(string username)
+        public async Task<User?> GetByUsernameAsync(string username)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            return await dbContext.Accounts.Include(account => account.Roles)
-                .FirstOrDefaultAsync(account => account.Username == username);
+            return await dbContext.Users.Include(user => user.Roles)
+                .FirstOrDefaultAsync(user => user.Username == username);
         }
 
-        public async Task<Account?> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            return await dbContext.Accounts.Include(account => account.Roles)
-                .FirstOrDefaultAsync(account => account.Email == email);
+            return await dbContext.Users.Include(user => user.Roles)
+                .FirstOrDefaultAsync(user => user.Email == email);
         }
 
-        public async Task<List<Account>> GetAllAsync(int page, int pageSize)
+        public async Task<List<User>> GetAllAsync(int page, int pageSize)
         {
             const int pageOffset = 1;
 
             using var dbContext = dbContextFactory.CreateDbContext();
-            return await dbContext.Accounts
-                .Include(account => account.Roles)
-                .OrderBy(account => account.CreatedAt)
+            return await dbContext.Users
+                .Include(user => user.Roles)
+                .OrderBy(user => user.CreatedAt)
                 .Skip((page - pageOffset) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
         }
 
-        public async Task AddAsync(Account account)
+        public async Task AddAsync(User user)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            dbContext.Accounts.Add(account);
+            dbContext.Users.Add(user);
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Account account)
+        public async Task UpdateAsync(User user)
         {
             using var dbContext = dbContextFactory.CreateDbContext();
-            var existing = await dbContext.Accounts.FindAsync(account.Id);
+            var existing = await dbContext.Users.FindAsync(user.Id);
             if (existing == null)
             {
                 return;
             }
 
-            existing.DisplayName = account.DisplayName;
-            existing.Username = account.Username;
-            existing.Email = account.Email;
-            existing.PasswordHash = account.PasswordHash;
-            existing.PhoneNumber = account.PhoneNumber ?? string.Empty;
-            existing.AvatarUrl = account.AvatarUrl ?? string.Empty;
-            existing.IsSuspended = account.IsSuspended;
-            existing.CreatedAt = account.CreatedAt;
-            existing.UpdatedAt = account.UpdatedAt;
-            existing.Country = account.Country ?? string.Empty;
-            existing.City = account.City ?? string.Empty;
-            existing.StreetName = account.StreetName ?? string.Empty;
-            existing.StreetNumber = account.StreetNumber ?? string.Empty;
+            existing.DisplayName = user.DisplayName;
+            existing.Username = user.Username;
+            existing.Email = user.Email;
+            existing.PasswordHash = user.PasswordHash;
+            existing.PhoneNumber = user.PhoneNumber ?? string.Empty;
+            existing.AvatarUrl = user.AvatarUrl ?? string.Empty;
+            existing.IsSuspended = user.IsSuspended;
+            existing.CreatedAt = user.CreatedAt;
+            existing.UpdatedAt = user.UpdatedAt;
+            existing.Country = user.Country ?? string.Empty;
+            existing.City = user.City ?? string.Empty;
+            existing.StreetName = user.StreetName ?? string.Empty;
+            existing.StreetNumber = user.StreetNumber ?? string.Empty;
 
             await dbContext.SaveChangesAsync();
         }

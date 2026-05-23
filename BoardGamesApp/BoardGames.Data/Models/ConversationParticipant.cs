@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BoardGames.Data.Models;
 
 [Table("conversation_participants")]
 public class ConversationParticipant

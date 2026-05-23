@@ -1,12 +1,14 @@
-﻿// <copyright file="GamesRepository.cs" company="PlaceholderCompany">
+// <copyright file="GamesRepository.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using BoardGames.Data;
 using BoardGames.Data.Enums;
+using BoardGames.Data.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +37,10 @@ public class GamesRepository : InterfaceGamesRepository
     {
         appContext = context;
     }
+
+    // ==========================================
+    // Project 1 methods (original)
+    // ==========================================
 
     /// <summary>
     /// Gets a single game by its database id.
@@ -151,6 +157,85 @@ public class GamesRepository : InterfaceGamesRepository
         return await appContext.Games.Where(game => game.IsActive && game.OwnerId != userId && game.Rentals.Any(rental => rental.StartDate.Date <= tomorrowDate && rental.EndDate.Date >= todayDate)).ToListAsync();
     }
 
+    // ==========================================
+    // Project 2 methods (merged from GameRepository / GameRepository2.cs)
+    // ==========================================
+
+    private IQueryable<Game> GamesWithOwner() =>
+        appContext.Games.Include(game => game.Owner);
+
+    public void AddGame(Game game)
+    {
+        if (game.Owner != null)
+        {
+            var owner = ResolveUser(game.Owner);
+            game.Owner = owner;
+            game.OwnerId = owner.PamUserId;
+        }
+
+        appContext.Games.Add(game);
+        appContext.SaveChanges();
+    }
+
+    public ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId)
+    {
+        return GamesWithOwner()
+            .Where(game => game.Owner != null && game.Owner.Id == ownerAccountId)
+            .ToImmutableList();
+    }
+
+    public void UpdateGame(int id, Game updated)
+    {
+        var existing = GamesWithOwner().FirstOrDefault(game => game.Id == id);
+        if (existing == null)
+        {
+            throw new KeyNotFoundException();
+        }
+
+        if (updated.Owner != null)
+        {
+            existing.Owner = ResolveUser(updated.Owner);
+        }
+
+        existing.Name = updated.Name;
+        existing.PricePerDay = updated.PricePerDay;
+        existing.MinimumPlayerNumber = updated.MinimumPlayerNumber;
+        existing.MaximumPlayerNumber = updated.MaximumPlayerNumber;
+        existing.Description = updated.Description;
+        existing.Image = updated.Image;
+        existing.IsActive = updated.IsActive;
+
+        appContext.SaveChanges();
+    }
+
+    public Game GetGame(int id)
+    {
+        var game = GamesWithOwner().FirstOrDefault(repositoryGame => repositoryGame.Id == id);
+        if (game == null)
+        {
+            throw new KeyNotFoundException();
+        }
+
+        return game;
+    }
+
+    public Game DeleteGame(int id)
+    {
+        var game = GamesWithOwner().FirstOrDefault(repositoryGame => repositoryGame.Id == id);
+        if (game == null)
+        {
+            throw new KeyNotFoundException();
+        }
+
+        appContext.Games.Remove(game);
+        appContext.SaveChanges();
+        return game;
+    }
+
+    // ==========================================
+    // Helpers
+    // ==========================================
+
     // Used to convert game data to Game object
     private static Game ConvertGameDataToGameObject(SqlDataReader reader)
     {
@@ -177,5 +262,28 @@ public class GamesRepository : InterfaceGamesRepository
     private async Task<List<Game>> GetAllActiveGames(int userId)
     {
         return await appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId).ToListAsync();
+    }
+
+    private User ResolveUser(User user)
+    {
+        if (user == null) return null!;
+
+        if (user.PamUserId != 0)
+        {
+            var tracked = appContext.Users.Local.FirstOrDefault(u => u.PamUserId == user.PamUserId)
+                         ?? appContext.Users.SingleOrDefault(u => u.PamUserId == user.PamUserId);
+            if (tracked != null) return tracked;
+            throw new InvalidOperationException($"User with PamUserId {user.PamUserId} was not found.");
+        }
+
+        if (user.Id != Guid.Empty)
+        {
+            var tracked = appContext.Users.Local.FirstOrDefault(u => u.Id == user.Id)
+                         ?? appContext.Users.SingleOrDefault(u => u.Id == user.Id);
+            if (tracked != null) return tracked;
+            throw new InvalidOperationException($"User with Id {user.Id} was not found.");
+        }
+
+        throw new InvalidOperationException("Owner must include a valid PamUserId or Id.");
     }
 }

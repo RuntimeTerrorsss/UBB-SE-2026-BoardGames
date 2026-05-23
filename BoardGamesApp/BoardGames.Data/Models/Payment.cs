@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BoardGames.Data.Models;
 
 [Table("payments")]
 public class Payment

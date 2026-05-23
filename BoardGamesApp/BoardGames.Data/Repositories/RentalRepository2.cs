@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories
 {
-    public class RentalRepository : IRentalRepository
+    public class RentalRepository2 : IRentalRepository2
     {
         private readonly IDbContextFactory<AppDbContext> dbContextFactory;
 
-        public RentalRepository(IDbContextFactory<AppDbContext> dbContextFactory)
+        public RentalRepository2(IDbContextFactory<AppDbContext> dbContextFactory)
         {
             this.dbContextFactory = dbContextFactory;
         }
@@ -19,7 +20,7 @@ namespace BoardGames.Data.Repositories
         private static IQueryable<Rental> RentalsWithNavigations(AppDbContext dbContext) =>
             dbContext.Rentals
                 .Include(rental => rental.Game)
-                .Include(rental => rental.Renter)
+                .Include(rental => rental.Client)
                 .Include(rental => rental.Owner);
 
         public ImmutableList<Rental> GetAll()
@@ -33,8 +34,8 @@ namespace BoardGames.Data.Repositories
             using var dbContext = dbContextFactory.CreateDbContext();
 
             rental.Game = ResolveGame(dbContext, rental.Game);
-            rental.Renter = ResolveAccount(dbContext, rental.Renter);
-            rental.Owner = ResolveAccount(dbContext, rental.Owner);
+            rental.Client = ResolveUser(dbContext, rental.Client);
+            rental.Owner = ResolveUser(dbContext, rental.Owner);
             dbContext.Rentals.Add(rental);
             dbContext.SaveChanges();
 
@@ -42,7 +43,7 @@ namespace BoardGames.Data.Repositories
             if (saved != null)
             {
                 rental.Game = saved.Game;
-                rental.Renter = saved.Renter;
+                rental.Client = saved.Client;
                 rental.Owner = saved.Owner;
             }
         }
@@ -61,7 +62,7 @@ namespace BoardGames.Data.Repositories
         {
             using var dbContext = dbContextFactory.CreateDbContext();
             return RentalsWithNavigations(dbContext)
-                .Where(rental => rental.Renter != null && rental.Renter.Id == renterAccountId)
+                .Where(rental => rental.Client != null && rental.Client.Id == renterAccountId)
                 .ToImmutableList();
         }
 
@@ -101,14 +102,14 @@ namespace BoardGames.Data.Repositories
                 existing.Game = ResolveGame(dbContext, updated.Game);
             }
 
-            if (updated.Renter != null)
+            if (updated.Client != null)
             {
-                existing.Renter = ResolveAccount(dbContext, updated.Renter);
+                existing.Client = ResolveUser(dbContext, updated.Client);
             }
 
             if (updated.Owner != null)
             {
-                existing.Owner = ResolveAccount(dbContext, updated.Owner);
+                existing.Owner = ResolveUser(dbContext, updated.Owner);
             }
 
             existing.StartDate = updated.StartDate;
@@ -128,14 +129,14 @@ namespace BoardGames.Data.Repositories
             return rental;
         }
 
-        private static Account? ResolveAccount(AppDbContext dbContext, Account? account)
+        private static User? ResolveUser(AppDbContext dbContext, User? user)
         {
-            if (account == null)
+            if (user == null)
             {
                 return null;
             }
 
-            return dbContext.Accounts.Find(account.Id);
+            return dbContext.Users.Find(user.Id);
         }
 
         private static Game? ResolveGame(AppDbContext dbContext, Game? game)
@@ -149,3 +150,4 @@ namespace BoardGames.Data.Repositories
         }
     }
 }
+*/

@@ -5,7 +5,7 @@ namespace BoardGames.Data.Models
     public class Notification
     {
         public int Id { get; set; }
-        public Account? Recipient { get; set; }
+        public User? Recipient { get; set; }
         public DateTime Timestamp { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
@@ -16,7 +16,7 @@ namespace BoardGames.Data.Models
         {
         }
 
-        public Notification(int id, Account? recipientAccount, DateTime timestamp, string title, string body,
+        public Notification(int id, User? recipientAccount, DateTime timestamp, string title, string body,
                             NotificationType notificationType = NotificationType.Informational, Request? relatedRequest = null)
         {
             Id = id;

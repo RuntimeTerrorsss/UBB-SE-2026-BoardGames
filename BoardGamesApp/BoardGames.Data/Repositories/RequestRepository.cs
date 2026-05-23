@@ -36,9 +36,9 @@ namespace BoardGames.Data.Repositories
             using var dbContext = dbContextFactory.CreateDbContext();
 
             request.Game = ResolveGame(dbContext, request.Game);
-            request.Renter = ResolveAccount(dbContext, request.Renter);
-            request.Owner = ResolveAccount(dbContext, request.Owner);
-            request.OfferingUser = ResolveAccount(dbContext, request.OfferingUser);
+            request.Renter = ResolveUser(dbContext, request.Renter);
+            request.Owner = ResolveUser(dbContext, request.Owner);
+            request.OfferingUser = ResolveUser(dbContext, request.OfferingUser);
             dbContext.Requests.Add(request);
             dbContext.SaveChanges();
 
@@ -82,15 +82,15 @@ namespace BoardGames.Data.Repositories
 
             if (updated.Renter != null)
             {
-                existing.Renter = ResolveAccount(dbContext, updated.Renter);
+                existing.Renter = ResolveUser(dbContext, updated.Renter);
             }
 
             if (updated.Owner != null)
             {
-                existing.Owner = ResolveAccount(dbContext, updated.Owner);
+                existing.Owner = ResolveUser(dbContext, updated.Owner);
             }
 
-            existing.OfferingUser = ResolveAccount(dbContext, updated.OfferingUser);
+            existing.OfferingUser = ResolveUser(dbContext, updated.OfferingUser);
             existing.StartDate = updated.StartDate;
             existing.EndDate = updated.EndDate;
             existing.Status = updated.Status;
@@ -107,7 +107,7 @@ namespace BoardGames.Data.Repositories
             }
 
             existing.Status = status;
-            existing.OfferingUser = FindAccountById(dbContext, offeringAccountId);
+            existing.OfferingUser = FindUserById(dbContext, offeringAccountId);
             dbContext.SaveChanges();
         }
 
@@ -182,8 +182,8 @@ namespace BoardGames.Data.Repositories
                     var newRental = new Rental
                     {
                         Game = ResolveGame(dbContext, approvedRequest.Game),
-                        Renter = ResolveAccount(dbContext, approvedRequest.Renter),
-                        Owner = ResolveAccount(dbContext, approvedRequest.Owner),
+                        Client = ResolveUser(dbContext, approvedRequest.Renter),
+                        Owner = ResolveUser(dbContext, approvedRequest.Owner),
                         StartDate = approvedRequest.StartDate,
                         EndDate = approvedRequest.EndDate,
                     };
@@ -216,27 +216,27 @@ namespace BoardGames.Data.Repositories
             });
         }
 
-        private static Account? ResolveAccount(AppDbContext dbContext, Account? account)
+        private static User? ResolveUser(AppDbContext dbContext, User? user)
         {
-            if (account == null)
+            if (user == null)
             {
                 return null;
             }
 
-            if (account.PamUserId != 0)
+            if (user.PamUserId != 0)
             {
-                var trackedByPam = dbContext.Accounts.Local.FirstOrDefault(cached => cached.PamUserId == account.PamUserId);
+                var trackedByPam = dbContext.Users.Local.FirstOrDefault(cached => cached.PamUserId == user.PamUserId);
                 if (trackedByPam != null) return trackedByPam;
 
-                return dbContext.Accounts.SingleOrDefault(inputAccount => inputAccount.PamUserId == account.PamUserId);
+                return dbContext.Users.SingleOrDefault(u => u.PamUserId == user.PamUserId);
             }
 
-            var trackedById = dbContext.Accounts.Local.FirstOrDefault(cachedAccount => cachedAccount.Id == account.Id);
+            var trackedById = dbContext.Users.Local.FirstOrDefault(cachedUser => cachedUser.Id == user.Id);
             if (trackedById != null) return trackedById;
 
-            if (account.Id != Guid.Empty)
+            if (user.Id != Guid.Empty)
             {
-                return dbContext.Accounts.Find(account.Id);
+                return dbContext.Users.Find(user.Id);
             }
 
             return null;
@@ -263,15 +263,15 @@ namespace BoardGames.Data.Repositories
             return null;
         }
 
-        private static Account? FindAccountById(AppDbContext dbContext, Guid? accountId)
+        private static User? FindUserById(AppDbContext dbContext, Guid? accountId)
         {
             if (!accountId.HasValue)
             {
                 return null;
             }
 
-            var cached = dbContext.Accounts.Local.FirstOrDefault(cachedAccount => cachedAccount.Id == accountId.Value);
-            return cached ?? dbContext.Accounts.Find(accountId.Value);
+            var cached = dbContext.Users.Local.FirstOrDefault(cachedUser => cachedUser.Id == accountId.Value);
+            return cached ?? dbContext.Users.Find(accountId.Value);
         }
     }
 }
