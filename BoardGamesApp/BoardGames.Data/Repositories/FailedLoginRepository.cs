@@ -1,6 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+// <copyright file="FailedLoginRepository.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task<FailedLoginAttempt?> GetByAccountIdAsync(Guid accountId)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             return await dbContext.FailedLoginAttempts.FirstOrDefaultAsync(failedLogin => failedLogin.AccountId == accountId);
         }
 
@@ -26,7 +27,7 @@ namespace BoardGames.Data.Repositories
             const int lockThreshold = 5;
             const int lockMinutes = 15;
 
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             var attempt = await dbContext.FailedLoginAttempts.FirstOrDefaultAsync(failedLogin => failedLogin.AccountId == accountId);
             if (attempt == null)
             {
@@ -46,7 +47,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task ResetAsync(Guid accountId)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             var attempt = await dbContext.FailedLoginAttempts.FirstOrDefaultAsync(failedLogin => failedLogin.AccountId == accountId);
             if (attempt != null)
             {

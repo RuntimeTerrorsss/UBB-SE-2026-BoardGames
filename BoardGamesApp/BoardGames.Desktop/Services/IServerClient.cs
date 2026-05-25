@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-
-namespace BoardGames.Desktop.Services
+﻿namespace BoardGames.Desktop.Services
 {
     public interface IServerClient : IObservable<IncomingNotification>
     {

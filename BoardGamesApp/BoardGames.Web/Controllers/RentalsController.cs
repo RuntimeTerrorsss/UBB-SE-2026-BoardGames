@@ -1,9 +1,11 @@
-using System;
-using BoardGames.Web.Models.Rentals;
-using BoardGames.Data;
-using BoardGames.Data.Interfaces;
+// <copyright file="RentalsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.DTO.Services;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Web.Models.Rentals;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
@@ -12,11 +14,11 @@ namespace BoardGames.Web.Controllers
     {
         private const int NewPaymentPlaceholderId = -1;
 
-        private readonly IRentalService _rentalService;
-        private readonly ICardPaymentService _cardPaymentService;
-        private readonly ICashPaymentService _cashPaymentService;
-        private readonly IConversationService _conversationService;
-        private readonly IUserRepository _userRepository;
+        private readonly IRentalService rentalService;
+        private readonly ICardPaymentService cardPaymentService;
+        private readonly ICashPaymentService cashPaymentService;
+        private readonly IConversationService conversationService;
+        private readonly IUserRepository userRepository;
 
         public RentalsController(
             IRentalService rentalService,
@@ -25,24 +27,27 @@ namespace BoardGames.Web.Controllers
             IConversationService conversationService,
             IUserRepository userRepository)
         {
-            _rentalService = rentalService;
-            _cardPaymentService = cardPaymentService;
-            _cashPaymentService = cashPaymentService;
-            _conversationService = conversationService;
-            _userRepository = userRepository;
+            this.rentalService = rentalService;
+            this.cardPaymentService = cardPaymentService;
+            this.cashPaymentService = cashPaymentService;
+            this.conversationService = conversationService;
+            this.userRepository = userRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> Checkout(int rentalId, int messageId)
         {
             var redirect = RequireLogin();
-            if (redirect != null) return redirect;
+            if (redirect != null)
+            {
+                return redirect;
+            }
 
             int userId = CurrentUserId ?? -1;
-            RentalDataTransferObject rental;
+            RentalDTO rental;
             try
             {
-                rental = await _cardPaymentService.GetRequestDataTransferObject(rentalId);
+                rental = await this.cardPaymentService.GetRequestDTO(rentalId);
             }
             catch (InvalidOperationException)
             {
@@ -54,7 +59,7 @@ namespace BoardGames.Web.Controllers
                 return Forbid();
             }
 
-            var user = await _userRepository.GetById(userId);
+            var user = await this.userRepository.GetById(userId);
 
             var model = new RentalCheckoutViewModel
             {
@@ -82,7 +87,10 @@ namespace BoardGames.Web.Controllers
         public async Task<IActionResult> Checkout(RentalCheckoutViewModel model)
         {
             var redirect = RequireLogin();
-            if (redirect != null) return redirect;
+            if (redirect != null)
+            {
+                return redirect;
+            }
 
             int userId = CurrentUserId ?? -1;
             if (model.ClientId != userId)
@@ -97,7 +105,7 @@ namespace BoardGames.Web.Controllers
 
             if (model.SaveAddress)
             {
-                await _userRepository.SaveAddress(userId, new Address(
+                await this.userRepository.SaveAddress(userId, new Address(
                     model.Country,
                     model.City,
                     model.Street,
@@ -106,7 +114,7 @@ namespace BoardGames.Web.Controllers
 
             if (string.Equals(model.PaymentMethod, "Cash", StringComparison.OrdinalIgnoreCase))
             {
-                return RedirectToAction(nameof(CashPayment), new
+                return RedirectToAction(nameof(this.CashPayment), new
                 {
                     rentalId = model.RentalId,
                     messageId = model.MessageId,
@@ -126,12 +134,15 @@ namespace BoardGames.Web.Controllers
         public async Task<IActionResult> CashPayment(int rentalId, int messageId)
         {
             var redirect = RequireLogin();
-            if (redirect != null) return redirect;
+            if (redirect != null)
+            {
+                return redirect;
+            }
 
-            RentalDataTransferObject rental;
+            RentalDTO rental;
             try
             {
-                rental = await _cardPaymentService.GetRequestDataTransferObject(rentalId);
+                rental = await this.cardPaymentService.GetRequestDTO(rentalId);
             }
             catch (InvalidOperationException)
             {
@@ -153,10 +164,13 @@ namespace BoardGames.Web.Controllers
         public async Task<IActionResult> ConfirmCashPayment(int rentalId, int messageId)
         {
             var redirect = RequireLogin();
-            if (redirect != null) return redirect;
+            if (redirect != null)
+            {
+                return redirect;
+            }
 
             int userId = CurrentUserId ?? -1;
-            var rental = await _cardPaymentService.GetRequestDataTransferObject(rentalId);
+            var rental = await this.cardPaymentService.GetRequestDTO(rentalId);
 
             if (rental.ClientId != userId)
             {
@@ -165,12 +179,12 @@ namespace BoardGames.Web.Controllers
 
             try
             {
-                decimal rentalPrice = await _rentalService.GetRentalPrice(rentalId);
-                await _cashPaymentService.AddCashPaymentAsync(
+                decimal rentalPrice = await this.rentalService.GetRentalPrice(rentalId);
+                await this.cashPaymentService.AddCashPaymentAsync(
                     new CashPaymentDTO(NewPaymentPlaceholderId, rentalId, rental.ClientId, rental.OwnerId, rentalPrice));
 
-                _conversationService.Initialize(userId);
-                await _conversationService.OnCardPaymentSelected(messageId);
+                this.conversationService.Initialize(userId);
+                await this.conversationService.OnCardPaymentSelected(messageId);
 
                 TempData["Success"] = "Cash payment recorded and added to your payment history.";
                 return RedirectToAction("Index", "PaymentHistory");
@@ -178,7 +192,7 @@ namespace BoardGames.Web.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = $"Cash payment failed: {ex.Message}";
-                return RedirectToAction(nameof(CashPayment), new { rentalId, messageId });
+                return RedirectToAction(nameof(this.CashPayment), new { rentalId, messageId });
             }
         }
     }

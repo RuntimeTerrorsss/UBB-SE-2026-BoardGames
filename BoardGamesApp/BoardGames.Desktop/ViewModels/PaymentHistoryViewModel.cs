@@ -2,17 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
-
 namespace BoardGames.Desktop.ViewModels
 {
     public class FilterOption
@@ -37,9 +26,9 @@ namespace BoardGames.Desktop.ViewModels
 
         private const int MinimumPageCount = PaymentHistoryViewModelConstants.MinimumPagesCount;
 
-        public ObservableCollection<PaymentDataTransferObject> Payments { get; set; }
+        public ObservableCollection<PaymentDTO> Payments { get; set; }
 
-        public RelayCommand<PaymentDataTransferObject> OpenReceiptCommand { get; }
+        public RelayCommand<PaymentDTO> OpenReceiptCommand { get; }
 
         public RelayCommandNoParam NextPageCommand { get; }
 
@@ -145,7 +134,7 @@ namespace BoardGames.Desktop.ViewModels
         public PaymentHistoryViewModel(IServicePayment paymentService)
         {
             this.paymentService = paymentService;
-            Payments = new ObservableCollection<PaymentDataTransferObject>();
+            Payments = new ObservableCollection<PaymentDTO>();
 
             FilterOptions = new ObservableCollection<FilterOption>
             {
@@ -159,7 +148,7 @@ namespace BoardGames.Desktop.ViewModels
                 new FilterOption { Type = FilterType.AlphabeticalDesc, DisplayName = "Alphabetical (Z-A)" },
             };
 
-            OpenReceiptCommand = new RelayCommand<PaymentDataTransferObject>(async dto => await OpenReceipt(dto));
+            OpenReceiptCommand = new RelayCommand<PaymentDTO>(async dto => await OpenReceipt(dto));
             NextPageCommand = new RelayCommandNoParam(async () => await OnNextPage(), () => CurrentPage < TotalPages);
             PreviousPageCommand = new RelayCommandNoParam(async () => await OnPreviousPage(), () => CurrentPage > PaymentHistoryViewModelConstants.FirstPage);
 
@@ -196,7 +185,7 @@ namespace BoardGames.Desktop.ViewModels
             }
         }
 
-        private async Task OpenReceipt(PaymentDataTransferObject selectedPayment)
+        private async Task OpenReceipt(PaymentDTO selectedPayment)
         {
             if (selectedPayment == null)
             {

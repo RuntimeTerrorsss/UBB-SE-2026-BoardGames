@@ -1,4 +1,7 @@
-using System;
+// <copyright file="ClaimsPrincipalExtensions.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Security.Claims;
 
 namespace BoardGames.Web.Helpers

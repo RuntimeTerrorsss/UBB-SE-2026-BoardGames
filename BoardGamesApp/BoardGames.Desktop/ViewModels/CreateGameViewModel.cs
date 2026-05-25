@@ -1,11 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Constants;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -41,7 +34,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public List<string> ValidateGameInputs()
         {
-            return GameInputValidator.Validate(BuildGameDataTransferObject());
+            return GameInputValidator.Validate(BuildGameDTO());
         }
 
         public async Task<ViewOperationResult> SubmitCreateGameAsync()
@@ -75,18 +68,18 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task<GameDTO?> SaveGameAsync()
         {
-            var newGameDataTransferObject = BuildGameDataTransferObject();
+            var newGameDTO = BuildGameDTO();
 
-            if (GameInputValidator.Validate(newGameDataTransferObject).Count > NoValidationErrors)
+            if (GameInputValidator.Validate(newGameDTO).Count > NoValidationErrors)
             {
                 return null;
             }
 
-            var createGameResult = await gameListingService.CreateGameAsync(newGameDataTransferObject);
-            return createGameResult.Success ? newGameDataTransferObject : null;
+            var createGameResult = await gameListingService.CreateGameAsync(newGameDTO);
+            return createGameResult.Success ? newGameDTO : null;
         }
 
-        private GameDTO BuildGameDataTransferObject()
+        private GameDTO BuildGameDTO()
         {
             return new GameDTO
             {

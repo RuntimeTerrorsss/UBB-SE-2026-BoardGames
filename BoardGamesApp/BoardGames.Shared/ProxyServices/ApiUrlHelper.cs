@@ -1,4 +1,7 @@
-using System;
+// <copyright file="ApiUrlHelper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
@@ -20,7 +23,7 @@ namespace BoardGames.Shared.ProxyServices
             return new Uri(apiBaseAddress, relativeOrAbsoluteUrl).ToString();
         }
 
-        public static void RebaseAvatarUrl(Uri apiBaseAddress, AccountProfileDataTransferObject profile)
+        public static void RebaseAvatarUrl(Uri apiBaseAddress, AccountProfileDTO profile)
         {
             if (profile == null)
             {

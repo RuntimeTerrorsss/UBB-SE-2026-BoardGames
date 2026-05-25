@@ -1,14 +1,6 @@
-﻿// <copyright file="MessageViewModel.cs" company="PlaceholderCompany">
+// <copyright file="MessageViewModel.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
 
 namespace BoardGames.Desktop.ViewModels;
 
@@ -82,7 +74,7 @@ public class MessageViewModel : INotifyPropertyChanged
         }
     }
 
-    public MessageViewModel(MessageDataTransferObject message, int currentUserId)
+    public MessageViewModel(MessageDTO message, int currentUserId)
     {
         int systemUserIdentifier = 0;
 

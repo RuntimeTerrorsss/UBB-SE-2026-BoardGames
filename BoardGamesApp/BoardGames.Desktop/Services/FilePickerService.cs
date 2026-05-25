@@ -1,11 +1,5 @@
 namespace BoardGames.Desktop.Services
 {
-    using System;
-    using System.Threading.Tasks;
-    using Windows.Storage;
-    using Windows.Storage.Pickers;
-    using WinRT.Interop;
-
     public class FilePickerService : IFilePickerService
     {
         public async Task<string> PickImageFileAsync()

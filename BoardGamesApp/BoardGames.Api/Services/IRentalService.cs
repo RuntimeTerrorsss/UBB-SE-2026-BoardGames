@@ -1,17 +1,15 @@
-﻿// <copyright file="IRentalService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="IRentalService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public interface IRentalService
     {
-        public Task<List<RentalDataTransferObject>> GetRentalsForUser(int userId);
+        public Task<List<RentalDTO>> GetRentalsForUser(int userId);
 
         public Task<Rental> GetRentalById(int rentalId);
 

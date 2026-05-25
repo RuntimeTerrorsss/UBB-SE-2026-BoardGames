@@ -1,9 +1,11 @@
+// <copyright file="AuthController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Api.Common;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using Microsoft.AspNetCore.Authorization;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace BoardGames.Api.Controllers
 {
@@ -17,54 +19,53 @@ namespace BoardGames.Api.Controllers
         {
             this.authService = authService;
         }
-  
+
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDataTransferObject body)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO body)
         {
-            var result = await authService.RegisterAsync(body);
+            var result = await this.authService.RegisterAsync(body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(new { result.Data });
+            return this.Ok(new { result.Data });
         }
-   
-        [HttpPost("login")]
-        public async Task<ActionResult<AccountProfileDataTransferObject>> Login([FromBody] LoginDataTransferObject body)
-        {
 
-            var result = await authService.LoginAsync(body);
+        [HttpPost("login")]
+        public async Task<ActionResult<AccountProfileDTO>> Login([FromBody] LoginDTO body)
+        {
+            var result = await this.authService.LoginAsync(body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(result.Data);
+            return this.Ok(result.Data);
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var result = await authService.LogoutAsync();
+            var result = await this.authService.LogoutAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpGet("forgot-password")]
         public async Task<ActionResult<string>> ForgotPassword()
         {
-            var result = await authService.ForgotPasswordAsync();
+            var result = await this.authService.ForgotPasswordAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(result.Data);
+            return this.Ok(result.Data);
         }
     }
 }

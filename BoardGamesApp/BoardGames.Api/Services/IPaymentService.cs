@@ -1,8 +1,6 @@
-// <copyright file="IPaymentService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="IPaymentService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System.Threading.Tasks;
 
 namespace BoardGames.Api.Services
 {

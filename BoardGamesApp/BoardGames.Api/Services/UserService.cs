@@ -1,35 +1,34 @@
-using BookingBoardGames.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+// <copyright file="UserService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepositoryParam)
         {
-            _userRepository = userRepository;
+            this.userRepository = userRepositoryParam;
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _userRepository.GetById(id);
+            return await this.userRepository.GetById(id);
         }
 
         public async Task<List<User>> GetAllUsersAsync()
         {
-            return await _userRepository.GetAll();
+            return await this.userRepository.GetAll();
         }
 
         public async Task<User?> LoginAsync(string identifier, string password)
         {
-
-            var user = await _userRepository.Login(identifier, password);
+            var user = await this.userRepository.Login(identifier, password);
 
             if (user == null)
             {
@@ -38,7 +37,6 @@ namespace BoardGames.Api.Services
 
             if (user.IsSuspended)
             {
-
                 return null;
             }
 
@@ -57,22 +55,22 @@ namespace BoardGames.Api.Services
 
         public async Task<bool> RegisterUserAsync(User newUser)
         {
-            if (AreFieldsEmpty(newUser))
+            if (this.AreFieldsEmpty(newUser))
             {
                 return false;
             }
 
-            return await _userRepository.Register(newUser);
+            return await this.userRepository.Register(newUser);
         }
 
         public async Task<decimal> GetBalanceAsync(int userId)
         {
-            return await _userRepository.GetUserBalance(userId);
+            return await this.userRepository.GetUserBalance(userId);
         }
 
         public async Task UpdateBalanceAsync(int userId, decimal amount)
         {
-            await _userRepository.UpdateBalance(userId, amount);
+            await this.userRepository.UpdateBalance(userId, amount);
         }
     }
 }

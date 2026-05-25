@@ -1,12 +1,6 @@
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Immutable;
-    using System.Threading.Tasks;
     using BoardGames.Desktop.Services;
-    using BoardGames.Shared;
-    using BoardGames.Shared.DTO;
-    using CommunityToolkit.Mvvm.Input;
 
     public class AdminViewModel : PagedViewModel<AccountProfileDTO>
     {
@@ -41,7 +35,7 @@ namespace BoardGames.Desktop.ViewModels
         public IRelayCommand NextPageCommand { get; }
         public IRelayCommand PreviousPageCommand { get; }
 
-        public AccountProfileDataTransferObject SelectedAccount
+        public AccountProfileDTO SelectedAccount
         {
             get => selectedAccount;
             set

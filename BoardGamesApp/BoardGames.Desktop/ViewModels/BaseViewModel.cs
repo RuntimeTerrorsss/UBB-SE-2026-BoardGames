@@ -1,5 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-
 namespace BoardGames.Desktop.ViewModels
 {
     public partial class BaseViewModel : ObservableObject

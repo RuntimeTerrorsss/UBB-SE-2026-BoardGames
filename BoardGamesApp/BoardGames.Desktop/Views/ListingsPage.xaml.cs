@@ -1,8 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using BoardGames.Desktop.Views;
 using BoardGames.Desktop.ViewModels;
 

@@ -1,15 +1,12 @@
-﻿// <copyright file="ReceiptService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="ReceiptService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
-using System.Threading.Tasks;
 
 namespace BoardGames.Api.Services
 {
@@ -35,8 +32,8 @@ namespace BoardGames.Api.Services
         /// IMPORTANT: It does NOT create the receipt pdf.
         /// Used for assigning a unique receipt file name to transaction so pdf file can be found or created when needed.
         /// </summary>
-        /// <param name="requestId">id of request for generating a unique file name</param>
-        /// <returns>unique relative path allocated for the receipt</returns>
+        /// <param name="requestId">id of request for generating a unique file name.</param>
+        /// <returns>unique relative path allocated for the receipt.</returns>
         public virtual string GenerateReceiptRelativePath(int requestId)
         {
             string fileName = $"receipt_{requestId}_{DateTime.Now:yyMMdd_HHmmss}.pdf";
@@ -51,9 +48,9 @@ namespace BoardGames.Api.Services
         /// If pdf for receipt does not exist at source, it is created and full path to it returned.
         /// Otherwise, full path to existing pdf is returned.
         /// </summary>
-        /// <param name="selectedPayment">transaction for getting relative path to receipt</param>
-        /// <returns>full path to existing or newly created pdf</returns>
-        /// <exception cref="InvalidOperationException">receipt path of transaction is missing</exception>
+        /// <param name="selectedPayment">transaction for getting relative path to receipt.</param>
+        /// <returns>full path to existing or newly created pdf.</returns>
+        /// <exception cref="InvalidOperationException">receipt path of transaction is missing.</exception>
         public async Task<string> GetReceiptDocument(Payment selectedPayment)
         {
             if (selectedPayment.ReceiptFilePath == null || selectedPayment.ReceiptFilePath == string.Empty)
@@ -61,11 +58,11 @@ namespace BoardGames.Api.Services
                 throw new InvalidOperationException("Receipt path is missing.");
             }
 
-            string fullReceiptPath = GetFullPath(selectedPayment.ReceiptFilePath);
+            string fullReceiptPath = this.GetFullPath(selectedPayment.ReceiptFilePath);
 
             if (!File.Exists(fullReceiptPath))
             {
-                return await CreateReceipt(selectedPayment);
+                return await this.CreateReceipt(selectedPayment);
             }
 
             return fullReceiptPath;
@@ -78,7 +75,7 @@ namespace BoardGames.Api.Services
                 throw new InvalidOperationException("Receipt path is missing.");
             }
 
-            string documentPath = GetFullPath(selectedPayment.ReceiptFilePath);
+            string documentPath = this.GetFullPath(selectedPayment.ReceiptFilePath);
 
             string? directoryName = Path.GetDirectoryName(documentPath);
             if (!string.IsNullOrEmpty(directoryName))
@@ -131,7 +128,7 @@ namespace BoardGames.Api.Services
         {
             foreach (string textLine in textSection.Split("\n"))
             {
-                currentYPosition = DrawLine(
+                currentYPosition = this.DrawLine(
                     graphicsContext,
                     pdfPage,
                     font,
@@ -151,9 +148,9 @@ namespace BoardGames.Api.Services
             double currentXPosition,
             double currentYPosition)
         {
-            foreach (string textSection in await GetReceiptContent(payment))
+            foreach (string textSection in await this.GetReceiptContent(payment))
             {
-                currentYPosition = DrawTextSection(
+                currentYPosition = this.DrawTextSection(
                     graphicsContext,
                     pdfPage,
                     font,
@@ -193,16 +190,16 @@ namespace BoardGames.Api.Services
 
         /// <summary>
         /// Creates a new pdf locally for a receipt at relative path.
-        /// Destination: D:\Downloads\BookingBoardgames\receipts
+        /// Destination: D:\Downloads\BookingBoardgames\receipts.
         /// </summary>
-        /// <param name="payment">transaction for generating the content of pdf</param>
-        /// <returns>full path to created pdf</returns>
-        /// <exception cref="InvalidOperationException">receipt path of transaction is missing</exception>
+        /// <param name="payment">transaction for generating the content of pdf.</param>
+        /// <returns>full path to created pdf.</returns>
+        /// <exception cref="InvalidOperationException">receipt path of transaction is missing.</exception>
         private async Task<string> CreateReceipt(Payment payment)
         {
-            string documentPath = PrepareDocumentPath(payment);
+            string documentPath = this.PrepareDocumentPath(payment);
 
-            using var document = CreateDocument();
+            using var document = this.CreateDocument();
             var page = document.AddPage();
 
             await this.DrawReceiptContent(document, page, payment);
@@ -213,10 +210,10 @@ namespace BoardGames.Api.Services
 
         /// <summary>
         /// Get full path from a relative path in base folder.
-        /// Base folder: D:\Downloads\BookingBoardgames\
+        /// Base folder: D:\Downloads\BookingBoardgames\.
         /// </summary>
-        /// <param name="relativePath">string</param>
-        /// <returns>full path</returns>
+        /// <param name="relativePath">string.</param>
+        /// <returns>full path.</returns>
         private string GetFullPath(string relativePath)
         {
             return Path.Combine(BaseFolderPath, relativePath.TrimStart('\\', '/'));
@@ -224,7 +221,7 @@ namespace BoardGames.Api.Services
 
         private string BuildHeader(Payment payment)
         {
-            string issuedDate = GetIssuedDateFromFilename(payment.ReceiptFilePath.Split("\\")[ReceiptServiceConstants.FileNameIndexInPath]);
+            string issuedDate = this.GetIssuedDateFromFilename(payment.ReceiptFilePath.Split("\\")[ReceiptServiceConstants.FileNameIndexInPath]);
 
             return $"Receipt - Boardgame Rental\n" +
                    $"Rental ID: {payment.RequestId}\n" +
@@ -233,9 +230,9 @@ namespace BoardGames.Api.Services
 
         private async Task<string> BuildRequestInfo(Payment payment, Rental request)
         {
-            var requestedGame = await gameRepository.GetGameById(request.GameId);
-            var client = await userRepository.GetById(payment.ClientId);
-            var owner = await userRepository.GetById(payment.OwnerId);
+            var requestedGame = await this.gameRepository.GetGameById(request.GameId);
+            var client = await this.userRepository.GetById(payment.ClientId);
+            var owner = await this.userRepository.GetById(payment.OwnerId);
 
             string requestInfo = $"Rental Information\n" +
                 $"- Rental ID: {payment.RequestId}\n" +
@@ -280,19 +277,19 @@ namespace BoardGames.Api.Services
         /// <summary>
         /// Get pdf content for generating the receipt pdf.
         /// </summary>
-        /// <param name="payment">transaction with relevant transaction data</param>
-        /// <returns>pdf content text</returns>
+        /// <param name="payment">transaction with relevant transaction data.</param>
+        /// <returns>pdf content text.</returns>
         private async Task<string[]> GetReceiptContent(Payment payment)
         {
-            var request = await rentalService.GetRentalById(payment.RequestId);
+            var request = await this.rentalService.GetRentalById(payment.RequestId);
 
             return new[]
             {
-                BuildHeader(payment),
-                await BuildRequestInfo(payment, request),
-                BuildPaymentDetails(payment),
-                BuildConfirmation(payment),
-                BuildSummary(),
+                this.BuildHeader(payment),
+                await this.BuildRequestInfo(payment, request),
+                this.BuildPaymentDetails(payment),
+                this.BuildConfirmation(payment),
+                this.BuildSummary(),
             };
         }
 
@@ -300,8 +297,8 @@ namespace BoardGames.Api.Services
         /// Get formated date for "Date Issued" field in pdf content from the receipt file name.
         /// If file name has different pattern, date of today is returned.
         /// </summary>
-        /// <param name="fileName">from where to extract the date</param>
-        /// <returns>reformated date (dd/MM/yyyy)</returns>
+        /// <param name="fileName">from where to extract the date.</param>
+        /// <returns>reformated date (dd/MM/yyyy).</returns>
         private string GetIssuedDateFromFilename(string fileName)
         {
             try

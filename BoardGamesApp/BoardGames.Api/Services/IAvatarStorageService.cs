@@ -1,5 +1,6 @@
-using System.IO;
-using System.Threading.Tasks;
+// <copyright file="IAvatarStorageService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Api.Services
 {

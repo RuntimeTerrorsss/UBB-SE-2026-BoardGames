@@ -1,18 +1,12 @@
-﻿// <copyright file="RentalDataTransferObject.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="RentalDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoardGames.Shared.DTO
 {
-    public class RentalDataTransferObject
+    public class RentalDTO
     {
-        public RentalDataTransferObject(
+        public RentalDTO(
             int id,
             int gameId,
             string gameName,
@@ -24,23 +18,23 @@ namespace BoardGames.Shared.DTO
             DateTime endDate,
             decimal price)
         {
-            Id = id;
-            GameId = gameId;
-            GameName = gameName;
-            ClientId = clientId;
-            ClientName = clientName;
-            OwnerId = ownerId;
-            OwnerName = ownerName;
-            StartDate = startDate;
-            EndDate = endDate;
-            Price = price;
+            this.Id = id;
+            this.GameId = gameId;
+            this.GameName = gameName;
+            this.ClientId = clientId;
+            this.ClientName = clientName;
+            this.OwnerId = ownerId;
+            this.OwnerName = ownerName;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
+            this.Price = price;
         }
 
-        public RentalDataTransferObject()
+        public RentalDTO()
         {
-            GameName = string.Empty;
-            ClientName = string.Empty;
-            OwnerName = string.Empty;
+            this.GameName = string.Empty;
+            this.ClientName = string.Empty;
+            this.OwnerName = string.Empty;
         }
 
         public int Id { get; set; }

@@ -1,11 +1,9 @@
-﻿// <copyright file="IServicePayment.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="IServicePayment.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -15,7 +13,7 @@ namespace BoardGames.Api.Services
         /// Retrieves all transactions without any filtering, mapped to DTOs for UI display.
         /// </summary>
         /// <returns>A list of all mapped TransactionDto objects.</returns>
-        Task<List<PaymentDataTransferObject>> GetAllPaymentsForUI();
+        Task<List<PaymentDTO>> GetAllPaymentsForUI();
 
         /// <summary>
         /// Retrieves transactions mapped to DTOs, filtered or sorted by the given criteria and payment method,
@@ -27,14 +25,14 @@ namespace BoardGames.Api.Services
         /// <param name="pageNumber">Current page index (1-based).</param>
         /// <param name="pageSize">Number of items per page.</param>
         /// <returns>A paginated result containing mapped TransactionDto objects.</returns>
-        Task<PagedResult<PaymentDataTransferObject>> GetFilteredPayments(FilterType filter, PaymentMethod paymentMethod = PaymentMethod.ALL, string searchQuery = "", int pageNumber = 1, int pageSize = 10);
+        Task<PagedResult<PaymentDTO>> GetFilteredPayments(FilterType filter, PaymentMethod paymentMethod = PaymentMethod.ALL, string searchQuery = "", int pageNumber = 1, int pageSize = 10);
 
         /// <summary>
         /// Computes the sum total amount from a given sequence of displayed transactions.
         /// </summary>
         /// <param name="displayedPayments">The collection of current interface transactions to sum up.</param>
         /// <returns>A decimal reflecting the total combined raw amount.</returns>
-        decimal CalculateTotalAmount(IEnumerable<PaymentDataTransferObject> displayedPayments);
+        decimal CalculateTotalAmount(IEnumerable<PaymentDTO> displayedPayments);
 
         /// <summary>
         /// Retrieves the full file path of the receipt, ensuring it exists.

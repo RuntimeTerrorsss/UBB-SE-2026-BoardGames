@@ -1,22 +1,18 @@
-// <copyright file="ConversationService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ConversationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using static BoardGames.Api.Controllers.ConversationController;
 
 namespace BoardGames.Api.Services
 {
     public class ConversationService : IConversationService
     {
         private IConversationRepository ConversationRepository { get; set; }
+
         private IUserRepository userRepository;
         private IConversationNotifier notifier;
 
@@ -26,52 +22,53 @@ namespace BoardGames.Api.Services
         private List<Conversation> cachedConversations = new List<Conversation>();
         private readonly HashSet<int> recentlySentMessageIds = new HashSet<int>();
 
-        public event Action<MessageDataTransferObject, string> ActionMessageProcessed;
+        public event Action<MessageDTO, string> ActionMessageProcessed;
 
         public event Action<ConversationDTO, string> ActionConversationProcessed;
 
         public event Action<ReadReceiptDTO> ActionReadReceiptProcessed;
 
-        public event Action<MessageDataTransferObject, string> ActionMessageUpdateProcessed;
+        public event Action<MessageDTO, string> ActionMessageUpdateProcessed;
 
         public ConversationService(IConversationRepository conversationRepo, IUserRepository userRepo, IConversationNotifier conversationNotifier)
         {
-            ConversationRepository = conversationRepo;
-            userRepository = userRepo;
-            notifier = conversationNotifier;
+            this.ConversationRepository = conversationRepo;
+            this.userRepository = userRepo;
+            this.notifier = conversationNotifier;
         }
 
         public void Initialize(int userIdInput)
         {
-            UserId = userIdInput;
-            notifier.Register(UserId, this);
+            this.UserId = userIdInput;
+            this.notifier.Register(this.UserId, this);
         }
+
         private async Task NotifySubscribersAboutMessage(Message message)
         {
-            IReadOnlyList<int> participants = await ConversationRepository.GetParticipantUserIds(message.ConversationId);
-            notifier.NotifyMessage(participants, message);
+            IReadOnlyList<int> participants = await this.ConversationRepository.GetParticipantUserIds(message.ConversationId);
+            this.notifier.NotifyMessage(participants, message);
         }
 
         private async Task NotifySubscribersAboutMessageUpdate(Message message)
         {
-            IReadOnlyList<int> participants = await ConversationRepository.GetParticipantUserIds(message.ConversationId);
-            notifier.NotifyMessageUpdate(participants, message);
+            IReadOnlyList<int> participants = await this.ConversationRepository.GetParticipantUserIds(message.ConversationId);
+            this.notifier.NotifyMessageUpdate(participants, message);
         }
 
         public async Task<int> FindOrCreateConversationBetweenUsers(int userIdA, int userIdB)
         {
-            return await ConversationRepository.FindOrCreateConversationBetweenUsers(userIdA, userIdB);
+            return await this.ConversationRepository.FindOrCreateConversationBetweenUsers(userIdA, userIdB);
         }
 
         private async Task NotifySubscribersAboutReadReceipt(ReadReceiptDTO readReceipt)
         {
-            IReadOnlyList<int> participants = await ConversationRepository.GetParticipantUserIds(readReceipt.ConversationId);
-            notifier.NotifyReadReceipt(participants, readReceipt);
+            IReadOnlyList<int> participants = await this.ConversationRepository.GetParticipantUserIds(readReceipt.ConversationId);
+            this.notifier.NotifyReadReceipt(participants, readReceipt);
         }
 
         private void NotifySubscribersAboutNewConversation(Conversation conversation)
         {
-            notifier.NotifyNewConversation(conversation);
+            this.notifier.NotifyNewConversation(conversation);
         }
 
         public async Task<List<ConversationDTO>> FetchConversations()
@@ -79,24 +76,24 @@ namespace BoardGames.Api.Services
             List<ConversationDTO> conversationList = new List<ConversationDTO>();
             var systemLookupCache = new Dictionary<int, bool>();
 
-            var fetchedConversations = await ConversationRepository.GetConversationsForUser(UserId);
-            cachedConversations = fetchedConversations;
+            var fetchedConversations = await this.ConversationRepository.GetConversationsForUser(this.UserId);
+            this.cachedConversations = fetchedConversations;
 
             foreach (var conversation in fetchedConversations)
             {
-                ConversationDTO conversationDto = ConversationToConversationDTO(conversation);
+                ConversationDTO conversationDto = this.ConversationToConversationDTO(conversation);
                 bool hasRealOtherParticipant = false;
 
                 foreach (var participant in conversationDto.Participants)
                 {
-                    if (participant.UserId == UserId)
+                    if (participant.UserId == this.UserId)
                     {
                         continue;
                     }
 
                     if (!systemLookupCache.TryGetValue(participant.UserId, out bool isSystemUser))
                     {
-                        var user = await userRepository.GetById(participant.UserId);
+                        var user = await this.userRepository.GetById(participant.UserId);
                         isSystemUser = user is not null &&
                                        string.Equals(user.Username, "System", StringComparison.OrdinalIgnoreCase);
                         systemLookupCache[participant.UserId] = isSystemUser;
@@ -122,7 +119,7 @@ namespace BoardGames.Api.Services
         {
             var otherParticipantIds = conversation.Participants
                 .Select(participantItem => participantItem.UserId)
-                .Where(participantId => participantId != UserId)
+                .Where(participantId => participantId != this.UserId)
                 .Distinct()
                 .ToList();
 
@@ -133,7 +130,7 @@ namespace BoardGames.Api.Services
 
             foreach (var otherUserId in otherParticipantIds)
             {
-                var user = await userRepository.GetById(otherUserId);
+                var user = await this.userRepository.GetById(otherUserId);
                 if (user is not null &&
                     !string.Equals(user.Username, "System", StringComparison.OrdinalIgnoreCase))
                 {
@@ -141,7 +138,7 @@ namespace BoardGames.Api.Services
                 }
             }
 
-            var fallbackUser = await userRepository.GetById(otherParticipantIds.First());
+            var fallbackUser = await this.userRepository.GetById(otherParticipantIds.First());
             if (fallbackUser is null ||
                 string.Equals(fallbackUser.Username, "System", StringComparison.OrdinalIgnoreCase))
             {
@@ -151,9 +148,9 @@ namespace BoardGames.Api.Services
             return FormatUserDisplayName(fallbackUser);
         }
 
-        public string GetOtherUserNameByMessageDTO(MessageDataTransferObject message)
+        public string GetOtherUserNameByMessageDTO(MessageDTO message)
         {
-            int otherUserId = message.SenderId == UserId ? message.ReceiverId : message.SenderId;
+            int otherUserId = message.SenderId == this.UserId ? message.ReceiverId : message.SenderId;
             if (otherUserId <= 0)
             {
                 return "Unknown User";
@@ -162,15 +159,15 @@ namespace BoardGames.Api.Services
             return $"User {otherUserId}";
         }
 
-        public async Task SendMessage(MessageDataTransferObject message)
+        public async Task SendMessage(MessageDTO message)
         {
-            Message persisted = await ConversationRepository.HandleNewMessage(MessageDTOToMessage(message));
+            Message persisted = await this.ConversationRepository.HandleNewMessage(this.MessageDTOToMessage(message));
 
             // Track the sent ID so the poller won't fire a duplicate notification for it.
-            recentlySentMessageIds.Add(persisted.MessageId);
+            this.recentlySentMessageIds.Add(persisted.MessageId);
 
             // Immediately update the local cache so the poller sees the message as known.
-            var cachedConv = cachedConversations.FirstOrDefault(c => c.ConversationId == persisted.ConversationId);
+            var cachedConv = this.cachedConversations.FirstOrDefault(c => c.ConversationId == persisted.ConversationId);
             if (cachedConv != null)
             {
                 if (cachedConv.Messages is IList<Message> collection)
@@ -182,23 +179,23 @@ namespace BoardGames.Api.Services
                 }
             }
 
-            await NotifySubscribersAboutMessage(persisted);
+            await this.NotifySubscribersAboutMessage(persisted);
         }
 
         public async Task<int> CreateConversation(int senderId, int receiverId)
         {
-            int conversationId = await ConversationRepository.CreateConversation(senderId, receiverId);
-            Conversation createdConversation = await ConversationRepository.GetConversationById(conversationId);
-            NotifySubscribersAboutNewConversation(createdConversation);
+            int conversationId = await this.ConversationRepository.CreateConversation(senderId, receiverId);
+            Conversation createdConversation = await this.ConversationRepository.GetConversationById(conversationId);
+            this.NotifySubscribersAboutNewConversation(createdConversation);
             return conversationId;
         }
 
-        public async Task UpdateMessage(MessageDataTransferObject message)
+        public async Task UpdateMessage(MessageDTO message)
         {
-            Message? persisted = await ConversationRepository.HandleMessageUpdate(MessageDTOToMessage(message));
+            Message? persisted = await this.ConversationRepository.HandleMessageUpdate(this.MessageDTOToMessage(message));
             if (persisted != null)
             {
-                await NotifySubscribersAboutMessageUpdate(persisted);
+                await this.NotifySubscribersAboutMessageUpdate(persisted);
             }
         }
 
@@ -206,58 +203,58 @@ namespace BoardGames.Api.Services
         {
             var readReceipt = new ReadReceiptDTO(
                 conversation.Id,
-                UserId,
-                conversation.Participants.First(participantItem => participantItem.UserId != UserId).UserId,
+                this.UserId,
+                conversation.Participants.First(participantItem => participantItem.UserId != this.UserId).UserId,
                 DateTime.Now);
-            await ConversationRepository.HandleReadReceipt(readReceipt);
-            await NotifySubscribersAboutReadReceipt(readReceipt);
+            await this.ConversationRepository.HandleReadReceipt(readReceipt);
+            await this.NotifySubscribersAboutReadReceipt(readReceipt);
         }
 
         public async Task OnCardPaymentSelected(int messageId)
         {
-            await FinalizeRentalRequest(messageId);
+            await this.FinalizeRentalRequest(messageId);
         }
 
         public async Task OnCashPaymentSelected(int messageId, int paymentId)
         {
-            await FinalizeRentalRequest(messageId);
-            await SendCashAgreementMessage(messageId, paymentId);
+            await this.FinalizeRentalRequest(messageId);
+            await this.SendCashAgreementMessage(messageId, paymentId);
         }
 
         private async Task FinalizeRentalRequest(int messageId)
         {
-            Message? updated = await ConversationRepository.HandleRentalRequestFinalization(messageId);
+            Message? updated = await this.ConversationRepository.HandleRentalRequestFinalization(messageId);
             if (updated != null)
             {
-                await NotifySubscribersAboutMessageUpdate(updated);
+                await this.NotifySubscribersAboutMessageUpdate(updated);
             }
         }
 
         private async Task SendCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId)
         {
-            Message? created = await ConversationRepository.CreateCashAgreementMessage(messageIdOfParentRentalRequestMessage, paymentId);
+            Message? created = await this.ConversationRepository.CreateCashAgreementMessage(messageIdOfParentRentalRequestMessage, paymentId);
             if (created != null)
             {
-                await NotifySubscribersAboutMessage(created);
+                await this.NotifySubscribersAboutMessage(created);
             }
         }
 
         public void StartPolling()
         {
-            if (pollingCancellationTokenSource != null)
+            if (this.pollingCancellationTokenSource != null)
             {
                 return;
             }
 
-            pollingCancellationTokenSource = new CancellationTokenSource();
-            _ = Task.Run(() => PollConversationsLoop(pollingCancellationTokenSource.Token));
+            this.pollingCancellationTokenSource = new CancellationTokenSource();
+            _ = Task.Run(() => this.PollConversationsLoop(this.pollingCancellationTokenSource.Token));
         }
 
         public void StopPolling()
         {
-            pollingCancellationTokenSource?.Cancel();
-            pollingCancellationTokenSource?.Dispose();
-            pollingCancellationTokenSource = null;
+            this.pollingCancellationTokenSource?.Cancel();
+            this.pollingCancellationTokenSource?.Dispose();
+            this.pollingCancellationTokenSource = null;
         }
 
         private async Task PollConversationsLoop(CancellationToken token)
@@ -267,15 +264,15 @@ namespace BoardGames.Api.Services
                 try
                 {
                     await Task.Delay(TimeSpan.FromSeconds(0.1));
-                    var fetchedConversations = await ConversationRepository.GetConversationsForUser(UserId);
+                    var fetchedConversations = await this.ConversationRepository.GetConversationsForUser(this.UserId);
 
                     foreach (var fetchedConv in fetchedConversations)
                     {
-                        var cachedConv = cachedConversations.FirstOrDefault(c => c.ConversationId == fetchedConv.ConversationId);
+                        var cachedConv = this.cachedConversations.FirstOrDefault(c => c.ConversationId == fetchedConv.ConversationId);
 
                         if (cachedConv == null)
                         {
-                            NotifySubscribersAboutNewConversation(fetchedConv);
+                            this.NotifySubscribersAboutNewConversation(fetchedConv);
                         }
                         else
                         {
@@ -285,9 +282,9 @@ namespace BoardGames.Api.Services
                                 if (cachedMsg == null)
                                 {
                                     // Only notify if we didn't just send this message ourselves.
-                                    if (!recentlySentMessageIds.Remove(fetchedMsg.MessageId))
+                                    if (!this.recentlySentMessageIds.Remove(fetchedMsg.MessageId))
                                     {
-                                        await NotifySubscribersAboutMessage(fetchedMsg);
+                                        await this.NotifySubscribersAboutMessage(fetchedMsg);
                                     }
                                 }
                                 else
@@ -313,14 +310,14 @@ namespace BoardGames.Api.Services
 
                                     if (updated)
                                     {
-                                        await NotifySubscribersAboutMessageUpdate(fetchedMsg);
+                                        await this.NotifySubscribersAboutMessageUpdate(fetchedMsg);
                                     }
                                 }
                             }
                         }
                     }
 
-                    cachedConversations = fetchedConversations;
+                    this.cachedConversations = fetchedConversations;
                 }
                 catch (TaskCanceledException)
                 {
@@ -334,31 +331,31 @@ namespace BoardGames.Api.Services
 
         public void OnMessageReceived(Message message)
         {
-            MessageDataTransferObject messageDTO = MessageToMessageDTO(message);
-            string userName = GetOtherUserNameByMessageDTO(messageDTO);
-            ActionMessageProcessed?.Invoke(messageDTO, userName);
+            MessageDTO messageDTO = this.MessageToMessageDTO(message);
+            string userName = this.GetOtherUserNameByMessageDTO(messageDTO);
+            this.ActionMessageProcessed?.Invoke(messageDTO, userName);
         }
 
         public async Task OnConversationReceived(Conversation conversation)
         {
-            ConversationDTO conversationDTO = ConversationToConversationDTO(conversation);
-            string userName = await GetOtherUserNameByConversationDTO(conversationDTO);
-            ActionConversationProcessed?.Invoke(conversationDTO, userName);
+            ConversationDTO conversationDTO = this.ConversationToConversationDTO(conversation);
+            string userName = await this.GetOtherUserNameByConversationDTO(conversationDTO);
+            this.ActionConversationProcessed?.Invoke(conversationDTO, userName);
         }
 
         public void OnReadReceiptReceived(ReadReceiptDTO readReceipt)
         {
-            ActionReadReceiptProcessed?.Invoke(readReceipt);
+            this.ActionReadReceiptProcessed?.Invoke(readReceipt);
         }
 
         public void OnMessageUpdateReceived(Message message)
         {
-            MessageDataTransferObject messageDTO = MessageToMessageDTO(message);
-            string userName = GetOtherUserNameByMessageDTO(messageDTO);
-            ActionMessageUpdateProcessed?.Invoke(messageDTO, userName);
+            MessageDTO messageDTO = this.MessageToMessageDTO(message);
+            string userName = this.GetOtherUserNameByMessageDTO(messageDTO);
+            this.ActionMessageUpdateProcessed?.Invoke(messageDTO, userName);
         }
 
-        public Message MessageDTOToMessage(MessageDataTransferObject messageDto)
+        public Message MessageDTOToMessage(MessageDTO messageDto)
         {
             Message toReturn = messageDto.Type switch
             {
@@ -439,7 +436,7 @@ namespace BoardGames.Api.Services
             return toReturn;
         }
 
-        public MessageDataTransferObject MessageToMessageDTO(Message message)
+        public MessageDTO MessageToMessageDTO(Message message)
         {
             int defaultMissingIdentifier = -1;
 
@@ -461,7 +458,7 @@ namespace BoardGames.Api.Services
                 _ => message.MessageContentAsString ?? string.Empty,
             };
 
-            return new MessageDataTransferObject(
+            return new MessageDTO(
                 Id: message.MessageId,
                 ConversationId: message.ConversationId,
                 SenderId: message.MessageSenderId,
@@ -484,7 +481,7 @@ namespace BoardGames.Api.Services
         {
             var messageDTOs = conversation.Messages
                 .OrderBy(messageItem => messageItem.MessageSentTime)
-                .Select(messageItem => MessageToMessageDTO(messageItem))
+                .Select(messageItem => this.MessageToMessageDTO(messageItem))
                 .ToList();
 
             var participantsOrdered = conversation.Participants

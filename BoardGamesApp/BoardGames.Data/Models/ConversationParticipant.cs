@@ -1,6 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+// <copyright file="ConversationParticipant.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations.Schema;
 using BoardGames.Data.Models;
 
@@ -9,10 +10,10 @@ public class ConversationParticipant
 {
     public ConversationParticipant(int conversationId, int userId)
     {
-        ConversationId = conversationId;
-        UserId = userId;
-        UnreadMessagesCount = 0;
-        LastMessageReadTime = null;
+        this.ConversationId = conversationId;
+        this.UserId = userId;
+        this.UnreadMessagesCount = 0;
+        this.LastMessageReadTime = null;
     }
 
     public ConversationParticipant()
@@ -35,5 +36,5 @@ public class ConversationParticipant
     public Conversation? Conversation { get; set; }
 
     [ForeignKey("UserId")]
-    public User? User { get; set; } 
+    public User? User { get; set; }
 }

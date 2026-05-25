@@ -1,13 +1,10 @@
-﻿// <copyright file="RentalService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="RentalService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -24,11 +21,11 @@ namespace BoardGames.Api.Services
             this.gameRepository = gameRepository;
         }
 
-        public async Task<List<RentalDataTransferObject>> GetRentalsForUser(int userId)
+        public async Task<List<RentalDTO>> GetRentalsForUser(int userId)
         {
             var rentals = await rentalRepository.GetRentalsForUser(userId);
 
-            return rentals.Select(rental => new RentalDataTransferObject(
+            return rentals.Select(rental => new RentalDTO(
                 rental.RentalId,
                 rental.GameId,
                 rental.Game?.Name ?? "Unknown Game",

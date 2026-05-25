@@ -1,14 +1,20 @@
-using System;
+// <copyright file="IRentalService2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.Immutable;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public interface IRentalService
     {
         ImmutableList<RentalDTO> GetRentalsForRenter(Guid renterAccountId);
+
         ImmutableList<RentalDTO> GetRentalsForOwner(Guid ownerAccountId);
+
         bool IsSlotAvailable(int gameId, DateTime requestedStartDate, DateTime requestedEndDate);
+
         void CreateConfirmedRental(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate);
     }
 }

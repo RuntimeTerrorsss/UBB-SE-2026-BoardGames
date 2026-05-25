@@ -2,9 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
 namespace BoardGames.Desktop.ViewModels
 {
     public abstract class ViewModelBase : INotifyPropertyChanged

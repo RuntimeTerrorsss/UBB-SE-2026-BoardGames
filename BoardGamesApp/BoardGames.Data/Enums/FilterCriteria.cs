@@ -1,5 +1,5 @@
-﻿// <copyright file="FilterCriteria.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="FilterCriteria.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
 namespace BoardGames.Data.Enums;
@@ -15,7 +15,7 @@ public class FilterCriteria
     /// </summary>
     public FilterCriteria()
     {
-        Reset();
+        this.Reset();
     }
 
     /// <summary>
@@ -58,13 +58,13 @@ public class FilterCriteria
     /// </summary>
     public void Reset()
     {
-        Name = null;
-        City = null;
-        AvailabilityRange = null;
-        MaximumPrice = null;
-        PlayerCount = null;
-        SortOption = SortOption.None;
-        UserId = null;
+        this.Name = null;
+        this.City = null;
+        this.AvailabilityRange = null;
+        this.MaximumPrice = null;
+        this.PlayerCount = null;
+        this.SortOption = SortOption.None;
+        this.UserId = null;
     }
 
     /// <summary>
@@ -73,11 +73,11 @@ public class FilterCriteria
     /// <returns>True if the range is valid or null; otherwise, false.</returns>
     public bool HasValidAvailabilityRange()
     {
-        if (AvailabilityRange == null)
+        if (this.AvailabilityRange == null)
         {
             return true;
         }
 
-        return AvailabilityRange.StartTime < AvailabilityRange.EndTime;
+        return this.AvailabilityRange.StartTime < this.AvailabilityRange.EndTime;
     }
 }

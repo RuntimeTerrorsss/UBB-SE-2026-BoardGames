@@ -1,5 +1,5 @@
-﻿// <copyright file="GameDTO.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="GameDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
 using System.ComponentModel;
@@ -61,6 +61,6 @@ namespace BoardGames.Shared.DTO
         /// <param name="name">The name of the property that changed. This value is optional and is automatically provided when called from
         /// a property setter.</param>
         protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

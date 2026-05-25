@@ -1,18 +1,12 @@
-﻿// <copyright file="UserAPIProxy.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="UserAPIProxy.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 public class UserAPIProxy : IUserRepository
 {
@@ -31,7 +25,11 @@ public class UserAPIProxy : IUserRepository
     {
         var response = await this.httpClient.GetAsync($"users/{id}");
         Debug.WriteLine($"GetById status: {response.StatusCode}");
-        if (!response.IsSuccessStatusCode) return null;
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
         var raw = await response.Content.ReadAsStringAsync();
         Debug.WriteLine($"GetById raw: {raw}");
         try
@@ -82,8 +80,9 @@ public class UserAPIProxy : IUserRepository
         var response = await this.httpClient.PostAsJsonAsync("users/login", loginData, JsonOptions);
         if (!response.IsSuccessStatusCode)
         {
-            return null; 
+            return null;
         }
+
         return await response.Content.ReadFromJsonAsync<User>(JsonOptions);
     }
 

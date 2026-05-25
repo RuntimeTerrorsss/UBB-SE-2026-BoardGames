@@ -1,10 +1,12 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+// <copyright file="AuthService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Api.Security;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -21,15 +23,15 @@ namespace BoardGames.Api.Services
             this.failedLoginRepository = failedLoginRepository;
         }
 
-        public async Task<ServiceResult<bool>> RegisterAsync(RegisterDataTransferObject registrationRequest)
+        public async Task<ServiceResult<bool>> RegisterAsync(RegisterDTO registrationRequest)
         {
-            var existingByUsername = await accountRepository.GetByUsernameAsync(registrationRequest.Username);
+            var existingByUsername = await this.accountRepository.GetByUsernameAsync(registrationRequest.Username);
             if (existingByUsername != null)
             {
                 return ServiceResult<bool>.Fail("Username|Username is already taken.");
             }
 
-            var newAccount = new Account
+            var newAccount = new User
             {
                 Id = Guid.NewGuid(),
                 DisplayName = registrationRequest.DisplayName,
@@ -47,43 +49,43 @@ namespace BoardGames.Api.Services
                 IsSuspended = false,
             };
 
-            await accountRepository.AddAsync(newAccount);
-            await accountRepository.AddRoleAsync(newAccount.Id, StandardUserRoleName);
+            await this.accountRepository.AddAsync(newAccount);
+            await this.accountRepository.AddRoleAsync(newAccount.Id, StandardUserRoleName);
 
             return ServiceResult<bool>.Ok(true);
         }
 
-        public async Task<ServiceResult<AccountProfileDataTransferObject>> LoginAsync(LoginDataTransferObject loginRequest)
+        public async Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO loginRequest)
         {
-            var account = await accountRepository.GetByUsernameAsync(loginRequest.UsernameOrEmail)
-                       ?? await accountRepository.GetByEmailAsync(loginRequest.UsernameOrEmail);
+            var account = await this.accountRepository.GetByUsernameAsync(loginRequest.UsernameOrEmail)
+                       ?? await this.accountRepository.GetByEmailAsync(loginRequest.UsernameOrEmail);
             if (account == null)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("Invalid username or password.");
+                return ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
             }
 
             if (account.IsSuspended)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("This account has been suspended.");
+                return ServiceResult<AccountProfileDTO>.Fail("This account has been suspended.");
             }
 
-            var failedLoginAttempt = await failedLoginRepository.GetByAccountIdAsync(account.Id);
+            var failedLoginAttempt = await this.failedLoginRepository.GetByAccountIdAsync(account.Id);
             if (failedLoginAttempt?.LockedUntil.HasValue == true
                 && failedLoginAttempt.LockedUntil.Value > DateTime.UtcNow)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("This account is locked. Please contact an administrator or try again later.");
+                return ServiceResult<AccountProfileDTO>.Fail("This account is locked. Please contact an administrator or try again later.");
             }
 
             if (!PasswordHasher.VerifyPassword(loginRequest.Password, account.PasswordHash))
             {
-                await failedLoginRepository.IncrementAsync(account.Id);
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("Invalid username or password.");
+                await this.failedLoginRepository.IncrementAsync(account.Id);
+                return ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
             }
 
-            await failedLoginRepository.ResetAsync(account.Id);
+            await this.failedLoginRepository.ResetAsync(account.Id);
             string primaryRole = account.Roles?.FirstOrDefault()?.Name ?? StandardUserRoleName;
 
-            return ServiceResult<AccountProfileDataTransferObject>.Ok(new AccountProfileDataTransferObject
+            return ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO
             {
                 Id = account.Id,
                 Username = account.Username,
@@ -96,7 +98,7 @@ namespace BoardGames.Api.Services
                 StreetName = account.StreetName,
                 StreetNumber = account.StreetNumber,
                 IsSuspended = account.IsSuspended,
-                Role = new RoleDataTransferObject { Name = primaryRole },
+                Role = new RoleDTO { Name = primaryRole },
             });
         }
 

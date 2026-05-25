@@ -1,17 +1,6 @@
-﻿// <copyright file="ChatViewModel.cs" company="PlaceholderCompany">
+// <copyright file="ChatViewModel.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using BoardGames.Data.Enum;
-using BoardGames.Shared.DTO;
-using Microsoft.UI.Xaml.Controls;
 
 namespace BoardGames.Desktop.ViewModels;
 
@@ -27,7 +16,7 @@ public class ChatViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public event Action<MessageDataTransferObject> MessageSent;
+    public event Action<MessageDTO> MessageSent;
 
     public event Action<int, int, bool, bool> BookingRequestUpdate;
 
@@ -142,7 +131,7 @@ public class ChatViewModel : INotifyPropertyChanged
 
         int unassignedIdentifier = -1;
 
-        var messageDataTransferObject = new MessageDTO(
+        var messageDTO = new MessageDTO(
             unassignedIdentifier,
             ConversationId,
             CurrentUserId,
@@ -159,7 +148,7 @@ public class ChatViewModel : INotifyPropertyChanged
             unassignedIdentifier);
 
         InputText = string.Empty;
-        MessageSent.Invoke(messageDataTransferObject);
+        MessageSent.Invoke(messageDTO);
     }
 
     public void ResolveBookingRequest(int messageId, bool accepted)
@@ -193,7 +182,7 @@ public class ChatViewModel : INotifyPropertyChanged
     {
         int unassignedIdentifier = -1;
 
-        var messageDataTransferObject = new MessageDTO(
+        var messageDTO = new MessageDTO(
             unassignedIdentifier,
             ConversationId,
             CurrentUserId,
@@ -209,9 +198,9 @@ public class ChatViewModel : INotifyPropertyChanged
             unassignedIdentifier,
             unassignedIdentifier);
 
-        var newViewModel = new MessageViewModel(messageDataTransferObject, CurrentUserId);
+        var newViewModel = new MessageViewModel(messageDTO, CurrentUserId);
         InputText = string.Empty;
-        MessageSent.Invoke(messageDataTransferObject);
+        MessageSent.Invoke(messageDTO);
     }
 
     public void RaiseBookingRequestUpdate(int messageId, int conversationId, bool accepted, bool resolved)

@@ -1,8 +1,9 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="PaymentViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Linq;
 
 namespace BoardGames.Web.Models.Payment
 {
@@ -71,30 +72,30 @@ namespace BoardGames.Web.Models.Payment
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (!string.IsNullOrWhiteSpace(CardNumber))
+            if (!string.IsNullOrWhiteSpace(this.CardNumber))
             {
-                var digits = new string(CardNumber.Where(char.IsDigit).ToArray());
+                var digits = new string(this.CardNumber.Where(char.IsDigit).ToArray());
                 if (digits.Length is < 12 or > 19)
                 {
-                    yield return new ValidationResult("Card number must be 12 to 19 digits.", new[] { nameof(CardNumber) });
+                    yield return new ValidationResult("Card number must be 12 to 19 digits.", new[] { nameof(this.CardNumber) });
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(Expiry))
+            if (!string.IsNullOrWhiteSpace(this.Expiry))
             {
-                if (DateTime.TryParseExact(Expiry, "MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var expiry))
+                if (DateTime.TryParseExact(this.Expiry, "MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var expiry))
                 {
                     var lastDayOfMonth = new DateTime(expiry.Year, expiry.Month, DateTime.DaysInMonth(expiry.Year, expiry.Month));
                     if (DateTime.UtcNow.Date > lastDayOfMonth)
                     {
-                        yield return new ValidationResult("Card expiry date must be in the future.", new[] { nameof(Expiry) });
+                        yield return new ValidationResult("Card expiry date must be in the future.", new[] { nameof(this.Expiry) });
                     }
                 }
             }
 
-            if (DateOfTransaction.Date > DateTime.Today)
+            if (this.DateOfTransaction.Date > DateTime.Today)
             {
-                yield return new ValidationResult("Transaction date cannot be in the future.", new[] { nameof(DateOfTransaction) });
+                yield return new ValidationResult("Transaction date cannot be in the future.", new[] { nameof(this.DateOfTransaction) });
             }
         }
     }

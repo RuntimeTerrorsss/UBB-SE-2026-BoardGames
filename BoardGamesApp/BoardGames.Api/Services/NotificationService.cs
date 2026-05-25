@@ -1,10 +1,12 @@
-using System;
+// <copyright file="NotificationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.Immutable;
-using System.Linq;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -22,18 +24,18 @@ namespace BoardGames.Api.Services
         }
 
         public ImmutableList<NotificationDTO> GetNotificationsForUser(Guid accountId) =>
-            notificationRepository.GetNotificationsByUser(accountId)
-                .Select(model => notificationMapper.ToDTO(model)!)
+            this.notificationRepository.GetNotificationsByUser(accountId)
+                .Select(model => this.notificationMapper.ToDTO(model)!)
                 .ToImmutableList();
 
         public NotificationDTO GetNotificationByIdentifier(int notificationId) =>
-            notificationMapper.ToDTO(notificationRepository.Get(notificationId))!;
+            this.notificationMapper.ToDTO(this.notificationRepository.Get(notificationId))!;
 
         public NotificationDTO DeleteNotificationByIdentifier(int notificationId) =>
-            notificationMapper.ToDTO(notificationRepository.Delete(notificationId))!;
+            this.notificationMapper.ToDTO(this.notificationRepository.Delete(notificationId))!;
 
         public void UpdateNotificationByIdentifier(int notificationId, NotificationDTO updatedDto) =>
-            notificationRepository.Update(notificationId, notificationMapper.ToModel(updatedDto)!);
+            this.notificationRepository.Update(notificationId, this.notificationMapper.ToModel(updatedDto)!);
 
         public void SendNotificationToUser(Guid recipientAccountId, NotificationDTO notificationToSend)
         {
@@ -46,7 +48,7 @@ namespace BoardGames.Api.Services
             var model = new Notification
             {
                 Id = NewNotificationId,
-                Recipient = new Account { Id = recipientAccountId },
+                Recipient = new User { Id = recipientAccountId },
                 Timestamp = timestamp,
                 Title = notificationToSend.Title,
                 Body = notificationToSend.Body,
@@ -54,10 +56,10 @@ namespace BoardGames.Api.Services
                 RelatedRequest = notificationToSend.RelatedRequestId.HasValue ? new Request { Id = notificationToSend.RelatedRequestId.Value } : null,
             };
 
-            notificationRepository.Add(model);
+            this.notificationRepository.Add(model);
         }
 
         public void DeleteNotificationsLinkedToRequest(int linkedRequestId) =>
-            notificationRepository.DeleteNotificationsLinkedToRequest(linkedRequestId);
+            this.notificationRepository.DeleteNotificationsLinkedToRequest(linkedRequestId);
     }
 }

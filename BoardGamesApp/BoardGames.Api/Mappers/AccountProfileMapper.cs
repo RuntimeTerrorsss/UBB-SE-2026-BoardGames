@@ -1,7 +1,9 @@
-using System;
-using System.Linq;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+// <copyright file="AccountProfileMapper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Mappers
 {
@@ -9,7 +11,7 @@ namespace BoardGames.Api.Mappers
     {
         private const string StandardAccountRoleName = "Standard User";
 
-        public AccountProfileDataTransferObject? ToDataTransferObject(Account? account)
+        public AccountProfileDTO? ToDTO(User? account)
         {
             if (account == null)
             {
@@ -18,7 +20,7 @@ namespace BoardGames.Api.Mappers
 
             Role? primaryRole = account.Roles?.FirstOrDefault();
 
-            return new AccountProfileDataTransferObject
+            return new AccountProfileDTO
             {
                 Id = account.Id,
                 Username = account.Username,
@@ -26,7 +28,7 @@ namespace BoardGames.Api.Mappers
                 Email = account.Email,
                 PhoneNumber = account.PhoneNumber,
                 AvatarUrl = account.AvatarUrl,
-                Role = new RoleDataTransferObject
+                Role = new RoleDTO
                 {
                     Id = primaryRole?.Id ?? Guid.Empty,
                     Name = primaryRole?.Name ?? StandardAccountRoleName,
@@ -39,19 +41,19 @@ namespace BoardGames.Api.Mappers
             };
         }
 
-        public void ApplyToEntity(Account account, AccountProfileDataTransferObject dataTransferObject)
+        public void ApplyToEntity(User account, AccountProfileDTO DTO)
         {
-            account.DisplayName = dataTransferObject.DisplayName;
-            account.Email = dataTransferObject.Email;
-            account.PhoneNumber = dataTransferObject.PhoneNumber;
-            account.Country = dataTransferObject.Country;
-            account.City = dataTransferObject.City;
-            account.StreetName = dataTransferObject.StreetName;
-            account.StreetNumber = dataTransferObject.StreetNumber;
+            account.DisplayName = DTO.DisplayName;
+            account.Email = DTO.Email;
+            account.PhoneNumber = DTO.PhoneNumber;
+            account.Country = DTO.Country;
+            account.City = DTO.City;
+            account.StreetName = DTO.StreetName;
+            account.StreetNumber = DTO.StreetNumber;
 
-            if (!string.IsNullOrWhiteSpace(dataTransferObject.AvatarUrl))
+            if (!string.IsNullOrWhiteSpace(DTO.AvatarUrl))
             {
-                account.AvatarUrl = dataTransferObject.AvatarUrl;
+                account.AvatarUrl = DTO.AvatarUrl;
             }
 
             account.UpdatedAt = DateTime.UtcNow;

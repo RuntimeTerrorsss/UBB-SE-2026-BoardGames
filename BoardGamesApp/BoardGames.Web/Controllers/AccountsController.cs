@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// <copyright file="AccountsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data;
+using BoardGames.Data.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BoardGames.Api.Data;
-using BoardGames.Api.Models;
 
 namespace BoardGames.Web.Controllers
 {
@@ -16,13 +15,13 @@ namespace BoardGames.Web.Controllers
 
         public AccountsController(AppDbContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         // GET: Accounts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Accounts.ToListAsync());
+            return View(await this._context.Users.ToListAsync());
         }
 
         // GET: Accounts/Details/5
@@ -30,14 +29,14 @@ namespace BoardGames.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var account = await _context.Accounts
+            var account = await this._context.Users
                 .FirstOrDefaultAsync(inputAccount => inputAccount.Id == id);
             if (account == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
             return View(account);
@@ -46,21 +45,22 @@ namespace BoardGames.Web.Controllers
         // GET: Accounts/Create
         public IActionResult Create()
         {
-            return View();
+            return this.View();
         }
 
         // POST: Accounts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DisplayName,Username,Email,PasswordHash,PhoneNumber,AvatarUrl,IsSuspended,CreatedAt,UpdatedAt,Country,City,StreetName,StreetNumber")] Account account)
+        public async Task<IActionResult> Create([Bind("Id,DisplayName,Username,Email,PasswordHash,PhoneNumber,AvatarUrl,IsSuspended,CreatedAt,UpdatedAt,Country,City,StreetName,StreetNumber")] User account)
         {
-            if (ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
                 account.Id = Guid.NewGuid();
-                _context.Add(account);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                this._context.Add(account);
+                await this._context.SaveChangesAsync();
+                return this.RedirectToAction(nameof(this.Index));
             }
+
             return View(account);
         }
 
@@ -69,47 +69,50 @@ namespace BoardGames.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var account = await _context.Accounts.FindAsync(id);
+            var account = await this._context.Users.FindAsync(id);
             if (account == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
+
             return View(account);
         }
 
         // POST: Accounts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,DisplayName,Username,Email,PasswordHash,PhoneNumber,AvatarUrl,IsSuspended,CreatedAt,UpdatedAt,Country,City,StreetName,StreetNumber")] Account account)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,DisplayName,Username,Email,PasswordHash,PhoneNumber,AvatarUrl,IsSuspended,CreatedAt,UpdatedAt,Country,City,StreetName,StreetNumber")] User account)
         {
             if (id != account.Id)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(account);
-                    await _context.SaveChangesAsync();
+                    this._context.Update(account);
+                    await this._context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!AccountExists(account.Id))
                     {
-                        return NotFound();
+                        return this.NotFound();
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                return this.RedirectToAction(nameof(this.Index));
             }
+
             return View(account);
         }
 
@@ -118,14 +121,14 @@ namespace BoardGames.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var account = await _context.Accounts
+            var account = await this._context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (account == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
             return View(account);
@@ -136,19 +139,19 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var account = await _context.Accounts.FindAsync(id);
+            var account = await this._context.Users.FindAsync(id);
             if (account != null)
             {
-                _context.Accounts.Remove(account);
+                this._context.Users.Remove(account);
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            await this._context.SaveChangesAsync();
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         private bool AccountExists(Guid id)
         {
-            return _context.Accounts.Any(account => account.Id == id);
+            return this._context.Users.Any(account => account.Id == id);
         }
     }
 }

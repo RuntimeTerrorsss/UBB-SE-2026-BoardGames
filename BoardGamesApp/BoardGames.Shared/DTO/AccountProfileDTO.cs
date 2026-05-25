@@ -1,8 +1,10 @@
-using System;
+// <copyright file="AccountProfileDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Shared.DTO
 {
-    public class AccountProfileDataTransferObject
+    public class AccountProfileDTO
     {
         public Guid Id { get; set; }
 
@@ -16,7 +18,7 @@ namespace BoardGames.Shared.DTO
 
         public string AvatarUrl { get; set; }
 
-        public RoleDataTransferObject Role { get; set; }
+        public RoleDTO Role { get; set; }
 
         public bool IsSuspended { get; set; }
 

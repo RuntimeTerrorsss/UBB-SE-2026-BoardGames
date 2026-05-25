@@ -1,3 +1,7 @@
+// <copyright file="Search.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using BoardGames.Shared.DTO;
 
@@ -34,9 +38,11 @@ namespace BoardGames.Web.Models.Search
         public int Page { get; set; } = 1;
 
         public int PageSize { get; set; } = 6;
+
         public int TotalPages { get; set; } = 1;
 
         public List<GameDTO> Results { get; set; } = new();
+
         public string? ErrorMessage { get; set; }
     }
 }

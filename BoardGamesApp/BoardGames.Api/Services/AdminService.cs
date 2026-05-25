@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+// <copyright file="AdminService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Api.Security;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -20,22 +21,22 @@ namespace BoardGames.Api.Services
             this.failedLoginRepository = failedLoginRepository;
         }
 
-        public async Task<ServiceResult<List<AccountProfileDataTransferObject>>> GetAllAccountsAsync(int pageNumber, int pageSize)
+        public async Task<ServiceResult<List<AccountProfileDTO>>> GetAllAccountsAsync(int pageNumber, int pageSize)
         {
-            List<Account> accountEntities = await accountRepository.GetAllAsync(pageNumber, pageSize);
+            List<User> accountEntities = await this.accountRepository.GetAllAsync(pageNumber, pageSize);
 
-            List<AccountProfileDataTransferObject> accountProfileDtos = new List<AccountProfileDataTransferObject>();
+            List<AccountProfileDTO> accountProfileDtos = new List<AccountProfileDTO>();
 
-            foreach (Account accountEntity in accountEntities)
+            foreach (User accountEntity in accountEntities)
             {
                 Role? firstRole = accountEntity.Roles?.FirstOrDefault();
-                FailedLoginAttempt? failedAttempt = await failedLoginRepository.GetByAccountIdAsync(accountEntity.Id);
+                FailedLoginAttempt? failedAttempt = await this.failedLoginRepository.GetByAccountIdAsync(accountEntity.Id);
 
                 bool isLocked = failedAttempt != null
                     && failedAttempt.LockedUntil.HasValue
                     && failedAttempt.LockedUntil.Value > DateTime.UtcNow;
 
-                accountProfileDtos.Add(new AccountProfileDataTransferObject
+                accountProfileDtos.Add(new AccountProfileDTO
                 {
                     Id = accountEntity.Id,
                     Username = accountEntity.Username,
@@ -43,7 +44,7 @@ namespace BoardGames.Api.Services
                     Email = accountEntity.Email,
                     PhoneNumber = accountEntity.PhoneNumber,
                     AvatarUrl = accountEntity.AvatarUrl,
-                    Role = new RoleDataTransferObject
+                    Role = new RoleDTO
                     {
                         Id = firstRole?.Id ?? Guid.Empty,
                         Name = firstRole?.Name ?? "Standard User",
@@ -57,33 +58,33 @@ namespace BoardGames.Api.Services
                 });
             }
 
-            return ServiceResult<List<AccountProfileDataTransferObject>>.Ok(accountProfileDtos);
+            return ServiceResult<List<AccountProfileDTO>>.Ok(accountProfileDtos);
         }
 
         public async Task<ServiceResult<bool>> SuspendAccountAsync(Guid accountId)
         {
-            Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
+            User? accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
             }
 
             accountEntity.IsSuspended = true;
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<bool>> UnsuspendAccountAsync(Guid accountId)
         {
-            Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
+            User? accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
             }
 
             accountEntity.IsSuspended = false;
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
@@ -96,21 +97,21 @@ namespace BoardGames.Api.Services
                 return ServiceResult<bool>.Fail("Password must be at least 6 characters long.");
             }
 
-            Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
+            User? accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
             }
 
             accountEntity.PasswordHash = PasswordHasher.HashPassword(newPassword);
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<bool>> UnlockAccountAsync(Guid accountId)
         {
-            await failedLoginRepository.ResetAsync(accountId);
+            await this.failedLoginRepository.ResetAsync(accountId);
             return ServiceResult<bool>.Ok(true);
         }
     }

@@ -1,4 +1,6 @@
-using System;
+// <copyright file="ApiClientOptions.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Shared.ProxyServices
 {

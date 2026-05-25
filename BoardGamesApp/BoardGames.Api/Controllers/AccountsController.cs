@@ -1,10 +1,10 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+// <copyright file="AccountsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Api.Common;
 using BoardGames.Api.Services;
-using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -27,42 +27,42 @@ namespace BoardGames.Api.Controllers
         [HttpGet("{accountId:guid}")]
         public async Task<ActionResult<AccountProfileDTO>> GetProfile(Guid accountId)
         {
-            var result = await accountService.GetProfileAsync(accountId);
+            var result = await this.accountService.GetProfileAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(result.Data);
+            return this.Ok(result.Data);
         }
 
         [HttpPut("{accountId:guid}")]
         public async Task<IActionResult> UpdateProfile(Guid accountId, [FromBody] AccountProfileDTO body)
         {
-            var result = await accountService.UpdateProfileAsync(accountId, body);
+            var result = await this.accountService.UpdateProfileAsync(accountId, body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPut("{accountId:guid}/password")]
-        public async Task<IActionResult> ChangePassword(Guid accountId, [FromBody] ChangePasswordDataTransferObject body)
+        public async Task<IActionResult> ChangePassword(Guid accountId, [FromBody] ChangePasswordDTO body)
         {
-            var result = await accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
+            var result = await this.accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPost("{accountId:guid}/avatar")]
         [RequestSizeLimit(MaximumAvatarUploadBytes)]
-        public async Task<ActionResult<AvatarUploadResponseDataTransferObject>> UploadAvatar(Guid accountId, IFormFile file)
+        public async Task<ActionResult<AvatarUploadResponseDTO>> UploadAvatar(Guid accountId, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -73,29 +73,29 @@ namespace BoardGames.Api.Controllers
             string relativeUrl;
             await using (var stream = file.OpenReadStream())
             {
-                relativeUrl = await avatarStorageService.SaveAsync(accountId, stream, extension);
+                relativeUrl = await this.avatarStorageService.SaveAsync(accountId, stream, extension);
             }
 
-            var result = await accountService.SetAvatarUrlAsync(accountId, relativeUrl);
+            var result = await this.accountService.SetAvatarUrlAsync(accountId, relativeUrl);
             if (!result.Success)
             {
-                avatarStorageService.Delete(relativeUrl);
+                this.avatarStorageService.Delete(relativeUrl);
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(new AvatarUploadResponseDataTransferObject { AvatarUrl = relativeUrl });
+            return this.Ok(new AvatarUploadResponseDTO { AvatarUrl = relativeUrl });
         }
 
         [HttpDelete("{accountId:guid}/avatar")]
         public async Task<IActionResult> RemoveAvatar(Guid accountId)
         {
-            var result = await accountService.RemoveAvatarAsync(accountId);
+            var result = await this.accountService.RemoveAvatarAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
     }
 }

@@ -1,95 +1,119 @@
+// <copyright file="FakeClientServices.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Tests.Fakes
 {
     internal sealed class FakeClientAuthService : IAuthService
     {
         public ServiceResult RegisterResult { get; set; } = ServiceResult.Ok();
-        public ServiceResult<AccountProfileDataTransferObject> LoginResult { get; set; } =
-            ServiceResult<AccountProfileDataTransferObject>.Ok(new AccountProfileDataTransferObject());
+
+        public ServiceResult<AccountProfileDTO> LoginResult { get; set; } =
+            ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO());
+
         public ServiceResult LogoutResult { get; set; } = ServiceResult.Ok();
+
         public ServiceResult<string> ForgotPasswordResult { get; set; } = ServiceResult<string>.Ok(string.Empty);
+
         public int RegisterCallCount { get; private set; }
+
         public int LoginCallCount { get; private set; }
-        public RegisterDataTransferObject? LastRegisterRequest { get; private set; }
-        public LoginDataTransferObject? LastLoginRequest { get; private set; }
+
+        public RegisterDTO? LastRegisterRequest { get; private set; }
+
+        public LoginDTO? LastLoginRequest { get; private set; }
 
         public Task<ServiceResult> RegisterAsync(
-            RegisterDataTransferObject request,
+            RegisterDTO request,
             CancellationToken cancellationToken = default)
         {
-            RegisterCallCount++;
-            LastRegisterRequest = request;
-            return Task.FromResult(RegisterResult);
+            this.RegisterCallCount++;
+            this.LastRegisterRequest = request;
+            return Task.FromResult(this.RegisterResult);
         }
 
-        public Task<ServiceResult<AccountProfileDataTransferObject>> LoginAsync(
-            LoginDataTransferObject request,
+        public Task<ServiceResult<AccountProfileDTO>> LoginAsync(
+            LoginDTO request,
             CancellationToken cancellationToken = default)
         {
-            LoginCallCount++;
-            LastLoginRequest = request;
-            return Task.FromResult(LoginResult);
+            this.LoginCallCount++;
+            this.LastLoginRequest = request;
+            return Task.FromResult(this.LoginResult);
         }
 
         public Task<ServiceResult> LogoutAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult(LogoutResult);
+            Task.FromResult(this.LogoutResult);
 
         public Task<ServiceResult<string>> ForgotPasswordAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult(ForgotPasswordResult);
+            Task.FromResult(this.ForgotPasswordResult);
     }
 
     internal sealed class FakeClientAdminService : IAdminService
     {
-        public ServiceResult<List<AccountProfileDataTransferObject>> AccountsResult { get; set; } =
-            ServiceResult<List<AccountProfileDataTransferObject>>.Ok(new List<AccountProfileDataTransferObject>());
+        public ServiceResult<List<AccountProfileDTO>> AccountsResult { get; set; } =
+            ServiceResult<List<AccountProfileDTO>>.Ok(new List<AccountProfileDTO>());
+
         public ServiceResult SuspendResult { get; set; } = ServiceResult.Ok();
+
         public ServiceResult UnsuspendResult { get; set; } = ServiceResult.Ok();
+
         public ServiceResult ResetPasswordResult { get; set; } = ServiceResult.Ok();
+
         public ServiceResult UnlockResult { get; set; } = ServiceResult.Ok();
+
         public int GetAllAccountsCallCount { get; private set; }
+
         public int SuspendCallCount { get; private set; }
+
         public int UnsuspendCallCount { get; private set; }
+
         public int ResetPasswordCallCount { get; private set; }
+
         public int UnlockCallCount { get; private set; }
+
         public Guid LastAccountId { get; private set; }
+
         public int LastPage { get; private set; }
+
         public int LastPageSize { get; private set; }
+
         public string LastNewPassword { get; private set; } = string.Empty;
 
-        public Task<ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>> GetAllAccountsAsync(
+        public Task<ServiceResult<IReadOnlyList<AccountProfileDTO>>> GetAllAccountsAsync(
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)
         {
-            GetAllAccountsCallCount++;
-            LastPage = page;
-            LastPageSize = pageSize;
-            return Task.FromResult(AccountsResult.Success
-                ? ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>.Ok(
-                    AccountsResult.Data ?? new List<AccountProfileDataTransferObject>())
-                : ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>.Fail(AccountsResult));
+            this.GetAllAccountsCallCount++;
+            this.LastPage = page;
+            this.LastPageSize = pageSize;
+            return Task.FromResult(this.AccountsResult.Success
+                ? ServiceResult<IReadOnlyList<AccountProfileDTO>>.Ok(
+                    this.AccountsResult.Data ?? new List<AccountProfileDTO>())
+                : ServiceResult<IReadOnlyList<AccountProfileDTO>>.Fail(this.AccountsResult));
         }
 
         public Task<ServiceResult> SuspendAccountAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            SuspendCallCount++;
-            LastAccountId = accountId;
-            return Task.FromResult(SuspendResult);
+            this.SuspendCallCount++;
+            this.LastAccountId = accountId;
+            return Task.FromResult(this.SuspendResult);
         }
 
         public Task<ServiceResult> UnsuspendAccountAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            UnsuspendCallCount++;
-            LastAccountId = accountId;
-            return Task.FromResult(UnsuspendResult);
+            this.UnsuspendCallCount++;
+            this.LastAccountId = accountId;
+            return Task.FromResult(this.UnsuspendResult);
         }
 
         public Task<ServiceResult> ResetPasswordAsync(
@@ -97,56 +121,65 @@ namespace BoardGames.Tests.Fakes
             string newPassword,
             CancellationToken cancellationToken = default)
         {
-            ResetPasswordCallCount++;
-            LastAccountId = accountId;
-            LastNewPassword = newPassword;
-            return Task.FromResult(ResetPasswordResult);
+            this.ResetPasswordCallCount++;
+            this.LastAccountId = accountId;
+            this.LastNewPassword = newPassword;
+            return Task.FromResult(this.ResetPasswordResult);
         }
 
         public Task<ServiceResult> UnlockAccountAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            UnlockCallCount++;
-            LastAccountId = accountId;
-            return Task.FromResult(UnlockResult);
+            this.UnlockCallCount++;
+            this.LastAccountId = accountId;
+            return Task.FromResult(this.UnlockResult);
         }
     }
 
     internal sealed class FakeClientAccountService : IAccountService
     {
-        public ServiceResult<AccountProfileDataTransferObject> ProfileResult { get; set; } =
-            ServiceResult<AccountProfileDataTransferObject>.Ok(new AccountProfileDataTransferObject());
+        public ServiceResult<AccountProfileDTO> ProfileResult { get; set; } =
+            ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO());
+
         public ServiceResult UpdateProfileResult { get; set; } = ServiceResult.Ok();
+
         public ServiceResult ChangePasswordResult { get; set; } = ServiceResult.Ok();
+
         public ServiceResult<string> UploadAvatarResult { get; set; } = ServiceResult<string>.Ok(string.Empty);
+
         public string UploadedAvatarUrl
         {
-            get => UploadAvatarResult.Data ?? string.Empty;
-            set => UploadAvatarResult = ServiceResult<string>.Ok(value);
+            get => this.UploadAvatarResult.Data ?? string.Empty;
+            set => this.UploadAvatarResult = ServiceResult<string>.Ok(value);
         }
 
         public int GetProfileCallCount { get; private set; }
-        public int UpdateProfileCallCount { get; private set; }
-        public int ChangePasswordCallCount { get; private set; }
-        public int UploadAvatarCallCount { get; private set; }
-        public int RemoveAvatarCallCount { get; private set; }
-        public AccountProfileDataTransferObject? LastProfileUpdate { get; private set; }
 
-        public Task<ServiceResult<AccountProfileDataTransferObject>> GetProfileAsync(
+        public int UpdateProfileCallCount { get; private set; }
+
+        public int ChangePasswordCallCount { get; private set; }
+
+        public int UploadAvatarCallCount { get; private set; }
+
+        public int RemoveAvatarCallCount { get; private set; }
+
+        public AccountProfileDTO? LastProfileUpdate { get; private set; }
+
+        public Task<ServiceResult<AccountProfileDTO>> GetProfileAsync(
             Guid accountId,
             CancellationToken cancellationToken = default)
         {
-            GetProfileCallCount++;
-            return Task.FromResult(ProfileResult);
+            this.GetProfileCallCount++;
+            return Task.FromResult(this.ProfileResult);
         }
 
         public Task<ServiceResult> UpdateProfileAsync(
             Guid accountId,
-            AccountProfileDataTransferObject profileUpdateData,
+            AccountProfileDTO profileUpdateData,
             CancellationToken cancellationToken = default)
         {
-            UpdateProfileCallCount++;
-            LastProfileUpdate = profileUpdateData;
-            return Task.FromResult(UpdateProfileResult);
+            this.UpdateProfileCallCount++;
+            this.LastProfileUpdate = profileUpdateData;
+            return Task.FromResult(this.UpdateProfileResult);
         }
 
         public Task<ServiceResult> ChangePasswordAsync(
@@ -155,8 +188,8 @@ namespace BoardGames.Tests.Fakes
             string newPassword,
             CancellationToken cancellationToken = default)
         {
-            ChangePasswordCallCount++;
-            return Task.FromResult(ChangePasswordResult);
+            this.ChangePasswordCallCount++;
+            return Task.FromResult(this.ChangePasswordResult);
         }
 
         public Task<ServiceResult<string>> UploadAvatarAsync(
@@ -164,13 +197,13 @@ namespace BoardGames.Tests.Fakes
             string sourceFilePath,
             CancellationToken cancellationToken = default)
         {
-            UploadAvatarCallCount++;
-            return Task.FromResult(UploadAvatarResult);
+            this.UploadAvatarCallCount++;
+            return Task.FromResult(this.UploadAvatarResult);
         }
 
         public Task<ServiceResult> RemoveAvatarAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            RemoveAvatarCallCount++;
+            this.RemoveAvatarCallCount++;
             return Task.FromResult(ServiceResult.Ok());
         }
     }
@@ -179,36 +212,52 @@ namespace BoardGames.Tests.Fakes
     {
         public string SelectedPath { get; set; } = string.Empty;
 
-        public Task<string> PickImageFileAsync() => Task.FromResult(SelectedPath);
+        public Task<string> PickImageFileAsync() => Task.FromResult(this.SelectedPath);
     }
 
     internal sealed class FakeClientGameService : IGameService
     {
         public ImmutableList<GameDTO> GamesForOwner { get; set; } = ImmutableList<GameDTO>.Empty;
+
         public ImmutableList<GameDTO> AllGames { get; set; } = ImmutableList<GameDTO>.Empty;
+
         public ImmutableList<GameDTO> AvailableGamesForRenter { get; set; } = ImmutableList<GameDTO>.Empty;
+
         public ImmutableList<GameDTO> ActiveGamesForOwner { get; set; } = ImmutableList<GameDTO>.Empty;
+
         public GameDTO GameToReturn { get; set; } = new GameDTO();
+
         public GameDTO DeletedGameResult { get; set; } = new GameDTO();
+
         public Func<GameDTO, List<string>>? ValidateGameHandler { get; set; }
+
         public Exception? AddGameException { get; set; }
+
         public Exception? UpdateGameException { get; set; }
+
         public Exception? DeleteGameException { get; set; }
+
         public int AddGameCallCount { get; private set; }
+
         public int UpdateGameCallCount { get; private set; }
+
         public int DeleteGameCallCount { get; private set; }
+
         public int LastUpdatedGameId { get; private set; }
+
         public int LastDeletedGameId { get; private set; }
+
         public GameDTO? LastAddedGame { get; private set; }
+
         public GameDTO? LastUpdatedGame { get; private set; }
 
         public Task<ServiceResult> CreateGameAsync(GameDTO game, CancellationToken cancellationToken = default)
         {
-            AddGameCallCount++;
-            LastAddedGame = game;
-            return Task.FromResult(AddGameException == null
+            this.AddGameCallCount++;
+            this.LastAddedGame = game;
+            return Task.FromResult(this.AddGameException == null
                 ? ServiceResult.Ok()
-                : ServiceResult.Fail(AddGameException.Message));
+                : ServiceResult.Fail(this.AddGameException.Message));
         }
 
         public Task<ServiceResult> UpdateGameAsync(
@@ -216,48 +265,48 @@ namespace BoardGames.Tests.Fakes
             GameDTO game,
             CancellationToken cancellationToken = default)
         {
-            UpdateGameCallCount++;
-            LastUpdatedGameId = gameId;
-            LastUpdatedGame = game;
-            return Task.FromResult(UpdateGameException == null
+            this.UpdateGameCallCount++;
+            this.LastUpdatedGameId = gameId;
+            this.LastUpdatedGame = game;
+            return Task.FromResult(this.UpdateGameException == null
                 ? ServiceResult.Ok()
-                : ServiceResult.Fail(UpdateGameException.Message));
+                : ServiceResult.Fail(this.UpdateGameException.Message));
         }
 
         public Task<ServiceResult<GameDTO>> DeleteGameAsync(
             int gameId,
             CancellationToken cancellationToken = default)
         {
-            DeleteGameCallCount++;
-            LastDeletedGameId = gameId;
-            return Task.FromResult(DeleteGameException == null
-                ? ServiceResult<GameDTO>.Ok(DeletedGameResult)
-                : ServiceResult<GameDTO>.Fail(DeleteGameException.Message));
+            this.DeleteGameCallCount++;
+            this.LastDeletedGameId = gameId;
+            return Task.FromResult(this.DeleteGameException == null
+                ? ServiceResult<GameDTO>.Ok(this.DeletedGameResult)
+                : ServiceResult<GameDTO>.Fail(this.DeleteGameException.Message));
         }
 
         public Task<ServiceResult<GameDTO>> GetGameByIdAsync(
             int gameId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<GameDTO>.Ok(GameToReturn));
+            Task.FromResult(ServiceResult<GameDTO>.Ok(this.GameToReturn));
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetGamesForOwnerAsync(
             Guid ownerAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ToReadOnlyListResult(GamesForOwner));
+            Task.FromResult(ToReadOnlyListResult(this.GamesForOwner));
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetAllGamesAsync(
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ToReadOnlyListResult(AllGames));
+            Task.FromResult(ToReadOnlyListResult(this.AllGames));
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetAvailableGamesForRenterAsync(
             Guid renterAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ToReadOnlyListResult(AvailableGamesForRenter));
+            Task.FromResult(ToReadOnlyListResult(this.AvailableGamesForRenter));
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetActiveGamesForOwnerAsync(
             Guid ownerAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ToReadOnlyListResult(ActiveGamesForOwner));
+            Task.FromResult(ToReadOnlyListResult(this.ActiveGamesForOwner));
 
         private static ServiceResult<IReadOnlyList<GameDTO>> ToReadOnlyListResult(
             IReadOnlyList<GameDTO> games) =>
@@ -267,42 +316,49 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeClientRentalService : IRentalService
     {
         public ImmutableList<RentalDTO> RentalsForRenter { get; set; } = ImmutableList<RentalDTO>.Empty;
+
         public ImmutableList<RentalDTO> RentalsForOwner { get; set; } = ImmutableList<RentalDTO>.Empty;
+
         public bool SlotAvailable { get; set; } = true;
+
         public Exception? CreateRentalException { get; set; }
+
         public int CreateRentalCallCount { get; private set; }
+
         public int LastGameId { get; private set; }
+
         public Guid LastRenterAccountId { get; private set; }
+
         public Guid LastOwnerAccountId { get; private set; }
 
         public Task<ServiceResult<IReadOnlyList<RentalDTO>>> GetRentalsForRenterAsync(
             Guid renterAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<RentalDTO>>.Ok(RentalsForRenter));
+            Task.FromResult(ServiceResult<IReadOnlyList<RentalDTO>>.Ok(this.RentalsForRenter));
 
         public Task<ServiceResult<IReadOnlyList<RentalDTO>>> GetRentalsForOwnerAsync(
             Guid ownerAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<RentalDTO>>.Ok(RentalsForOwner));
+            Task.FromResult(ServiceResult<IReadOnlyList<RentalDTO>>.Ok(this.RentalsForOwner));
 
         public Task<ServiceResult<bool>> IsSlotAvailableAsync(
             int gameId,
             DateTime startDate,
             DateTime endDate,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<bool>.Ok(SlotAvailable));
+            Task.FromResult(ServiceResult<bool>.Ok(this.SlotAvailable));
 
         public Task<ServiceResult> CreateConfirmedRentalAsync(
-            CreateRentalDataTransferObject rental,
+            CreateRentalDTO rental,
             CancellationToken cancellationToken = default)
         {
-            CreateRentalCallCount++;
-            LastGameId = rental.GameId;
-            LastRenterAccountId = rental.RenterAccountId;
-            LastOwnerAccountId = rental.OwnerAccountId;
-            return Task.FromResult(CreateRentalException == null
+            this.CreateRentalCallCount++;
+            this.LastGameId = rental.GameId;
+            this.LastRenterAccountId = rental.RenterAccountId;
+            this.LastOwnerAccountId = rental.OwnerAccountId;
+            return Task.FromResult(this.CreateRentalException == null
                 ? ServiceResult.Ok()
-                : ServiceResult.Fail(CreateRentalException.Message));
+                : ServiceResult.Fail(this.CreateRentalException.Message));
         }
     }
 
@@ -313,6 +369,6 @@ namespace BoardGames.Tests.Fakes
         public Task<ServiceResult<IReadOnlyList<UserDTO>>> GetUsersExceptAsync(
             Guid excludeAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<UserDTO>>.Ok(UsersExceptCurrent));
+            Task.FromResult(ServiceResult<IReadOnlyList<UserDTO>>.Ok(this.UsersExceptCurrent));
     }
 }

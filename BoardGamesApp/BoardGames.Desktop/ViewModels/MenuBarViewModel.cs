@@ -1,9 +1,6 @@
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
     using BoardGames.Desktop.Services;
-    using BoardRentAndProperty.Services;
 
     public class MenuBarViewModel : BaseViewModel
     {

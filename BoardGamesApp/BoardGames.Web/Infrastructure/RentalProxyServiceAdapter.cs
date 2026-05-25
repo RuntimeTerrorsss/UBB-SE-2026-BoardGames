@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Web.Infrastructure;
-using BoardGames.Shared.ProxyServices;
+// <copyright file="RentalProxyServiceAdapter.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
@@ -19,9 +17,9 @@ namespace BoardGames.Web.Infrastructure
         }
 
         public async Task<IReadOnlyList<RentalDTO>> GetRentalsForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
-            => (await rentalService.GetRentalsForOwnerAsync(ownerAccountId, cancellationToken)).ThrowIfFailed();
+            => (await this.rentalService.GetRentalsForOwnerAsync(ownerAccountId, cancellationToken)).ThrowIfFailed();
 
         public async Task<IReadOnlyList<RentalDTO>> GetRentalsForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
-            => (await rentalService.GetRentalsForRenterAsync(renterAccountId, cancellationToken)).ThrowIfFailed();
+            => (await this.rentalService.GetRentalsForRenterAsync(renterAccountId, cancellationToken)).ThrowIfFailed();
     }
 }

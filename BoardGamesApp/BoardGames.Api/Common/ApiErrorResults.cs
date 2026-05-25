@@ -1,8 +1,11 @@
-using System;
-using Microsoft.AspNetCore.Http;
+// <copyright file="ApiErrorResults.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Shared.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardGames.Shared.Common
+namespace BoardGames.Api.Common
 {
     public static class ApiErrorResults
     {

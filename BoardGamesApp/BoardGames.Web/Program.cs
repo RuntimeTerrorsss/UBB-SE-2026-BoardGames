@@ -1,9 +1,11 @@
-using BoardGames.Data.Interfaces;
-using BoardGames.Shared.Mapper;
-using BoardGames.Shared.Repositories;
-using BoardGames.Shared.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
+// <copyright file="Program.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Security.Claims; // Needed for the fake claims
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.ProxyRepositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 string apiBaseUrl = "https://localhost:7027/api/";
@@ -19,8 +21,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
-// DEPENDENCY INJECTION 
+// DEPENDENCY INJECTION
 builder.Services.AddHttpClient<IConversationRepository, ConversationAPIProxy>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
@@ -88,7 +89,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// MIDDLEWARE PIPELINE 
+// MIDDLEWARE PIPELINE
 app.UseAuthentication();
 
 // FAKE LOGIN MIDDLEWARE (TEMPORARY FOR TESTING)
@@ -98,7 +99,7 @@ app.Use(async (context, next) =>
     var claims = new List<Claim>
     {
         new Claim(ClaimTypes.NameIdentifier, "1"),
-        new Claim(ClaimTypes.Name, "TestUser")
+        new Claim(ClaimTypes.Name, "TestUser"),
     };
 
     var identity = new ClaimsIdentity(claims, "FakeAuthType");

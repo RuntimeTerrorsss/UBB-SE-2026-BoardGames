@@ -1,4 +1,8 @@
-﻿namespace BoardGames.Web.Models.Account
+﻿// <copyright file="ChangePasswordViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Web.Models.Account
 {
     using System.ComponentModel.DataAnnotations;
 

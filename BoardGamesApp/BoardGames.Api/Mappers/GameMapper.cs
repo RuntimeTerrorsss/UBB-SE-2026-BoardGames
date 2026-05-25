@@ -1,5 +1,9 @@
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+// <copyright file="GameMapper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Mappers
 {
@@ -22,7 +26,7 @@ namespace BoardGames.Api.Mappers
             return new GameDTO
             {
                 Id = game.Id,
-                Owner = ownerMapper.ToDTO(game.Owner),
+                Owner = this.ownerMapper.ToDTO(game.Owner),
                 Name = game.Name,
                 Price = game.Price,
                 MinimumPlayerNumber = game.MinimumPlayerNumber,
@@ -43,7 +47,7 @@ namespace BoardGames.Api.Mappers
             return new Game
             {
                 Id = dto.Id,
-                Owner = ownerMapper.ToModel(dto.Owner),
+                Owner = this.ownerMapper.ToModel(dto.Owner),
                 Name = dto.Name,
                 Price = dto.Price,
                 MinimumPlayerNumber = dto.MinimumPlayerNumber,

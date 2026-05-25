@@ -1,4 +1,7 @@
-using System;
+// <copyright file="Payment.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BoardGames.Data.Models;
@@ -8,11 +11,11 @@ public class Payment
 {
     public Payment(decimal paidAmount, int requestId, int clientId, int ownerId)
     {
-        PaidAmount = paidAmount;
-        RequestId = requestId;
-        ClientId = clientId;
-        OwnerId = ownerId;
-        PaymentState = 0;
+        this.PaidAmount = paidAmount;
+        this.RequestId = requestId;
+        this.ClientId = clientId;
+        this.OwnerId = ownerId;
+        this.PaymentState = 0;
     }
 
     public Payment() { }
@@ -66,8 +69,8 @@ public class HistoryPayment : Payment
     public HistoryPayment(decimal paidAmount, int requestId, int clientId, int ownerId, string? gameName, string? ownerName)
         : base(paidAmount, requestId, clientId, ownerId)
     {
-        GameName = gameName;
-        OwnerName = ownerName;
+        this.GameName = gameName;
+        this.OwnerName = ownerName;
     }
 
     public HistoryPayment() : base() { }

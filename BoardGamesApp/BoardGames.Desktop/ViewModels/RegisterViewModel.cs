@@ -1,16 +1,5 @@
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
-    using BoardRentAndProperty.ApiClient;
-    using BoardRentAndProperty.Constants;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
-    using BoardRentAndProperty.Utilities;
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
-
     public partial class RegisterViewModel : BaseViewModel
     {
         private readonly IAuthService authService;
@@ -99,7 +88,7 @@ namespace BoardGames.Desktop.ViewModels
 
             this.IsLoading = true;
 
-            RegisterDataTransferObject registrationRequest = new RegisterDataTransferObject
+            RegisterDTO registrationRequest = new RegisterDTO
             {
                 DisplayName = this.DisplayName,
                 Username = this.Username,
@@ -117,7 +106,7 @@ namespace BoardGames.Desktop.ViewModels
 
             if (registrationResult.Success)
             {
-                var loginResult = await authService.LoginAsync(new LoginDataTransferObject
+                var loginResult = await authService.LoginAsync(new LoginDTO
                 {
                     UsernameOrEmail = registrationRequest.Username,
                     Password = registrationRequest.Password,

@@ -1,20 +1,12 @@
-// <copyright file="ConversationAPIProxy.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ConversationAPIProxy.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using BoardGames.Data;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyRepositories
 {
@@ -25,7 +17,8 @@ namespace BoardGames.Shared.ProxyRepositories
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,
-            //Converters = { new MessageJsonConverter() }
+
+            // Converters = { new MessageJsonConverter() }
         };
 
         public ConversationAPIProxy(HttpClient httpClient)
@@ -35,14 +28,14 @@ namespace BoardGames.Shared.ProxyRepositories
 
         public async Task<List<Conversation>> GetConversationsForUser(int userId)
         {
-            return await httpClient.GetFromJsonAsync<List<Conversation>>(
+            return await this.httpClient.GetFromJsonAsync<List<Conversation>>(
                        $"conversation/user/{userId}", JsonOptions)
                    ?? new List<Conversation>();
         }
 
         public async Task<Conversation> GetConversationById(int conversationId)
         {
-            var response = await httpClient.GetAsync($"conversation/{conversationId}");
+            var response = await this.httpClient.GetAsync($"conversation/{conversationId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Conversation>(JsonOptions)
                    ?? throw new InvalidOperationException($"Conversation {conversationId} was not found.");
@@ -50,14 +43,14 @@ namespace BoardGames.Shared.ProxyRepositories
 
         public async Task<IReadOnlyList<int>> GetParticipantUserIds(int conversationId)
         {
-            return await httpClient.GetFromJsonAsync<List<int>>(
+            return await this.httpClient.GetFromJsonAsync<List<int>>(
                        $"conversation/{conversationId}/participants", JsonOptions)
                    ?? new List<int>();
         }
 
         public async Task<int> CreateConversation(int senderId, int receiverId)
         {
-            var response = await httpClient.PostAsJsonAsync(
+            var response = await this.httpClient.PostAsJsonAsync(
                 "conversation",
                 new { SenderId = senderId, ReceiverId = receiverId },
                 JsonOptions);
@@ -79,7 +72,7 @@ namespace BoardGames.Shared.ProxyRepositories
                 throw new ArgumentException("Participants must be two distinct valid user ids.");
             }
 
-            var conversations = await GetConversationsForUser(userIdA);
+            var conversations = await this.GetConversationsForUser(userIdA);
             foreach (var conversation in conversations)
             {
                 var participants = conversation.Participants;
@@ -96,13 +89,13 @@ namespace BoardGames.Shared.ProxyRepositories
                 }
             }
 
-            return await CreateConversation(userIdA, userIdB);
+            return await this.CreateConversation(userIdA, userIdB);
         }
 
         public async Task<Message> HandleNewMessage(Message message)
         {
-            var messageDto = MessageToMessageDto(message);
-            var response = await httpClient.PostAsJsonAsync("conversation/messages", messageDto, JsonOptions);
+            var messageDto = this.MessageToMessageDto(message);
+            var response = await this.httpClient.PostAsJsonAsync("conversation/messages", messageDto, JsonOptions);
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var participantIds = await this.GetParticipantUserIds(message.ConversationId);
@@ -112,7 +105,7 @@ namespace BoardGames.Shared.ProxyRepositories
                 if (fallbackReceiverId > 0 && fallbackReceiverId != message.MessageReceiverId)
                 {
                     messageDto = messageDto with { ReceiverId = fallbackReceiverId };
-                    response = await httpClient.PostAsJsonAsync("conversation/messages", messageDto, JsonOptions);
+                    response = await this.httpClient.PostAsJsonAsync("conversation/messages", messageDto, JsonOptions);
                 }
             }
 
@@ -120,13 +113,13 @@ namespace BoardGames.Shared.ProxyRepositories
 
             var persistedDto = await response.Content.ReadFromJsonAsync<MessageDto>(JsonOptions)
                                ?? throw new InvalidOperationException("Failed to create message.");
-            return MessageDtoToMessage(persistedDto);
+            return this.MessageDtoToMessage(persistedDto);
         }
 
         public async Task<Message?> HandleMessageUpdate(Message message)
         {
-            var messageDto = MessageToMessageDto(message);
-            var response = await httpClient.PutAsJsonAsync(
+            var messageDto = this.MessageToMessageDto(message);
+            var response = await this.httpClient.PutAsJsonAsync(
                 "conversation/messages", messageDto, JsonOptions);
 
             if (!response.IsSuccessStatusCode)
@@ -135,19 +128,19 @@ namespace BoardGames.Shared.ProxyRepositories
             }
 
             var persistedDto = await response.Content.ReadFromJsonAsync<MessageDto>(JsonOptions);
-            return persistedDto is null ? null : MessageDtoToMessage(persistedDto);
+            return persistedDto is null ? null : this.MessageDtoToMessage(persistedDto);
         }
 
         public async Task HandleReadReceipt(ReadReceiptDTO readReceipt)
         {
-            var response = await httpClient.PostAsJsonAsync(
+            var response = await this.httpClient.PostAsJsonAsync(
                 "conversation/readreceipt", readReceipt, JsonOptions);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task<Message?> HandleRentalRequestFinalization(int messageId)
         {
-            var response = await httpClient.PostAsync(
+            var response = await this.httpClient.PostAsync(
                 $"conversation/rental/finalize/{messageId}", null);
 
             if (!response.IsSuccessStatusCode)
@@ -156,16 +149,20 @@ namespace BoardGames.Shared.ProxyRepositories
             }
 
             var updatedDto = await response.Content.ReadFromJsonAsync<MessageDto>(JsonOptions);
-            return updatedDto is null ? null : MessageDtoToMessage(updatedDto);
+            return updatedDto is null ? null : this.MessageDtoToMessage(updatedDto);
         }
 
         public async Task<Message?> CreateCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId)
         {
-            var response = await httpClient.PostAsync(
+            var response = await this.httpClient.PostAsync(
                 $"conversation/cash/{messageIdOfParentRentalRequestMessage}/{paymentId}", null);
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
             var resultDto = await response.Content.ReadFromJsonAsync<MessageDto>(JsonOptions);
-            return resultDto is null ? null : MessageDtoToMessage(resultDto);
+            return resultDto is null ? null : this.MessageDtoToMessage(resultDto);
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────

@@ -1,10 +1,8 @@
-﻿// <copyright file="ICardPaymentService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ICardPaymentService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -20,8 +18,8 @@ namespace BoardGames.Api.Services
 
         Task ProcessPayment(int rentalIdentifier, int clientIdentifier, int ownerIdentifier);
 
-        CardPaymentDTO ConvertToDataTransferObject(Payment cardPayment);
+        CardPaymentDTO ConvertToDTO(Payment cardPayment);
 
-        Task<RentalDataTransferObject> GetRequestDataTransferObject(int rentalIdentifier);
+        Task<RentalDTO> GetRequestDTO(int rentalIdentifier);
     }
 }

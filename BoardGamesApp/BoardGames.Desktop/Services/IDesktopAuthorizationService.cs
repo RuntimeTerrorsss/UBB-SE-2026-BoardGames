@@ -1,4 +1,3 @@
-using System;
 using BoardGames.Desktop.ViewModels;
 
 namespace BoardGames.Desktop.Services

@@ -1,9 +1,6 @@
-﻿// <copyright file="IPaymentRepository.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="IPaymentRepository.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BoardGames.Data.Repositories
 {

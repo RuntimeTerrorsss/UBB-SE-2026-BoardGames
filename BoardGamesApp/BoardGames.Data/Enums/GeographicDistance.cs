@@ -1,8 +1,6 @@
-﻿// <copyright file="GeographicDistance.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="GeographicDistance.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System;
 
 namespace BoardGames.Data.Enums
 {

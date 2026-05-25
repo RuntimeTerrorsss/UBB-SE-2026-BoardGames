@@ -1,12 +1,9 @@
-// <copyright file="MapService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="MapService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace BoardGames.Api.Services
 {
@@ -24,10 +21,10 @@ namespace BoardGames.Api.Services
 
         public MapService(HttpClient client)
         {
-            httpClient = client;
-            if (!httpClient.DefaultRequestHeaders.Contains("User-Agent"))
+            this.httpClient = client;
+            if (!this.httpClient.DefaultRequestHeaders.Contains("User-Agent"))
             {
-                httpClient.DefaultRequestHeaders.Add("User-Agent", UserAgentValue);
+                this.httpClient.DefaultRequestHeaders.Add("User-Agent", UserAgentValue);
             }
         }
 
@@ -41,7 +38,7 @@ namespace BoardGames.Api.Services
             try
             {
                 string requestUrl = string.Format(System.Globalization.CultureInfo.InvariantCulture, NominatimUrlTemplate, latitude, longitude);
-                HttpResponseMessage response = await httpClient.GetAsync(requestUrl);
+                HttpResponseMessage response = await this.httpClient.GetAsync(requestUrl);
                 response.EnsureSuccessStatusCode();
 
                 string jsonResponse = await response.Content.ReadAsStringAsync();

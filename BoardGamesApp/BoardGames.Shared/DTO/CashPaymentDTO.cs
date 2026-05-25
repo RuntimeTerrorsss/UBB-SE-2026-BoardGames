@@ -1,10 +1,10 @@
-// <copyright file="CashPaymentDataTransferObject.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="CashPaymentDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
 namespace BoardGames.Shared.DTO
 {
-    public class CashPaymentDataTransferObject(int paymentId, int requestId, int clientId, int ownerId, decimal amount)
+    public class CashPaymentDTO(int paymentId, int requestId, int clientId, int ownerId, decimal amount)
     {
         public int Id { get; set; } = paymentId;
 
