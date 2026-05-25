@@ -1,12 +1,6 @@
-using System.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using BoardGames.Desktop.ViewModels;
 
-namespace BoardRentAndProperty.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class NotificationsPage : Page
     {

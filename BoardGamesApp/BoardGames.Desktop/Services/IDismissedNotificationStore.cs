@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BoardGames.Desktop.Services
+﻿namespace BoardGames.Desktop.Services
 {
     public interface IDismissedNotificationStore
     {

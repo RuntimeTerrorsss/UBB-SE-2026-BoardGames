@@ -1,7 +1,4 @@
-using BoardGames.Data.Interfaces;
-using BoardGames.Shared.Mapper;
-using BoardGames.Shared.Repositories;
-using BoardGames.Shared.Services;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims; // Needed for the fake claims
 

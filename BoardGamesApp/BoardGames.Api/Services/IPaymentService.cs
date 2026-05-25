@@ -2,8 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Threading.Tasks;
-
 namespace BoardGames.Api.Services
 {
     public interface IPaymentService

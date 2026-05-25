@@ -2,12 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BoardGames.Data.Enums;
-using BoardGames.Src.ViewModels;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.

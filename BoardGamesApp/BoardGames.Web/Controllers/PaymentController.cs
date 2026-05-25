@@ -1,7 +1,4 @@
-using System;
-using System.Threading.Tasks;
 using BoardGames.Web.Models.Payment;
-using BoardGames.Shared.DTO.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers

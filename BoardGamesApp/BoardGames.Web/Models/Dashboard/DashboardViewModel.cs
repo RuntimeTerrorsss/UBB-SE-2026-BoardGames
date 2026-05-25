@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BoardGames.Web.Models.Games;
 using BoardGames.Web.Models.Rentals;
 

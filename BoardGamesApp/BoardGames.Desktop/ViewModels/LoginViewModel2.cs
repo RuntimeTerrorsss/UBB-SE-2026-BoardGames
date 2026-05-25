@@ -1,12 +1,5 @@
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Threading.Tasks;
-    using BoardRentAndProperty.ApiClient;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
-    using BoardRentAndProperty.Utilities;
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
     public partial class LoginViewModel : BaseViewModel
     {
         private readonly IAuthService authService;

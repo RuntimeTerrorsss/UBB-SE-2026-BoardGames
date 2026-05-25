@@ -1,7 +1,7 @@
+using BoardGames.Shared.DTO;
 using BoardGames.Api.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using BoardGames.Api.Common;
 
 namespace BoardGames.Api.Controllers
 {

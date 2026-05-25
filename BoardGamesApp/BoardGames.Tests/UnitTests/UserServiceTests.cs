@@ -1,4 +1,6 @@
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Data.Repositories;
+using BoardGames.Data.Models;
 using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -1,11 +1,9 @@
-﻿// <copyright file="IServicePayment.cs" company="PlaceholderCompany">
+using BoardGames.Shared.DTO;
+// <copyright file="IServicePayment.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Api.Services
 {

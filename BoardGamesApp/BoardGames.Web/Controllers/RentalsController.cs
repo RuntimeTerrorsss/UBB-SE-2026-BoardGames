@@ -1,9 +1,6 @@
-using System;
 using BoardGames.Web.Models.Rentals;
-using BoardGames.Data;
-using BoardGames.Data.Interfaces;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.DTO.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers

@@ -2,17 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Diagnostics;
-using BoardGames.Desktop;
-using BoardGames.Data;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.Mapper;
-using BoardGames.Api.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Xaml;
-
-namespace BookingBoardGames
+namespace BoardGames.Desktop
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Account;
 using BoardGames.Shared.ProxyServices;
 using BoardGames.Shared.DTO;
-using GUI_BRAP.Models;
-using GUI_BRAP.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {

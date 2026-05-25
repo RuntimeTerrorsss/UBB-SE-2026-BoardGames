@@ -1,3 +1,4 @@
+using Xunit;
 namespace BoardGames.Tests;
 public class DefaultTest
 {

@@ -2,12 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Threading.Tasks;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
-using BoardGames.Api.Services;
-
 namespace BoardGames.Desktop.ViewModels
 {
     public class CashPaymentViewModel

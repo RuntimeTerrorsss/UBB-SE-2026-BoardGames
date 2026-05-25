@@ -2,19 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using BoardGames.Data;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyRepositories
 {

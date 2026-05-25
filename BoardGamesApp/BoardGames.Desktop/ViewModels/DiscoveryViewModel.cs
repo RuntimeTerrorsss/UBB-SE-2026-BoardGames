@@ -2,20 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Commands;
-using BookingBoardGames.Src.Helpers;
+using BoardGames.Desktop.Commands;
+using BoardGames.Desktop.Helpers;
 
-namespace BookingBoardGames.Src.ViewModels
+namespace BoardGames.Desktop.ViewModels
 {
     /// <summary>
     /// Provides the logic for discovering and filtering games, including pagination and search capabilities.

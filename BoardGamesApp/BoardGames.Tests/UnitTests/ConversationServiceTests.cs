@@ -1,8 +1,6 @@
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Data.Enums;
 using Moq;
 using System;
 using System.Collections.Generic;

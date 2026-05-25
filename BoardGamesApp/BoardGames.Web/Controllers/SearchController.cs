@@ -1,7 +1,5 @@
 using BoardGames.Web.Models.Search;
 using BoardGames.Data.Enums;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.DTO.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers

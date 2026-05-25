@@ -1,10 +1,7 @@
-using System;
+using BoardGames.Shared.DTO;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Account;
-using BoardGames.Contracts.DataTransferObjects;
-using BoardGames.ProxyServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

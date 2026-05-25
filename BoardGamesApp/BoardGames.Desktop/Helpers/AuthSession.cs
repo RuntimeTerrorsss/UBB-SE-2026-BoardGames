@@ -1,7 +1,4 @@
-﻿using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.Services;
-
-namespace BookingBoardGames.Src.Helpers
+namespace BoardGames.Desktop.Helpers
 {
     /// <summary>
     /// Keeps <see cref="SessionContext"/> and <see cref="SessionService"/> in sync for the desktop app.

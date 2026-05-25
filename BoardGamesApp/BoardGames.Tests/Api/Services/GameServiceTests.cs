@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Immutable;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using NUnit.Framework;
-using GameService = BoardRentAndProperty.Api.Services.GameService;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -41,8 +39,8 @@ namespace BoardGames.Tests.Api.Services
             var activeRental = new Rental(
                 1,
                 new Game { Id = SampleGameIdentifier },
-                new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                new User { Id = Guid.NewGuid(), DisplayName = "Renter" },
+                new User { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
                 DateTime.Now.AddDays(-1),
                 DateTime.Now.AddDays(3));
 

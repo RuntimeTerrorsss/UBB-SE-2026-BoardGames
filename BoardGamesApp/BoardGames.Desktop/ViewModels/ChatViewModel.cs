@@ -1,17 +1,6 @@
-﻿// <copyright file="ChatViewModel.cs" company="PlaceholderCompany">
+// <copyright file="ChatViewModel.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using BoardGames.Data.Enum;
-using BoardGames.Shared.DTO;
-using Microsoft.UI.Xaml.Controls;
 
 namespace BoardGames.Desktop.ViewModels;
 

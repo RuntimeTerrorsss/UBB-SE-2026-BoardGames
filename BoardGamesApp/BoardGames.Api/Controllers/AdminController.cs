@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
 using BoardGames.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using BoardGames.Api.Common;
 
 namespace BoardGames.Api.Controllers
 {
@@ -21,7 +20,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("accounts")]
-        public async Task<ActionResult<List<AccountProfileDTO>>> GetAccounts(
+        public async Task<ActionResult<List<AccountProfileDataTransferObject>>> GetAccounts(
             [FromQuery] int page = DefaultPageNumber,
             [FromQuery] int pageSize = DefaultPageSize)
         {

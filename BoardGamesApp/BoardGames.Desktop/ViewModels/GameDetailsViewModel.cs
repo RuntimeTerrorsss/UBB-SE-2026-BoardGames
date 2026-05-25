@@ -1,19 +1,8 @@
-﻿﻿// <copyright file="GameDetailsViewModel.cs" company="PlaceholderCompany">
+// <copyright file="GameDetailsViewModel.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Commands;
-using BookingBoardGames.Src.Helpers;
-using Microsoft.UI.Xaml.Media.Imaging;
+using BoardGames.Desktop.Commands;
 
 namespace BoardGames.Desktop.ViewModels
 {

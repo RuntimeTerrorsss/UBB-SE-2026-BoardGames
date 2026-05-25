@@ -1,7 +1,5 @@
 using BoardGames.Data.Enums;
-using BoardGames.Shared.DTO.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 
 namespace BoardGames.Web.Controllers
 {

@@ -1,6 +1,5 @@
-using System;
+using BoardGames.Shared.DTO;
 using System.Collections.Immutable;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 
 namespace BoardGames.Api.Services
 {

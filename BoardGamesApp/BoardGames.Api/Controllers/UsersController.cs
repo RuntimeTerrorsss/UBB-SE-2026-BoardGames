@@ -1,7 +1,5 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers

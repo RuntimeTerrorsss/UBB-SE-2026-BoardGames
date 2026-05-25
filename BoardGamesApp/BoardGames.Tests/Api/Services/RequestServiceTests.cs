@@ -1,11 +1,8 @@
 using System;
+using BoardGames.Data.Models;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.Models;
 using NUnit.Framework;
-using RequestService = BoardRentAndProperty.Api.Services.RequestService;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -41,7 +38,7 @@ namespace BoardGames.Tests.Api.Services
             gameRepository.GamesById[10] = new Game
                 {
                     Id = 10,
-                    Owner = new Account { Id = ownerId, DisplayName = "Owner" },
+                    Owner = new User { Id = ownerId, DisplayName = "Owner" },
                     IsActive = true,
                 };
 

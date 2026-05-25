@@ -1,12 +1,10 @@
+using BoardGames.Shared.DTO;
 // <copyright file="CardPaymentService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {

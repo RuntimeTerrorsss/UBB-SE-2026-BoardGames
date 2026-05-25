@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
 using BoardGames.Api.Security;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 
 namespace BoardGames.Api.Services
 {

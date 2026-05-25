@@ -1,5 +1,3 @@
-using System;
-
 namespace BoardGames.Shared.DTO
 {
     public class CreateRentalDataTransferObject

@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
 using NUnit.Framework;
-using AdminService = BoardRentAndProperty.Api.Services.AdminService;
 
 namespace BoardGames.Tests.Api.Services
 {

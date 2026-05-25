@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.Services;
 using Xunit;
 
 namespace BoardGames.Tests.UnitTests

@@ -2,17 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using BoardGames.Data;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.Services;
-
 namespace BoardGames.Desktop.ViewModels;
 
 public class ChatPageViewModel : ViewModelBase

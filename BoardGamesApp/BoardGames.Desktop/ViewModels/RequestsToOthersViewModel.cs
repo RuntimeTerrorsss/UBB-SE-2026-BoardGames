@@ -1,11 +1,4 @@
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
 
 namespace BoardGames.Desktop.ViewModels
 {

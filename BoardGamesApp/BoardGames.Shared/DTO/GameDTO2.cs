@@ -1,6 +1,6 @@
 namespace BoardGames.Shared.DTO
 {
-    public class GameDTO
+    public class GameDTO2
     {
         public int Id { get; set; }
         public UserDTO Owner { get; set; }
@@ -12,7 +12,7 @@ namespace BoardGames.Shared.DTO
         public byte[] Image { get; set; }
         public bool IsActive { get; set; }
 
-        public GameDTO()
+        public GameDTO2()
         {
         }
     }

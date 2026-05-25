@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using BoardGames.Data.Models;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Chats;
-using BoardGames.Data;
 using BoardGames.Data.Enums;
-using BoardGames.Data.Repositpries;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
-using BoardGames.Api.Services;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers

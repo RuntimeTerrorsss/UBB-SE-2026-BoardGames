@@ -1,13 +1,6 @@
-?using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Helpers;
+using BoardGames.Desktop.Helpers;
 
-namespace BookingBoardGames.Src.ViewModels
+namespace BoardGames.Desktop.ViewModels
 {
     public class RegisterViewModel : INotifyPropertyChanged
     {

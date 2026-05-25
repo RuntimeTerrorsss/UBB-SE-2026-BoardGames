@@ -2,16 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Commands;
-using BoardGames.Data.Constants;
-using BoardGames.Data.Interfaces;
-using BoardGames.Shared.DTO;
-using BoardGames.Api.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {

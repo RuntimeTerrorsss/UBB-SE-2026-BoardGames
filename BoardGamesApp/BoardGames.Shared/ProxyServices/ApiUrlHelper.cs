@@ -1,4 +1,3 @@
-using System;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices

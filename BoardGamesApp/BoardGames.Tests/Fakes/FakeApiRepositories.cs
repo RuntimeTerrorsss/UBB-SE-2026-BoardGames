@@ -1,12 +1,11 @@
+using BoardGames.Data.Repositories;
+using BoardGames.Data.Models;
+using BoardGames.Data.Enums;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.Models;
 
 namespace BoardGames.Tests.Fakes
 {

@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
-using BoardRentAndProperty.Tests.Fakes;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
+using BoardGames.Tests.Fakes;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

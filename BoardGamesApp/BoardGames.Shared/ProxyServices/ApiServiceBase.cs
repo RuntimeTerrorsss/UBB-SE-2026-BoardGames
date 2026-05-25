@@ -1,6 +1,3 @@
-
-using System.Net.Http;
-
 namespace BoardGames.Shared.ProxyServices
 {
     public abstract class ApiServiceBase

@@ -1,8 +1,6 @@
 using BoardGames.Web.Helpers;
-using BoardGames.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace BoardGames.Web.Controllers
 {

@@ -1,9 +1,6 @@
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
     using BoardGames.Desktop.Services;
-    using BoardRentAndProperty.Services;
 
     public class MenuBarViewModel : BaseViewModel
     {
@@ -20,7 +17,7 @@ namespace BoardGames.Desktop.ViewModels
             navigationActionsByMenuLabel = BuildNavigationActions();
         }
 
-        public MenuBarViewModel(BoardRentAndProperty.Utilities.ISessionContext sessionContext)
+        public MenuBarViewModel(BoardGames.Desktop.Helpers.ISessionContext sessionContext)
             : this(new DesktopAuthorizationService(sessionContext))
         {
         }
