@@ -3,9 +3,11 @@
 // </copyright>
 
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace BoardGames.Desktop.ViewModels
+namespace BookingBoardGames.Src.ViewModels
 {
     public class RelayCommand<T> : ICommand
     {
@@ -14,54 +16,79 @@ namespace BoardGames.Desktop.ViewModels
 
         public RelayCommand(Action<T> execute, Predicate<T> canExecute = null)
         {
-            executeAction = execute ?? throw new ArgumentNullException(nameof(execute));
-            canExecutePredicate = canExecute;
+            this.executeAction = execute ?? throw new ArgumentNullException(nameof(execute));
+            this.canExecutePredicate = canExecute;
         }
 
         public bool CanExecute(object parameter)
         {
-            return canExecutePredicate == null || canExecutePredicate((T)parameter);
+            return this.canExecutePredicate == null || this.canExecutePredicate((T)parameter);
         }
 
         public void Execute(object parameter)
         {
-            executeAction((T)parameter);
+            this.executeAction((T)parameter);
         }
 
         public event EventHandler CanExecuteChanged;
 
         public void RaiseCanExecuteChanged()
         {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
     public class RelayCommandNoParam : ICommand
     {
-        private readonly Action executeAct;
+        private readonly Action? executeAct;
+        private readonly Func<Task>? executeAsyncAct;
         private readonly Func<bool> canExecuteFunc;
 
         public RelayCommandNoParam(Action execute, Func<bool> canExecute = null)
         {
-            executeAct = execute ?? throw new ArgumentNullException(nameof(execute));
-            canExecuteFunc = canExecute;
+            this.executeAct = execute ?? throw new ArgumentNullException(nameof(execute));
+            this.canExecuteFunc = canExecute;
+        }
+
+        public RelayCommandNoParam(Func<Task> executeAsync, Func<bool> canExecute = null)
+        {
+            this.executeAsyncAct = executeAsync ?? throw new ArgumentNullException(nameof(executeAsync));
+            this.canExecuteFunc = canExecute;
         }
 
         public bool CanExecute(object parameter)
         {
-            return canExecuteFunc == null || canExecuteFunc();
+            return this.canExecuteFunc == null || this.canExecuteFunc();
         }
 
         public void Execute(object parameter)
         {
-            executeAct();
+            if (this.executeAsyncAct != null)
+            {
+                _ = this.RunAsync(this.executeAsyncAct);
+                return;
+            }
+
+            this.executeAct!();
+        }
+
+        private async Task RunAsync(Func<Task> action)
+        {
+            try
+            {
+                await action().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"RelayCommand async execution failed: {ex}");
+            }
         }
 
         public event EventHandler CanExecuteChanged;
 
         public void RaiseCanExecuteChanged()
         {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

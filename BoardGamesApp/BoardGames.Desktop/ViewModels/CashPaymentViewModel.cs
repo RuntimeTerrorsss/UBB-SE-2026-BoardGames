@@ -4,11 +4,11 @@
 
 using System;
 using System.Threading.Tasks;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
-using BoardGames.Api.Services;
+using BookingBoardGames.Data.Interfaces;
+using BookingBoardGames.Sharing.DTO;
+using BookingBoardGames.Sharing.Services;
 
-namespace BoardGames.Desktop.ViewModels
+namespace BookingBoardGames.Src.ViewModels
 {
     public class CashPaymentViewModel
     {
@@ -48,35 +48,35 @@ namespace BoardGames.Desktop.ViewModels
             this.gameRepository = gameRepository;
             this.conversationService = conversationService;
             this.rentalRequestMessageIdentifier = rentalRequestMessageIdentifier;
-            DeliveryAddress = deliveryAddress;
+            this.DeliveryAddress = deliveryAddress;
         }
 
         public async Task InitializeAsync(int rentalRequestId, string deliveryAddress)
         {
-            Rental rentalRequest = await rentalRequestService.GetRentalById(rentalRequestId)
+            Rental rentalRequest = await this.rentalRequestService.GetRentalById(rentalRequestId)
                 ?? throw new InvalidOperationException($"Rental with ID {rentalRequestId} was not found.");
 
-            Game game = await gameRepository.GetGameById(rentalRequest.GameId)
+            Game game = await this.gameRepository.GetGameById(rentalRequest.GameId)
                 ?? throw new InvalidOperationException($"Game with ID {rentalRequest.GameId} was not found.");
 
-            User clientUser = await userRepository.GetById(rentalRequest.ClientId)
+            User clientUser = await this.userRepository.GetById(rentalRequest.ClientId)
                 ?? throw new InvalidOperationException($"Client user with ID {rentalRequest.ClientId} was not found.");
 
-            User ownerUser = await userRepository.GetById(rentalRequest.OwnerId)
+            User ownerUser = await this.userRepository.GetById(rentalRequest.OwnerId)
                 ?? throw new InvalidOperationException($"Owner user with ID {rentalRequest.OwnerId} was not found.");
 
-            OwnerName = ownerUser.Username;
-            GameName = game.Name;
-            RequestDates = rentalRequest.StartDate.ToShortDateString() + DateRangeSeparator + rentalRequest.EndDate.ToShortDateString();
-            DeliveryAddress = deliveryAddress;
+            this.OwnerName = ownerUser.Username;
+            this.GameName = game.Name;
+            this.RequestDates = rentalRequest.StartDate.ToShortDateString() + DateRangeSeparator + rentalRequest.EndDate.ToShortDateString();
+            this.DeliveryAddress = deliveryAddress;
 
-            decimal rentalPrice = await rentalRequestService.GetRentalPrice(rentalRequestId);
-            PaidAmount = rentalPrice.ToString();
+            decimal rentalPrice = await this.rentalRequestService.GetRentalPrice(rentalRequestId);
+            this.PaidAmount = rentalPrice.ToString();
 
-            int createdPaymentIdentifier = await cashPaymentService.AddCashPaymentAsync(
+            int createdPaymentIdentifier = await this.cashPaymentService.AddCashPaymentAsync(
                 new CashPaymentDataTransferObject(NewPaymentPlaceholderId, rentalRequestId, clientUser.Id, ownerUser.Id, rentalPrice));
 
-            await conversationService.OnCashPaymentSelected(rentalRequestMessageIdentifier, createdPaymentIdentifier);
+            await this.conversationService.OnCashPaymentSelected(this.rentalRequestMessageIdentifier, createdPaymentIdentifier);
         }
     }
 }

@@ -6,9 +6,9 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using BoardGames.Data.Enum;
-using BoardGames.Shared.DTO;
-using BoardGames.Api.Services;
+using BookingBoardGames.Data.Enum;
+using BookingBoardGames.Sharing.DTO;
+using BookingBoardGames.Sharing.Services;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace BoardGames.Desktop.ViewModels
@@ -67,7 +67,7 @@ namespace BoardGames.Desktop.ViewModels
         public ConfirmBookingViewModel(InterfaceBookingService bookingService, BookingDTO gameAndUserDetails, TimeRange selectedTimeRange)
         {
             this.bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
-            gameAndUserDetail = gameAndUserDetails ?? throw new ArgumentNullException(nameof(gameAndUserDetails));
+            this.gameAndUserDetail = gameAndUserDetails ?? throw new ArgumentNullException(nameof(gameAndUserDetails));
             this.selectedTimeRange = selectedTimeRange ?? throw new ArgumentNullException(nameof(selectedTimeRange));
         }
 
@@ -75,38 +75,38 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
-                GameAndUserDetails = gameAndUserDetails ?? throw new ArgumentNullException(nameof(GameAndUserDetails));
-                SelectedTimeRange = selectedTimeRange ?? throw new ArgumentNullException(nameof(SelectedTimeRange));
+                this.bookingService = this.bookingService ?? throw new ArgumentNullException(nameof(this.bookingService));
+                this.GameAndUserDetails = gameAndUserDetails ?? throw new ArgumentNullException(nameof(this.GameAndUserDetails));
+                this.SelectedTimeRange = this.selectedTimeRange ?? throw new ArgumentNullException(nameof(this.SelectedTimeRange));
 
-                UnavailableTimeRanges = await bookingService.GetUnavailableTimeRanges(GameAndUserDetails.GameId) ?? Array.Empty<TimeRange>();
-                TotalPrice = CalculatePrice();
-                LoadImages();
+                this.UnavailableTimeRanges = await this.bookingService.GetUnavailableTimeRanges(this.GameAndUserDetails.GameId) ?? Array.Empty<TimeRange>();
+                this.TotalPrice = this.CalculatePrice();
+                this.LoadImages();
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not initialize booking confirmation. {exception.Message}");
-                UnavailableTimeRanges = Array.Empty<TimeRange>();
-                TotalPrice = DefaultTotalPrice;
+                this.RaiseError($"Could not initialize booking confirmation. {exception.Message}");
+                this.UnavailableTimeRanges = Array.Empty<TimeRange>();
+                this.TotalPrice = DefaultTotalPrice;
             }
         }
 
         private void OnPropertyChanged([CallerMemberName] string? name = null)
-           => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+           => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         /// <summary>
         /// Gets the currently selected time range for the booking.
         /// </summary>
         public TimeRange SelectedTimeRange
         {
-            get => selectedTimeRange;
+            get => this.selectedTimeRange;
             private set
             {
-                selectedTimeRange = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(NumberOfDays));
-                OnPropertyChanged(nameof(StartDate));
-                OnPropertyChanged(nameof(EndDate));
+                this.selectedTimeRange = value;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(this.NumberOfDays));
+                this.OnPropertyChanged(nameof(this.StartDate));
+                this.OnPropertyChanged(nameof(this.EndDate));
             }
         }
 
@@ -115,34 +115,34 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public decimal TotalPrice
         {
-            get => totalPrice;
+            get => this.totalPrice;
             private set
             {
-                totalPrice = value;
-                OnPropertyChanged();
+                this.totalPrice = value;
+                this.OnPropertyChanged();
             }
         }
 
         /// <summary>
         /// Gets the formatted start date string of the selected time range.
         /// </summary>
-        public string StartDate => SelectedTimeRange?.StartTime.ToString("dd MMM yyyy") ?? "-";
+        public string StartDate => this.SelectedTimeRange?.StartTime.ToString("dd MMM yyyy") ?? "-";
 
         /// <summary>
         /// Gets the formatted end date string of the selected time range.
         /// </summary>
-        public string EndDate => SelectedTimeRange?.EndTime.ToString("dd MMM yyyy") ?? "-";
+        public string EndDate => this.SelectedTimeRange?.EndTime.ToString("dd MMM yyyy") ?? "-";
 
         /// <summary>
         /// Gets the combined details of the game and the associated user for the current booking.
         /// </summary>
         public BookingDTO GameAndUserDetails
         {
-            get => gameAndUserDetail;
+            get => this.gameAndUserDetail;
             private set
             {
-                gameAndUserDetail = value;
-                OnPropertyChanged();
+                this.gameAndUserDetail = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -151,11 +151,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public BitmapImage? OwnerImage
         {
-            get => ownerImage;
+            get => this.ownerImage;
             private set
             {
-                ownerImage = value;
-                OnPropertyChanged();
+                this.ownerImage = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -164,11 +164,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public BitmapImage? GameImage
         {
-            get => gameImage;
+            get => this.gameImage;
             private set
             {
-                gameImage = value;
-                OnPropertyChanged();
+                this.gameImage = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -188,12 +188,12 @@ namespace BoardGames.Desktop.ViewModels
             {
                 try
                 {
-                    if (SelectedTimeRange == null)
+                    if (this.SelectedTimeRange == null)
                     {
                         return MinimumBookingDayCount;
                     }
 
-                    return bookingService.CalculateNumberOfDaysInAGivenTimeRange(SelectedTimeRange);
+                    return this.bookingService.CalculateNumberOfDaysInAGivenTimeRange(this.SelectedTimeRange);
                 }
                 catch
                 {
@@ -218,11 +218,11 @@ namespace BoardGames.Desktop.ViewModels
                     return false;
                 }
 
-                return await bookingService.CheckGameAvailability(GameAndUserDetails.GameId, timeRange);
+                return await this.bookingService.CheckGameAvailability(this.GameAndUserDetails.GameId, timeRange);
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not check availability. {exception.Message}");
+                this.RaiseError($"Could not check availability. {exception.Message}");
                 return false;
             }
         }
@@ -239,18 +239,18 @@ namespace BoardGames.Desktop.ViewModels
                 int clientUserId = SessionContext.GetInstance().UserId;
                 if (clientUserId == UnregisteredUserId)
                 {
-                    RaiseError("User not logged in. Please log in first.");
+                    this.RaiseError("User not logged in. Please log in first.");
                     return;
                 }
 
-                await bookingService.AddBooking(GameAndUserDetails.GameId, clientUserId, SelectedTimeRange);
-                UnavailableTimeRanges = await bookingService.GetUnavailableTimeRanges(GameAndUserDetails.GameId) ?? Array.Empty<TimeRange>();
-                OnPropertyChanged(nameof(UnavailableTimeRanges));
-                OnConfirmBookingRequested?.Invoke();
+                await this.bookingService.AddBooking(this.GameAndUserDetails.GameId, clientUserId, this.SelectedTimeRange);
+                this.UnavailableTimeRanges = await this.bookingService.GetUnavailableTimeRanges(this.GameAndUserDetails.GameId) ?? Array.Empty<TimeRange>();
+                this.OnPropertyChanged(nameof(this.UnavailableTimeRanges));
+                this.OnConfirmBookingRequested?.Invoke();
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not confirm booking. {exception.Message}");
+                this.RaiseError($"Could not confirm booking. {exception.Message}");
             }
         }
 
@@ -263,11 +263,11 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                OnGoBackRequested?.Invoke();
+                this.OnGoBackRequested?.Invoke();
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not go back. {exception.Message}");
+                this.RaiseError($"Could not go back. {exception.Message}");
             }
         }
 
@@ -281,12 +281,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                return bookingService.CalculateTotalPriceForRentingASpecificGame(GameAndUserDetails.Price, SelectedTimeRange);
+                return this.bookingService.CalculateTotalPriceForRentingASpecificGame(this.GameAndUserDetails.Price, this.SelectedTimeRange);
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not calculate price. {exception.Message}");
-                TotalPrice = DefaultTotalPrice;
+                this.RaiseError($"Could not calculate price. {exception.Message}");
+                this.TotalPrice = DefaultTotalPrice;
                 return DefaultTotalPrice;
             }
         }
@@ -306,16 +306,16 @@ namespace BoardGames.Desktop.ViewModels
                     throw new ArgumentNullException(nameof(newTimeRange));
                 }
 
-                SelectedTimeRange = newTimeRange;
-                TotalPrice = CalculatePrice();
-                OnPropertyChanged(nameof(NumberOfDays));
-                OnPropertyChanged(nameof(StartDate));
-                OnPropertyChanged(nameof(EndDate));
-                OnPropertyChanged(nameof(TotalPrice));
+                this.SelectedTimeRange = newTimeRange;
+                this.TotalPrice = this.CalculatePrice();
+                this.OnPropertyChanged(nameof(this.NumberOfDays));
+                this.OnPropertyChanged(nameof(this.StartDate));
+                this.OnPropertyChanged(nameof(this.EndDate));
+                this.OnPropertyChanged(nameof(this.TotalPrice));
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not update selected timeRange. {exception.Message}");
+                this.RaiseError($"Could not update selected timeRange. {exception.Message}");
             }
         }
 
@@ -329,9 +329,9 @@ namespace BoardGames.Desktop.ViewModels
         internal bool IsTimeRangeUnavailable(DateTime date)
         {
             bool isUnavailable = false;
-            if (UnavailableTimeRanges != null)
+            if (this.UnavailableTimeRanges != null)
             {
-                foreach (var timeRange in UnavailableTimeRanges)
+                foreach (var timeRange in this.UnavailableTimeRanges)
                 {
                     if (date >= timeRange.StartTime.Date && date <= timeRange.EndTime.Date)
                     {
@@ -346,20 +346,20 @@ namespace BoardGames.Desktop.ViewModels
 
         private void RaiseError(string message)
         {
-            OnErrorOccurred?.Invoke(message);
+            this.OnErrorOccurred?.Invoke(message);
         }
 
         public async Task RefreshUnavailableTimeRanges()
         {
             try
             {
-                UnavailableTimeRanges = await bookingService.GetUnavailableTimeRanges(GameAndUserDetails.GameId)
+                this.UnavailableTimeRanges = await this.bookingService.GetUnavailableTimeRanges(this.GameAndUserDetails.GameId)
                     ?? Array.Empty<TimeRange>();
-                OnPropertyChanged(nameof(UnavailableTimeRanges));
+                this.OnPropertyChanged(nameof(this.UnavailableTimeRanges));
             }
             catch (Exception exception)
             {
-                RaiseError($"Could not refresh availability. {exception.Message}");
+                this.RaiseError($"Could not refresh availability. {exception.Message}");
             }
         }
 
@@ -367,30 +367,30 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (GameAndUserDetails.Image != null && GameAndUserDetails.Image.Length > 0)
+                if (this.GameAndUserDetails.Image != null && this.GameAndUserDetails.Image.Length > 0)
                 {
-                    GameImage = await Helpers.GameImage.ToBitmapImageAsync(GameAndUserDetails.Image);
+                    this.GameImage = await Helpers.GameImage.ToBitmapImageAsync(this.GameAndUserDetails.Image);
                 }
                 else
                 {
-                    GameImage = null;
+                    this.GameImage = null;
                 }
 
-                if (!string.IsNullOrWhiteSpace(GameAndUserDetails.AvatarUrl) &&
-                    Uri.TryCreate(GameAndUserDetails.AvatarUrl, UriKind.Absolute, out var avatarUri))
+                if (!string.IsNullOrWhiteSpace(this.GameAndUserDetails.AvatarUrl) &&
+                    Uri.TryCreate(this.GameAndUserDetails.AvatarUrl, UriKind.Absolute, out var avatarUri))
                 {
-                    OwnerImage = new BitmapImage(avatarUri);
+                    this.OwnerImage = new BitmapImage(avatarUri);
                 }
                 else
                 {
-                    OwnerImage = null;
+                    this.OwnerImage = null;
                 }
             }
             catch (Exception exception)
             {
-                GameImage = null;
-                OwnerImage = null;
-                RaiseError($"Could not load images. {exception.Message}");
+                this.GameImage = null;
+                this.OwnerImage = null;
+                this.RaiseError($"Could not load images. {exception.Message}");
             }
         }
     }

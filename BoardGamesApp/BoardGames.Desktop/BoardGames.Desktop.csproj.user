@@ -19,5 +19,68 @@
     <None Update="Package.appxmanifest">
       <SubType>Designer</SubType>
     </None>
+    <None Update="Views\CardPaymentPage.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\CashPaymentPage.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ChatViews\ChatPageView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ChatViews\ChatView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ChatViews\ConversationItemView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ChatViews\LeftPanelView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ChatViews\MessageItemView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ChatViews\RightPanelView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\ConfirmBookingView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\Controls\GameCard.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\DashboardView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\DeliveryView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\DiscoveryView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\FilteredSearchView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\GameDetailsView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\LoginView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\Pages\FeedPage.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\PaymentHistoryView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\RegisterView.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\Test\FeedTestPage.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Views\Test\GameCardTestPage.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
 </Project>

@@ -3,8 +3,8 @@
 // </copyright>
 
 using System;
-using BoardGames.Desktop.Navigation;
-using BoardGames.Desktop.ViewModels;
+using BookingBoardGames.Src.Navigation;
+using BookingBoardGames.Src.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;

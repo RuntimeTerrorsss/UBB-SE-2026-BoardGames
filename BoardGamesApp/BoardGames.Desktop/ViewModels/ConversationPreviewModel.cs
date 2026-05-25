@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BoardGames.Shared.DTO;
+using BookingBoardGames.Sharing.DTO;
 
 namespace BoardGames.Desktop.ViewModels;
 
@@ -26,11 +26,11 @@ public class ConversationPreviewModel : INotifyPropertyChanged
 
     public string LastMessageText
     {
-        get => lastMessageText;
+        get => this.lastMessageText;
         set
         {
-            lastMessageText = value;
-            OnPropertyChanged();
+            this.lastMessageText = value;
+            this.OnPropertyChanged();
         }
     }
 
@@ -38,12 +38,12 @@ public class ConversationPreviewModel : INotifyPropertyChanged
 
     public DateTime Timestamp
     {
-        get => timestamp;
+        get => this.timestamp;
         set
         {
-            timestamp = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(TimestampString));
+            this.timestamp = value;
+            this.OnPropertyChanged();
+            this.OnPropertyChanged(nameof(this.TimestampString));
         }
     }
 
@@ -51,15 +51,15 @@ public class ConversationPreviewModel : INotifyPropertyChanged
 
     public int UnreadCount
     {
-        get => unreadCount;
+        get => this.unreadCount;
         set
         {
-            unreadCount = value;
-            OnPropertyChanged();
+            this.unreadCount = value;
+            this.OnPropertyChanged();
         }
     }
 
-    public string TimestampString => timestamp.ToString("HH:mm");
+    public string TimestampString => this.timestamp.ToString("HH:mm");
 
     public ConversationPreviewModel(
         int conversationId,
@@ -70,17 +70,17 @@ public class ConversationPreviewModel : INotifyPropertyChanged
         int unreadCountInput,
         string avatarUrl)
     {
-        ConversationId = conversationId;
-        DisplayName = displayName;
-        Initials = initials;
-        AvatarUrl = avatarUrl;
-        lastMessageText = lastMessageTextInput;
-        timestamp = timestampInput;
-        unreadCount = unreadCountInput;
+        this.ConversationId = conversationId;
+        this.DisplayName = displayName;
+        this.Initials = initials;
+        this.AvatarUrl = avatarUrl;
+        this.lastMessageText = lastMessageTextInput;
+        this.timestamp = timestampInput;
+        this.unreadCount = unreadCountInput;
     }
 
     protected void OnPropertyChanged([CallerMemberName] string name = null)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

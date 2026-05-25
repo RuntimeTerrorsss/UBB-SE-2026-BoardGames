@@ -5,7 +5,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace BoardGames.Desktop.ViewModels
+namespace BookingBoardGames.Src.ViewModels
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
@@ -16,7 +16,7 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace BoardGames.Desktop.ViewModels
             }
 
             storage = value;
-            OnPropertyChanged(propertyName);
+            this.OnPropertyChanged(propertyName);
             return true;
         }
     }

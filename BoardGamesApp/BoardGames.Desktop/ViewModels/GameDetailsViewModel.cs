@@ -12,9 +12,10 @@ using BookingBoardGames.Sharing.DTO;
 using BookingBoardGames.Sharing.Mapper;
 using BookingBoardGames.Sharing.Services;
 using BookingBoardGames.Src.Commands;
+using BookingBoardGames.Src.Helpers;
 using Microsoft.UI.Xaml.Media.Imaging;
 
-namespace BoardGames.Desktop.ViewModels
+namespace BookingBoardGames.Src.ViewModels
 {
     /// <summary>
     /// Provides details for a specific game, including pricing, availability, and booking commands.
@@ -42,7 +43,7 @@ namespace BoardGames.Desktop.ViewModels
         {
 
             this.bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
-            gameAndUserDetail = new BookingDTO();
+            this.gameAndUserDetail = new BookingDTO();
             this.gameId = gameId;
         }
 
@@ -50,17 +51,17 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                GameAndUserDetails = await bookingService.GetBookingInformationForSpecificGame(gameId);
-                UnavailableTimeRanges = await bookingService.GetUnavailableTimeRanges(gameId) ?? Array.Empty<TimeRange>();
-                LoadGameImage();
-                LoadOwnerImage();
-                HasError = false;
+                this.GameAndUserDetails = await this.bookingService.GetBookingInformationForSpecificGame(this.gameId);
+                this.UnavailableTimeRanges = (await this.bookingService.GetUnavailableTimeRanges(this.gameId)) ?? Array.Empty<TimeRange>();
+                this.LoadGameImage();
+                this.LoadOwnerImage();
+                this.HasError = false;
             }
             catch (Exception exception)
             {
-                HasError = true;
-                UnavailableTimeRanges = Array.Empty<TimeRange>();
-                OnMessageRequested?.Invoke($"Could not load game details. {exception.Message}");
+                this.HasError = true;
+                this.UnavailableTimeRanges = Array.Empty<TimeRange>();
+                this.OnMessageRequested?.Invoke($"Could not load game details. {exception.Message}");
             }
         }
 
@@ -94,11 +95,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public BookingDTO GameAndUserDetails
         {
-            get => gameAndUserDetail;
+            get => this.gameAndUserDetail;
             private set
             {
-                gameAndUserDetail = value;
-                OnPropertyChanged();
+                this.gameAndUserDetail = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -107,11 +108,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public bool HasError
         {
-            get => hasError;
+            get => this.hasError;
             private set
             {
-                hasError = value;
-                OnPropertyChanged();
+                this.hasError = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -120,11 +121,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public decimal TotalPrice
         {
-            get => totalPrice;
+            get => this.totalPrice;
             private set
             {
-                totalPrice = value;
-                OnPropertyChanged();
+                this.totalPrice = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -133,11 +134,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public BitmapImage? GameImage
         {
-            get => gameImage;
+            get => this.gameImage;
             private set
             {
-                gameImage = value;
-                OnPropertyChanged();
+                this.gameImage = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -146,11 +147,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public string? OwnerImageUrl
         {
-            get => ownerImageUrl;
+            get => this.ownerImageUrl;
             private set
             {
-                ownerImageUrl = value;
-                OnPropertyChanged();
+                this.ownerImageUrl = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -162,7 +163,7 @@ namespace BoardGames.Desktop.ViewModels
         /// <summary>
         /// Gets the command to navigate back to the previous view.
         /// </summary>
-        public ICommand GoBackCommand => new RelayCommand(_ => GoBack());
+        public ICommand GoBackCommand => new RelayCommand(_ => this.GoBack());
 
         /// <summary>
         /// Gets the command to initiate the booking process for the selected game.
@@ -173,16 +174,16 @@ namespace BoardGames.Desktop.ViewModels
             {
                 if (commandParameter is TimeRange timeRange)
                 {
-                    StartBooking(timeRange);
+                    this.StartBooking(timeRange);
                 }
                 else
                 {
-                    OnMessageRequested?.Invoke("Invalid booking interval selected.");
+                    this.OnMessageRequested?.Invoke("Invalid booking interval selected.");
                 }
             }
             catch (Exception exception)
             {
-                OnMessageRequested?.Invoke($"Could not start booking. {exception.Message}");
+                this.OnMessageRequested?.Invoke($"Could not start booking. {exception.Message}");
             }
         });
 
@@ -191,8 +192,14 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public ICommand ChatWithOwnerCommand => new RelayCommand(_ =>
         {
+            if (SessionContext.GetInstance().UserId == UnregisteredUserID)
+            {
+                this.OnMessageRequested?.Invoke("User not logged in. Please log in first.");
+                return;
+            }
+
             int currentUserId = SessionContext.GetInstance().UserId;
-            OnChatWithOwnerRequested?.Invoke(currentUserId, GameAndUserDetails.UserId);
+            this.OnChatWithOwnerRequested?.Invoke(currentUserId, this.GameAndUserDetails.UserId);
         });
 
         /// <summary>
@@ -209,11 +216,11 @@ namespace BoardGames.Desktop.ViewModels
                     return false;
                 }
 
-                return await bookingService.CheckGameAvailability(GameAndUserDetails.GameId, timeRange);
+                return await this.bookingService.CheckGameAvailability(this.GameAndUserDetails.GameId, timeRange);
             }
             catch (Exception exception)
             {
-                OnMessageRequested?.Invoke($"Could not check availability. {exception.Message}");
+                this.OnMessageRequested?.Invoke($"Could not check availability. {exception.Message}");
                 return false;
             }
         }
@@ -232,13 +239,13 @@ namespace BoardGames.Desktop.ViewModels
                     throw new ArgumentNullException(nameof(timeRange));
                 }
 
-                TotalPrice = bookingService.CalculateTotalPriceForRentingASpecificGame(GameAndUserDetails.Price, timeRange);
-                return TotalPrice;
+                this.TotalPrice = this.bookingService.CalculateTotalPriceForRentingASpecificGame(this.GameAndUserDetails.Price, timeRange);
+                return this.TotalPrice;
             }
             catch (Exception exception)
             {
-                OnMessageRequested?.Invoke($"Could not calculate price. {exception.Message}");
-                TotalPrice = DefaultTotalPrice;
+                this.OnMessageRequested?.Invoke($"Could not calculate price. {exception.Message}");
+                this.TotalPrice = DefaultTotalPrice;
                 return DefaultTotalPrice;
             }
         }
@@ -251,25 +258,17 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (SessionContext.GetInstance().UserId == UnregisteredUserID)
-                {
-                    OnMessageRequested?.Invoke("User not logged in. Please log in first");
-
-                    // TODO login
-                    return;
-                }
-
                 if (timeRange == null)
                 {
-                    OnMessageRequested?.Invoke("Please select a valid booking timeRange.");
+                    this.OnMessageRequested?.Invoke("Please select a valid booking timeRange.");
                     return;
                 }
 
-                OnStartBookingRequested?.Invoke(GameAndUserDetails, timeRange);
+                this.OnStartBookingRequested?.Invoke(this.GameAndUserDetails, timeRange);
             }
             catch (Exception exception)
             {
-                OnMessageRequested?.Invoke($"Could not continue to booking. {exception.Message}");
+                this.OnMessageRequested?.Invoke($"Could not continue to booking. {exception.Message}");
             }
         }
 
@@ -280,38 +279,38 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                OnGoBackRequested?.Invoke();
+                this.OnGoBackRequested?.Invoke();
             }
             catch (Exception exception)
             {
-                OnMessageRequested?.Invoke($"Could not go back. {exception.Message}");
+                this.OnMessageRequested?.Invoke($"Could not go back. {exception.Message}");
             }
         }
 
         private void OnPropertyChanged([CallerMemberName] string? name = null)
-           => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+           => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private async void LoadGameImage()
         {
             try
             {
-                if (GameAndUserDetails.Image != null && GameAndUserDetails.Image.Length > 0)
+                if (this.GameAndUserDetails.Image != null && this.GameAndUserDetails.Image.Length > 0)
                 {
-                    GameImage = await Helpers.GameImage.ToBitmapImageAsync(GameAndUserDetails.Image);
+                    this.GameImage = await Helpers.GameImage.ToBitmapImageAsync(this.GameAndUserDetails.Image);
                 }
                 else
                 {
-                    var imageUrl = GameImageMapper.GetImageUrl(GameAndUserDetails.Name);
+                    var imageUrl = GameImageMapper.GetImageUrl(this.GameAndUserDetails.Name);
                     if (!string.IsNullOrEmpty(imageUrl))
                     {
-                        GameImage = new BitmapImage(new Uri(imageUrl));
+                        this.GameImage = new BitmapImage(new Uri(imageUrl));
                     }
                 }
             }
             catch (Exception exception)
             {
-                GameImage = null;
-                OnMessageRequested?.Invoke($"Could not load game image. {exception.Message}");
+                this.GameImage = null;
+                this.OnMessageRequested?.Invoke($"Could not load game image. {exception.Message}");
             }
         }
 
@@ -319,18 +318,18 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(GameAndUserDetails.AvatarUrl))
+                if (string.IsNullOrWhiteSpace(this.GameAndUserDetails.AvatarUrl))
                 {
-                    OwnerImageUrl = null;
+                    this.OwnerImageUrl = null;
                     return;
                 }
 
-                OwnerImageUrl = GameAndUserDetails.AvatarUrl;
+                this.OwnerImageUrl = this.GameAndUserDetails.AvatarUrl;
             }
             catch (Exception exception)
             {
-                OwnerImageUrl = null;
-                OnMessageRequested?.Invoke($"Could not load owner image. {exception.Message}");
+                this.OwnerImageUrl = null;
+                this.OnMessageRequested?.Invoke($"Could not load owner image. {exception.Message}");
             }
         }
     }

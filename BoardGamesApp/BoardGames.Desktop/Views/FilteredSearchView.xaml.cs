@@ -2,8 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BoardGames.Data.Enums;
-using BoardGames.Src.ViewModels;
+using BookingBoardGames.Data.Enum;
+using BookingBoardGames.Src.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
