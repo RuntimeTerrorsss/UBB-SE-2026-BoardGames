@@ -34,7 +34,7 @@ namespace BoardGames.Data.Constants
         public const string Offer = global::BoardGames.Data.Constants.Constants.DialogButtons.Offer;
     }
 
-    internal static class DialogMessages
+    internal static class InternalDialogMessages
     {
         public const string UnexpectedErrorOccurred = global::BoardGames.Data.Constants.Constants.DialogMessages.UnexpectedErrorOccurred;
         public const string NoReasonProvided = global::BoardGames.Data.Constants.Constants.DialogMessages.NoReasonProvided;
@@ -42,7 +42,7 @@ namespace BoardGames.Data.Constants
         public const string CreateRentalValidationError = global::BoardGames.Data.Constants.Constants.DialogMessages.CreateRentalValidationError;
     }
 
-    internal static class NotificationTitles
+    internal static class InternalNotificationTitles
     {
         public const string UpcomingRentalReminder = global::BoardGames.Data.Constants.Constants.NotificationTitles.UpcomingRentalReminder;
         public const string BookingUnavailable = global::BoardGames.Data.Constants.Constants.NotificationTitles.BookingUnavailable;

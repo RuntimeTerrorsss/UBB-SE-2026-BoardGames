@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories
 {

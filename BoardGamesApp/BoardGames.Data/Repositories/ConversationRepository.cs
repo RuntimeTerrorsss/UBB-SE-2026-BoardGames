@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Data;
+using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories

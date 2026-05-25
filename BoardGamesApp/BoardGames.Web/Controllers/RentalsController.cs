@@ -1,9 +1,9 @@
 using System;
 using BoardGames.Web.Models.Rentals;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data;
+using BoardGames.Data.Interfaces;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.DTO.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
@@ -167,7 +167,7 @@ namespace BoardGames.Web.Controllers
             {
                 decimal rentalPrice = await _rentalService.GetRentalPrice(rentalId);
                 await _cashPaymentService.AddCashPaymentAsync(
-                    new CashPaymentDataTransferObject(NewPaymentPlaceholderId, rentalId, rental.ClientId, rental.OwnerId, rentalPrice));
+                    new CashPaymentDTO(NewPaymentPlaceholderId, rentalId, rental.ClientId, rental.OwnerId, rentalPrice));
 
                 _conversationService.Initialize(userId);
                 await _conversationService.OnCardPaymentSelected(messageId);

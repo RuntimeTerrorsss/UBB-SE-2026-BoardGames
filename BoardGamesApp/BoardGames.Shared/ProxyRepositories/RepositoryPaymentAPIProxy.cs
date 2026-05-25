@@ -8,9 +8,9 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Shared.ProxyRepositories

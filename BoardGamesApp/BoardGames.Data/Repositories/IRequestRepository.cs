@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Immutable;
-using BoardGames.Shared.DTO;
+using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Repositories

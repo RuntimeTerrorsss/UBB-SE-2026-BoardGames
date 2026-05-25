@@ -4,7 +4,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
+
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -46,7 +47,7 @@ namespace BoardGames.Shared.ProxyServices
                     }
 
                     var parsed = await ApiResponseReader.ReadJsonAsync<GameDTO>(response, token);
-                    return parsed.Success ? parsed : ServiceResult<GameDTO>.Ok(new GameDTO { Id = gameId });
+                    return parsed.Success ? parsed : ServiceResult<GameDTO>.Ok(new GameDTO { GameId = gameId });
                 },
                 cancellationToken);
         }

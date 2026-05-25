@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BoardRentAndProperty.Api.Data;
-using BoardRentAndProperty.Api.Models;
+using BoardGames.Data;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Web.Controllers
 {

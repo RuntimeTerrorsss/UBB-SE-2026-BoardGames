@@ -1,4 +1,5 @@
 using System;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Data.Models
 {

@@ -1,5 +1,5 @@
 using System;
-using BoardGames.Shared.DTO;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Data.Models
 {

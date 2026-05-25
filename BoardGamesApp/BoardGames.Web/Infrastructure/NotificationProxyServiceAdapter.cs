@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Web.Infrastructure;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
 using GUI_BRAP.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure

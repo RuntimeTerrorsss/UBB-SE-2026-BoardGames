@@ -1,5 +1,5 @@
-﻿@* <!--@model GameDTO[]
-@using BookingBoardGames.Sharing.DTO
+@* <!--@model GameDTO[]
+@using BoardGames.Shared.DTO
 
 @{
     ViewData["Title"] = "Games";
@@ -39,7 +39,7 @@
                             <strong>@game.Price.ToString("C")/day</strong>
                         </p>
                         <p class="card-text">
-                            <small>Players: @game.MinimumPlayerNumber – @game.MaximumPlayerNumber</small>
+                            <small>Players: @game.MinimumPlayerNumber � @game.MaximumPlayerNumber</small>
                         </p>
                     </div>
                     <div class="card-footer">

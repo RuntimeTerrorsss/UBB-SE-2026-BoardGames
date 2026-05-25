@@ -80,7 +80,7 @@ namespace BoardGames.Data.Enums
         {
             if (user != null)
             {
-                UserId = user.Id;
+                UserId = user.PamUserId;
                 IsLoggedIn = true;
             }
         }

@@ -1,5 +1,5 @@
-@model BookingDTO
-@using BookingBoardGames.Sharing.DTO
+@model RentalDTO
+@using BoardGames.Shared.DTO
 @{
     ViewData["Title"] = Model.Name;
     var unavailableRanges = ViewBag.UnavailableRanges as TimeRange[] ?? Array.Empty<TimeRange>();

@@ -3,7 +3,7 @@
 // </copyright>
 
 using System;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Shared.DTO
 {

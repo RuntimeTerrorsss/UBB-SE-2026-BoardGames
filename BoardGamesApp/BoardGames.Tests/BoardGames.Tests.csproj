@@ -14,8 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Page Remove="UnitTestApp.xaml" />
-    <ApplicationDefinition Include="UnitTestApp.xaml" />
     <ProjectCapability Include="TestContainer" />
   </ItemGroup>
 
@@ -52,7 +50,6 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
 		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
 	</ItemGroup>
