@@ -21,7 +21,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Security.Authentication.OnlineId;
 
-namespace BookingBoardGames.Src.Views.ChatViews
+namespace BoardGames.Desktop.Views.ChatViews
 {
     public sealed partial class ChatPageView : Page
     {

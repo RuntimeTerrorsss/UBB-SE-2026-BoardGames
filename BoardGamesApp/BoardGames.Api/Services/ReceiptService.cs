@@ -10,6 +10,7 @@ using BookingBoardGames.Data.Interfaces;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 using System.Threading.Tasks;
+using PdfSharp.Drawing;
 
 namespace BoardGames.Api.Services
 {

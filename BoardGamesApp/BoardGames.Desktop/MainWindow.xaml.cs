@@ -23,8 +23,7 @@ namespace BookingBoardGames
         {
             this.InitializeComponent();
 
-            this.RootFrame.Navigate(typeof(RegisterView));
-            //this.RootFrame.Navigate(typeof(DiscoveryView));
+            this.RootFrame.Navigate(typeof(DiscoveryView));
 
             this.Closed += this.MainWindow_Closed;
         }

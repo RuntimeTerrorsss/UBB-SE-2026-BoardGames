@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -23,7 +21,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("accounts")]
-        public async Task<ActionResult<List<AccountProfileDataTransferObject>>> GetAccounts(
+        public async Task<ActionResult<List<AccountProfileDTO>>> GetAccounts(
             [FromQuery] int page = DefaultPageNumber,
             [FromQuery] int pageSize = DefaultPageSize)
         {
