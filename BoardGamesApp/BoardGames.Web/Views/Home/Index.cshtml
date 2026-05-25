@@ -284,9 +284,7 @@
             <button class="btn-top">Notifications</button>
             <a asp-controller="PaymentHistory" asp-action="Index" class="btn-top">Dashboard</a>
             <a asp-controller="Chats" asp-action="Index" class="btn-top">Chat</a>
-            <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                <button type="submit" class="btn-top">Logout</button>
-            </form>
+            <a asp-controller="Profile" asp-action="Index" class="btn-top">Account</a>
         }
         else
         {
