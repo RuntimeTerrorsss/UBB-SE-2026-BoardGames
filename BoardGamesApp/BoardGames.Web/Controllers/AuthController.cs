@@ -71,6 +71,11 @@ namespace BoardGames.Web.Controllers
                 return Redirect(model.ReturnUrl);
             }
 
+            if (profile.Role?.Name?.Equals("admin", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             return RedirectToAction("Index", "Games");
         }
 
