@@ -1,3 +1,4 @@
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Account;
 using Microsoft.AspNetCore.Authorization;
