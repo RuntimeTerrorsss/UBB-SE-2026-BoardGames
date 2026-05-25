@@ -1,0 +1,50 @@
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Desktop.Views;
+
+namespace BoardRentAndProperty.Views
+{
+    public sealed partial class CreateRequestView : Page
+    {
+        public CreateRequestViewModel ViewModel { get; }
+
+        public CreateRequestView()
+        {
+            ViewModel = App.Services.GetRequiredService<CreateRequestViewModel>();
+            this.InitializeComponent();
+
+            GamePicker.ItemsSource = ViewModel.AvailableGamesToRequest;
+            this.Loaded += async (sender, eventArguments) => await ViewModel.LoadAvailableGamesAsync();
+        }
+
+        private void GamePicker_SelectionChanged(object sender, SelectionChangedEventArgs selectionChangedEventArgs)
+        {
+            ViewModel.SelectedGame = GamePicker.SelectedItem as GameDTO;
+        }
+
+        private async void SaveButton_Click(object sender, RoutedEventArgs routedEventArgs)
+        {
+            ViewModel.StartDate = StartDatePicker.Date;
+            ViewModel.EndDate = EndDatePicker.Date;
+
+            var submitResult = await ViewModel.SubmitRequestAsync();
+            if (submitResult.IsSuccess)
+            {
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
+                return;
+            }
+
+            await DialogHelper.ShowMessageAsync(
+                this.XamlRoot,
+                submitResult.DialogTitle,
+                submitResult.DialogMessage);
+        }
+    }
+}

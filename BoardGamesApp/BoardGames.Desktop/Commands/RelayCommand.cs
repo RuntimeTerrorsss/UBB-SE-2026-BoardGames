@@ -5,7 +5,7 @@
 using System;
 using System.Windows.Input;
 
-namespace BoardGames.Src.Commands
+namespace BoardGames.Desktop.Commands
 {
     public class RelayCommand(Action<object?> executeAction, Func<bool>? canExecuteFunction = null) : ICommand
     {
@@ -16,15 +16,15 @@ namespace BoardGames.Src.Commands
 
         public bool CanExecute(object? parameter)
         {
-            return this.canExecuteFunction?.Invoke() ?? true;
+            return canExecuteFunction?.Invoke() ?? true;
         }
 
         public void Execute(object? parameter)
         {
-            this.executeAction(parameter);
+            executeAction(parameter);
         }
 
         public void NotifyCanExecuteChanged() =>
-            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

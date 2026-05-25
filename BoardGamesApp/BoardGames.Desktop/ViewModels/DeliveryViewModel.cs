@@ -22,22 +22,22 @@ namespace BoardGames.Desktop.ViewModels
             IUserRepository userRepository,
             IValidator<Dictionary<string, string>, Address> validator)
         {
-            this.CurrentId = currentUserId;
-            this.MapService = mapService;
-            this.UserRepository = userRepository;
-            this.Validator = validator;
-            this.CurrentAddress = new Address();
+            CurrentId = currentUserId;
+            MapService = mapService;
+            UserRepository = userRepository;
+            Validator = validator;
+            CurrentAddress = new Address();
         }
 
         public async Task InitializeAsync()
         {
-            this.CurrentUser = await this.UserRepository.GetById(this.CurrentId);
+            CurrentUser = await UserRepository.GetById(CurrentId);
 
-            this.CurrentAddress = this.CurrentUser != null
-                ? new Address(this.CurrentUser.Country, this.CurrentUser.City, this.CurrentUser.Street, this.CurrentUser.StreetNumber)
+            CurrentAddress = CurrentUser != null
+                ? new Address(CurrentUser.Country, CurrentUser.City, CurrentUser.Street, CurrentUser.StreetNumber)
                 : new Address();
 
-            this.StateChanged?.Invoke();
+            StateChanged?.Invoke();
         }
 
         public event Action StateChanged;
@@ -64,100 +64,100 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task Initialize(int userId)
         {
-            this.CurrentId = userId;
+            CurrentId = userId;
 
-            this.CurrentUser = await this.UserRepository.GetById(userId);
+            CurrentUser = await UserRepository.GetById(userId);
 
-            if (this.CurrentUser != null)
+            if (CurrentUser != null)
             {
-                await this.UserRepository.GetById(this.CurrentUser.Id);
+                await UserRepository.GetById(CurrentUser.Id);
 
-                this.CurrentAddress = new Address(
-                    this.CurrentUser.Country,
-                    this.CurrentUser.City,
-                    this.CurrentUser.Street,
-                    this.CurrentUser.StreetNumber);
+                CurrentAddress = new Address(
+                    CurrentUser.Country,
+                    CurrentUser.City,
+                    CurrentUser.Street,
+                    CurrentUser.StreetNumber);
             }
             else
             {
-                this.CurrentAddress = new Address();
+                CurrentAddress = new Address();
             }
 
-            this.StateChanged?.Invoke();
+            StateChanged?.Invoke();
         }
 
         public void OnFieldChange(string fieldName, string newValue)
         {
-            typeof(Address).GetProperty(fieldName)?.SetValue(this.CurrentAddress, newValue);
+            typeof(Address).GetProperty(fieldName)?.SetValue(CurrentAddress, newValue);
 
-            if (this.ValidationErrors.Remove(fieldName))
+            if (ValidationErrors.Remove(fieldName))
             {
-                this.StateChanged?.Invoke();
+                StateChanged?.Invoke();
             }
         }
 
         public void OpenMap()
         {
-            this.IsMapVisible = true;
-            this.StateChanged?.Invoke();
+            IsMapVisible = true;
+            StateChanged?.Invoke();
         }
 
         public void CloseMap()
         {
-            this.IsMapVisible = false;
-            this.StateChanged?.Invoke();
+            IsMapVisible = false;
+            StateChanged?.Invoke();
         }
 
         public async Task ConfirmMapLocationAsync(double latitude, double longitude)
         {
-            Address resolved = await this.MapService.GetAddressFromMapAsync(latitude, longitude);
+            Address resolved = await MapService.GetAddressFromMapAsync(latitude, longitude);
 
             if (resolved != null)
             {
-                this.CurrentAddress = resolved;
-                this.IsMapVisible = false;
-                this.StateChanged?.Invoke();
+                CurrentAddress = resolved;
+                IsMapVisible = false;
+                StateChanged?.Invoke();
 
-                await this.SaveAddressIfRequestedAsync();
+                await SaveAddressIfRequestedAsync();
             }
         }
 
         public async Task SubmitDelivery()
         {
-            this.ValidationErrors = this.Validator.Validate(this.CurrentAddress);
-            this.StateChanged?.Invoke();
+            ValidationErrors = Validator.Validate(CurrentAddress);
+            StateChanged?.Invoke();
 
-            if (this.ValidationErrors.Count == 0)
+            if (ValidationErrors.Count == 0)
             {
-                await this.SaveAddressIfRequestedAsync();
-                this.OnNavigateToPayment?.Invoke();
+                await SaveAddressIfRequestedAsync();
+                OnNavigateToPayment?.Invoke();
             }
         }
 
         public void OnSaveAddressChanged(bool isChecked)
         {
-            this.IsSaveAddress = isChecked;
+            IsSaveAddress = isChecked;
 
-            if (isChecked && this.CurrentUser != null)
+            if (isChecked && CurrentUser != null)
             {
-                _ = this.SaveAddressIfRequestedAsync();
+                _ = SaveAddressIfRequestedAsync();
             }
         }
 
         private async Task SaveAddressIfRequestedAsync()
         {
-            if (this.IsSaveAddress && this.CurrentUser != null)
+            if (IsSaveAddress && CurrentUser != null)
             {
-                await this.UserRepository.SaveAddress(this.CurrentUser.Id, this.CurrentAddress);
+                await UserRepository.SaveAddress(CurrentUser.Id, CurrentAddress);
 
-                this.CurrentUser = await this.UserRepository.GetById(this.CurrentUser.Id);
-                this.CurrentAddress = new Address(
-                    this.CurrentUser.Country,
-                    this.CurrentUser.City,
-                    this.CurrentUser.Street,
-                    this.CurrentUser.StreetNumber);
+                CurrentUser = await UserRepository.GetById(CurrentUser.Id);
+                CurrentAddress = new Address(
+                    CurrentUser.Country,
+                    CurrentUser.City,
+                    CurrentUser.Street,
+                    CurrentUser.StreetNumber);
 
-                this.StateChanged?.Invoke();
+                StateChanged?.Invoke();
             }
         }
     }

@@ -1,14 +1,14 @@
-﻿using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Helpers;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using BookingBoardGames.Sharing.Services;
 
-namespace BookingBoardGames.Src.ViewModels
+namespace BoardGames.Desktop.ViewModels
 {
     public class LoginViewModel : INotifyPropertyChanged
     {
@@ -77,7 +77,7 @@ namespace BookingBoardGames.Src.ViewModels
         {
             this.userService = userService;
             this.sessionService = sessionService;
-            LoginCommand = new RelayCommandNoParam(LoginAsync, () => !IsLoading);
+            LoginCommand = new RelayCommandNoParam(async () => await LoginAsync(), () => !IsLoading);
             GoToRegisterCommand = new RelayCommandNoParam(() => NavigateToRegister?.Invoke());
         }
 
@@ -93,51 +93,21 @@ namespace BookingBoardGames.Src.ViewModels
                 return;
             }
 
-            RunOnUiThread(() =>
-            {
-                IsLoading = true;
-                ErrorMessage = string.Empty;
-            });
+            IsLoading = true;
+            ErrorMessage = string.Empty;
 
-            try
-            {
-                var user = await userService.LoginAsync(Identifier.Trim(), Password);
+            var user = await userService.LoginAsync(Identifier.Trim(), Password);
 
-                if (user == null)
-                {
-                    RunOnUiThread(() => ErrorMessage = "Invalid username/email or password.");
-                    return;
-                }
+            if (user == null)
+            {
+                ErrorMessage = "Invalid username/email or password.";
+                IsLoading = false;
+                return;
+            }
 
-                RunOnUiThread(() =>
-                {
-                    AuthSession.SetAuthenticatedUser(user, sessionService);
-                    NavigateToHome?.Invoke();
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Login failed: {ex}");
-                RunOnUiThread(() =>
-                    ErrorMessage = "Sign-in failed. Please check your connection and try again.");
-            }
-            finally
-            {
-                RunOnUiThread(() => IsLoading = false);
-            }
-        }
-
-        private static void RunOnUiThread(Action action)
-        {
-            var dispatcher = ((App)Microsoft.UI.Xaml.Application.Current).Window?.DispatcherQueue;
-            if (dispatcher != null)
-            {
-                dispatcher.TryEnqueue(() => action());
-            }
-            else
-            {
-                action();
-            }
+            sessionService.SetUser(user.Id, user.Username, user.DisplayName);
+            IsLoading = false;
+            NavigateToHome?.Invoke();
         }
 
         private bool ValidateUser()

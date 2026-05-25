@@ -18,23 +18,23 @@ using BookingBoardGames.Data.Interfaces;
 using BookingBoardGames.Sharing.DTO;
 using Microsoft.UI.Xaml;
 
-namespace BookingBoardGames.Src.ViewModels
+namespace BoardGames.Desktop.ViewModels
 {
     public class LeftPanelViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool IsEmptyStateVisible => this.allConversations.Count == 0;
+        public bool IsEmptyStateVisible => allConversations.Count == 0;
 
-        public bool IsNoMatchesVisible => this.allConversations.Count > 0 && this.Conversations.Count == 0;
+        public bool IsNoMatchesVisible => allConversations.Count > 0 && Conversations.Count == 0;
 
-        public bool IsListVisible => this.Conversations.Count > 0;
+        public bool IsListVisible => Conversations.Count > 0;
 
         private void RefreshUIStates()
         {
-            this.OnPropertyChanged(nameof(this.IsEmptyStateVisible));
-            this.OnPropertyChanged(nameof(this.IsNoMatchesVisible));
-            this.OnPropertyChanged(nameof(this.IsListVisible));
+            OnPropertyChanged(nameof(IsEmptyStateVisible));
+            OnPropertyChanged(nameof(IsNoMatchesVisible));
+            OnPropertyChanged(nameof(IsListVisible));
         }
 
         private List<ConversationPreviewModel> allConversations = new();
@@ -43,11 +43,11 @@ namespace BookingBoardGames.Src.ViewModels
 
         public ObservableCollection<ConversationPreviewModel> Conversations
         {
-            get => this.conversations;
+            get => conversations;
             set
             {
-                this.conversations = value;
-                this.OnPropertyChanged();
+                conversations = value;
+                OnPropertyChanged();
             }
         }
 
@@ -55,14 +55,14 @@ namespace BookingBoardGames.Src.ViewModels
 
         public string SearchText
         {
-            get => this.searchText;
+            get => searchText;
             set
             {
-                if (this.searchText != value)
+                if (searchText != value)
                 {
-                    this.searchText = value;
-                    this.OnPropertyChanged();
-                    this.ApplyFilter();
+                    searchText = value;
+                    OnPropertyChanged();
+                    ApplyFilter();
                 }
             }
         }
@@ -71,40 +71,40 @@ namespace BookingBoardGames.Src.ViewModels
 
         public ConversationPreviewModel SelectedConversation
         {
-            get => this.Conversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == this.selectedConversationId);
+            get => Conversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == selectedConversationId);
             set
             {
-                if (this.selectedConversationId != value?.ConversationId)
+                if (selectedConversationId != value?.ConversationId)
                 {
-                    this.selectedConversationId = value?.ConversationId;
+                    selectedConversationId = value?.ConversationId;
 
-                    if (this.selectedConversationId.HasValue)
+                    if (selectedConversationId.HasValue)
                     {
-                        this.MarkAsRead(this.selectedConversationId.Value);
+                        MarkAsRead(selectedConversationId.Value);
                     }
 
-                    this.OnPropertyChanged();
+                    OnPropertyChanged();
                 }
             }
         }
 
         public LeftPanelViewModel()
         {
-            this.Conversations = new ObservableCollection<ConversationPreviewModel>();
+            Conversations = new ObservableCollection<ConversationPreviewModel>();
         }
 
         private void ApplyFilter()
         {
-            var filteredConversations = this.allConversations
-                .Where(conversationItem => string.IsNullOrEmpty(this.SearchText) ||
-                            conversationItem.DisplayName.Contains(this.SearchText, StringComparison.Ordinal))
+            var filteredConversations = allConversations
+                .Where(conversationItem => string.IsNullOrEmpty(SearchText) ||
+                            conversationItem.DisplayName.Contains(SearchText, StringComparison.Ordinal))
                 .ToList();
 
-            for (int conversationIndex = this.Conversations.Count - 1; conversationIndex >= 0; conversationIndex--)
+            for (int conversationIndex = Conversations.Count - 1; conversationIndex >= 0; conversationIndex--)
             {
-                if (!filteredConversations.Contains(this.Conversations[conversationIndex]))
+                if (!filteredConversations.Contains(Conversations[conversationIndex]))
                 {
-                    this.Conversations.RemoveAt(conversationIndex);
+                    Conversations.RemoveAt(conversationIndex);
                 }
             }
 
@@ -113,26 +113,26 @@ namespace BookingBoardGames.Src.ViewModels
             for (int filteredConIndex = 0; filteredConIndex < filteredConversations.Count; filteredConIndex++)
             {
                 var filterItem = filteredConversations[filteredConIndex];
-                int currentIndex = this.Conversations.IndexOf(filterItem);
+                int currentIndex = Conversations.IndexOf(filterItem);
 
                 if (currentIndex == notFoundIndex)
                 {
-                    this.Conversations.Insert(filteredConIndex, filterItem);
+                    Conversations.Insert(filteredConIndex, filterItem);
                 }
                 else if (currentIndex != filteredConIndex)
                 {
-                    this.Conversations.Move(currentIndex, filteredConIndex);
+                    Conversations.Move(currentIndex, filteredConIndex);
                 }
             }
 
-            this.OnPropertyChanged(nameof(this.SelectedConversation));
-            this.RefreshUIStates();
+            OnPropertyChanged(nameof(SelectedConversation));
+            RefreshUIStates();
         }
 
         private void MarkAsRead(int conversationId)
         {
             int noUnreadMessagesCount = 0;
-            var matchedConversation = this.allConversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == conversationId);
+            var matchedConversation = allConversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == conversationId);
             if (matchedConversation == null || matchedConversation.UnreadCount == noUnreadMessagesCount)
             {
                 return;
@@ -153,16 +153,16 @@ namespace BookingBoardGames.Src.ViewModels
             int noUnreadMessagesCount = 0;
             int singleUnreadMessageCount = 1;
 
-            var matchedConversation = this.allConversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == message.ConversationId);
+            var matchedConversation = allConversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == message.ConversationId);
 
             if (matchedConversation != null)
             {
                 matchedConversation.LastMessageText = message.Content;
                 matchedConversation.Timestamp = DateTime.Now;
-                matchedConversation.UnreadCount = message.ConversationId == this.selectedConversationId ? noUnreadMessagesCount : matchedConversation.UnreadCount + singleUnreadMessageCount;
+                matchedConversation.UnreadCount = message.ConversationId == selectedConversationId ? noUnreadMessagesCount : matchedConversation.UnreadCount + singleUnreadMessageCount;
 
-                this.allConversations.Remove(matchedConversation);
-                this.allConversations.Insert(0, matchedConversation);
+                allConversations.Remove(matchedConversation);
+                allConversations.Insert(0, matchedConversation);
             }
             else
             {
@@ -173,12 +173,12 @@ namespace BookingBoardGames.Src.ViewModels
                     senderName.Substring(firstCharacterIndex, singleCharacterLength).ToUpper(),
                     message.Content,
                     DateTime.Now,
-                    unreadCountInput: message.ConversationId == this.selectedConversationId ? noUnreadMessagesCount : singleUnreadMessageCount,
+                    unreadCountInput: message.ConversationId == selectedConversationId ? noUnreadMessagesCount : singleUnreadMessageCount,
                     receiverUser?.AvatarUrl ?? string.Empty);
-                this.allConversations.Insert(0, newConversationPreview);
+                allConversations.Insert(0, newConversationPreview);
             }
 
-            this.ApplyFilter();
+            ApplyFilter();
         }
 
         public Task HandleIncomingConversation(ConversationDTO conversation, string displayName, int userId)
@@ -191,7 +191,7 @@ namespace BookingBoardGames.Src.ViewModels
             int firstCharacterIndex = 0;
             int singleCharacterLength = 1;
 
-            var matchedConversation = this.allConversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == conversation.Id);
+            var matchedConversation = allConversations.FirstOrDefault(conversationItem => conversationItem.ConversationId == conversation.Id);
             if (matchedConversation != null)
             {
                 return;
@@ -234,26 +234,26 @@ namespace BookingBoardGames.Src.ViewModels
                 unreadCountInput: unreadCount,
                 otherUser?.AvatarUrl ?? string.Empty);
 
-            this.allConversations.Insert(0, newConversationPreview);
-            this.SortConversationsByTimestamp();
-            this.ApplyFilter();
+            allConversations.Insert(0, newConversationPreview);
+            SortConversationsByTimestamp();
+            ApplyFilter();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         public void SortConversationsByTimestamp()
         {
-            this.allConversations = this.allConversations.OrderByDescending(conversationItem => conversationItem.Timestamp).ToList();
+            allConversations = allConversations.OrderByDescending(conversationItem => conversationItem.Timestamp).ToList();
             Debug.WriteLine("sorted conversations:");
-            this.ApplyFilter();
+            ApplyFilter();
         }
 
         public void RaisePropertyChanged(string propertyName)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

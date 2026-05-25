@@ -2,12 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BoardGames.Src.Helpers;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Commands;
-using BoardGames.Desktop.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +9,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using BookingBoardGames.Data.Enum;
+using BookingBoardGames.Sharing.DTO;
+using BookingBoardGames.Sharing.Services;
+using BookingBoardGames.Src.Commands;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -48,26 +46,26 @@ namespace BoardGames.Desktop.ViewModels
         /// <param name="geographicalService">The service used for geographical location suggestions.</param>
         public DiscoveryViewModel(InterfaceSearchAndFilterService searchService, InterfaceGeographicalService geographicalService)
         {
-            this.searchAndFilterService = searchService;
+            searchAndFilterService = searchService;
             this.geographicalService = geographicalService;
 
             var today = DateTimeOffset.Now.Date;
-            this.selectedStartDate = today;
-            this.selectedEndDate = today;
+            selectedStartDate = today;
+            selectedEndDate = today;
 
-            this.NextPageCommand = new RelayCommand(_ => this.GoToNextPage());
-            this.PreviousPageCommand = new RelayCommand(_ => this.GoToPreviousPage());
-            this.SearchCommand = new RelayCommand(_ => this.SearchGamesByFilter(this.Filter));
+            NextPageCommand = new RelayCommand(_ => GoToNextPage());
+            PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
+            SearchCommand = new RelayCommand(_ => SearchGamesByFilter(Filter));
 
             SessionContext.GetInstance().OnUserChanged += this.LoadPaginatedDiscoveryFeed;
 
             try
             {
-                this.LoadPaginatedDiscoveryFeed();
+                LoadPaginatedDiscoveryFeed();
             }
             catch (Exception exception)
             {
-                this.OnErrorOccurred?.Invoke($"Could not load discovery feed. {exception.Message}");
+                OnErrorOccurred?.Invoke($"Could not load discovery feed. {exception.Message}");
             }
         }
 
@@ -109,20 +107,20 @@ namespace BoardGames.Desktop.ViewModels
         /// <summary>
         /// Gets a value indicating whether the end date selection is enabled based on the start date.
         /// </summary>
-        public bool IsEndDateEnabled => this.SelectedStartDate.HasValue;
+        public bool IsEndDateEnabled => SelectedStartDate.HasValue;
 
-        private int TotalGamesCount => this.totalAvailableGamesCount;
+        private int TotalGamesCount => totalAvailableGamesCount;
 
         /// <summary>
         /// Gets or sets a value indicating whether the header for "Other games" should be visible.
         /// </summary>
         public bool ShowOthersHeader
         {
-            get => this.showOthersHeader;
+            get => showOthersHeader;
             set
             {
-                this.showOthersHeader = value;
-                this.OnPropertyChanged(nameof(this.ShowOthersHeader));
+                showOthersHeader = value;
+                OnPropertyChanged(nameof(ShowOthersHeader));
             }
         }
 
@@ -140,10 +138,10 @@ namespace BoardGames.Desktop.ViewModels
         /// Gets the minimum allowed end date based on the currently selected start date.
         /// </summary>
         public DateTimeOffset MinEndDate =>
-        this.SelectedStartDate.HasValue
+        SelectedStartDate.HasValue
         ? new DateTimeOffset(
-            this.SelectedStartDate.Value.Year,
-            this.SelectedStartDate.Value.Month,
+            SelectedStartDate.Value.Year,
+            SelectedStartDate.Value.Month,
             FirstDayOfMonth,
             MidnightHour,
             MidnightMinute,
@@ -156,7 +154,7 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public DateTimeOffset? SelectedStartDate
         {
-            get => this.selectedStartDate;
+            get => selectedStartDate;
             set
             {
                 var newValue = value?.Date;
@@ -166,16 +164,16 @@ namespace BoardGames.Desktop.ViewModels
                     newValue = DateTimeOffset.Now.Date;
                 }
 
-                if (this.selectedStartDate != newValue)
+                if (selectedStartDate != newValue)
                 {
-                    this.selectedStartDate = newValue;
-                    this.OnPropertyChanged(nameof(this.SelectedStartDate));
-                    this.OnPropertyChanged(nameof(this.MinEndDate));
-                    this.OnPropertyChanged(nameof(this.IsEndDateEnabled));
+                    selectedStartDate = newValue;
+                    OnPropertyChanged(nameof(SelectedStartDate));
+                    OnPropertyChanged(nameof(MinEndDate));
+                    OnPropertyChanged(nameof(IsEndDateEnabled));
 
-                    this.selectedEndDate = this.selectedStartDate;
+                    selectedEndDate = selectedStartDate;
 
-                    this.OnPropertyChanged(nameof(this.SelectedEndDate));
+                    OnPropertyChanged(nameof(SelectedEndDate));
                 }
             }
         }
@@ -185,24 +183,24 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public DateTimeOffset? SelectedEndDate
         {
-            get => this.selectedEndDate;
+            get => selectedEndDate;
             set
             {
                 var newValue = value?.Date;
 
                 if (!newValue.HasValue)
                 {
-                    newValue = this.SelectedStartDate?.Date ?? DateTimeOffset.Now.Date;
+                    newValue = SelectedStartDate?.Date ?? DateTimeOffset.Now.Date;
                 }
 
-                if (this.SelectedStartDate.HasValue && newValue.HasValue &&
-                    newValue.Value < this.SelectedStartDate.Value)
+                if (SelectedStartDate.HasValue && newValue.HasValue &&
+                    newValue.Value < SelectedStartDate.Value)
                 {
-                    newValue = this.SelectedStartDate.Value.Date;
+                    newValue = SelectedStartDate.Value.Date;
                 }
 
-                this.selectedEndDate = newValue;
-                this.OnPropertyChanged(nameof(this.SelectedEndDate));
+                selectedEndDate = newValue;
+                OnPropertyChanged(nameof(SelectedEndDate));
             }
         }
 
@@ -211,11 +209,11 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public int CurrentPage
         {
-            get => this.currentPage;
+            get => currentPage;
             set
             {
-                this.currentPage = value;
-                this.OnPropertyChanged(nameof(this.CurrentPage));
+                currentPage = value;
+                OnPropertyChanged(nameof(CurrentPage));
             }
         }
 
@@ -226,12 +224,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             get
             {
-                if (this.TotalGamesCount == 0)
+                if (TotalGamesCount == 0)
                 {
                     return NoPagesAvailable;
                 }
 
-                return (int)Math.Ceiling((double)this.TotalGamesCount / ItemsPerPage);
+                return (int)Math.Ceiling((double)TotalGamesCount / ItemsPerPage);
             }
         }
 
@@ -240,15 +238,15 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public string CitySearchText
         {
-            get => this.citySearchText;
+            get => citySearchText;
             set
             {
-                if (this.citySearchText != value)
+                if (citySearchText != value)
                 {
-                    this.citySearchText = value;
-                    this.OnPropertyChanged(nameof(this.CitySearchText));
-                    this.Filter.City = value;
-                    this.UpdateCitySuggestions(value);
+                    citySearchText = value;
+                    OnPropertyChanged(nameof(CitySearchText));
+                    Filter.City = value;
+                    UpdateCitySuggestions(value);
                 }
             }
         }
@@ -276,7 +274,7 @@ namespace BoardGames.Desktop.ViewModels
         /// <summary>
         /// Gets the message to be displayed when no games match the discovery or search criteria.
         /// </summary>
-        public string NoResultsMessage => this.TotalGamesCount == NoGamesAvailable ? "No games available." : string.Empty;
+        public string NoResultsMessage => TotalGamesCount == NoGamesAvailable ? "No games available." : string.Empty;
 
         /// <summary>
         /// Loads paginated discovery feed and updates UI properties.
@@ -285,25 +283,23 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                int currentUserId = AuthSession.IsLoggedIn
-                    ? SessionContext.GetInstance().UserId
-                    : -1;
+                int currentUserId = SessionContext.GetInstance().UserId;
 
-                var discoveryFeedResult = await this.searchAndFilterService.GetDiscoveryFeedPaged(currentUserId, this.CurrentPage, ItemsPerPage);
+                var discoveryFeedResult = await searchAndFilterService.GetDiscoveryFeedPaged(currentUserId, CurrentPage, ItemsPerPage);
 
-                this.AvailableTonightGames = discoveryFeedResult.AvailableTonight;
-                this.OtherAvailableGames = discoveryFeedResult.Others;
-                this.ShowOthersHeader = this.OtherAvailableGames.Any();
-                this.totalAvailableGamesCount = discoveryFeedResult.TotalAvailableGamesCount;
+                AvailableTonightGames = discoveryFeedResult.AvailableTonight;
+                OtherAvailableGames = discoveryFeedResult.Others;
+                ShowOthersHeader = OtherAvailableGames.Any();
+                totalAvailableGamesCount = discoveryFeedResult.TotalAvailableGamesCount;
 
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.OnPropertyChanged(nameof(this.AvailableTonightGames));
-                this.OnPropertyChanged(nameof(this.OtherAvailableGames));
-                this.OnPropertyChanged(nameof(this.NoResultsMessage));
+                OnPropertyChanged(nameof(TotalPages));
+                OnPropertyChanged(nameof(AvailableTonightGames));
+                OnPropertyChanged(nameof(OtherAvailableGames));
+                OnPropertyChanged(nameof(NoResultsMessage));
             }
             catch (Exception exception)
             {
-                this.OnErrorOccurred?.Invoke($"Could not load discovery feed. {exception.Message}");
+                OnErrorOccurred?.Invoke($"Could not load discovery feed. {exception.Message}");
             }
         }
 
@@ -314,16 +310,16 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (this.CurrentPage * ItemsPerPage < this.TotalGamesCount)
+                if (CurrentPage * ItemsPerPage < TotalGamesCount)
                 {
-                    this.CurrentPage++;
-                    this.LoadPaginatedDiscoveryFeed();
-                    this.OnPageChanged?.Invoke();
+                    CurrentPage++;
+                    LoadPaginatedDiscoveryFeed();
+                    OnPageChanged?.Invoke();
                 }
             }
             catch (Exception ex)
             {
-                this.OnErrorOccurred?.Invoke($"Could not go to next page. {ex.Message}");
+                OnErrorOccurred?.Invoke($"Could not go to next page. {ex.Message}");
             }
         }
 
@@ -334,16 +330,16 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (this.CurrentPage > 1)
+                if (CurrentPage > 1)
                 {
-                    this.CurrentPage--;
-                    this.LoadPaginatedDiscoveryFeed();
-                    this.OnPageChanged?.Invoke();
+                    CurrentPage--;
+                    LoadPaginatedDiscoveryFeed();
+                    OnPageChanged?.Invoke();
                 }
             }
             catch (Exception ex)
             {
-                this.OnErrorOccurred?.Invoke($"Could not go to previous page. {ex.Message}");
+                OnErrorOccurred?.Invoke($"Could not go to previous page. {ex.Message}");
             }
         }
 
@@ -355,30 +351,28 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (!this.searchAndFilterService.IsValidDateRange(
-                    this.SelectedStartDate?.DateTime,
-                    this.SelectedEndDate?.DateTime))
+                if (!searchAndFilterService.IsValidDateRange(
+                    SelectedStartDate?.DateTime,
+                    SelectedEndDate?.DateTime))
                 {
                     return;
                 }
 
-                this.Filter.Name = criteria.Name;
-                this.Filter.City = criteria.City;
-                this.Filter.SortOption = criteria.SortOption;
-                this.Filter.MaximumPrice = criteria.MaximumPrice;
-                this.Filter.PlayerCount = criteria.PlayerCount;
-                this.Filter.UserId = AuthSession.IsLoggedIn
-                    ? SessionContext.GetInstance().UserId
-                    : null;
+                Filter.Name = criteria.Name;
+                Filter.City = criteria.City;
+                Filter.SortOption = criteria.SortOption;
+                Filter.MaximumPrice = criteria.MaximumPrice;
+                Filter.PlayerCount = criteria.PlayerCount;
+                Filter.UserId = SessionContext.GetInstance().UserId;
 
-                this.UpdateAvailabilityRange();
+                UpdateAvailabilityRange();
 
-                this.CurrentPage = InitialPage;
-                this.OnSearchRequest?.Invoke(this.Filter);
+                CurrentPage = InitialPage;
+                OnSearchRequest?.Invoke(Filter);
             }
             catch (Exception ex)
             {
-                this.OnErrorOccurred?.Invoke($"Could not perform search. {ex.Message}");
+                OnErrorOccurred?.Invoke($"Could not perform search. {ex.Message}");
             }
         }
 
@@ -388,29 +382,29 @@ namespace BoardGames.Desktop.ViewModels
         /// <param name="propertyName">The name of the property that changed. This is optional because of CallerMemberName.</param>
         protected void OnPropertyChanged(string? propertyName = null)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void UpdateAvailabilityRange()
         {
             try
             {
-                if (this.SelectedStartDate.HasValue &&
-                    this.SelectedEndDate.HasValue &&
-                    this.SelectedStartDate.Value <= this.SelectedEndDate.Value)
+                if (SelectedStartDate.HasValue &&
+                    SelectedEndDate.HasValue &&
+                    SelectedStartDate.Value <= SelectedEndDate.Value)
                 {
-                    this.Filter.AvailabilityRange = new TimeRange(
-                        this.SelectedStartDate.Value.Date,
-                        this.SelectedEndDate.Value.Date);
+                    Filter.AvailabilityRange = new TimeRange(
+                        SelectedStartDate.Value.Date,
+                        SelectedEndDate.Value.Date);
                 }
                 else
                 {
-                    this.Filter.AvailabilityRange = null;
+                    Filter.AvailabilityRange = null;
                 }
             }
             catch (Exception ex)
             {
-                this.OnErrorOccurred?.Invoke($"Could not update availability range. {ex.Message}");
+                OnErrorOccurred?.Invoke($"Could not update availability range. {ex.Message}");
             }
         }
 
@@ -418,20 +412,20 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CitySuggestions.Clear();
+                CitySuggestions.Clear();
 
                 if (!string.IsNullOrWhiteSpace(input) && input.Length >= MinimumCitySearchLength)
                 {
-                    var matches = this.geographicalService.GetCitySuggestions(input);
+                    var matches = geographicalService.GetCitySuggestions(input);
                     foreach (var match in matches)
                     {
-                        this.CitySuggestions.Add(match);
+                        CitySuggestions.Add(match);
                     }
                 }
             }
             catch (Exception ex)
             {
-                this.OnErrorOccurred?.Invoke($"Could not load city suggestions. {ex.Message}");
+                OnErrorOccurred?.Invoke($"Could not load city suggestions. {ex.Message}");
             }
         }
     }

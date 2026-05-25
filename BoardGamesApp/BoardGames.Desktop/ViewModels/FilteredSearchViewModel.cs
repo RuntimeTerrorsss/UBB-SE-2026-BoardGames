@@ -92,7 +92,7 @@ namespace BoardGames.Desktop.ViewModels
         /// Gets the human-readable message shown when no results are isfound.
         /// Returns an empty string when results exist.
         /// </summary>
-        public string NoResultsMessage => this.HasNoResults
+        public string NoResultsMessage => HasNoResults
             ? "No games isfound matching your criteria. Try adjusting your filters or search terms."
             : string.Empty;
 
@@ -105,28 +105,28 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public GameDTO? SelectedGame
         {
-            get => this.selectedGame;
+            get => selectedGame;
             set
             {
-                if (this.selectedGame != value)
+                if (selectedGame != value)
                 {
-                    this.selectedGame = value;
-                    this.OnPropertyChanged(nameof(this.SelectedGame));
+                    selectedGame = value;
+                    OnPropertyChanged(nameof(SelectedGame));
 
-                    if (this.selectedGame != null)
+                    if (selectedGame != null)
                     {
                         try
                         {
-                            this.SelectGame(this.selectedGame.GameId);
+                            this.SelectGame(selectedGame.GameId);
                         }
                         catch (Exception ex)
                         {
-                            this.RaiseError($"Could not select the game. {ex.Message}");
+                            RaiseError($"Could not select the game. {ex.Message}");
                         }
                         finally
                         {
-                            this.selectedGame = null;
-                            this.OnPropertyChanged(nameof(this.SelectedGame));
+                            selectedGame = null;
+                            OnPropertyChanged(nameof(SelectedGame));
                         }
                     }
                 }
@@ -136,11 +136,11 @@ namespace BoardGames.Desktop.ViewModels
         /// <summary>Gets or sets the 1-based index of the page currently displayed.</summary>
         public int CurrentPage
         {
-            get => this.currentPage;
+            get => currentPage;
             set
             {
-                this.currentPage = value;
-                this.OnPropertyChanged(nameof(this.CurrentPage));
+                currentPage = value;
+                OnPropertyChanged(nameof(CurrentPage));
             }
         }
 
@@ -152,34 +152,34 @@ namespace BoardGames.Desktop.ViewModels
         {
             get
             {
-                if (this.Games == null || this.Games.Count == NoGavesAvailable)
+                if (Games == null || Games.Count == NoGavesAvailable)
                 {
                     return FirstPage;
                 }
 
-                return (int)Math.Ceiling((double)this.Games.Count / ItemsPerPage);
+                return (int)Math.Ceiling((double)Games.Count / ItemsPerPage);
             }
         }
 
         /// <summary>Gets or sets the upper price bound selected by the user in the filter panel. A value of 0 means "no maximum price filter".</summary>
         public double SelectedMaximumPrice
         {
-            get => this.selectedMaximumPrice;
+            get => selectedMaximumPrice;
             set
             {
-                this.selectedMaximumPrice = value;
-                this.OnPropertyChanged(nameof(this.SelectedMaximumPrice));
+                selectedMaximumPrice = value;
+                OnPropertyChanged(nameof(SelectedMaximumPrice));
             }
         }
 
         /// <summary>Gets or sets the minimum number of players selected by the user in the filter panel.</summary>
         public double SelectedMinimumPlayers
         {
-            get => this.selectedMinimumPlayers;
+            get => selectedMinimumPlayers;
             set
             {
-                this.selectedMinimumPlayers = value;
-                this.OnPropertyChanged(nameof(this.SelectedMinimumPlayers));
+                selectedMinimumPlayers = value;
+                OnPropertyChanged(nameof(SelectedMinimumPlayers));
             }
         }
 
@@ -187,9 +187,9 @@ namespace BoardGames.Desktop.ViewModels
         /// Gets the earliest date the end-date picker will allow.
         /// Equals the day after <see cref="SelectedStartDate"/> when a start date is set; otherwise defaults to today.
         /// </summary>
-        public DateTimeOffset MinimumEndDate => this.SelectedStartDate.HasValue
-            ? this.SelectedStartDate.Value.AddDays(1)
-            : this.Today;
+        public DateTimeOffset MinimumEndDate => SelectedStartDate.HasValue
+            ? SelectedStartDate.Value.AddDays(1)
+            : Today;
 
         /// <summary>
         /// Gets or sets the availability window start date chosen by the user.
@@ -197,45 +197,45 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public DateTimeOffset? SelectedStartDate
         {
-            get => this.selectedStartDate;
+            get => selectedStartDate;
             set
             {
-                this.selectedStartDate = value;
-                this.OnPropertyChanged(nameof(this.SelectedStartDate));
-                this.OnPropertyChanged(nameof(this.MinimumEndDate));
+                selectedStartDate = value;
+                OnPropertyChanged(nameof(SelectedStartDate));
+                OnPropertyChanged(nameof(MinimumEndDate));
 
-                if (this.SelectedEndDate.HasValue && value.HasValue && this.SelectedEndDate.Value <= value.Value)
+                if (SelectedEndDate.HasValue && value.HasValue && SelectedEndDate.Value <= value.Value)
                 {
-                    this.SelectedEndDate = null;
+                    SelectedEndDate = null;
                 }
             }
         }
 
         /// <summary>Gets the earliest date that can be selected as a start date (today).</summary>
-        public DateTimeOffset MinimumStartDate => this.Today;
+        public DateTimeOffset MinimumStartDate => Today;
 
         /// <summary>Gets or sets the availability window end date chosen by the user.</summary>
         public DateTimeOffset? SelectedEndDate
         {
-            get => this.selectedEndDate;
+            get => selectedEndDate;
             set
             {
-                this.selectedEndDate = value;
-                this.OnPropertyChanged(nameof(this.SelectedEndDate));
+                selectedEndDate = value;
+                OnPropertyChanged(nameof(SelectedEndDate));
             }
         }
 
         /// <summary>Gets or sets the sort option selected by the user (e.g. "Price: lowest to highest"). Changing this property immediately triggers <see cref="ApplySortOnly"/>.</summary>
         public string? SelectedSortOption
         {
-            get => this.selectedSortOption;
+            get => selectedSortOption;
             set
             {
-                if (this.selectedSortOption != value)
+                if (selectedSortOption != value)
                 {
-                    this.selectedSortOption = value;
-                    this.OnPropertyChanged(nameof(this.SelectedSortOption));
-                    _ = this.ApplySortOnly();
+                    selectedSortOption = value;
+                    OnPropertyChanged(nameof(SelectedSortOption));
+                    _ = ApplySortOnly();
                 }
             }
         }
@@ -243,11 +243,11 @@ namespace BoardGames.Desktop.ViewModels
         /// <summary>Gets or sets the validation error message displayed near the location/city input. Empty string when there is no error.</summary>
         public string LocationError
         {
-            get => this.locationError;
+            get => locationError;
             set
             {
-                this.locationError = value;
-                this.OnPropertyChanged(nameof(this.LocationError));
+                locationError = value;
+                OnPropertyChanged(nameof(LocationError));
             }
         }
 
@@ -287,21 +287,21 @@ namespace BoardGames.Desktop.ViewModels
             this.geographicalService = geographicalService ?? throw new ArgumentNullException(nameof(geographicalService));
             this.searchService = searchService ?? throw new ArgumentNullException(nameof(searchService));
 
-            this.CurrentFilter = new FilterCriteria();
-            this.BaseResults = Array.Empty<GameDTO>();
-            this.DisplayedResults = Array.Empty<GameDTO>();
-            this.HasNoResults = false;
+            CurrentFilter = new FilterCriteria();
+            BaseResults = Array.Empty<GameDTO>();
+            DisplayedResults = Array.Empty<GameDTO>();
+            HasNoResults = false;
 
-            this.SelectedMaximumPrice = DefaultMaxPrice;
-            this.SelectedStartDate = null;
-            this.SelectedEndDate = null;
+            SelectedMaximumPrice = DefaultMaxPrice;
+            SelectedStartDate = null;
+            SelectedEndDate = null;
 
-            this.SearchCommand = new RelayCommand(async _ => await this.SearchGamesByFilter(this.CurrentFilter));
-            this.NextPageCommand = new RelayCommand(_ => this.NextPage());
-            this.PreviousPageCommand = new RelayCommand(_ => this.PreviousPage());
-            this.GoBackCommand = new RelayCommand(_ => this.GoBack());
+            SearchCommand = new RelayCommand(async _ => await SearchGamesByFilter(CurrentFilter));
+            NextPageCommand = new RelayCommand(_ => NextPage());
+            PreviousPageCommand = new RelayCommand(_ => PreviousPage());
+            GoBackCommand = new RelayCommand(_ => GoBack());
 
-            this.SelectGameCommand = new RelayCommand(selectedGameObject =>
+            SelectGameCommand = new RelayCommand(selectedGameObject =>
             {
                 try
                 {
@@ -312,12 +312,12 @@ namespace BoardGames.Desktop.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    this.RaiseError($"Could not open game details. {ex.Message}");
+                    RaiseError($"Could not open game details. {ex.Message}");
                 }
             });
 
-            this.ApplySelectedUiFiltersCommand = new RelayCommand(_ => this.ApplySelectedUiFilters());
-            this.ClearFiltersCommand = new RelayCommand(_ => this.ClearAllFilters());
+            ApplySelectedUiFiltersCommand = new RelayCommand(_ => ApplySelectedUiFilters());
+            ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
         }
 
         /// <summary>
@@ -335,25 +335,25 @@ namespace BoardGames.Desktop.ViewModels
                     throw new ArgumentNullException(nameof(initialFilter));
                 }
 
-                this.CurrentFilter = initialFilter;
-                this.CitySearchText = this.CurrentFilter.City ?? string.Empty;
+                CurrentFilter = initialFilter;
+                CitySearchText = CurrentFilter.City ?? string.Empty;
 
-                if (this.CurrentFilter.AvailabilityRange != null)
+                if (CurrentFilter.AvailabilityRange != null)
                 {
-                    this.SelectedStartDate = new DateTimeOffset(this.CurrentFilter.AvailabilityRange.StartTime);
-                    this.SelectedEndDate = new DateTimeOffset(this.CurrentFilter.AvailabilityRange.EndTime);
+                    SelectedStartDate = new DateTimeOffset(CurrentFilter.AvailabilityRange.StartTime);
+                    SelectedEndDate = new DateTimeOffset(CurrentFilter.AvailabilityRange.EndTime);
                 }
                 else
                 {
-                    this.SelectedStartDate = null;
-                    this.SelectedEndDate = null;
+                    SelectedStartDate = null;
+                    SelectedEndDate = null;
                 }
 
-                await this.SearchGamesByFilter(this.CurrentFilter);
+                await SearchGamesByFilter(CurrentFilter);
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not initialize search results. {ex.Message}");
+                RaiseError($"Could not initialize search results. {ex.Message}");
             }
         }
 
@@ -367,22 +367,22 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.BaseResults = await this.searchService.SearchGamesByFilter(searchCriteria) ?? Array.Empty<GameDTO>();
-                this.DisplayedResults = this.BaseResults;
-                this.Games = this.DisplayedResults.ToList();
-                this.CurrentPage = FirstPage;
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.RefreshPage();
-                this.UpdateNoResultsState();
+                BaseResults = await searchService.SearchGamesByFilter(searchCriteria) ?? Array.Empty<GameDTO>();
+                DisplayedResults = BaseResults;
+                Games = DisplayedResults.ToList();
+                CurrentPage = FirstPage;
+                OnPropertyChanged(nameof(TotalPages));
+                RefreshPage();
+                UpdateNoResultsState();
             }
             catch (Exception ex)
             {
-                this.BaseResults = Array.Empty<GameDTO>();
-                this.DisplayedResults = Array.Empty<GameDTO>();
-                this.Games = new List<GameDTO>();
-                this.RefreshPage();
-                this.UpdateNoResultsState();
-                this.RaiseError($"Could not load search results. {ex.Message}");
+                BaseResults = Array.Empty<GameDTO>();
+                DisplayedResults = Array.Empty<GameDTO>();
+                Games = new List<GameDTO>();
+                RefreshPage();
+                UpdateNoResultsState();
+                RaiseError($"Could not load search results. {ex.Message}");
             }
         }
 
@@ -395,22 +395,22 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.BaseResults = discoveryResults ?? Array.Empty<GameDTO>();
-                this.DisplayedResults = this.BaseResults;
-                this.Games = this.DisplayedResults.ToList();
-                this.CurrentPage = FirstPage;
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.RefreshPage();
-                this.UpdateNoResultsState();
+                BaseResults = discoveryResults ?? Array.Empty<GameDTO>();
+                DisplayedResults = BaseResults;
+                Games = DisplayedResults.ToList();
+                CurrentPage = FirstPage;
+                OnPropertyChanged(nameof(TotalPages));
+                RefreshPage();
+                UpdateNoResultsState();
             }
             catch (Exception ex)
             {
-                this.BaseResults = Array.Empty<GameDTO>();
-                this.DisplayedResults = Array.Empty<GameDTO>();
-                this.Games = new List<GameDTO>();
-                this.RefreshPage();
-                this.UpdateNoResultsState();
-                this.RaiseError($"Could not load discovery results. {ex.Message}");
+                BaseResults = Array.Empty<GameDTO>();
+                DisplayedResults = Array.Empty<GameDTO>();
+                Games = new List<GameDTO>();
+                RefreshPage();
+                UpdateNoResultsState();
+                RaiseError($"Could not load discovery results. {ex.Message}");
             }
         }
 
@@ -422,24 +422,24 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (!this.searchService.IsValidDateRange(
-                    this.CurrentFilter.AvailabilityRange?.StartTime,
-                    this.CurrentFilter.AvailabilityRange?.EndTime))
+                if (!searchService.IsValidDateRange(
+                    CurrentFilter.AvailabilityRange?.StartTime,
+                    CurrentFilter.AvailabilityRange?.EndTime))
                 {
-                    this.RaiseError("Please select a valid date range.");
+                    RaiseError("Please select a valid date range.");
                     return;
                 }
 
-                this.DisplayedResults = await this.searchService.ApplyFilters(this.BaseResults, this.CurrentFilter) ?? Array.Empty<GameDTO>();
-                this.Games = this.DisplayedResults.ToList();
-                this.CurrentPage = FirstPage;
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.RefreshPage();
-                this.UpdateNoResultsState();
+                DisplayedResults = await searchService.ApplyFilters(BaseResults, CurrentFilter) ?? Array.Empty<GameDTO>();
+                Games = DisplayedResults.ToList();
+                CurrentPage = FirstPage;
+                OnPropertyChanged(nameof(TotalPages));
+                RefreshPage();
+                UpdateNoResultsState();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not apply filters. {ex.Message}");
+                RaiseError($"Could not apply filters. {ex.Message}");
             }
         }
 
@@ -453,27 +453,27 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (!this.searchService.IsValidPlayersCount((int?)this.SelectedMinimumPlayers) ||
-                    !this.searchService.IsValidDateRange(
-                        this.SelectedStartDate?.DateTime,
-                        this.SelectedEndDate?.DateTime))
+                if (!searchService.IsValidPlayersCount((int?)SelectedMinimumPlayers) ||
+                    !searchService.IsValidDateRange(
+                        SelectedStartDate?.DateTime,
+                        SelectedEndDate?.DateTime))
                 {
-                    this.RaiseError("Please enter valid filter values.");
+                    RaiseError("Please enter valid filter values.");
                     return;
                 }
 
-                this.searchService.UpdateFilterFromUI(
-                    this.CurrentFilter,
-                    this.SelectedMaximumPrice,
-                    this.SelectedMinimumPlayers,
-                    this.SelectedStartDate?.DateTime,
-                    this.SelectedEndDate?.DateTime);
+                searchService.UpdateFilterFromUI(
+                    CurrentFilter,
+                    SelectedMaximumPrice,
+                    SelectedMinimumPlayers,
+                    SelectedStartDate?.DateTime,
+                    SelectedEndDate?.DateTime);
 
-                await this.ApplyFilters();
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not apply selected filters. {ex.Message}");
+                RaiseError($"Could not apply selected filters. {ex.Message}");
             }
         }
 
@@ -482,12 +482,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.Name = null;
-                await this.ApplyFilters();
+                CurrentFilter.Name = null;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not remove name filter. {ex.Message}");
+                RaiseError($"Could not remove name filter. {ex.Message}");
             }
         }
 
@@ -496,12 +496,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.City = null;
-                await this.ApplyFilters();
+                CurrentFilter.City = null;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not remove city filter. {ex.Message}");
+                RaiseError($"Could not remove city filter. {ex.Message}");
             }
         }
 
@@ -510,12 +510,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.MaximumPrice = null;
-                await this.ApplyFilters();
+                CurrentFilter.MaximumPrice = null;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not remove price filter. {ex.Message}");
+                RaiseError($"Could not remove price filter. {ex.Message}");
             }
         }
 
@@ -524,12 +524,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.PlayerCount = null;
-                await this.ApplyFilters();
+                CurrentFilter.PlayerCount = null;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not remove players filter. {ex.Message}");
+                RaiseError($"Could not remove players filter. {ex.Message}");
             }
         }
 
@@ -538,12 +538,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.AvailabilityRange = null;
-                await this.ApplyFilters();
+                CurrentFilter.AvailabilityRange = null;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not remove date filter. {ex.Message}");
+                RaiseError($"Could not remove date filter. {ex.Message}");
             }
         }
 
@@ -552,12 +552,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.SortOption = SortOption.PriceAscending;
-                await this.ApplyFilters();
+                CurrentFilter.SortOption = SortOption.PriceAscending;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not sort by ascending price. {ex.Message}");
+                RaiseError($"Could not sort by ascending price. {ex.Message}");
             }
         }
 
@@ -566,12 +566,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.SortOption = SortOption.PriceDescending;
-                await this.ApplyFilters();
+                CurrentFilter.SortOption = SortOption.PriceDescending;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not sort by descending price. {ex.Message}");
+                RaiseError($"Could not sort by descending price. {ex.Message}");
             }
         }
 
@@ -580,12 +580,12 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.SortOption = SortOption.None;
-                await this.ApplyFilters();
+                CurrentFilter.SortOption = SortOption.None;
+                await ApplyFilters();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not clear sorting. {ex.Message}");
+                RaiseError($"Could not clear sorting. {ex.Message}");
             }
         }
 
@@ -597,25 +597,25 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CurrentFilter.Reset();
-                this.SelectedMaximumPrice = DefaultMaxPrice;
-                this.SelectedMinimumPlayers = MinimumPlayers;
-                this.SelectedSortOption = null;
-                this.SelectedStartDate = null;
-                this.SelectedEndDate = null;
-                this.CitySearchText = string.Empty;
-                this.LocationError = string.Empty;
+                CurrentFilter.Reset();
+                SelectedMaximumPrice = DefaultMaxPrice;
+                SelectedMinimumPlayers = MinimumPlayers;
+                SelectedSortOption = null;
+                SelectedStartDate = null;
+                SelectedEndDate = null;
+                CitySearchText = string.Empty;
+                LocationError = string.Empty;
 
-                this.DisplayedResults = this.BaseResults;
-                this.Games = this.DisplayedResults.ToList();
-                this.CurrentPage = FirstPage;
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.RefreshPage();
-                this.UpdateNoResultsState();
+                DisplayedResults = BaseResults;
+                Games = DisplayedResults.ToList();
+                CurrentPage = FirstPage;
+                OnPropertyChanged(nameof(TotalPages));
+                RefreshPage();
+                UpdateNoResultsState();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not clear filters. {ex.Message}");
+                RaiseError($"Could not clear filters. {ex.Message}");
             }
         }
 
@@ -629,17 +629,17 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (this.SelectedSortOption == "Closest to me" && string.IsNullOrWhiteSpace(this.CitySearchText))
+                if (SelectedSortOption == "Closest to me" && string.IsNullOrWhiteSpace(CitySearchText))
                 {
-                    this.LocationError = "Please enter a city to measure from.";
-                    this.selectedSortOption = null;
-                    this.OnPropertyChanged(nameof(this.SelectedSortOption));
+                    LocationError = "Please enter a city to measure from.";
+                    selectedSortOption = null;
+                    OnPropertyChanged(nameof(SelectedSortOption));
                     return;
                 }
 
-                this.LocationError = string.Empty;
+                LocationError = string.Empty;
 
-                this.CurrentFilter.SortOption = this.SelectedSortOption switch
+                CurrentFilter.SortOption = SelectedSortOption switch
                 {
                     "Price: lowest to highest" => SortOption.PriceAscending,
                     "Price: highest to lowest" => SortOption.PriceDescending,
@@ -647,18 +647,18 @@ namespace BoardGames.Desktop.ViewModels
                     _ => SortOption.None,
                 };
 
-                if (this.CurrentFilter.SortOption == SortOption.Location)
+                if (CurrentFilter.SortOption == SortOption.Location)
                 {
-                    await this.SearchGamesByFilter(this.CurrentFilter);
+                    await SearchGamesByFilter(CurrentFilter);
                 }
                 else
                 {
-                    await this.ApplyFilters();
+                    await ApplyFilters();
                 }
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not apply sorting. {ex.Message}");
+                RaiseError($"Could not apply sorting. {ex.Message}");
             }
         }
 
@@ -671,11 +671,11 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.OnGameSelectedRequest?.Invoke(gameId);
+                OnGameSelectedRequest?.Invoke(gameId);
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not navigate to game details. {ex.Message}");
+                RaiseError($"Could not navigate to game details. {ex.Message}");
             }
         }
 
@@ -696,30 +696,30 @@ namespace BoardGames.Desktop.ViewModels
                     throw new ArgumentNullException(nameof(filterCriteria));
                 }
 
-                if (!this.searchService.IsValidDateRange(
-                    this.SelectedStartDate?.DateTime,
-                    this.SelectedEndDate?.DateTime))
+                if (!searchService.IsValidDateRange(
+                    SelectedStartDate?.DateTime,
+                    SelectedEndDate?.DateTime))
                 {
-                    this.RaiseError("Please select a valid date range.");
+                    RaiseError("Please select a valid date range.");
                     return;
                 }
 
-                this.Games = (await this.searchService.SearchGamesByFilter(filterCriteria))?.ToList() ?? new List<GameDTO>();
-                this.DisplayedResults = this.Games.ToArray();
-                this.BaseResults = this.DisplayedResults;
-                this.CurrentPage = FirstPage;
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.RefreshPage();
-                this.UpdateNoResultsState();
+                Games = (await searchService.SearchGamesByFilter(filterCriteria))?.ToList() ?? new List<GameDTO>();
+                DisplayedResults = Games.ToArray();
+                BaseResults = DisplayedResults;
+                CurrentPage = FirstPage;
+                OnPropertyChanged(nameof(TotalPages));
+                RefreshPage();
+                UpdateNoResultsState();
             }
             catch (Exception ex)
             {
-                this.Games = new List<GameDTO>();
-                this.DisplayedResults = Array.Empty<GameDTO>();
-                this.BaseResults = Array.Empty<GameDTO>();
-                this.RefreshPage();
-                this.UpdateNoResultsState();
-                this.RaiseError($"Search failed. {ex.Message}");
+                Games = new List<GameDTO>();
+                DisplayedResults = Array.Empty<GameDTO>();
+                BaseResults = Array.Empty<GameDTO>();
+                RefreshPage();
+                UpdateNoResultsState();
+                RaiseError($"Search failed. {ex.Message}");
             }
         }
 
@@ -730,15 +730,15 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         public string CitySearchText
         {
-            get => this.citySearchText;
+            get => citySearchText;
             set
             {
-                if (this.citySearchText != value)
+                if (citySearchText != value)
                 {
-                    this.citySearchText = value;
-                    this.OnPropertyChanged(nameof(this.CitySearchText));
-                    this.CurrentFilter.City = value;
-                    this.UpdateCitySuggestions(value);
+                    citySearchText = value;
+                    OnPropertyChanged(nameof(CitySearchText));
+                    CurrentFilter.City = value;
+                    UpdateCitySuggestions(value);
                 }
             }
         }
@@ -748,15 +748,15 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (this.CurrentPage * ItemsPerPage < this.Games.Count)
+                if (CurrentPage * ItemsPerPage < Games.Count)
                 {
-                    this.CurrentPage++;
-                    this.RefreshPage();
+                    CurrentPage++;
+                    RefreshPage();
                 }
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not go to next page. {ex.Message}");
+                RaiseError($"Could not go to next page. {ex.Message}");
             }
         }
 
@@ -765,22 +765,22 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                if (this.CurrentPage > MinimumPageNumber)
+                if (CurrentPage > MinimumPageNumber)
                 {
-                    this.CurrentPage--;
-                    this.RefreshPage();
+                    CurrentPage--;
+                    RefreshPage();
                 }
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not go to previous page. {ex.Message}");
+                RaiseError($"Could not go to previous page. {ex.Message}");
             }
         }
 
         /// <summary>Raises <see cref="PropertyChanged"/> for the named property.</summary>
         /// <param name="propertyName">Name of the property that changed.</param>
         protected void OnPropertyChanged(string? propertyName = null) =>
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         /// <summary>
         /// Updates <see cref="HasNoResults"/> based on whether <see cref="DisplayedResults"/> is empty
@@ -788,9 +788,9 @@ namespace BoardGames.Desktop.ViewModels
         /// </summary>
         private void UpdateNoResultsState()
         {
-            this.HasNoResults = this.DisplayedResults.Length == 0;
-            this.OnPropertyChanged(nameof(this.HasNoResults));
-            this.OnPropertyChanged(nameof(this.NoResultsMessage));
+            HasNoResults = DisplayedResults.Length == 0;
+            OnPropertyChanged(nameof(HasNoResults));
+            OnPropertyChanged(nameof(NoResultsMessage));
         }
 
         /// <summary>
@@ -800,22 +800,22 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.VisibleGames.Clear();
+                VisibleGames.Clear();
 
-                var pageListings = this.Games
-                    .Skip((this.CurrentPage - 1) * ItemsPerPage)
+                var pageListings = Games
+                    .Skip((CurrentPage - 1) * ItemsPerPage)
                     .Take(ItemsPerPage)
                     .ToList();
 
                 foreach (var gameItem in pageListings)
                 {
-                    this.VisibleGames.Add(gameItem);
+                    VisibleGames.Add(gameItem);
                 }
-                this.OnPropertyChanged(nameof(this.VisibleGames));
+                OnPropertyChanged(nameof(VisibleGames));
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not refresh the page. {ex.Message}");
+                RaiseError($"Could not refresh the page. {ex.Message}");
             }
         }
 
@@ -824,11 +824,11 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.OnGoBackRequest?.Invoke();
+                OnGoBackRequest?.Invoke();
             }
             catch (Exception ex)
             {
-                this.RaiseError($"Could not go back. {ex.Message}");
+                RaiseError($"Could not go back. {ex.Message}");
             }
         }
 
@@ -842,26 +842,26 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                this.CitySuggestions.Clear();
+                CitySuggestions.Clear();
 
                 if (!string.IsNullOrWhiteSpace(input) && input.Length >= MinimumCharactersForCitySearch)
                 {
-                    var cityMatches = this.geographicalService.GetCitySuggestions(input);
+                    var cityMatches = geographicalService.GetCitySuggestions(input);
                     foreach (var city in cityMatches)
                     {
-                        this.CitySuggestions.Add(city);
+                        CitySuggestions.Add(city);
                     }
                 }
             }
             catch (Exception ex)
             {
-                this.CitySuggestions.Clear();
-                this.RaiseError($"Could not load city suggestions. {ex.Message}");
+                CitySuggestions.Clear();
+                RaiseError($"Could not load city suggestions. {ex.Message}");
             }
         }
 
         /// <summary>Raises <see cref="OnErrorOccurred"/> with the given message.</summary>
         /// <param name="message">The error message to propagate to the view.</param>
-        private void RaiseError(string message) => this.OnErrorOccurred?.Invoke(message);
+        private void RaiseError(string message) => OnErrorOccurred?.Invoke(message);
     }
 }

@@ -10,14 +10,14 @@ using BookingBoardGames.Sharing.DTO;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 
-namespace BookingBoardGames.Src.ViewModels;
+namespace BoardGames.Desktop.ViewModels;
 
 public class MessageViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string name = null)
-        => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
     public int Id { get; init; }
 
@@ -37,17 +37,17 @@ public class MessageViewModel : INotifyPropertyChanged
 
     public int RequestId { get; init; }
 
-    public string TimestampString => this.SentAt.ToString("HH:mm");
+    public string TimestampString => SentAt.ToString("HH:mm");
 
     private bool isResolved;
 
     public bool IsResolved
     {
-        get => this.isResolved;
+        get => isResolved;
         set
         {
-            this.isResolved = value;
-            this.OnPropertyChanged();
+            isResolved = value;
+            OnPropertyChanged();
         }
     }
 
@@ -57,28 +57,28 @@ public class MessageViewModel : INotifyPropertyChanged
 
     public int[] AcceptedBy
     {
-        get => this.acceptedBy;
+        get => acceptedBy;
         set
         {
-            this.acceptedBy = value;
-            this.OnPropertyChanged();
-            this.OnPropertyChanged(nameof(this.BothAccepted));
+            acceptedBy = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(BothAccepted));
         }
     }
 
     private readonly int requiredAcceptanceCount = 2;
 
-    public bool BothAccepted => this.acceptedBy?.Length == this.requiredAcceptanceCount;
+    public bool BothAccepted => acceptedBy?.Length == requiredAcceptanceCount;
 
     private bool isRead;
 
     public bool IsRead
     {
-        get => this.isRead;
+        get => isRead;
         set
         {
-            this.isRead = value;
-            this.OnPropertyChanged();
+            isRead = value;
+            OnPropertyChanged();
         }
     }
 
@@ -86,19 +86,19 @@ public class MessageViewModel : INotifyPropertyChanged
     {
         int systemUserIdentifier = 0;
 
-        this.Id = message.Id;
-        this.ConversationId = message.ConversationId;
-        this.SenderId = message.SenderId;
-        this.Type = message.Type;
-        this.Content = message.Content;
-        this.IsMine = message.SenderId == currentUserId;
-        this.SentAt = message.SentAt;
-        this.ImageUrl = message.ImageUrl;
-        this.RequestId = message.RequestId;
-        this.IsAccepted = message.IsAccepted;
-        this.isResolved = message.IsResolved;
-        this.acceptedBy = new int[] { message.IsAcceptedByBuyer ? message.ReceiverId : systemUserIdentifier, message.IsAcceptedBySeller ? message.SenderId : systemUserIdentifier };
-        this.isRead = false;
+        Id = message.Id;
+        ConversationId = message.ConversationId;
+        SenderId = message.SenderId;
+        Type = message.Type;
+        Content = message.Content;
+        IsMine = message.SenderId == currentUserId;
+        SentAt = message.SentAt;
+        ImageUrl = message.ImageUrl;
+        RequestId = message.RequestId;
+        IsAccepted = message.IsAccepted;
+        isResolved = message.IsResolved;
+        acceptedBy = new int[] { message.IsAcceptedByBuyer ? message.ReceiverId : systemUserIdentifier, message.IsAcceptedBySeller ? message.SenderId : systemUserIdentifier };
+        isRead = false;
     }
 
     public HorizontalAlignment IsMineToAlignment(bool isMine)

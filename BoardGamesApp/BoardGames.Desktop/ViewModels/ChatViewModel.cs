@@ -2,10 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,6 +9,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using BoardGames.Data.Enum;
+using BoardGames.Shared.DTO;
+using Microsoft.UI.Xaml.Controls;
 
 namespace BoardGames.Desktop.ViewModels;
 
@@ -42,114 +41,114 @@ public class ChatViewModel : INotifyPropertyChanged
 
     public string DisplayName
     {
-        get => this.displayName;
+        get => displayName;
         set
         {
-            this.displayName = value;
-            this.OnPropertyChanged();
+            displayName = value;
+            OnPropertyChanged();
         }
     }
 
     public string Initials
     {
-        get => this.initials;
+        get => initials;
         set
         {
-            this.initials = value;
-            this.OnPropertyChanged();
+            initials = value;
+            OnPropertyChanged();
         }
     }
 
     public string AvatarUrl
     {
-        get => this.avatarUrl;
+        get => avatarUrl;
         set
         {
-            this.avatarUrl = value;
-            this.OnPropertyChanged(nameof(this.AvatarUrl));
+            avatarUrl = value;
+            OnPropertyChanged(nameof(AvatarUrl));
         }
     }
 
     public string InputText
     {
-        get => this.inputText;
+        get => inputText;
         set
         {
-            this.inputText = value;
-            this.OnPropertyChanged();
-            this.OnPropertyChanged(nameof(this.CanSend));
+            inputText = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CanSend));
         }
     }
 
     public ChatViewModel(int currentUser)
     {
-        this.CurrentUserId = currentUser;
+        CurrentUserId = currentUser;
     }
 
     protected void OnPropertyChanged([CallerMemberName] string name = null)
-        => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-    public void LoadConversation(ConversationPreviewModel conversation, List<MessageDataTransferObject> messages, int theirUnreadCount)
+    public void LoadConversation(ConversationPreviewModel conversation, List<MessageDTO> messages, int theirUnreadCount)
     {
-        this.ConversationId = conversation.ConversationId;
-        this.DisplayName = conversation.DisplayName;
-        this.Initials = conversation.Initials;
-        this.AvatarUrl = conversation.AvatarUrl;
+        ConversationId = conversation.ConversationId;
+        DisplayName = conversation.DisplayName;
+        Initials = conversation.Initials;
+        AvatarUrl = conversation.AvatarUrl;
 
-        List<MessageDataTransferObject> orderedMessages = messages
+        List<MessageDTO> orderedMessages = messages
             .OrderBy(messageItem => messageItem.SentAt)
             .ThenBy(messageItem => messageItem.Id)
             .ToList();
 
-        this.Messages.Clear();
+        Messages.Clear();
         for (int messageIndex = 0; messageIndex < orderedMessages.Count; messageIndex++)
         {
             var currentMessage = orderedMessages[messageIndex];
-            var newMessageViewModel = new MessageViewModel(currentMessage, this.CurrentUserId);
+            var newMessageViewModel = new MessageViewModel(currentMessage, CurrentUserId);
             if (messageIndex < orderedMessages.Count - theirUnreadCount)
             {
                 newMessageViewModel.IsRead = true;
             }
 
-            this.Messages.Add(newMessageViewModel);
+            Messages.Add(newMessageViewModel);
         }
     }
 
-    public void HandleIncomingMessage(MessageDataTransferObject message)
+    public void HandleIncomingMessage(MessageDTO message)
     {
-        if (message.ConversationId != this.ConversationId)
+        if (message.ConversationId != ConversationId)
         {
             return;
         }
 
-        bool messageExists = this.Messages.Any(messageItem => messageItem.Id == message.Id);
+        bool messageExists = Messages.Any(messageItem => messageItem.Id == message.Id);
 
         if (messageExists)
         {
             return;
         }
 
-        this.Messages.Add(new MessageViewModel(message, this.CurrentUserId));
+        Messages.Add(new MessageViewModel(message, CurrentUserId));
     }
 
-    public bool CanSend => !string.IsNullOrWhiteSpace(this.InputText);
+    public bool CanSend => !string.IsNullOrWhiteSpace(InputText);
 
     public void SendMessage()
     {
-        if (!this.CanSend)
+        if (!CanSend)
         {
             return;
         }
 
         int unassignedIdentifier = -1;
 
-        var messageDataTransferObject = new MessageDataTransferObject(
+        var messageDataTransferObject = new MessageDTO(
             unassignedIdentifier,
-            this.ConversationId,
-            this.CurrentUserId,
+            ConversationId,
+            CurrentUserId,
             unassignedIdentifier,
             DateTime.Now,
-            this.InputText,
+            InputText,
             MessageType.MessageText,
             null,
             false,
@@ -159,45 +158,45 @@ public class ChatViewModel : INotifyPropertyChanged
             unassignedIdentifier,
             unassignedIdentifier);
 
-        this.InputText = string.Empty;
-        this.MessageSent.Invoke(messageDataTransferObject);
+        InputText = string.Empty;
+        MessageSent.Invoke(messageDataTransferObject);
     }
 
     public void ResolveBookingRequest(int messageId, bool accepted)
     {
-        var targetMessage = this.Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
+        var targetMessage = Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
         if (targetMessage == null)
         {
             return;
         }
 
-        this.BookingRequestUpdate?.Invoke(messageId, targetMessage.ConversationId, accepted, !accepted);
+        BookingRequestUpdate?.Invoke(messageId, targetMessage.ConversationId, accepted, !accepted);
     }
 
     public void UpdateCashAgreement(int messageId)
     {
-        var targetMessage = this.Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
+        var targetMessage = Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
         if (targetMessage == null)
         {
             return;
         }
 
-        this.CashAgreementAccept?.Invoke(messageId, targetMessage.ConversationId);
+        CashAgreementAccept?.Invoke(messageId, targetMessage.ConversationId);
     }
 
     public void ProceedToPayment(int messageId)
     {
-        var targetMessage = this.Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
+        var targetMessage = Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
     }
 
     public void SendImage(string fileName)
     {
         int unassignedIdentifier = -1;
 
-        var messageDataTransferObject = new MessageDataTransferObject(
+        var messageDataTransferObject = new MessageDTO(
             unassignedIdentifier,
-            this.ConversationId,
-            this.CurrentUserId,
+            ConversationId,
+            CurrentUserId,
             unassignedIdentifier,
             DateTime.Now,
             string.Empty,
@@ -210,23 +209,23 @@ public class ChatViewModel : INotifyPropertyChanged
             unassignedIdentifier,
             unassignedIdentifier);
 
-        var newViewModel = new MessageViewModel(messageDataTransferObject, this.CurrentUserId);
-        this.InputText = string.Empty;
-        this.MessageSent.Invoke(messageDataTransferObject);
+        var newViewModel = new MessageViewModel(messageDataTransferObject, CurrentUserId);
+        InputText = string.Empty;
+        MessageSent.Invoke(messageDataTransferObject);
     }
 
     public void RaiseBookingRequestUpdate(int messageId, int conversationId, bool accepted, bool resolved)
     {
-        this.BookingRequestUpdate?.Invoke(messageId, conversationId, accepted, resolved);
+        BookingRequestUpdate?.Invoke(messageId, conversationId, accepted, resolved);
     }
 
     public void RaiseCashAgreementAccept(int messageId, int conversationId)
     {
-        this.CashAgreementAccept?.Invoke(messageId, conversationId);
+        CashAgreementAccept?.Invoke(messageId, conversationId);
     }
 
-    public void RaiseMessageSent(MessageDataTransferObject message)
+    public void RaiseMessageSent(MessageDTO message)
     {
-        this.MessageSent?.Invoke(message);
+        MessageSent?.Invoke(message);
     }
 }

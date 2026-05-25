@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BoardGames.Data.Enums;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
+using BookingBoardGames.Data.Constants;
+using BookingBoardGames.Data.Enum;
+using BookingBoardGames.Data.Interfaces;
+using BookingBoardGames.Sharing.DTO;
+using BookingBoardGames.Sharing.Services;
 using Moq;
 using Xunit;
 
@@ -26,7 +27,7 @@ namespace BoardGames.Tests.UnitTests
             _mockReceiptService = new Mock<IReceiptService>();
             _mockRentalService = new Mock<IRentalService>();
             _mockConversationService = new Mock<IConversationService>();
-            _mockRentalService.Setup(mockRentalService => mockRentalService.GetRentalsForUser(It.IsAny<int>())).ReturnsAsync(new List<RentalDTO>());
+            _mockRentalService.Setup(mockRentalService => mockRentalService.GetRentalsForUser(It.IsAny<int>())).ReturnsAsync(new List<RentalDataTransferObject>());
             _mockConversationService.Setup(mockConversationService => mockConversationService.FetchConversations()).ReturnsAsync(new List<ConversationDTO>());
             _service = new ServicePayment(
                 _mockPaymentRepository.Object,

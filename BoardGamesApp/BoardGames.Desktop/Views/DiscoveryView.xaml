@@ -27,10 +27,9 @@
             <StackPanel Orientation="Horizontal"
                 HorizontalAlignment="Right"
                 Spacing="8">
-                <Button x:Name="LoginButton" Content="Login" Click="LoginButton_Click"/>
-                <Button x:Name="DashboardButton" Content="Dashboard" Click="DashboardButton_Click"/>
-                <Button x:Name="ChatButton" Content="Chat" Click="ChatButton_Click"/>
-                <Button x:Name="LogoutButton" Content="Logout" Click="LogoutButton_Click"/>
+                <Button x:Name="SwitchUserButton" Content="Switch to Carol (User 2)" Click="SwitchUserButton_Click"/>
+                <Button Content="Dashboard" Click="DashboardButton_Click"/>
+                <Button Content="Chat" Click="ChatButton_Click"/>
             </StackPanel>
 
             <Border Padding="16"
