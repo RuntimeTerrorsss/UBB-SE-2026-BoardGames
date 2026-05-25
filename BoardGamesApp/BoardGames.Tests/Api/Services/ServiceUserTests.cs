@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Api.Services;
 using NUnit.Framework;
-using UserService = BoardRentAndProperty.Api.Services.UserService;
+using UserService = BoardGames.Api.Services.UserService;
 
 namespace BoardGames.Tests.Api.Services
 {

@@ -4,9 +4,9 @@ using System.Collections.Immutable;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 
 namespace BoardGames.Tests.Fakes
 {

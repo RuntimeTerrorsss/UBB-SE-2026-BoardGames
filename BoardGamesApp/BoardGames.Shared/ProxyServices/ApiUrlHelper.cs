@@ -1,5 +1,5 @@
 using System;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
 {

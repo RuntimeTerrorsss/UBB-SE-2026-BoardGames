@@ -9,10 +9,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Commands;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Desktop.Commands;
 
 namespace BoardGames.Desktop.ViewModels
 {

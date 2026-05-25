@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Immutable;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Api.Services;
+using BoardGames.Shared.DTO;
 using NUnit.Framework;
-using GameService = BoardRentAndProperty.Api.Services.GameService;
+using GameService = BoardGames.Api.Services.GameService;
 
 namespace BoardGames.Tests.Api.Services
 {

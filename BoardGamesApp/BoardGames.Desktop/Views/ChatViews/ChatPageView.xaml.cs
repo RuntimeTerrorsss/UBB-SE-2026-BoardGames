@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;

@@ -2,6 +2,17 @@ namespace BoardGames.Data.Constants
 {
     public static class DomainConstants
     {
+        public static readonly IReadOnlyList<string> CountryList = new[]
+        {
+            "Romania",
+            "Germany",
+            "France",
+            "Italy",
+            "Spain",
+            "United Kingdom",
+            "United States",
+        };
+
         public const int RentalBufferHours = 48;
 
         public const int GameMinimumNameLength = 5;

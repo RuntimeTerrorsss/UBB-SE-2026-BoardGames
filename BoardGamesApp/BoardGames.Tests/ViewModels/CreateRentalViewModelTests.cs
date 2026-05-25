@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 

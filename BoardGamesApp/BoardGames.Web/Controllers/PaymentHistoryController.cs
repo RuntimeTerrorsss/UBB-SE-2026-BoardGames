@@ -1,5 +1,5 @@
-﻿using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.ProxyServices;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 
@@ -21,7 +21,7 @@ namespace BoardGames.Web.Controllers
             if (redirect != null) return redirect;
 
             var userId = CurrentUserId ?? -1;
-            BookingBoardGames.Data.Enum.SessionContext.GetInstance().UserId = userId;
+            BoardGames.Data.Enums.SessionContext.GetInstance().UserId = userId;
 
             var result = await _servicePayment.GetFilteredPayments(
                 filter: FilterType.Newest,
@@ -46,7 +46,7 @@ namespace BoardGames.Web.Controllers
             if (redirect != null) return Json(new { error = "Not logged in" });
 
             var userId = CurrentUserId ?? -1;
-            BookingBoardGames.Data.Enum.SessionContext.GetInstance().UserId = userId;
+            BoardGames.Data.Enums.SessionContext.GetInstance().UserId = userId;
 
 
             var result = await _servicePayment.GetFilteredPayments(
@@ -75,7 +75,7 @@ namespace BoardGames.Web.Controllers
             var redirect = RequireLogin();
             if (redirect != null) return redirect;
 
-            BookingBoardGames.Data.Enum.SessionContext.GetInstance().UserId = CurrentUserId ?? -1;
+            BoardGames.Data.Enums.SessionContext.GetInstance().UserId = CurrentUserId ?? -1;
 
             try
             {

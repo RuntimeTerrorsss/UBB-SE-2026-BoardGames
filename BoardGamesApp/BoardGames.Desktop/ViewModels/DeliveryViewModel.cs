@@ -1,4 +1,4 @@
-﻿// <copyright file="DeliveryViewModel.cs" company="PlaceholderCompany">
+// <copyright file="DeliveryViewModel.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Sharing.Validators;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.Validators;
 
 namespace BoardGames.Desktop.ViewModels
 {

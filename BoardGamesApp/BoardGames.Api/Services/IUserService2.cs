@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Immutable;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
-    public interface IUserService
+    public interface IBoardRentUserService
     {
         ImmutableList<UserDTO> GetUsersExcept(Guid excludeAccountId);
     }

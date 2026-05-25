@@ -1,7 +1,7 @@
 using BoardGames.Web.Infrastructure;
-using BoardGames.Api.Data;
-using BoardGames.ApiClient;
-using BoardGames.ProxyServices;
+using BoardGames.Data;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;

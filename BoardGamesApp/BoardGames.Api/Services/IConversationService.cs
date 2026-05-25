@@ -1,12 +1,12 @@
-﻿// <copyright file="IConversationService.cs" company="PlaceholderCompany">
+// <copyright file="IConversationService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

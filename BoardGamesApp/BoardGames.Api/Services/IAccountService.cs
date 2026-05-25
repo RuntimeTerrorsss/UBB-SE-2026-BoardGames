@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

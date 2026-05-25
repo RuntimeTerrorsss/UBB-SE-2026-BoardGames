@@ -4,8 +4,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

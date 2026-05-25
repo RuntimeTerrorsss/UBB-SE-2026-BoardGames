@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Immutable;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using ApiRequestService = BoardRentAndProperty.Api.Services.IRequestService;
-using ApiNotificationService = BoardRentAndProperty.Api.Services.INotificationService;
-using ApiResultCreate = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.CreateRequestError>;
-using ApiResultApprove = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.ApproveRequestError>;
-using ApiResultDeny = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.DenyRequestError>;
-using ApiResultCancel = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.CancelRequestError>;
-using ApiResultOffer = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.OfferError>;
-using BookedDateRange = BoardRentAndProperty.Api.Services.BookedDateRange;
-using CreateRequestError = BoardRentAndProperty.Api.Services.CreateRequestError;
-using ApproveRequestError = BoardRentAndProperty.Api.Services.ApproveRequestError;
-using DenyRequestError = BoardRentAndProperty.Api.Services.DenyRequestError;
-using CancelRequestError = BoardRentAndProperty.Api.Services.CancelRequestError;
-using OfferError = BoardRentAndProperty.Api.Services.OfferError;
+using BoardGames.Shared.DTO;
+using ApiRequestService = BoardGames.Api.Services.IRequestService;
+using ApiNotificationService = BoardGames.Api.Services.INotificationService;
+using ApiResultCreate = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.CreateRequestError>;
+using ApiResultApprove = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.ApproveRequestError>;
+using ApiResultDeny = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.DenyRequestError>;
+using ApiResultCancel = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.CancelRequestError>;
+using ApiResultOffer = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.OfferError>;
+using BookedDateRange = BoardGames.Api.Services.BookedDateRange;
+using CreateRequestError = BoardGames.Api.Services.CreateRequestError;
+using ApproveRequestError = BoardGames.Api.Services.ApproveRequestError;
+using DenyRequestError = BoardGames.Api.Services.DenyRequestError;
+using CancelRequestError = BoardGames.Api.Services.CancelRequestError;
+using OfferError = BoardGames.Api.Services.OfferError;
 
 namespace BoardGames.Tests.Fakes
 {

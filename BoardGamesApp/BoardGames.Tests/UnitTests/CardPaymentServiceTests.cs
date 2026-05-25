@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Services;
 using Moq;
 using Xunit;
 

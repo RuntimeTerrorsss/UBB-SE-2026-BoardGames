@@ -3,7 +3,7 @@
 // </copyright>
 
 using System.Globalization;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Api.Services
 {

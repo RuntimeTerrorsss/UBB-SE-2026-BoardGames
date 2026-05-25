@@ -1,12 +1,12 @@
-﻿// <copyright file="ReceiptService.cs" company="PlaceholderCompany">
+// <copyright file="ReceiptService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Repositories;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 using System.Threading.Tasks;

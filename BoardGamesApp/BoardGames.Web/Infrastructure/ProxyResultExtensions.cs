@@ -1,5 +1,5 @@
 using System.Net;
-using BoardRentAndProperty.ApiClient;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {

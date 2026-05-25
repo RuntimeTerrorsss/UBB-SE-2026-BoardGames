@@ -5,8 +5,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 using BoardGames.Desktop.Services;
 
 namespace BoardGames.Desktop.ViewModels

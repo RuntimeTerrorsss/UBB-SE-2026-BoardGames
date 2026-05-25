@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Api.Services;
+using BoardGames.Api.Security;
+using BoardGames.Shared.DTO;
 using NUnit.Framework;
-using AuthService = BoardRentAndProperty.Api.Services.AuthService;
+using AuthService = BoardGames.Api.Services.AuthService;
 
 namespace BoardGames.Tests.Api.Services
 {

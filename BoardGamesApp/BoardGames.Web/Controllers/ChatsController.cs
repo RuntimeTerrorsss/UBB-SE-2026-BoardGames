@@ -7,7 +7,7 @@ using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Chats;
 using BoardGames.Data;
 using BoardGames.Data.Enums;
-using BoardGames.Data.Repositpries;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 using BoardGames.Api.Services;
 using Microsoft.AspNetCore.Hosting;

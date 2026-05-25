@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.Services
 {

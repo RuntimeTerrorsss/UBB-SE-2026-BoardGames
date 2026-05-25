@@ -1,6 +1,6 @@
 using System;
 using System.Net;
-using BoardRentAndProperty.ApiClient;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Desktop.Services
 {

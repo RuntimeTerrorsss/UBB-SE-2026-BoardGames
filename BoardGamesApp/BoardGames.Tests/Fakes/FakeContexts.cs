@@ -1,6 +1,6 @@
 using System;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 
 namespace BoardGames.Tests.Fakes
 {

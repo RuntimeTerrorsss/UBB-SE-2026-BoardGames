@@ -1,4 +1,4 @@
-﻿// <copyright file="IConversationNotifier.cs" company="PlaceholderCompany">
+// <copyright file="IConversationNotifier.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

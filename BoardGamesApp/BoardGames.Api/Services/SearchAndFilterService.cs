@@ -1,4 +1,4 @@
-﻿// <copyright file="SearchAndFilterService.cs" company="PlaceholderCompany">
+// <copyright file="SearchAndFilterService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,10 +8,10 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Mappers;
 
 namespace BoardGames.Api.Services
 {
@@ -79,7 +79,7 @@ namespace BoardGames.Api.Services
                     {
                         GameId = filteredGame.Id,
                         Name = filteredGame.Name,
-                        Image = GameImageMapper.GetImageUrl(filteredGame.Name),
+                        ImageUrl = GameImageMapper.GetImageUrl(filteredGame.Name),
                         Price = filteredGame.PricePerDay,
                         City = gameOwner != null ? gameOwner.City : string.Empty,
                         MaximumPlayerNumber = filteredGame.MaximumPlayerNumber,
@@ -401,7 +401,7 @@ namespace BoardGames.Api.Services
             {
                 GameId = gameEntity.Id,
                 Name = gameEntity.Name,
-                Image = GameImageMapper.GetImageUrl(gameEntity.Name),
+                ImageUrl = GameImageMapper.GetImageUrl(gameEntity.Name),
                 Price = gameEntity.PricePerDay,
                 City = gameOwnerEntity?.City ?? string.Empty,
                 MaximumPlayerNumber = gameEntity.MaximumPlayerNumber,

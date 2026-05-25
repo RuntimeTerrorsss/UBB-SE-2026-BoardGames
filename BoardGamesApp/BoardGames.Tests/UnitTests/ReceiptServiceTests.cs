@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Repositories;
+using BoardGames.Api.Services;
 using Moq;
 using Xunit;
 

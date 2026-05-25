@@ -1,5 +1,5 @@
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Desktop.Services;
 using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 

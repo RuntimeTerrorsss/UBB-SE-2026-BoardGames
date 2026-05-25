@@ -4,10 +4,10 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:dtos="using:BookingBoardGames.Src.DTO"
+	xmlns:dtos="using:BoardGames.Shared.DTO"
 	xmlns:local="using:BookingBoardGames.Src.Views.ChatViews"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:vms="using:BookingBoardGames.Src.ViewModels"
+	xmlns:vms="using:BoardGames.Desktop.ViewModels"
 	mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource LayerFillColorDefaultBrush}">

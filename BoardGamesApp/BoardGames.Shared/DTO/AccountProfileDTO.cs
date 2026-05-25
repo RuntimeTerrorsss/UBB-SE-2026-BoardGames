@@ -30,4 +30,8 @@ namespace BoardGames.Shared.DTO
 
         public string StreetNumber { get; set; }
     }
+
+    public class AccountProfileDTO : AccountProfileDataTransferObject
+    {
+    }
 }

@@ -1,6 +1,6 @@
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Account;
-using BoardGames.Data.Interfaces;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

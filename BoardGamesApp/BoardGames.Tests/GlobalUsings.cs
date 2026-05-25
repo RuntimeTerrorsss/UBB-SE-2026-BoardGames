@@ -1,1 +1,1 @@
-global using BoardRentAndProperty.ApiClient;
+global using BoardGames.Shared.ProxyServices;

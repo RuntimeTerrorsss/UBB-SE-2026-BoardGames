@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {

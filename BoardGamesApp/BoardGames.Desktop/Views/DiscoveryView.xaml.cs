@@ -4,10 +4,10 @@
 
 using System;
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BookingBoardGames.Src.Views.ChatViews;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

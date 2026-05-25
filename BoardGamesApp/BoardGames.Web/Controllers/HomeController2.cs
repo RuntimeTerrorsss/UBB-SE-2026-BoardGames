@@ -1,4 +1,4 @@
-using GUI_BRAP.Models;
+using BoardGames.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;

@@ -10,14 +10,14 @@ namespace BoardGames.Desktop.Services
     {
         public async Task<string> PickImageFileAsync()
         {
-            if (App.MainWindow == null)
+            if (BoardRentAndProperty.App.MainWindow == null)
             {
                 return null;
             }
 
             FileOpenPicker fileOpenPicker = new FileOpenPicker();
 
-            nint windowHandle = WindowNative.GetWindowHandle(App.MainWindow);
+            nint windowHandle = WindowNative.GetWindowHandle(BoardRentAndProperty.App.MainWindow);
             InitializeWithWindow.Initialize(fileOpenPicker, windowHandle);
 
             fileOpenPicker.FileTypeFilter.Add(".jpg");

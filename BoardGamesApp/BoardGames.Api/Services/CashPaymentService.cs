@@ -4,10 +4,10 @@
 
 using System;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Mappers;
 
 namespace BoardGames.Api.Services
 {

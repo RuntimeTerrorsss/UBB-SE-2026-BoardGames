@@ -4,13 +4,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Shared.ProxyRepositories
 {
@@ -102,6 +103,67 @@ namespace BoardGames.Shared.ProxyRepositories
                 new { ClientId = clientId, GameId = gameId, StartDate = startDate, EndDate = endDate },
                 JsonOptions);
             response.EnsureSuccessStatusCode();
+        }
+
+        public ImmutableList<Rental> GetAll()
+        {
+            var rentals = httpClient.GetFromJsonAsync<List<Rental>>("rentals", JsonOptions).GetAwaiter().GetResult();
+            return (rentals ?? new List<Rental>()).ToImmutableList();
+        }
+
+        public void Add(Rental rental)
+        {
+            var response = httpClient.PostAsJsonAsync("rentals", rental, JsonOptions).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+        }
+
+        public Rental Delete(int id)
+        {
+            var response = httpClient.DeleteAsync($"rentals/{id}").GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+            return response.Content.ReadFromJsonAsync<Rental>(JsonOptions).GetAwaiter().GetResult()
+                   ?? new Rental { Id = id };
+        }
+
+        public void Update(int id, Rental updated)
+        {
+            var response = httpClient.PutAsJsonAsync($"rentals/{id}", updated, JsonOptions).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+        }
+
+        public Rental Get(int id)
+        {
+            return GetById(id).GetAwaiter().GetResult()
+                   ?? throw new KeyNotFoundException($"Rental {id} was not found.");
+        }
+
+        public void AddConfirmed(Rental confirmedRental)
+        {
+            Add(confirmedRental);
+        }
+
+        public ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId)
+        {
+            var rentals = httpClient.GetFromJsonAsync<List<Rental>>($"rentals/owner/{ownerAccountId}", JsonOptions)
+                .GetAwaiter()
+                .GetResult();
+            return (rentals ?? new List<Rental>()).ToImmutableList();
+        }
+
+        public ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId)
+        {
+            var rentals = httpClient.GetFromJsonAsync<List<Rental>>($"rentals/renter/{renterAccountId}", JsonOptions)
+                .GetAwaiter()
+                .GetResult();
+            return (rentals ?? new List<Rental>()).ToImmutableList();
+        }
+
+        public ImmutableList<Rental> GetRentalsByGame(int gameId)
+        {
+            var rentals = httpClient.GetFromJsonAsync<List<Rental>>($"rentals/games/{gameId}", JsonOptions)
+                .GetAwaiter()
+                .GetResult();
+            return (rentals ?? new List<Rental>()).ToImmutableList();
         }
     }
 }

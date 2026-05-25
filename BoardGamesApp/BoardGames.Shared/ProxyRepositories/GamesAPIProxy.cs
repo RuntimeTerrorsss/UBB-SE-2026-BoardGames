@@ -1,8 +1,9 @@
-﻿// <copyright file="GamesRepository.cs" company="PlaceholderCompany">
+// <copyright file="GamesRepository.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -10,8 +11,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using BoardGames.Data;
-using BoardGames.Data.Enum;
-using BoardGames.Data.Interfaces;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 /// <summary>
@@ -91,5 +92,39 @@ public class GamesAPIProxy : InterfaceGamesRepository
         return await this.httpClient.GetFromJsonAsync<List<Game>>(
                    $"games/feed/remaining?userId={userId}", JsonOptions)
                ?? new List<Game>();
+    }
+
+    public void AddGame(Game game)
+    {
+        var response = this.httpClient.PostAsJsonAsync("games", game, JsonOptions).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Game DeleteGame(int id)
+    {
+        var response = this.httpClient.DeleteAsync($"games/{id}").GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
+        return response.Content.ReadFromJsonAsync<Game>(JsonOptions).GetAwaiter().GetResult()
+               ?? new Game { Id = id };
+    }
+
+    public void UpdateGame(int id, Game updated)
+    {
+        var response = this.httpClient.PutAsJsonAsync($"games/{id}", updated, JsonOptions).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
+    }
+
+    public Game GetGame(int id)
+    {
+        return GetGameById(id).GetAwaiter().GetResult()
+               ?? throw new KeyNotFoundException($"Game {id} was not found.");
+    }
+
+    public ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId)
+    {
+        var games = this.httpClient.GetFromJsonAsync<List<Game>>($"games/owner/{ownerAccountId}", JsonOptions)
+            .GetAwaiter()
+            .GetResult();
+        return (games ?? new List<Game>()).ToImmutableList();
     }
 }

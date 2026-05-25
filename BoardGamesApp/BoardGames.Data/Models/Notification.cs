@@ -1,4 +1,5 @@
 using System;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Data.Models
 {

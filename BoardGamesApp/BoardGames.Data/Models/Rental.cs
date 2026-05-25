@@ -21,9 +21,29 @@ namespace BoardGames.Data.Models
             TotalPrice = totalPrice;
         }
 
+        public Rental(DateTime startDate, DateTime endDate, int gameId, int clientId, int ownerId, decimal? totalPrice = null)
+            : this(0, gameId, clientId, ownerId, startDate, endDate, totalPrice)
+        {
+        }
+
+        public Rental(int id, Game? game, User? client, User? owner, DateTime startDate, DateTime endDate, decimal? totalPrice = null)
+            : this(id, game?.Id ?? 0, client?.PamUserId ?? 0, owner?.PamUserId ?? 0, startDate, endDate, totalPrice)
+        {
+            Game = game;
+            Client = client;
+            Owner = owner;
+        }
+
         [Key]
         [Column("id")]
         public int Id { get; set; }
+
+        [NotMapped]
+        public int RentalId
+        {
+            get => Id;
+            set => Id = value;
+        }
 
         [Column("start_date")]
         public DateTime StartDate { get; set; }
@@ -46,6 +66,13 @@ namespace BoardGames.Data.Models
 
         [ForeignKey(nameof(ClientId))]
         public User? Client { get; set; }
+
+        [NotMapped]
+        public User? Renter
+        {
+            get => Client;
+            set => Client = value;
+        }
 
         [Column("owner_id")]
         public int OwnerId { get; set; }

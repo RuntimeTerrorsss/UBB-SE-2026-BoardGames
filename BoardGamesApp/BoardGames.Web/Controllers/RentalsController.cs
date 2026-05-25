@@ -1,9 +1,9 @@
 using System;
 using BoardGames.Web.Models.Rentals;
 using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BookingBoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers

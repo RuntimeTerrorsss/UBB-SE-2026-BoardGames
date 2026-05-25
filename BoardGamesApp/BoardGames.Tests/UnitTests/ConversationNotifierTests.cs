@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Services;
 using Moq;
 using Xunit;
 

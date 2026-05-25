@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 

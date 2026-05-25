@@ -33,6 +33,13 @@ namespace BoardGames.Data.Models
         [Column("price")]
         public decimal PricePerDay { get; set; }
 
+        [NotMapped]
+        public decimal Price
+        {
+            get => PricePerDay;
+            set => PricePerDay = value;
+        }
+
         [Column("minimum_player_number")]
         public int MinimumPlayerNumber { get; set; }
 

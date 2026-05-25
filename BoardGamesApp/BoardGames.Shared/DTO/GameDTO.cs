@@ -9,6 +9,9 @@ namespace BoardGames.Shared.DTO
 {
     public class GameDTO : INotifyPropertyChanged
     {
+        private int id;
+        private decimal price;
+
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
@@ -20,7 +23,35 @@ namespace BoardGames.Shared.DTO
         /// <summary>
         /// Gets or sets the unique identifier for the game.
         /// </summary>
-        public int GameId { get; set; }
+        public int Id
+        {
+            get => id;
+            set
+            {
+                if (id != value)
+                {
+                    id = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(GameId));
+                }
+            }
+        }
+
+        public int GameId
+        {
+            get => id;
+            set
+            {
+                if (id != value)
+                {
+                    id = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Id));
+                }
+            }
+        }
+
+        public UserDTO? Owner { get; set; }
 
         /// <summary>
         /// Gets or sets the name associated with the object.
@@ -30,12 +61,44 @@ namespace BoardGames.Shared.DTO
         /// <summary>
         /// Gets or sets the binary image data associated with this instance.
         /// </summary>
-        public string Image { get; set; }
+        public byte[]? Image { get; set; }
+
+        public string ImageUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the price associated with the item.
         /// </summary>
-        public decimal Price { get; set; }
+        public decimal Price
+        {
+            get => price;
+            set
+            {
+                if (price != value)
+                {
+                    price = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(PricePerDay));
+                }
+            }
+        }
+
+        public decimal PricePerDay
+        {
+            get => price;
+            set
+            {
+                if (price != value)
+                {
+                    price = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Price));
+                }
+            }
+        }
+
+        public string Description { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the city associated with the entity.

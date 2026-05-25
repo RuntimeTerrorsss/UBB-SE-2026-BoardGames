@@ -1,4 +1,4 @@
-﻿namespace BoardGames.Web.Controllers
+namespace BoardGames.Web.Controllers
 {
     using System;
     using System.IO;
@@ -6,8 +6,8 @@
     using BoardGames.Web.Helpers;
     using BoardGames.Web.Infrastructure;
     using BoardGames.Web.Models.Account;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
-    using GUI_BRAP.ProxyServices;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Web.Infrastructure;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;

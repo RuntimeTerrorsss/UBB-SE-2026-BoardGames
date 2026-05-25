@@ -1,11 +1,11 @@
 using System;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.Models;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Api.Services;
+using BoardGames.Data.Models;
 using NUnit.Framework;
-using RequestService = BoardRentAndProperty.Api.Services.RequestService;
+using RequestService = BoardGames.Api.Services.RequestService;
 
 namespace BoardGames.Tests.Api.Services
 {

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BookingBoardGames.Sharing.DTO;
+using System.ComponentModel.DataAnnotations;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Web.Models.Search
 {

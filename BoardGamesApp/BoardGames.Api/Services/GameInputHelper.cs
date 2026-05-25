@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using BoardRentAndProperty.Api.Constants;
+using BoardGames.Data.Constants;
 
 namespace BoardGames.Api.Services
 {

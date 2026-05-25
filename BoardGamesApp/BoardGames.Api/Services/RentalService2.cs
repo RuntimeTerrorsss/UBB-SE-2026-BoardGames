@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using BoardRentAndProperty.Api.Constants;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Constants;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
-    public class RentalService : IRentalService
+    public class BoardRentRentalService : IBoardRentRentalService
     {
         private const int NewRentalId = 0;
 
@@ -17,7 +17,7 @@ namespace BoardGames.Api.Services
         private readonly IGameRepository gameLookupRepository;
         private readonly RentalMapper rentalDtoMapper;
 
-        public RentalService(IRentalRepository rentalRepository, IGameRepository gameRepository, RentalMapper rentalMapper)
+        public BoardRentRentalService(IRentalRepository rentalRepository, IGameRepository gameRepository, RentalMapper rentalMapper)
         {
             rentalDataRepository = rentalRepository;
             gameLookupRepository = gameRepository;
@@ -55,7 +55,7 @@ namespace BoardGames.Api.Services
                 throw new InvalidOperationException($"Selected dates fall within the mandatory {DomainConstants.RentalBufferHours}-hour buffer of another rental.");
             }
 
-            var rental = new Rental(NewRentalId, new Game { Id = gameId }, new Account { Id = renterAccountId }, new Account { Id = ownerAccountId }, startDate, endDate);
+            var rental = new Rental(NewRentalId, new Game { Id = gameId }, new User { Id = renterAccountId }, new User { Id = ownerAccountId }, startDate, endDate);
             rentalDataRepository.AddConfirmed(rental);
         }
 

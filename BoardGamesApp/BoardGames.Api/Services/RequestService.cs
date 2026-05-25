@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using BoardRentAndProperty.Api.Constants;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Contracts.Models;
+using BoardGames.Data.Constants;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Services
 {

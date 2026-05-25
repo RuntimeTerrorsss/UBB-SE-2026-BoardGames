@@ -1,6 +1,6 @@
 namespace BoardGames.Data.Constants
 {
-    internal static class App
+    public static class App
     {
         public const string AppTrayIconUri = global::BoardGames.Data.Constants.Constants.AppTrayIconUri;
     }
@@ -34,29 +34,7 @@ namespace BoardGames.Data.Constants
         public const string Offer = global::BoardGames.Data.Constants.Constants.DialogButtons.Offer;
     }
 
-    internal static class DialogMessages
-    {
-        public const string UnexpectedErrorOccurred = global::BoardGames.Data.Constants.Constants.DialogMessages.UnexpectedErrorOccurred;
-        public const string NoReasonProvided = global::BoardGames.Data.Constants.Constants.DialogMessages.NoReasonProvided;
-        public const string CreateRequestValidationError = global::BoardGames.Data.Constants.Constants.DialogMessages.CreateRequestValidationError;
-        public const string CreateRentalValidationError = global::BoardGames.Data.Constants.Constants.DialogMessages.CreateRentalValidationError;
-    }
-
-    internal static class NotificationTitles
-    {
-        public const string UpcomingRentalReminder = global::BoardGames.Data.Constants.Constants.NotificationTitles.UpcomingRentalReminder;
-        public const string BookingUnavailable = global::BoardGames.Data.Constants.Constants.NotificationTitles.BookingUnavailable;
-        public const string RentalRequestDeclined = global::BoardGames.Data.Constants.Constants.NotificationTitles.RentalRequestDeclined;
-        public const string RentalRequestCancelled = global::BoardGames.Data.Constants.Constants.NotificationTitles.RentalRequestCancelled;
-        public const string RentalRequestApproved = global::BoardGames.Data.Constants.Constants.NotificationTitles.RentalRequestApproved;
-        public const string OfferReceived = global::BoardGames.Data.Constants.Constants.NotificationTitles.OfferReceived;
-        public const string OfferAccepted = global::BoardGames.Data.Constants.Constants.NotificationTitles.OfferAccepted;
-        public const string RentalConfirmed = global::BoardGames.Data.Constants.Constants.NotificationTitles.RentalConfirmed;
-        public const string OfferDenied = global::BoardGames.Data.Constants.Constants.NotificationTitles.OfferDenied;
-        public const string OfferDeclined = global::BoardGames.Data.Constants.Constants.NotificationTitles.OfferDeclined;
-    }
-
-    internal static class ValidationMessages
+    public static class ValidationMessages
     {
         public const string MaximumPlayerCountComparedToMinimum =
             global::BoardGames.Data.Constants.Constants.ValidationMessages.MaximumPlayerCountComparedToMinimum;

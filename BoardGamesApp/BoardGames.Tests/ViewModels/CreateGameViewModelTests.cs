@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
 using BoardRentAndProperty.Constants;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
@@ -23,7 +23,7 @@ namespace BoardGames.Tests.ViewModels
         {
             gameService = new FakeClientGameService
             {
-                ValidateGameHandler = game => BoardRentAndProperty.Api.Services.GameInputHelper.BuildValidationErrors(
+                ValidateGameHandler = game => BoardGames.Api.Services.GameInputHelper.BuildValidationErrors(
                     game.Name,
                     game.Price,
                     game.MinimumPlayerNumber,

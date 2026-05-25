@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class GamesController : ControllerBase
+    [Route("api/legacy/games")]
+    public class LegacyGamesController : ControllerBase
     {
         private readonly InterfaceGamesRepository gamesRepository;
 
-        public GamesController(InterfaceGamesRepository gamesRepository)
+        public LegacyGamesController(InterfaceGamesRepository gamesRepository)
         {
             this.gamesRepository = gamesRepository;
         }

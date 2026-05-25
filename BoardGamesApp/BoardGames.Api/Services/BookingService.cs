@@ -5,8 +5,8 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services;
 /// <summary>
@@ -68,7 +68,7 @@ public class BookingService : InterfaceBookingService
                 MinimumNrPlayers = bookedGame.MinimumPlayerNumber,
                 MaximumNumberPlayers = bookedGame.MaximumPlayerNumber,
                 Description = bookedGame.Description,
-                UserId = gameOwner.Id,
+                UserId = gameOwner.PamUserId,
                 DisplayName = gameOwner.DisplayName,
                 IsSuspended = gameOwner.IsSuspended,
                 AvatarUrl = gameOwner.AvatarUrl,

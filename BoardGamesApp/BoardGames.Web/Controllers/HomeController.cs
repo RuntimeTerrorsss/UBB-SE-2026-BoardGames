@@ -1,6 +1,6 @@
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BookingBoardGames.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;

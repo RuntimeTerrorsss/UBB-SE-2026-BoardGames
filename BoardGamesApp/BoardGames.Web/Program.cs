@@ -1,4 +1,4 @@
-using BoardGames.Data.Interfaces;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.Mapper;
 using BoardGames.Shared.Repositories;
 using BoardGames.Shared.Services;

@@ -1,4 +1,4 @@
-using GUI_BRAP.ProxyServices;
+using BoardGames.Web.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BoardGames.Web.Infrastructure

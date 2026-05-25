@@ -14,8 +14,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 using Microsoft.UI.Xaml;
 
 namespace BoardGames.Desktop.ViewModels

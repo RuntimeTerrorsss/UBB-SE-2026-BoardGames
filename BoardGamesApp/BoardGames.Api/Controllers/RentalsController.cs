@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class RentalsController : ControllerBase
+    [Route("api/legacy/rentals")]
+    public class LegacyRentalsController : ControllerBase
     {
         private const int MinimumValidDayCount = 1;
 
@@ -20,7 +20,7 @@ namespace BoardGames.Api.Controllers
 
         private readonly InterfaceGamesRepository gamesRepository;
 
-        public RentalsController(
+        public LegacyRentalsController(
             IRentalRepository rentalRepository,
             IConversationRepository conversationRepository,
             InterfaceGamesRepository gamesRepository)

@@ -1,5 +1,5 @@
 using BoardGames.Web.Helpers;
-using BoardGames.ProxyServices;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

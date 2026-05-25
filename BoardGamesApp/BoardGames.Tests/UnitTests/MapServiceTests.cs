@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Api.Services;
 using Moq;
 using Moq.Protected;
 using Xunit;

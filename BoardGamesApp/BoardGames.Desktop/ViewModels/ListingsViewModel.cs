@@ -2,8 +2,8 @@ using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.ViewModels
 {

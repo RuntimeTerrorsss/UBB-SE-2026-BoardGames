@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -11,9 +11,9 @@ namespace BoardGames.Api.Controllers
     [Route("api/rentals")]
     public class RentalsController : ControllerBase
     {
-        private readonly IRentalService rentalService;
+        private readonly IBoardRentRentalService rentalService;
 
-        public RentalsController(IRentalService rentalService)
+        public RentalsController(IBoardRentRentalService rentalService)
         {
             this.rentalService = rentalService;
         }

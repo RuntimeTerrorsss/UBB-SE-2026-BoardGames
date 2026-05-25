@@ -2,9 +2,9 @@ namespace BoardGames.Desktop.ViewModels
 {
     using System;
     using System.Threading.Tasks;
-    using BoardRentAndProperty.ApiClient;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
-    using BoardRentAndProperty.Utilities;
+    using BoardGames.Shared.ProxyServices;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Desktop.Services;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     public partial class LoginViewModel : BaseViewModel

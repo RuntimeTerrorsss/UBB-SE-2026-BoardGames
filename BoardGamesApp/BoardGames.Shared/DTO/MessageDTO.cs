@@ -1,9 +1,9 @@
-﻿// <copyright file="MessageDataTransferObject.cs" company="PlaceholderCompany">
+// <copyright file="MessageDataTransferObject.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 using System;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Shared.DTO
 {

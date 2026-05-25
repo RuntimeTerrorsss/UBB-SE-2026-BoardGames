@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories

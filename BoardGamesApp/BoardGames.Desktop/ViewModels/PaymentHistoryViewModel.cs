@@ -8,10 +8,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Desktop.ViewModels
 {

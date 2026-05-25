@@ -3,7 +3,7 @@
 // </copyright>
 
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Shared.DTO;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 

@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Api.Services;
+using BoardGames.Api.Security;
+using BoardGames.Shared.DTO;
 using NUnit.Framework;
-using AccountService = BoardRentAndProperty.Api.Services.AccountService;
+using AccountService = BoardGames.Api.Services.AccountService;
 
 namespace BoardGames.Tests.Api.Services
 {

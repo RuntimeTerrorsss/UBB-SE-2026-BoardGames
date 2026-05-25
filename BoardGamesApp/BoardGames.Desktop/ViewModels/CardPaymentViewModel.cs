@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Desktop.Commands;
 using BoardGames.Data.Constants;
-using BoardGames.Data.Interfaces;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 using BoardGames.Api.Services;
 

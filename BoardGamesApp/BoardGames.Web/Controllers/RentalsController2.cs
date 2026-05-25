@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using BoardGames.Web.Helpers;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

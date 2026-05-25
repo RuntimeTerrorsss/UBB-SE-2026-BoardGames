@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using BoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 using BoardGames.Shared.DTO;
 using BoardGames.Api.Services;
 using Microsoft.UI.Xaml.Media.Imaging;

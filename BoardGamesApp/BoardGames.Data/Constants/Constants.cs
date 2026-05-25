@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace BoardGames.Data.Constants
 {
-    internal static class Constants
+    public static class Constants
     {
         public const string AppTrayIconUri = "ms-appx:///Assets/tray_icon.ico";
 
-        internal static class NotificationTitles
+        public static class NotificationTitles
         {
             public const string UpcomingRentalReminder = "Upcoming Rental Reminder";
             public const string BookingUnavailable = "Booking Unavailable";
@@ -24,7 +24,7 @@ namespace BoardGames.Data.Constants
             public const string OfferDeclined = "Offer Declined";
         }
 
-        internal static class DialogTitles
+        public static class DialogTitles
         {
             public const string ValidationError = "Validation Error";
             public const string RequestFailed = "Request Failed";
@@ -41,7 +41,7 @@ namespace BoardGames.Data.Constants
             public const string CannotDeleteGame = "Cannot Delete Game";
         }
 
-        internal static class DialogButtons
+        public static class DialogButtons
         {
             public const string Ok = "OK";
             public const string Cancel = "Cancel";
@@ -53,7 +53,7 @@ namespace BoardGames.Data.Constants
             public const string Offer = "Offer";
         }
 
-        internal static class DialogMessages
+        public static class DialogMessages
         {
             public const string UnexpectedErrorOccurred = "An unexpected error occurred.";
             public const string NoReasonProvided = "No reason provided.";
@@ -63,7 +63,7 @@ namespace BoardGames.Data.Constants
                 "Please select a game, a renter, and a valid date range (start before end, not in the past).";
         }
 
-        internal static class ValidationMessages
+        public static class ValidationMessages
         {
             public static string NameLengthRange(int minimumLength, int maximumLength) =>
                 $"Name must be between {minimumLength} and {maximumLength} characters.";

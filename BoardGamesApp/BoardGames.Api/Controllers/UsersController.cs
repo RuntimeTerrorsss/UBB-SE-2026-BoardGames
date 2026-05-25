@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    [Route("api/legacy/users")]
+    public class LegacyUsersController : ControllerBase
     {
         private readonly IUserRepository _repo;
 
-        public UsersController(IUserRepository repo)
+        public LegacyUsersController(IUserRepository repo)
         {
             _repo = repo;
         }

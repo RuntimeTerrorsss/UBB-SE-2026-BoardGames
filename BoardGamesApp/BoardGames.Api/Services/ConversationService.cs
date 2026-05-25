@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

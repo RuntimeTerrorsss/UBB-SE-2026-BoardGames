@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -10,9 +10,9 @@ namespace BoardGames.Api.Controllers
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService userService;
+        private readonly IBoardRentUserService userService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IBoardRentUserService userService)
         {
             this.userService = userService;
         }

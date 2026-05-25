@@ -8,6 +8,39 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
+		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="Program.cs" />
+		<Compile Remove="Controllers\AccountController.cs" />
+		<Compile Remove="Controllers\AccountsController.cs" />
+		<Compile Remove="Controllers\ChatsController.cs" />
+		<Compile Remove="Controllers\GamesController.cs" />
+		<Compile Remove="Controllers\HomeController.cs" />
+		<Compile Remove="Controllers\PaymentController.cs" />
+		<Compile Remove="Controllers\PaymentHistoryController.cs" />
+		<Compile Remove="Controllers\RentalsController.cs" />
+		<Compile Remove="Controllers\RolesController.cs" />
+		<Compile Remove="Controllers\SearchController.cs" />
+		<Compile Remove="Models\Account\LoginViewModel.cs" />
+		<Compile Remove="Models\Account\RegisterViewModel.cs" />
+		<Content Remove="Views\Account\**\*.cshtml" />
+		<Content Remove="Views\Accounts\**\*.cshtml" />
+		<Content Remove="Views\Chats\**\*.cshtml" />
+		<Content Remove="Views\Games\**\*.cshtml" />
+		<Content Remove="Views\Notifications\Create.cshtml" />
+		<Content Remove="Views\Notifications\Delete.cshtml" />
+		<Content Remove="Views\Notifications\Details.cshtml" />
+		<Content Remove="Views\Notifications\Edit.cshtml" />
+		<Content Remove="Views\Payment\**\*.cshtml" />
+		<Content Remove="Views\PaymentHistory\**\*.cshtml" />
+		<Content Remove="Views\Rentals\**\*.cshtml" />
+		<Content Remove="Views\Roles\**\*.cshtml" />
+		<Content Remove="Views\Search\**\*.cshtml" />
+		<Content Remove="Views\Shared2\**\*.cshtml" />
+		<Content Remove="Views\_ViewImports2.cshtml" />
+		<Content Remove="Views\_ViewStart2.cshtml" />
 	</ItemGroup>
 
 </Project>

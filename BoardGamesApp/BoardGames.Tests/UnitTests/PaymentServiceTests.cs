@@ -1,5 +1,5 @@
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Repositories;
+using BoardGames.Api.Services;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;

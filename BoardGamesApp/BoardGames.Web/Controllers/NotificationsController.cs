@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Shared.DTO;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

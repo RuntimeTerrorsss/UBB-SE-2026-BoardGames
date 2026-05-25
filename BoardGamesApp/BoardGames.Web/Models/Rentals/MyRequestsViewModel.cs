@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Web.Models.Rentals
 {

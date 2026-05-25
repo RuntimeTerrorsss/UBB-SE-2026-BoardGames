@@ -1,10 +1,10 @@
-﻿// <copyright file="ICardPaymentService.cs" company="PlaceholderCompany">
+// <copyright file="ICardPaymentService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

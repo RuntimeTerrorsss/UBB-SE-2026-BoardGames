@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -190,7 +190,7 @@ public sealed partial class ConfirmBookingView : Page
     private void OnMessageUserClicked(object sender, RoutedEventArgs eventArgs)
     {
         var viewModel = (ConfirmBookingViewModel)this.DataContext;
-        int currentUserId = BookingBoardGames.Data.Enum.SessionContext.GetInstance().UserId;
+        int currentUserId = BoardGames.Data.Enums.SessionContext.GetInstance().UserId;
         this.Frame.Navigate(typeof(ChatViews.ChatPageView), (currentUserId, viewModel.GameAndUserDetails.UserId));
     }
 }

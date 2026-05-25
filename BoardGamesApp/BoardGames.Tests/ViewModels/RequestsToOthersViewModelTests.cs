@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 using BoardRentAndProperty.Tests.Fakes;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Desktop.Services;
 using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 

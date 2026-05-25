@@ -11,8 +11,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BoardGames.Data;
-using BoardGames.Data.Enum;
-using BoardGames.Data.Interfaces;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyRepositories
