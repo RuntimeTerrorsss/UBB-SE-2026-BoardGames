@@ -1,4 +1,7 @@
-using System;
+// <copyright file="ServiceCollectionExtensions.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BoardGames.Shared.ProxyServices

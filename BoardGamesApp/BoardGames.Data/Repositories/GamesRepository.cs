@@ -1,18 +1,15 @@
-// <copyright file="GamesRepository.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="GamesRepository.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using BoardGames.Data;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories;
+
 /// <summary>
 /// Repository responsible for reading game/listing data from the database.
 /// Important:
@@ -35,7 +32,7 @@ public class GamesRepository : InterfaceGamesRepository
 
     public GamesRepository(AppDbContext context)
     {
-        appContext = context;
+        this.appContext = context;
     }
 
     // ==========================================
@@ -52,12 +49,12 @@ public class GamesRepository : InterfaceGamesRepository
     /// </remarks>
     public async Task<Game?> GetGameById(int gameId)
     {
-        return await appContext.Games.FirstOrDefaultAsync(game => game.Id == gameId);
+        return await this.appContext.Games.FirstOrDefaultAsync(game => game.Id == gameId);
     }
 
     public async Task<decimal> GetPriceGameById(int gameId)
     {
-        return await appContext.Games.Where(game => game.Id == gameId).Select(game => game.PricePerDay).FirstOrDefaultAsync();
+        return await this.appContext.Games.Where(game => game.Id == gameId).Select(game => game.PricePerDay).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -66,7 +63,7 @@ public class GamesRepository : InterfaceGamesRepository
     /// <returns>A list of all active games.</returns>
     public async Task<List<Game>> GetAll()
     {
-        return await GetAllActiveGames(AnonymousUserId);
+        return await this.GetAllActiveGames(AnonymousUserId);
     }
 
     /// <summary>
@@ -91,7 +88,7 @@ public class GamesRepository : InterfaceGamesRepository
     public async Task<List<Game>> GetGamesByFilter(FilterCriteria filter)
     {
         var userId = filter.UserId ?? AnonymousUserId;
-        var query = appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId);
+        var query = this.appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId);
 
         if (!string.IsNullOrWhiteSpace(filter.Name))
         {
@@ -138,7 +135,7 @@ public class GamesRepository : InterfaceGamesRepository
         var todayDate = DateTime.Today;
         var tomorrowDate = todayDate.AddDays(1);
 
-        return await appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId && !game.Rentals.Any(rental => rental.StartDate.Date <= tomorrowDate && rental.EndDate.Date >= todayDate)).ToListAsync();
+        return await this.appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId && !game.Rentals.Any(rental => rental.StartDate.Date <= tomorrowDate && rental.EndDate.Date >= todayDate)).ToListAsync();
     }
 
     /// <summary>
@@ -154,39 +151,35 @@ public class GamesRepository : InterfaceGamesRepository
         var todayDate = DateTime.Today;
         var tomorrowDate = todayDate.AddDays(1);
 
-        return await appContext.Games.Where(game => game.IsActive && game.OwnerId != userId && game.Rentals.Any(rental => rental.StartDate.Date <= tomorrowDate && rental.EndDate.Date >= todayDate)).ToListAsync();
+        return await this.appContext.Games.Where(game => game.IsActive && game.OwnerId != userId && game.Rentals.Any(rental => rental.StartDate.Date <= tomorrowDate && rental.EndDate.Date >= todayDate)).ToListAsync();
     }
 
-    // ==========================================
-    // Project 2 methods (merged from GameRepository / GameRepository2.cs)
-    // ==========================================
-
     private IQueryable<Game> GamesWithOwner() =>
-        appContext.Games.Include(game => game.Owner);
+        this.appContext.Games.Include(game => game.Owner);
 
     public void AddGame(Game game)
     {
         if (game.Owner != null)
         {
-            var owner = ResolveUser(game.Owner);
+            var owner = this.ResolveUser(game.Owner);
             game.Owner = owner;
             game.OwnerId = owner.PamUserId;
         }
 
-        appContext.Games.Add(game);
-        appContext.SaveChanges();
+        this.appContext.Games.Add(game);
+        this.appContext.SaveChanges();
     }
 
     public ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId)
     {
-        return GamesWithOwner()
+        return this.GamesWithOwner()
             .Where(game => game.Owner != null && game.Owner.Id == ownerAccountId)
             .ToImmutableList();
     }
 
     public void UpdateGame(int id, Game updated)
     {
-        var existing = GamesWithOwner().FirstOrDefault(game => game.Id == id);
+        var existing = this.GamesWithOwner().FirstOrDefault(game => game.Id == id);
         if (existing == null)
         {
             throw new KeyNotFoundException();
@@ -194,7 +187,7 @@ public class GamesRepository : InterfaceGamesRepository
 
         if (updated.Owner != null)
         {
-            existing.Owner = ResolveUser(updated.Owner);
+            existing.Owner = this.ResolveUser(updated.Owner);
         }
 
         existing.Name = updated.Name;
@@ -205,12 +198,12 @@ public class GamesRepository : InterfaceGamesRepository
         existing.Image = updated.Image;
         existing.IsActive = updated.IsActive;
 
-        appContext.SaveChanges();
+        this.appContext.SaveChanges();
     }
 
     public Game GetGame(int id)
     {
-        var game = GamesWithOwner().FirstOrDefault(repositoryGame => repositoryGame.Id == id);
+        var game = this.GamesWithOwner().FirstOrDefault(repositoryGame => repositoryGame.Id == id);
         if (game == null)
         {
             throw new KeyNotFoundException();
@@ -221,14 +214,14 @@ public class GamesRepository : InterfaceGamesRepository
 
     public Game DeleteGame(int id)
     {
-        var game = GamesWithOwner().FirstOrDefault(repositoryGame => repositoryGame.Id == id);
+        var game = this.GamesWithOwner().FirstOrDefault(repositoryGame => repositoryGame.Id == id);
         if (game == null)
         {
             throw new KeyNotFoundException();
         }
 
-        appContext.Games.Remove(game);
-        appContext.SaveChanges();
+        this.appContext.Games.Remove(game);
+        this.appContext.SaveChanges();
         return game;
     }
 
@@ -261,26 +254,37 @@ public class GamesRepository : InterfaceGamesRepository
     /// <returns>A list of all active games.</returns>
     private async Task<List<Game>> GetAllActiveGames(int userId)
     {
-        return await appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId).ToListAsync();
+        return await this.appContext.Games.Include(game => game.Owner).Where(game => game.IsActive && game.OwnerId != userId).ToListAsync();
     }
 
     private User ResolveUser(User user)
     {
-        if (user == null) return null!;
+        if (user == null)
+        {
+            return null!;
+        }
 
         if (user.PamUserId != 0)
         {
-            var tracked = appContext.Users.Local.FirstOrDefault(u => u.PamUserId == user.PamUserId)
-                         ?? appContext.Users.SingleOrDefault(u => u.PamUserId == user.PamUserId);
-            if (tracked != null) return tracked;
+            var tracked = this.appContext.Users.Local.FirstOrDefault(u => u.PamUserId == user.PamUserId)
+                         ?? this.appContext.Users.SingleOrDefault(u => u.PamUserId == user.PamUserId);
+            if (tracked != null)
+            {
+                return tracked;
+            }
+
             throw new InvalidOperationException($"User with PamUserId {user.PamUserId} was not found.");
         }
 
         if (user.Id != Guid.Empty)
         {
-            var tracked = appContext.Users.Local.FirstOrDefault(u => u.Id == user.Id)
-                         ?? appContext.Users.SingleOrDefault(u => u.Id == user.Id);
-            if (tracked != null) return tracked;
+            var tracked = this.appContext.Users.Local.FirstOrDefault(u => u.Id == user.Id)
+                         ?? this.appContext.Users.SingleOrDefault(u => u.Id == user.Id);
+            if (tracked != null)
+            {
+                return tracked;
+            }
+
             throw new InvalidOperationException($"User with Id {user.Id} was not found.");
         }
 

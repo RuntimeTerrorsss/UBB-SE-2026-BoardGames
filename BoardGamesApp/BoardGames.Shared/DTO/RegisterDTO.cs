@@ -1,6 +1,10 @@
+// <copyright file="RegisterDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Shared.DTO
 {
-    public class RegisterDataTransferObject
+    public class RegisterDTO
     {
         public string DisplayName { get; set; }
 

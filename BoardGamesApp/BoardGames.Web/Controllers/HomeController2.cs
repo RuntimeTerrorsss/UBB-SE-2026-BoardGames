@@ -1,7 +1,11 @@
-using GUI_BRAP.Models;
+// <copyright file="HomeController2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System.Diagnostics;
+using BoardGames.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace BoardGames.Web.Controllers
 {

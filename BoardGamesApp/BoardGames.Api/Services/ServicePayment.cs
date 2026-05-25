@@ -1,15 +1,12 @@
-// <copyright file="ServicePayment.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ServicePayment.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -35,14 +32,14 @@ namespace BoardGames.Api.Services
             this.conversationService = conversationService;
         }
 
-        public async Task<List<PaymentDataTransferObject>> GetAllPaymentsForUI()
+        public async Task<List<PaymentDTO>> GetAllPaymentsForUI()
         {
             int currentUserId = SessionContext.GetInstance().UserId;
-            var items = await BuildMergedHistoryAsync(currentUserId);
+            var items = await this.BuildMergedHistoryAsync(currentUserId);
             return items.ToList();
         }
 
-        public async Task<PagedResult<PaymentDataTransferObject>> GetFilteredPayments(
+        public async Task<PagedResult<PaymentDTO>> GetFilteredPayments(
             FilterType filter,
             PaymentMethod paymentMethod = PaymentMethod.ALL,
             string searchQuery = "",
@@ -50,7 +47,7 @@ namespace BoardGames.Api.Services
             int pageSize = 10)
         {
             int currentUserId = SessionContext.GetInstance().UserId;
-            IEnumerable<PaymentDataTransferObject> items = await BuildMergedHistoryAsync(currentUserId);
+            IEnumerable<PaymentDTO> items = await this.BuildMergedHistoryAsync(currentUserId);
 
             items = ApplyDtoFilters(items, paymentMethod, searchQuery, filter);
             items = ApplyDtoSorting(items, filter);
@@ -58,7 +55,7 @@ namespace BoardGames.Api.Services
             return GetPagedResultDto(items, pageSize, pageNumber);
         }
 
-        public decimal CalculateTotalAmount(IEnumerable<PaymentDataTransferObject> displayedPayments)
+        public decimal CalculateTotalAmount(IEnumerable<PaymentDTO> displayedPayments)
         {
             if (displayedPayments == null)
             {
@@ -70,39 +67,39 @@ namespace BoardGames.Api.Services
 
         public async Task<string> GetReceiptDocumentPath(int paymentId)
         {
-            Payment foundPayment = await paymentRepository.GetPaymentById(paymentId);
+            Payment foundPayment = await this.paymentRepository.GetPaymentById(paymentId);
 
             if (string.IsNullOrEmpty(foundPayment.ReceiptFilePath))
             {
-                foundPayment.ReceiptFilePath = receiptService.GenerateReceiptRelativePath(foundPayment.RequestId);
+                foundPayment.ReceiptFilePath = this.receiptService.GenerateReceiptRelativePath(foundPayment.RequestId);
             }
             else if (!foundPayment.ReceiptFilePath.Contains("\\"))
             {
                 foundPayment.ReceiptFilePath = "receipts\\" + foundPayment.ReceiptFilePath;
             }
 
-            return await receiptService.GetReceiptDocument(foundPayment);
+            return await this.receiptService.GetReceiptDocument(foundPayment);
         }
 
         public async Task<string> GetReceiptDocumentPathForRental(int rentalId)
         {
             int currentUserId = SessionContext.GetInstance().UserId;
-            IEnumerable<HistoryPayment> payments = await paymentRepository.GetAllPayments();
-            payments = FilterPaymentsByCurrentUser(payments);
+            IEnumerable<HistoryPayment> payments = await this.paymentRepository.GetAllPayments();
+            payments = this.FilterPaymentsByCurrentUser(payments);
             HistoryPayment? existing = payments.FirstOrDefault(p => p.RequestId == rentalId);
 
             if (existing != null)
             {
-                return await GetReceiptDocumentPath(existing.TransactionIdentifier);
+                return await this.GetReceiptDocumentPath(existing.TransactionIdentifier);
             }
 
-            Rental rental = await rentalService.GetRentalById(rentalId);
+            Rental rental = await this.rentalService.GetRentalById(rentalId);
             if (rental.ClientId != currentUserId && rental.OwnerId != currentUserId)
             {
                 throw new UnauthorizedAccessException("You do not have access to this rental.");
             }
 
-            decimal paidAmount = rental.TotalPrice ?? await rentalService.GetRentalPrice(rentalId);
+            decimal paidAmount = rental.TotalPrice ?? await this.rentalService.GetRentalPrice(rentalId);
 
             var provisionalPayment = new HistoryPayment
             {
@@ -112,30 +109,30 @@ namespace BoardGames.Api.Services
                 PaidAmount = paidAmount,
                 PaymentMethod = "Pending",
                 DateOfTransaction = DateTime.Now,
-                ReceiptFilePath = receiptService.GenerateReceiptRelativePath(rentalId),
+                ReceiptFilePath = this.receiptService.GenerateReceiptRelativePath(rentalId),
             };
 
-            return await receiptService.GetReceiptDocument(provisionalPayment);
+            return await this.receiptService.GetReceiptDocument(provisionalPayment);
         }
 
-        private async Task<List<PaymentDataTransferObject>> BuildMergedHistoryAsync(int userId)
+        private async Task<List<PaymentDTO>> BuildMergedHistoryAsync(int userId)
         {
             if (userId <= 0)
             {
-                return new List<PaymentDataTransferObject>();
+                return new List<PaymentDTO>();
             }
 
-            IEnumerable<HistoryPayment> payments = await paymentRepository.GetAllPayments();
-            payments = FilterPaymentsByCurrentUser(payments);
+            IEnumerable<HistoryPayment> payments = await this.paymentRepository.GetAllPayments();
+            payments = this.FilterPaymentsByCurrentUser(payments);
 
-            var rentalStatuses = await GetRentalRequestStatusMapAsync(userId);
+            var rentalStatuses = await this.GetRentalRequestStatusMapAsync(userId);
             var paidRentalIds = payments.Select(payment => payment.RequestId).ToHashSet();
 
             var items = payments
                 .Select(payment => MapPaymentToDto(payment, userId, rentalStatuses))
                 .ToList();
 
-            var rentals = await rentalService.GetRentalsForUser(userId);
+            var rentals = await this.rentalService.GetRentalsForUser(userId);
             foreach (var rental in rentals)
             {
                 if (paidRentalIds.Contains(rental.Id))
@@ -150,10 +147,10 @@ namespace BoardGames.Api.Services
             return items;
         }
 
-        private async Task<Dictionary<int, MessageDataTransferObject>> GetRentalRequestStatusMapAsync(int userId)
+        private async Task<Dictionary<int, MessageDTO>> GetRentalRequestStatusMapAsync(int userId)
         {
-            conversationService.Initialize(userId);
-            var conversations = await conversationService.FetchConversations();
+            this.conversationService.Initialize(userId);
+            var conversations = await this.conversationService.FetchConversations();
 
             return conversations
                 .SelectMany(conversation => conversation.MessageList)
@@ -164,16 +161,16 @@ namespace BoardGames.Api.Services
                     group => group.OrderByDescending(message => message.SentAt).First());
         }
 
-        private static PaymentDataTransferObject MapPaymentToDto(
+        private static PaymentDTO MapPaymentToDto(
             HistoryPayment payment,
             int userId,
-            Dictionary<int, MessageDataTransferObject> rentalStatuses)
+            Dictionary<int, MessageDTO> rentalStatuses)
         {
             bool isBorrowing = payment.ClientId == userId;
             string period = FormatPeriod(payment.RentalStartDate, payment.RentalEndDate);
             rentalStatuses.TryGetValue(payment.RequestId, out var requestMessage);
 
-            return new PaymentDataTransferObject
+            return new PaymentDTO
             {
                 PaymentId = payment.TransactionIdentifier,
                 RentalId = payment.RequestId,
@@ -192,14 +189,14 @@ namespace BoardGames.Api.Services
             };
         }
 
-        private static PaymentDataTransferObject MapRentalToDto(
-            RentalDataTransferObject rental,
+        private static PaymentDTO MapRentalToDto(
+            RentalDTO rental,
             int userId,
-            MessageDataTransferObject? requestMessage)
+            MessageDTO? requestMessage)
         {
             bool isBorrowing = rental.ClientId == userId;
 
-            return new PaymentDataTransferObject
+            return new PaymentDTO
             {
                 PaymentId = 0,
                 RentalId = rental.Id,
@@ -240,7 +237,7 @@ namespace BoardGames.Api.Services
                 : method;
         }
 
-        private static string GetPaidStatus(HistoryPayment payment, MessageDataTransferObject? requestMessage)
+        private static string GetPaidStatus(HistoryPayment payment, MessageDTO? requestMessage)
         {
             if (requestMessage is { IsResolved: true, IsAccepted: true })
             {
@@ -255,7 +252,7 @@ namespace BoardGames.Api.Services
             };
         }
 
-        private static string GetRentalRequestStatus(MessageDataTransferObject? message, int currentUserId)
+        private static string GetRentalRequestStatus(MessageDTO? message, int currentUserId)
         {
             if (message == null)
             {
@@ -293,8 +290,8 @@ namespace BoardGames.Api.Services
                 payment.OwnerId == currentUserId);
         }
 
-        private static IEnumerable<PaymentDataTransferObject> ApplyDtoFilters(
-            IEnumerable<PaymentDataTransferObject> items,
+        private static IEnumerable<PaymentDTO> ApplyDtoFilters(
+            IEnumerable<PaymentDTO> items,
             PaymentMethod paymentMethod,
             string searchQuery,
             FilterType filter)
@@ -314,7 +311,7 @@ namespace BoardGames.Api.Services
             return items;
         }
 
-        private static bool MatchesPaymentMethod(PaymentDataTransferObject item, PaymentMethod paymentMethod)
+        private static bool MatchesPaymentMethod(PaymentDTO item, PaymentMethod paymentMethod)
         {
             if (!item.HasPayment)
             {
@@ -330,7 +327,7 @@ namespace BoardGames.Api.Services
             };
         }
 
-        private static IEnumerable<PaymentDataTransferObject> ApplyDtoDateFilters(IEnumerable<PaymentDataTransferObject> items, FilterType filter)
+        private static IEnumerable<PaymentDTO> ApplyDtoDateFilters(IEnumerable<PaymentDTO> items, FilterType filter)
         {
             DateTime currentDateTime = DateTime.Now;
 
@@ -343,7 +340,7 @@ namespace BoardGames.Api.Services
             };
         }
 
-        private static IEnumerable<PaymentDataTransferObject> ApplyDtoSorting(IEnumerable<PaymentDataTransferObject> items, FilterType filter)
+        private static IEnumerable<PaymentDTO> ApplyDtoSorting(IEnumerable<PaymentDTO> items, FilterType filter)
         {
             return filter switch
             {
@@ -357,15 +354,15 @@ namespace BoardGames.Api.Services
             };
         }
 
-        private static PagedResult<PaymentDataTransferObject> GetPagedResultDto(
-            IEnumerable<PaymentDataTransferObject> items,
+        private static PagedResult<PaymentDTO> GetPagedResultDto(
+            IEnumerable<PaymentDTO> items,
             int pageSize,
             int pageNumber)
         {
             var list = items.ToList();
             int totalCount = list.Count;
 
-            return new PagedResult<PaymentDataTransferObject>
+            return new PagedResult<PaymentDTO>
             {
                 Items = list.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(),
                 TotalCount = totalCount,

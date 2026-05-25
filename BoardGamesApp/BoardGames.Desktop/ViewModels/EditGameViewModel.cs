@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Constants;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -75,7 +69,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public List<string> ValidateGameInputs()
         {
-            return GameInputValidator.Validate(BuildUpdatedGameDataTransferObject());
+            return GameInputValidator.Validate(BuildUpdatedGameDTO());
         }
 
         public async Task<ViewOperationResult> SubmitGameUpdateAsync()
@@ -116,18 +110,18 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task<GameDTO?> UpdateGameAsync()
         {
-            var updatedGameDataTransferObject = BuildUpdatedGameDataTransferObject();
+            var updatedGameDTO = BuildUpdatedGameDTO();
 
-            if (GameInputValidator.Validate(updatedGameDataTransferObject).Count > NoValidationErrors)
+            if (GameInputValidator.Validate(updatedGameDTO).Count > NoValidationErrors)
             {
                 return null;
             }
 
             var updateGameResult = await gameListingService.UpdateGameAsync(
                 EditedGameId,
-                updatedGameDataTransferObject);
+                updatedGameDTO);
 
-            return updateGameResult.Success ? updatedGameDataTransferObject : null;
+            return updateGameResult.Success ? updatedGameDTO : null;
         }
 
         private bool CanManageGame(Guid ownerAccountId)
@@ -136,7 +130,7 @@ namespace BoardGames.Desktop.ViewModels
                 || ownerAccountId == authorizationService.CurrentAccountId;
         }
 
-        private GameDTO BuildUpdatedGameDataTransferObject()
+        private GameDTO BuildUpdatedGameDTO()
         {
             return new GameDTO
             {

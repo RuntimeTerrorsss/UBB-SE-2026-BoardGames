@@ -1,10 +1,11 @@
+// <copyright file="ServiceUserTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
 using NUnit.Framework;
 using UserService = BoardRentAndProperty.Api.Services.UserService;
 
@@ -23,8 +24,8 @@ namespace BoardGames.Tests.Api.Services
         [SetUp]
         public void SetUp()
         {
-            repository = new FakeAccountRepository();
-            service = new UserService(repository, new UserMapper());
+            this.repository = new FakeAccountRepository();
+            this.service = new UserService(this.repository, new UserMapper());
         }
 
         [Test]
@@ -32,27 +33,27 @@ namespace BoardGames.Tests.Api.Services
         {
             var accounts = new List<Account>
             {
-                new Account { Id = secondAccountId, DisplayName = "Maria" },
-                new Account { Id = thirdAccountId, DisplayName = "Gabi" },
+                new Account { Id = this.secondAccountId, DisplayName = "Maria" },
+                new Account { Id = this.thirdAccountId, DisplayName = "Gabi" },
             };
 
-            repository.Accounts = accounts;
+            this.repository.Accounts = accounts;
 
-            var result = service.GetUsersExcept(currentAccountId);
+            var result = this.service.GetUsersExcept(this.currentAccountId);
 
-            Assert.That(result.Any(user => user.Id == secondAccountId && user.DisplayName == "Maria"), Is.True);
-            Assert.That(result.Any(user => user.Id == thirdAccountId && user.DisplayName == "Gabi"), Is.True);
+            Assert.That(result.Any(user => user.Id == this.secondAccountId && user.DisplayName == "Maria"), Is.True);
+            Assert.That(result.Any(user => user.Id == this.thirdAccountId && user.DisplayName == "Gabi"), Is.True);
         }
 
         [Test]
         public void GetUsersExcept_WhenNoOtherAccountsExist_ReturnsEmptyList()
         {
-            repository.Accounts = new List<Account>
+            this.repository.Accounts = new List<Account>
             {
-                new Account { Id = currentAccountId, DisplayName = "Me" },
+                new Account { Id = this.currentAccountId, DisplayName = "Me" },
             };
 
-            var result = service.GetUsersExcept(currentAccountId);
+            var result = this.service.GetUsersExcept(this.currentAccountId);
 
             Assert.That(result, Is.Empty);
         }
@@ -60,9 +61,9 @@ namespace BoardGames.Tests.Api.Services
         [Test]
         public void GetUsersExcept_WhenThereAreNoAccounts_ReturnsEmptyList()
         {
-            repository.Accounts = new List<Account>();
+            this.repository.Accounts = new List<Account>();
 
-            var result = service.GetUsersExcept(currentAccountId);
+            var result = this.service.GetUsersExcept(this.currentAccountId);
 
             Assert.That(result, Is.Empty);
         }
@@ -72,16 +73,16 @@ namespace BoardGames.Tests.Api.Services
         {
             var accounts = new List<Account>
             {
-                new Account { Id = currentAccountId, DisplayName = "Me" },
-                new Account { Id = secondAccountId, DisplayName = "Alice" },
-                new Account { Id = thirdAccountId, DisplayName = "Bob" },
+                new Account { Id = this.currentAccountId, DisplayName = "Me" },
+                new Account { Id = this.secondAccountId, DisplayName = "Alice" },
+                new Account { Id = this.thirdAccountId, DisplayName = "Bob" },
             };
 
-            repository.Accounts = accounts;
+            this.repository.Accounts = accounts;
 
-            var result = service.GetUsersExcept(currentAccountId);
+            var result = this.service.GetUsersExcept(this.currentAccountId);
 
-            Assert.That(result.Select(user => user.Id), Does.Not.Contain(currentAccountId));
+            Assert.That(result.Select(user => user.Id), Does.Not.Contain(this.currentAccountId));
             Assert.That(result, Has.Count.EqualTo(2));
         }
     }

@@ -2,13 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using BoardGames.Data;
-using Microsoft.EntityFrameworkCore;
-
 namespace BoardGames.Desktop
 {
     public static class DatabaseBootstrap

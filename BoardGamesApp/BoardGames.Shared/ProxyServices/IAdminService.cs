@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+// <copyright file="IAdminService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
 {
     public interface IAdminService
     {
-        Task<ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>> GetAllAccountsAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<ServiceResult<IReadOnlyList<AccountProfileDTO>>> GetAllAccountsAsync(int page, int pageSize, CancellationToken cancellationToken = default);
 
         Task<ServiceResult> SuspendAccountAsync(Guid accountId, CancellationToken cancellationToken = default);
 

@@ -1,5 +1,6 @@
-
-using System.Net.Http;
+// <copyright file="ApiServiceBase.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -12,6 +13,6 @@ namespace BoardGames.Shared.ProxyServices
             this.httpClientFactory = httpClientFactory;
         }
 
-        protected HttpClient CreateClient() => httpClientFactory.CreateClient(ApiClientNames.BoardRentApi);
+        protected HttpClient CreateClient() => this.httpClientFactory.CreateClient(ApiClientNames.BoardRentApi);
     }
 }

@@ -2,16 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Commands;
-using BoardGames.Data.Constants;
-using BoardGames.Data.Interfaces;
-using BoardGames.Shared.DTO;
-using BoardGames.Api.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -65,17 +56,17 @@ namespace BoardGames.Desktop.ViewModels
             IsCurrentlyLoading = true;
             try
             {
-                RentalDataTransferObject requestDataTransferObject = await cardPaymentService.GetRequestDataTransferObject(RequestIdentifier);
+                RentalDTO requestDTO = await cardPaymentService.GetRequestDTO(RequestIdentifier);
 
-                ClientIdentifier = requestDataTransferObject.ClientId;
-                OwnerIdentifier = requestDataTransferObject.OwnerId;
-                GameName = requestDataTransferObject.GameName;
-                OwnerName = requestDataTransferObject.OwnerName;
-                ClientName = requestDataTransferObject.ClientName;
-                Price = requestDataTransferObject.Price;
+                ClientIdentifier = requestDTO.ClientId;
+                OwnerIdentifier = requestDTO.OwnerId;
+                GameName = requestDTO.GameName;
+                OwnerName = requestDTO.OwnerName;
+                ClientName = requestDTO.ClientName;
+                Price = requestDTO.Price;
 
-                RequestDates = requestDataTransferObject.StartDate.ToShortDateString() + " to " + requestDataTransferObject.EndDate.ToShortDateString();
-                DeliveryDate = requestDataTransferObject.StartDate.ToShortDateString();
+                RequestDates = requestDTO.StartDate.ToShortDateString() + " to " + requestDTO.EndDate.ToShortDateString();
+                DeliveryDate = requestDTO.StartDate.ToShortDateString();
 
                 RefreshBalance();
             }

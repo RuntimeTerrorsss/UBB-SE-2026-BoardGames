@@ -1,9 +1,11 @@
+// <copyright file="ServiceRentalTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Immutable;
+using BoardGames.Data.Models;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
 using NUnit.Framework;
 using RentalService = BoardRentAndProperty.Api.Services.RentalService;
 
@@ -25,45 +27,45 @@ namespace BoardGames.Tests.Api.Services
         [SetUp]
         public void SetUp()
         {
-            rentalRepository = new FakeRentalRepository();
-            gameRepository = new FakeGameRepository();
-            gameRepository.GamesById[ActiveGameId] = new Game
-                {
-                    Id = ActiveGameId,
-                    Owner = new Account { Id = ownerId, DisplayName = "Owner" },
-                    IsActive = true,
-                };
-            gameRepository.GamesById[SecondGameId] = new Game
-                {
-                    Id = SecondGameId,
-                    Owner = new Account { Id = ownerId, DisplayName = "Owner" },
-                    IsActive = false,
-                };
+            this.rentalRepository = new FakeRentalRepository();
+            this.gameRepository = new FakeGameRepository();
+            this.gameRepository.GamesById[ActiveGameId] = new Game
+            {
+                Id = ActiveGameId,
+                Owner = new Account { Id = this.ownerId, DisplayName = "Owner" },
+                IsActive = true,
+            };
+            this.gameRepository.GamesById[SecondGameId] = new Game
+            {
+                Id = SecondGameId,
+                Owner = new Account { Id = this.ownerId, DisplayName = "Owner" },
+                IsActive = false,
+            };
 
-            service = new RentalService(
-                rentalRepository,
-                gameRepository,
+            this.service = new RentalService(
+                this.rentalRepository,
+                this.gameRepository,
                 new RentalMapper(new GameMapper(new UserMapper()), new UserMapper()));
         }
 
         [Test]
         public void CreateConfirmedRental_WithCorrectOwner_CallsAddConfirmedForEachGame()
         {
-            service.CreateConfirmedRental(SecondGameId, renterId, ownerId, DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(3));
-            Assert.That(rentalRepository.AddConfirmedCallCount, Is.EqualTo(1));
+            this.service.CreateConfirmedRental(SecondGameId, this.renterId, this.ownerId, DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(3));
+            Assert.That(this.rentalRepository.AddConfirmedCallCount, Is.EqualTo(1));
 
-            service.CreateConfirmedRental(ActiveGameId, renterId, ownerId, DateTime.UtcNow.AddDays(4), DateTime.UtcNow.AddDays(6));
-            Assert.That(rentalRepository.AddConfirmedCallCount, Is.EqualTo(2));
+            this.service.CreateConfirmedRental(ActiveGameId, this.renterId, this.ownerId, DateTime.UtcNow.AddDays(4), DateTime.UtcNow.AddDays(6));
+            Assert.That(this.rentalRepository.AddConfirmedCallCount, Is.EqualTo(2));
         }
 
         [Test]
         public void CreateConfirmedRental_WithWrongOwnerId_ThrowsInvalidOperationException()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                service.CreateConfirmedRental(
+                this.service.CreateConfirmedRental(
                     ActiveGameId,
-                    renterId,
-                    fakeOwnerId,
+                    this.renterId,
+                    this.fakeOwnerId,
                     DateTime.UtcNow.AddDays(1),
                     DateTime.UtcNow.AddDays(3)));
         }
@@ -72,10 +74,10 @@ namespace BoardGames.Tests.Api.Services
         public void CreateRental_WithInvalidDateRange_ThrowsArgumentException()
         {
             Assert.Throws<ArgumentException>(() =>
-                service.CreateConfirmedRental(
+                this.service.CreateConfirmedRental(
                     ActiveGameId,
-                    renterId,
-                    ownerId,
+                    this.renterId,
+                    this.ownerId,
                     DateTime.UtcNow.AddDays(4),
                     DateTime.UtcNow.AddDays(2)));
         }
@@ -83,23 +85,23 @@ namespace BoardGames.Tests.Api.Services
         [Test]
         public void CreateConfirmedRental_OnOverlappingDates_ThrowsInvalidOperationExceptionOnlyForSameGame()
         {
-            var existingRental = BuildRental(DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(3));
+            var existingRental = this.BuildRental(DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(3));
 
-            rentalRepository.RentalsByGameId[ActiveGameId] = ImmutableList.Create(existingRental);
-            rentalRepository.RentalsByGameId[SecondGameId] = ImmutableList<Rental>.Empty;
+            this.rentalRepository.RentalsByGameId[ActiveGameId] = ImmutableList.Create(existingRental);
+            this.rentalRepository.RentalsByGameId[SecondGameId] = ImmutableList<Rental>.Empty;
 
             Assert.Throws<InvalidOperationException>(() =>
-                service.CreateConfirmedRental(
+                this.service.CreateConfirmedRental(
                     ActiveGameId,
-                    renterId,
-                    ownerId,
+                    this.renterId,
+                    this.ownerId,
                     DateTime.UtcNow.AddDays(2),
                     DateTime.UtcNow.AddDays(3)));
             Assert.DoesNotThrow(() =>
-                service.CreateConfirmedRental(
+                this.service.CreateConfirmedRental(
                     SecondGameId,
-                    renterId,
-                    ownerId,
+                    this.renterId,
+                    this.ownerId,
                     DateTime.UtcNow.AddDays(2),
                     DateTime.UtcNow.AddDays(3)));
         }
@@ -107,16 +109,16 @@ namespace BoardGames.Tests.Api.Services
         [Test]
         public void IsSlotAvailable_DuringBufferPeriod_ReturnsFalseOnlyForSameGame()
         {
-            var existingRental = BuildRental(DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(2));
+            var existingRental = this.BuildRental(DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(2));
 
-            rentalRepository.RentalsByGameId[ActiveGameId] = ImmutableList.Create(existingRental);
-            rentalRepository.RentalsByGameId[SecondGameId] = ImmutableList<Rental>.Empty;
+            this.rentalRepository.RentalsByGameId[ActiveGameId] = ImmutableList.Create(existingRental);
+            this.rentalRepository.RentalsByGameId[SecondGameId] = ImmutableList<Rental>.Empty;
 
-            bool isAvailable = service.IsSlotAvailable(
+            bool isAvailable = this.service.IsSlotAvailable(
                 ActiveGameId,
                 DateTime.UtcNow.AddDays(3),
                 DateTime.UtcNow.AddDays(4));
-            bool isAvailableForSecondGame = service.IsSlotAvailable(
+            bool isAvailableForSecondGame = this.service.IsSlotAvailable(
                 SecondGameId,
                 DateTime.UtcNow.AddDays(3),
                 DateTime.UtcNow.AddDays(4));
@@ -130,8 +132,8 @@ namespace BoardGames.Tests.Api.Services
             return new Rental(
                 1,
                 new Game { Id = ActiveGameId },
-                new Account { Id = renterId, DisplayName = "Renter" },
-                new Account { Id = ownerId, DisplayName = "Owner" },
+                new Account { Id = this.renterId, DisplayName = "Renter" },
+                new Account { Id = this.ownerId, DisplayName = "Owner" },
                 startDate,
                 endDate);
         }

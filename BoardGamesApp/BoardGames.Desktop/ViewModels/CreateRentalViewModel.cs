@@ -1,12 +1,3 @@
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
-
 namespace BoardGames.Desktop.ViewModels
 {
     public class CreateRentalViewModel : INotifyPropertyChanged
@@ -124,7 +115,7 @@ namespace BoardGames.Desktop.ViewModels
                     Constants.DialogMessages.CreateRentalValidationError);
             }
 
-            var rentalDataTransferObject = new CreateRentalDataTransferObject
+            var rentalDTO = new CreateRentalDTO
             {
                 GameId = SelectedGameToRent.Id,
                 RenterAccountId = SelectedRenter.Id,
@@ -133,7 +124,7 @@ namespace BoardGames.Desktop.ViewModels
                 EndDate = EndDate.Value.DateTime,
             };
 
-            var rentalCreationResult = await rentalCreationService.CreateConfirmedRentalAsync(rentalDataTransferObject);
+            var rentalCreationResult = await rentalCreationService.CreateConfirmedRentalAsync(rentalDTO);
             if (rentalCreationResult.Success)
             {
                 return ViewOperationResult.Success();

@@ -1,9 +1,10 @@
-using System;
-using System.Threading.Tasks;
+// <copyright file="GamesController2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
-using BoardGames.Shared.DTO;
-using GUI_BRAP.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,18 +24,18 @@ namespace BoardGames.Web.Controllers
         {
             if (User.IsAdministrator())
             {
-                var allGames = await gameProxyService.GetAllGamesAsync();
+                var allGames = await this.gameProxyService.GetAllGamesAsync();
                 return View(allGames);
             }
 
             var ownerId = User.GetAccountId();
-            var myGames = await gameProxyService.GetGamesByOwnerAsync(ownerId);
+            var myGames = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
             return View(myGames);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            GameDTO? game = await gameProxyService.GetGameByIdAsync(id);
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
             if (game is null)
             {
                 return NotFound();
@@ -73,8 +74,8 @@ namespace BoardGames.Web.Controllers
 
             try
             {
-                await gameProxyService.CreateGameAsync(body);
-                return RedirectToAction(nameof(Index));
+                await this.gameProxyService.CreateGameAsync(body);
+                return RedirectToAction(nameof(this.Index));
             }
             catch (ProxyServiceException ex)
             {
@@ -86,7 +87,7 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            GameDTO? game = await gameProxyService.GetGameByIdAsync(id);
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
             if (game is null)
             {
                 return NotFound();
@@ -109,7 +110,7 @@ namespace BoardGames.Web.Controllers
                 return View(body);
             }
 
-            GameDTO? existing = await gameProxyService.GetGameByIdAsync(id);
+            GameDTO? existing = await this.gameProxyService.GetGameByIdAsync(id);
             if (existing is null)
             {
                 return NotFound();
@@ -135,8 +136,8 @@ namespace BoardGames.Web.Controllers
 
             try
             {
-                await gameProxyService.UpdateGameAsync(id, body);
-                return RedirectToAction(nameof(Index));
+                await this.gameProxyService.UpdateGameAsync(id, body);
+                return RedirectToAction(nameof(this.Index));
             }
             catch (ProxyServiceException ex)
             {
@@ -148,7 +149,7 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            GameDTO? game = await gameProxyService.GetGameByIdAsync(id);
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
             if (game is null)
             {
                 return NotFound();
@@ -162,7 +163,7 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            GameDTO? existing = await gameProxyService.GetGameByIdAsync(id);
+            GameDTO? existing = await this.gameProxyService.GetGameByIdAsync(id);
             if (existing is null)
             {
                 return NotFound();
@@ -175,14 +176,14 @@ namespace BoardGames.Web.Controllers
 
             try
             {
-                await gameProxyService.DeleteGameAsync(id);
+                await this.gameProxyService.DeleteGameAsync(id);
             }
             catch (ProxyServiceException ex)
             {
                 TempData["DeleteError"] = ex.Message;
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(this.Index));
         }
     }
 }

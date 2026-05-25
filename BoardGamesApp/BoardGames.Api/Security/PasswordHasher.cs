@@ -1,4 +1,7 @@
-using System;
+// <copyright file="PasswordHasher.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Security.Cryptography;
 
 namespace BoardGames.Api.Security

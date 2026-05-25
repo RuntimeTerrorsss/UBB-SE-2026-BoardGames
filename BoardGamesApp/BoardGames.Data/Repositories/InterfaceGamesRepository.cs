@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="InterfaceGamesRepository.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 
@@ -38,9 +37,13 @@ namespace BoardGames.Data.Repositories
 
         // --- Project 2 methods (merged from IGameRepository / IGameRepository2.cs) ---
         void AddGame(Game game);
+
         Game DeleteGame(int id);
+
         void UpdateGame(int id, Game updated);
+
         Game GetGame(int id);
+
         ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId);
     }
 }

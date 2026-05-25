@@ -1,3 +1,7 @@
+// <copyright file="AdminAccountViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Text.Json.Serialization;
 
 namespace BoardGames.Web.Models.Account

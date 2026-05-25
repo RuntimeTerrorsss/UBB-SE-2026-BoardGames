@@ -1,11 +1,4 @@
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -44,7 +37,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task<string?> TryCancelRequestAsync(int requestIdToCancel)
         {
-            var cancellationAction = new RequestActionDataTransferObject { AccountId = CurrentRenterUserId };
+            var cancellationAction = new RequestActionDTO { AccountId = CurrentRenterUserId };
             var cancellationResult = await rentalRequestService.CancelRequestAsync(
                 requestIdToCancel,
                 cancellationAction);

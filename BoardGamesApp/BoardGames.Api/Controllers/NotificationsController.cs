@@ -1,8 +1,10 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="NotificationsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Api.Common;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -21,7 +23,7 @@ namespace BoardGames.Api.Controllers
         [HttpGet("user/{accountId:guid}")]
         public ActionResult<IReadOnlyList<NotificationDTO>> GetForUser(Guid accountId)
         {
-            return Ok(notificationService.GetNotificationsForUser(accountId));
+            return this.Ok(this.notificationService.GetNotificationsForUser(accountId));
         }
 
         [HttpGet("{notificationId:int}")]
@@ -29,7 +31,7 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                return Ok(notificationService.GetNotificationByIdentifier(notificationId));
+                return this.Ok(this.notificationService.GetNotificationByIdentifier(notificationId));
             }
             catch (KeyNotFoundException)
             {
@@ -42,8 +44,8 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                notificationService.UpdateNotificationByIdentifier(notificationId, body);
-                return NoContent();
+                this.notificationService.UpdateNotificationByIdentifier(notificationId, body);
+                return this.NoContent();
             }
             catch (KeyNotFoundException)
             {
@@ -56,7 +58,7 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                return Ok(notificationService.DeleteNotificationByIdentifier(notificationId));
+                return this.Ok(this.notificationService.DeleteNotificationByIdentifier(notificationId));
             }
             catch (KeyNotFoundException)
             {

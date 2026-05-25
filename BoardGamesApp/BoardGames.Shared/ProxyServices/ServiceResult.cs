@@ -1,3 +1,7 @@
+// <copyright file="ServiceResult.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Net;
 
 namespace BoardGames.Shared.ProxyServices

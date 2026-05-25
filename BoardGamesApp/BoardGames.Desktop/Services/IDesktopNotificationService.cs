@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-
 namespace BoardGames.Desktop.Services
 {
     public interface IDesktopNotificationService : IObservable<NotificationDTO>

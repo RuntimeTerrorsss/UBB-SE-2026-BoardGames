@@ -1,21 +1,23 @@
+// <copyright file="HomeController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System.Diagnostics;
 using BoardGames.Data.Enums;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.DTO.Services;
 using BoardGames.Web.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace BoardGames.Web.Controllers
 {
     public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly InterfaceSearchAndFilterService _searchService;
+        private readonly ILogger<HomeController> logger;
+        private readonly InterfaceSearchAndFilterService searchService;
 
-        public HomeController(ILogger<HomeController> logger, InterfaceSearchAndFilterService searchService)
+        public HomeController(ILogger<HomeController> loggerParam, InterfaceSearchAndFilterService searchServiceParam)
         {
-            _logger = logger;
-            _searchService = searchService;
+            this.logger = loggerParam;
+            this.searchService = searchServiceParam;
         }
 
         public async Task<IActionResult> Index()
@@ -26,7 +28,7 @@ namespace BoardGames.Web.Controllers
                 filter.UserId = CurrentUserId;
             }
 
-            var games = await _searchService.SearchGamesByFilter(filter);
+            var games = await this.searchService.SearchGamesByFilter(filter);
             return View(games);
         }
 

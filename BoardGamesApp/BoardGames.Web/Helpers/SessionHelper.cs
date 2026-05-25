@@ -1,4 +1,8 @@
-﻿namespace BoardGames.Web.Helpers
+﻿// <copyright file="SessionHelper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Web.Helpers
 {
     public class SessionHelper
     {
@@ -16,8 +20,11 @@
         public static void Clear(ISession session) => session.Clear();
 
         public static int? GetUserId(ISession session) => session.GetInt32(UserIdKey);
+
         public static string? GetUsername(ISession session) => session.GetString(UsernameKey);
+
         public static string? GetDisplayName(ISession session) => session.GetString(DisplayNameKey);
+
         public static bool IsLoggedIn(ISession session) => session.GetInt32(UserIdKey).HasValue;
     }
 }

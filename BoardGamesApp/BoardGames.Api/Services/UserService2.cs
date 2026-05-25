@@ -1,9 +1,11 @@
-using System;
+// <copyright file="UserService2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.Immutable;
-using System.Linq;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -22,10 +24,10 @@ namespace BoardGames.Api.Services
 
         public ImmutableList<UserDTO> GetUsersExcept(Guid excludeAccountId)
         {
-            var allAccounts = accountRepository.GetAllAsync(FirstPageNumber, int.MaxValue).GetAwaiter().GetResult();
+            var allAccounts = this.accountRepository.GetAllAsync(FirstPageNumber, int.MaxValue).GetAwaiter().GetResult();
             return allAccounts
                 .Where(account => account.Id != excludeAccountId)
-                .Select(account => userMapper.ToDTO(account)!)
+                .Select(account => this.userMapper.ToDTO(account)!)
                 .ToImmutableList();
         }
     }

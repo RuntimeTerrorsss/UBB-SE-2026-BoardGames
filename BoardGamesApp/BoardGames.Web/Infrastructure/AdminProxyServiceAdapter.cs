@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BoardGames.Web.Infrastructure;
-using BoardGames.Web.Models.Account;
-using BoardGames.Shared.ProxyServices;
+// <copyright file="AdminProxyServiceAdapter.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using GUI_BRAP.Models;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Web.Models.Account;
 
 namespace BoardGames.Web.Infrastructure
 {
@@ -25,23 +22,23 @@ namespace BoardGames.Web.Infrastructure
 
         public async Task<IEnumerable<AdminAccountViewModel>> GetAllAccountsAsync()
         {
-            var accounts = (await adminService.GetAllAccountsAsync(FirstPage, DefaultPageSize)).ThrowIfFailed();
+            var accounts = (await this.adminService.GetAllAccountsAsync(FirstPage, DefaultPageSize)).ThrowIfFailed();
             return accounts.Select(Map).ToList();
         }
 
         public async Task SuspendAccountAsync(string accountId)
-            => (await adminService.SuspendAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
+            => (await this.adminService.SuspendAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
 
         public async Task UnsuspendAccountAsync(string accountId)
-            => (await adminService.UnsuspendAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
+            => (await this.adminService.UnsuspendAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
 
         public async Task UnlockAccountAsync(string accountId)
-            => (await adminService.UnlockAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
+            => (await this.adminService.UnlockAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
 
         public async Task ResetPasswordAsync(string accountId, string newPassword)
-            => (await adminService.ResetPasswordAsync(Guid.Parse(accountId), newPassword)).ThrowIfFailed();
+            => (await this.adminService.ResetPasswordAsync(Guid.Parse(accountId), newPassword)).ThrowIfFailed();
 
-        private static AdminAccountViewModel Map(AccountProfileDataTransferObject profile) => new()
+        private static AdminAccountViewModel Map(AccountProfileDTO profile) => new()
         {
             Id = profile.Id.ToString(),
             Username = profile.Username,

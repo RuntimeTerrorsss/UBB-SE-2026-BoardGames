@@ -1,3 +1,7 @@
+// <copyright file="NotificationTitles.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Data.Constants
 {
     public static class NotificationTitles

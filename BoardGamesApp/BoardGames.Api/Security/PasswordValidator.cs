@@ -1,3 +1,7 @@
+// <copyright file="PasswordValidator.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Text.RegularExpressions;
 
 namespace BoardGames.Api.Security

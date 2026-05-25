@@ -1,5 +1,6 @@
-using GUI_BRAP.ProxyServices;
-using Microsoft.Extensions.DependencyInjection;
+// <copyright file="ServiceCollectionExtensions.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Web.Infrastructure
 {

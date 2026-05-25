@@ -1,6 +1,6 @@
-using System;
-using System.Collections.Generic;
-using BoardRentAndProperty.Api.Constants;
+// <copyright file="GameInputHelper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Api.Services
 {

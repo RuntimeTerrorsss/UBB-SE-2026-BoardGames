@@ -1,10 +1,11 @@
+// <copyright file="Program2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data;
 using BoardGames.Web.Infrastructure;
-using BoardGames.Api.Data;
-using BoardGames.ApiClient;
-using BoardGames.ProxyServices;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,8 +23,9 @@ builder.Services.AddControllersWithViews()
     });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("BoardRentAndProperty"),
-    sqlServerOptionsAction: sqlOptions =>
+  options.UseSqlServer(
+      builder.Configuration.GetConnectionString("BoardRentAndProperty"),
+      sqlServerOptionsAction: sqlOptions =>
     {
         sqlOptions.EnableRetryOnFailure();
     }));
@@ -55,7 +57,7 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-builder.WebHost.UseUrls("http://localhost:5175","https://localhost:5176");
+builder.WebHost.UseUrls("http://localhost:5175", "https://localhost:5176");
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -64,6 +66,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
+
 app.UseStaticFiles();
 app.UseRouting();
 

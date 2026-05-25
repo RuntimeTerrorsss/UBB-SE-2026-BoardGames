@@ -1,17 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+// <copyright file="IAdminService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public interface IAdminService
     {
-        Task<ServiceResult<List<AccountProfileDataTransferObject>>> GetAllAccountsAsync(int page, int pageSize);
+        Task<ServiceResult<List<AccountProfileDTO>>> GetAllAccountsAsync(int page, int pageSize);
+
         Task<ServiceResult<bool>> SuspendAccountAsync(Guid accountId);
+
         Task<ServiceResult<bool>> UnsuspendAccountAsync(Guid accountId);
+
         Task<ServiceResult<bool>> ResetPasswordAsync(Guid accountId, string newPassword);
+
         Task<ServiceResult<bool>> UnlockAccountAsync(Guid accountId);
     }
 }

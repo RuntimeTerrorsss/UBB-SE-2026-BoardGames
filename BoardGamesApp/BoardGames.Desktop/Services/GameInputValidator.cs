@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using BoardRentAndProperty.Constants;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-
 namespace BoardGames.Desktop.Services
 {
     public static class GameInputValidator

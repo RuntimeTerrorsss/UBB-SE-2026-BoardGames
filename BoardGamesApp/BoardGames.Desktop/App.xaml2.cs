@@ -1,26 +1,7 @@
-using System;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.Services.Listeners;
 using BoardGames.Desktop.ViewModels;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
 using BoardRentAndProperty.Views;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using H.NotifyIcon;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Windows.AppLifecycle;
 
 namespace BoardRentAndProperty
 {

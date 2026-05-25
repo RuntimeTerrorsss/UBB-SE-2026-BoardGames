@@ -1,12 +1,4 @@
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -94,7 +86,7 @@ namespace BoardGames.Desktop.ViewModels
                     Constants.DialogMessages.CreateRequestValidationError);
             }
 
-            var requestDataTransferObject = new CreateRequestDataTransferObject
+            var requestDTO = new CreateRequestDTO
             {
                 GameId = SelectedGame.Id,
                 RenterAccountId = CurrentUserId,
@@ -103,7 +95,7 @@ namespace BoardGames.Desktop.ViewModels
                 EndDate = EndDate.Value.DateTime,
             };
 
-            var requestCreationResult = await rentalRequestService.CreateRequestAsync(requestDataTransferObject);
+            var requestCreationResult = await rentalRequestService.CreateRequestAsync(requestDTO);
 
             if (requestCreationResult.Success)
             {

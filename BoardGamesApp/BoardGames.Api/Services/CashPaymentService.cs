@@ -1,13 +1,11 @@
-// <copyright file="CashPaymentService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="CashPaymentService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Constants;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Constants;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -25,9 +23,9 @@ namespace BoardGames.Api.Services
             this.cashPaymentMapper = cashPaymentMapper;
         }
 
-        public async Task<int> AddCashPaymentAsync(CashPaymentDataTransferObject cashPaymentDataTransferObject)
+        public async Task<int> AddCashPaymentAsync(CashPaymentDTO cashPaymentDTO)
         {
-            Payment paymentEntity = cashPaymentMapper.TurnDataTransferObjectIntoEntity(cashPaymentDataTransferObject);
+            Payment paymentEntity = cashPaymentMapper.TurnDTOIntoEntity(cashPaymentDTO);
             paymentEntity.PaymentMethod = CashPaymentMethod;
             paymentEntity.PaymentState = PaymentConstrants.StateCompleted;
 
@@ -39,10 +37,10 @@ namespace BoardGames.Api.Services
             return paymentIdentifier;
         }
 
-        public async Task<CashPaymentDataTransferObject> GetCashPaymentAsync(int paymentIdentifier)
+        public async Task<CashPaymentDTO> GetCashPaymentAsync(int paymentIdentifier)
         {
             var payment = await paymentRepository.GetPaymentByIdentifierAsync(paymentIdentifier);
-            return cashPaymentMapper.TurnEntityIntoDataTransferObject(payment);
+            return cashPaymentMapper.TurnEntityIntoDTO(payment);
         }
 
         public async Task ConfirmDeliveryAsync(int paymentIdentifier)

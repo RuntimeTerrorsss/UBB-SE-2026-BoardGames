@@ -1,8 +1,9 @@
+// <copyright file="RegisterViewModelTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -16,25 +17,25 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            authService = new FakeClientAuthService();
-            systemUnderTest = new RegisterViewModel(authService);
+            this.authService = new FakeClientAuthService();
+            this.systemUnderTest = new RegisterViewModel(this.authService);
         }
 
         [Test]
         public async Task RegisterAsync_SuccessfulRegistration_InvokesSuccessCallback()
         {
             bool registrationSuccessCallbackWasCalled = false;
-            systemUnderTest.OnRegistrationSuccess = () => registrationSuccessCallbackWasCalled = true;
-            systemUnderTest.Username = "newuser";
-            systemUnderTest.Password = "Password123!";
-            systemUnderTest.ConfirmPassword = "Password123!";
+            this.systemUnderTest.OnRegistrationSuccess = () => registrationSuccessCallbackWasCalled = true;
+            this.systemUnderTest.Username = "newuser";
+            this.systemUnderTest.Password = "Password123!";
+            this.systemUnderTest.ConfirmPassword = "Password123!";
 
-            authService.RegisterResult = ServiceResult<bool>.Ok(true);
+            this.authService.RegisterResult = ServiceResult<bool>.Ok(true);
 
-            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
+            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
             Assert.That(registrationSuccessCallbackWasCalled, Is.True);
-            Assert.That(authService.RegisterCallCount, Is.EqualTo(1));
+            Assert.That(this.authService.RegisterCallCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -42,13 +43,13 @@ namespace BoardGames.Tests.ViewModels
         {
             string validationError = "Username|Username already exists;Password|Password is too short";
 
-            authService.RegisterResult = ServiceResult<bool>.Fail(validationError);
+            this.authService.RegisterResult = ServiceResult<bool>.Fail(validationError);
 
-            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
+            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.UsernameError, Is.EqualTo("Username already exists"));
-            Assert.That(systemUnderTest.PasswordError, Is.EqualTo("Password is too short"));
-            Assert.That(systemUnderTest.IsLoading, Is.False);
+            Assert.That(this.systemUnderTest.UsernameError, Is.EqualTo("Username already exists"));
+            Assert.That(this.systemUnderTest.PasswordError, Is.EqualTo("Password is too short"));
+            Assert.That(this.systemUnderTest.IsLoading, Is.False);
         }
 
         [Test]
@@ -56,21 +57,21 @@ namespace BoardGames.Tests.ViewModels
         {
             string generalError = "Server connection lost";
 
-            authService.RegisterResult = ServiceResult<bool>.Fail(generalError);
+            this.authService.RegisterResult = ServiceResult<bool>.Fail(generalError);
 
-            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
+            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.ErrorMessage, Is.EqualTo(generalError));
-            Assert.That(systemUnderTest.EmailError, Is.EqualTo(string.Empty));
+            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(generalError));
+            Assert.That(this.systemUnderTest.EmailError, Is.EqualTo(string.Empty));
         }
 
         [Test]
         public void GoToLogin_WhenExecuted_InvokesNavigateBackRequest()
         {
             bool navigateBackWasCalled = false;
-            systemUnderTest.OnNavigateBackRequest = () => navigateBackWasCalled = true;
+            this.systemUnderTest.OnNavigateBackRequest = () => navigateBackWasCalled = true;
 
-            systemUnderTest.GoToLoginCommand.Execute(null);
+            this.systemUnderTest.GoToLoginCommand.Execute(null);
 
             Assert.That(navigateBackWasCalled, Is.True);
         }
@@ -78,13 +79,13 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task RegisterAsync_ClearsOldErrorsBeforeNewAttempt()
         {
-            systemUnderTest.UsernameError = "Old error";
+            this.systemUnderTest.UsernameError = "Old error";
 
-            authService.RegisterResult = ServiceResult<bool>.Ok(true);
+            this.authService.RegisterResult = ServiceResult<bool>.Ok(true);
 
-            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
+            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.UsernameError, Is.EqualTo(string.Empty));
+            Assert.That(this.systemUnderTest.UsernameError, Is.EqualTo(string.Empty));
         }
     }
 }

@@ -1,8 +1,10 @@
+// <copyright file="LoginViewModelTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -16,67 +18,67 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            authService = new FakeClientAuthService();
-            systemUnderTest = new LoginViewModel(authService);
+            this.authService = new FakeClientAuthService();
+            this.systemUnderTest = new LoginViewModel(this.authService);
         }
 
         [Test]
         public async Task LoginAsync_ValidCredentials_InvokesSuccessCallbackWithRole()
         {
             string capturedRole = string.Empty;
-            systemUnderTest.OnLoginSuccess = role => capturedRole = role;
-            systemUnderTest.UsernameOrEmail = "admin";
-            systemUnderTest.Password = "Password123!";
+            this.systemUnderTest.OnLoginSuccess = role => capturedRole = role;
+            this.systemUnderTest.UsernameOrEmail = "admin";
+            this.systemUnderTest.Password = "Password123!";
 
-            var profile = new AccountProfileDataTransferObject
+            var profile = new AccountProfileDTO
             {
                 Username = "admin",
-                Role = new RoleDataTransferObject { Name = "Administrator" },
+                Role = new RoleDTO { Name = "Administrator" },
             };
 
-            authService.LoginResult = ServiceResult<AccountProfileDataTransferObject>.Ok(profile);
+            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(profile);
 
-            await systemUnderTest.LoginCommand.ExecuteAsync(null);
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
 
             Assert.That(capturedRole, Is.EqualTo("Administrator"));
-            Assert.That(authService.LoginCallCount, Is.EqualTo(1));
+            Assert.That(this.authService.LoginCallCount, Is.EqualTo(1));
         }
 
         [Test]
         public async Task LoginAsync_EmptyFields_SetsLocalErrorMessageWithoutCallingService()
         {
-            systemUnderTest.UsernameOrEmail = string.Empty;
-            systemUnderTest.Password = string.Empty;
+            this.systemUnderTest.UsernameOrEmail = string.Empty;
+            this.systemUnderTest.Password = string.Empty;
 
-            await systemUnderTest.LoginCommand.ExecuteAsync(null);
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.ErrorMessage, Is.EqualTo("Please enter both username/email and password."));
-            Assert.That(authService.LoginCallCount, Is.EqualTo(0));
+            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo("Please enter both username/email and password."));
+            Assert.That(this.authService.LoginCallCount, Is.EqualTo(0));
         }
 
         [Test]
         public async Task LoginAsync_ServiceReturnsError_SetsErrorMessage()
         {
-            systemUnderTest.UsernameOrEmail = "user";
-            systemUnderTest.Password = "wrongpass";
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "wrongpass";
 
             string serviceError = "Invalid username or password.";
-            authService.LoginResult =
-                ServiceResult<AccountProfileDataTransferObject>.Fail(serviceError);
+            this.authService.LoginResult =
+                ServiceResult<AccountProfileDTO>.Fail(serviceError);
 
-            await systemUnderTest.LoginCommand.ExecuteAsync(null);
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.ErrorMessage, Is.EqualTo(serviceError));
-            Assert.That(systemUnderTest.IsLoading, Is.False);
+            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(serviceError));
+            Assert.That(this.systemUnderTest.IsLoading, Is.False);
         }
 
         [Test]
         public void NavigateToRegister_WhenExecuted_InvokesCallback()
         {
             bool navigationWasCalled = false;
-            systemUnderTest.OnNavigateToRegister = () => navigationWasCalled = true;
+            this.systemUnderTest.OnNavigateToRegister = () => navigationWasCalled = true;
 
-            systemUnderTest.NavigateToRegisterCommand.Execute(null);
+            this.systemUnderTest.NavigateToRegisterCommand.Execute(null);
 
             Assert.That(navigationWasCalled, Is.True);
         }
@@ -85,19 +87,19 @@ namespace BoardGames.Tests.ViewModels
         public async Task LoginAsync_NullRole_DefaultsToStandardUser()
         {
             string capturedRole = string.Empty;
-            systemUnderTest.OnLoginSuccess = role => capturedRole = role;
-            systemUnderTest.UsernameOrEmail = "user";
-            systemUnderTest.Password = "pass";
+            this.systemUnderTest.OnLoginSuccess = role => capturedRole = role;
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "pass";
 
-            var profile = new AccountProfileDataTransferObject
+            var profile = new AccountProfileDTO
             {
                 Username = "user",
                 Role = null!,
             };
 
-            authService.LoginResult = ServiceResult<AccountProfileDataTransferObject>.Ok(profile);
+            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(profile);
 
-            await systemUnderTest.LoginCommand.ExecuteAsync(null);
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
 
             Assert.That(capturedRole, Is.EqualTo("Standard User"));
         }

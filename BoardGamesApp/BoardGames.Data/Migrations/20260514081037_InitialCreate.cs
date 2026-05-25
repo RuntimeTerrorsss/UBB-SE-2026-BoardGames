@@ -1,4 +1,7 @@
-﻿using System;
+﻿// <copyright file="20260514081037_InitialCreate.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -31,7 +34,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     StreetName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     StreetNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    PamUserId = table.Column<int>(type: "int", nullable: false)
+                    PamUserId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -44,7 +47,7 @@ namespace BoardRentAndProperty.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -57,7 +60,7 @@ namespace BoardRentAndProperty.Api.Migrations
                 {
                     AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FailedAttempts = table.Column<int>(type: "int", nullable: false),
-                    LockedUntil = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    LockedUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -83,7 +86,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     maximum_player_number = table.Column<int>(type: "int", nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    is_active = table.Column<int>(type: "int", nullable: false)
+                    is_active = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -101,7 +104,7 @@ namespace BoardRentAndProperty.Api.Migrations
                 columns: table => new
                 {
                     AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -130,7 +133,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     RenterId = table.Column<int>(type: "int", nullable: true),
                     OwnerId = table.Column<int>(type: "int", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -167,7 +170,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    OfferingUserId = table.Column<int>(type: "int", nullable: true)
+                    OfferingUserId = table.Column<int>(type: "int", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -209,7 +212,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Body = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    related_request_id = table.Column<int>(type: "int", nullable: true)
+                    related_request_id = table.Column<int>(type: "int", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -235,7 +238,7 @@ namespace BoardRentAndProperty.Api.Migrations
                 {
                     { new Guid("00000000-0000-0000-0000-000000000010"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Administrator", "admin@boardrent.com", false, 4, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin" },
                     { new Guid("00000000-0000-0000-0000-000000000011"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Darius Turcu", "darius@boardrent.com", false, 1, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "darius" },
-                    { new Guid("00000000-0000-0000-0000-000000000012"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Mihai Tira", "mihai@boardrent.com", false, 2, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "mihai" }
+                    { new Guid("00000000-0000-0000-0000-000000000012"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Mihai Tira", "mihai@boardrent.com", false, 2, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "mihai" },
                 });
 
             migrationBuilder.InsertData(
@@ -244,7 +247,7 @@ namespace BoardRentAndProperty.Api.Migrations
                 values: new object[,]
                 {
                     { new Guid("00000000-0000-0000-0000-000000000001"), "Administrator" },
-                    { new Guid("00000000-0000-0000-0000-000000000002"), "Standard User" }
+                    { new Guid("00000000-0000-0000-0000-000000000002"), "Standard User" },
                 });
 
             migrationBuilder.InsertData(
@@ -254,7 +257,7 @@ namespace BoardRentAndProperty.Api.Migrations
                 {
                     { new Guid("00000000-0000-0000-0000-000000000010"), new Guid("00000000-0000-0000-0000-000000000001") },
                     { new Guid("00000000-0000-0000-0000-000000000011"), new Guid("00000000-0000-0000-0000-000000000002") },
-                    { new Guid("00000000-0000-0000-0000-000000000012"), new Guid("00000000-0000-0000-0000-000000000002") }
+                    { new Guid("00000000-0000-0000-0000-000000000012"), new Guid("00000000-0000-0000-0000-000000000002") },
                 });
 
             migrationBuilder.CreateIndex(

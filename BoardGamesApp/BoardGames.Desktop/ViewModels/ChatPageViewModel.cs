@@ -2,17 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using BoardGames.Data;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.Services;
-
 namespace BoardGames.Desktop.ViewModels;
 
 public class ChatPageViewModel : ViewModelBase
@@ -130,7 +119,7 @@ public class ChatPageViewModel : ViewModelBase
         SendReadReceipt(matchedConversation);
     }
 
-    private async void OnMessageSent(MessageDataTransferObject message)
+    private async void OnMessageSent(MessageDTO message)
     {
         try
         {
@@ -162,7 +151,7 @@ public class ChatPageViewModel : ViewModelBase
         }
     }
 
-    private async void OnSendMessageUpdate(MessageDataTransferObject message)
+    private async void OnSendMessageUpdate(MessageDTO message)
     {
         try
         {
@@ -174,7 +163,7 @@ public class ChatPageViewModel : ViewModelBase
         }
     }
 
-    private void OnMessageReceived(MessageDataTransferObject message, string senderName)
+    private void OnMessageReceived(MessageDTO message, string senderName)
     {
         ((App)Microsoft.UI.Xaml.Application.Current).Window?.DispatcherQueue.TryEnqueue(async () =>
         {
@@ -328,7 +317,7 @@ public class ChatPageViewModel : ViewModelBase
         });
     }
 
-    private void OnMessageUpdateReceived(MessageDataTransferObject updatedMessage, string senderName)
+    private void OnMessageUpdateReceived(MessageDTO updatedMessage, string senderName)
     {
         ((App)Microsoft.UI.Xaml.Application.Current).Window?.DispatcherQueue.TryEnqueue(() =>
         {

@@ -1,8 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+// <copyright file="ConversationController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -21,7 +22,7 @@ namespace BoardGames.Api.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<List<Conversation>>> GetConversationsForUser(int userId)
         {
-            var conversations = await conversationRepository.GetConversationsForUser(userId);
+            var conversations = await this.conversationRepository.GetConversationsForUser(userId);
             return Ok(conversations);
         }
 
@@ -30,19 +31,19 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                var conversation = await conversationRepository.GetConversationById(id);
+                var conversation = await this.conversationRepository.GetConversationById(id);
                 return Ok(conversation);
             }
             catch (InvalidOperationException)
             {
-                return NotFound();
+                return this.NotFound();
             }
         }
 
         [HttpGet("{id}/participants")]
         public async Task<ActionResult<IReadOnlyList<int>>> GetParticipantUserIds(int id)
         {
-            var userIds = await conversationRepository.GetParticipantUserIds(id);
+            var userIds = await this.conversationRepository.GetParticipantUserIds(id);
             return Ok(userIds);
         }
 
@@ -52,32 +53,34 @@ namespace BoardGames.Api.Controllers
         public async Task<ActionResult> CreateConversation([FromBody] CreateConversationRequest request)
         {
             if (request.SenderId <= 0 || request.ReceiverId <= 0 || request.SenderId == request.ReceiverId)
-                return BadRequest("Invalid conversation participants.");
+            {
+                return this.BadRequest("Invalid conversation participants.");
+            }
 
-            int conversationId = await conversationRepository.CreateConversation(request.SenderId, request.ReceiverId);
-            var created = await conversationRepository.GetConversationById(conversationId);
-            return CreatedAtAction(nameof(GetConversationById), new { id = conversationId }, created);
+            int conversationId = await this.conversationRepository.CreateConversation(request.SenderId, request.ReceiverId);
+            var created = await this.conversationRepository.GetConversationById(conversationId);
+            return CreatedAtAction(nameof(this.GetConversationById), new { id = conversationId }, created);
         }
 
         [HttpPost("messages")]
         public async Task<ActionResult<MessageDto>> SendMessage([FromBody] MessageDto messageDto)
         {
-            var message = MessageDtoToEntity(messageDto);
+            var message = this.MessageDtoToEntity(messageDto);
             message.MessageId = 0;
-            var persisted = await conversationRepository.HandleNewMessage(message);
-            return Ok(EntityToMessageDto(persisted));
+            var persisted = await this.conversationRepository.HandleNewMessage(message);
+            return this.Ok(EntityToMessageDto(persisted));
         }
 
         [HttpPut("messages")]
         public async Task<ActionResult<MessageDto>> UpdateMessage([FromBody] MessageDto messageDto)
         {
-            var updated = await conversationRepository.HandleMessageUpdate(MessageDtoToEntity(messageDto));
+            var updated = await this.conversationRepository.HandleMessageUpdate(this.MessageDtoToEntity(messageDto));
             if (updated is null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            return Ok(EntityToMessageDto(updated));
+            return this.Ok(EntityToMessageDto(updated));
         }
 
         [HttpPost("readreceipt")]
@@ -88,24 +91,32 @@ namespace BoardGames.Api.Controllers
                 readReceipt.ReaderId,
                 readReceipt.ReceiverId,
                 readReceipt.ReceiptTimeStamp);
-            await conversationRepository.HandleReadReceipt(dto);
-            return NoContent();
+            await this.conversationRepository.HandleReadReceipt(dto);
+            return this.NoContent();
         }
 
         [HttpPost("rental/finalize/{messageId}")]
         public async Task<ActionResult<MessageDto>> FinalizeRentalRequest(int messageId)
         {
-            var updated = await conversationRepository.HandleRentalRequestFinalization(messageId);
-            if (updated is null) return NotFound();
-            return Ok(EntityToMessageDto(updated));
+            var updated = await this.conversationRepository.HandleRentalRequestFinalization(messageId);
+            if (updated is null)
+            {
+                return this.NotFound();
+            }
+
+            return this.Ok(EntityToMessageDto(updated));
         }
 
         [HttpPost("cash/{parentMessageId}/{paymentId}")]
         public async Task<ActionResult<MessageDto>> CreateCashAgreementMessage(int parentMessageId, int paymentId)
         {
-            var created = await conversationRepository.CreateCashAgreementMessage(parentMessageId, paymentId);
-            if (created is null) return NotFound();
-            return Ok(EntityToMessageDto(created));
+            var created = await this.conversationRepository.CreateCashAgreementMessage(parentMessageId, paymentId);
+            if (created is null)
+            {
+                return this.NotFound();
+            }
+
+            return this.Ok(EntityToMessageDto(created));
         }
 
         private Message MessageDtoToEntity(MessageDto dto)

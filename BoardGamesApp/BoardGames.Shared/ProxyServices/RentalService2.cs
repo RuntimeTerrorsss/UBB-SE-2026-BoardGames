@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
+// <copyright file="RentalService2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
+using System.Net.Http.Json;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -17,24 +15,24 @@ namespace BoardGames.Shared.ProxyServices
         }
 
         public Task<ServiceResult<IReadOnlyList<RentalDTO>>> GetRentalsForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/rentals/renter/{renterAccountId}", cancellationToken);
+            => this.FetchListAsync($"api/rentals/renter/{renterAccountId}", cancellationToken);
 
         public Task<ServiceResult<IReadOnlyList<RentalDTO>>> GetRentalsForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/rentals/owner/{ownerAccountId}", cancellationToken);
+            => this.FetchListAsync($"api/rentals/owner/{ownerAccountId}", cancellationToken);
 
         public Task<ServiceResult<bool>> IsSlotAvailableAsync(int gameId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
         {
             var query = $"api/rentals/games/{gameId}/availability?startDate={Uri.EscapeDataString(startDate.ToString("o"))}&endDate={Uri.EscapeDataString(endDate.ToString("o"))}";
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.GetAsync(query, token),
                 (response, token) => ApiResponseReader.ReadJsonAsync<bool>(response, token),
                 cancellationToken);
         }
 
-        public Task<ServiceResult> CreateConfirmedRentalAsync(CreateRentalDataTransferObject rental, CancellationToken cancellationToken = default)
+        public Task<ServiceResult> CreateConfirmedRentalAsync(CreateRentalDTO rental, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PostAsJsonAsync("api/rentals", rental, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -43,7 +41,7 @@ namespace BoardGames.Shared.ProxyServices
 
         private Task<ServiceResult<IReadOnlyList<RentalDTO>>> FetchListAsync(string requestPath, CancellationToken cancellationToken)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<IReadOnlyList<RentalDTO>>(
                 token => client.GetAsync(requestPath, token),
                 async (response, token) =>

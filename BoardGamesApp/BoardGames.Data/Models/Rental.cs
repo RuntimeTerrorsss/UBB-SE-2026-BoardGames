@@ -1,5 +1,7 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="Rental.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,13 +14,13 @@ namespace BoardGames.Data.Models
 
         public Rental(int id, int gameId, int clientId, int ownerId, DateTime startDate, DateTime endDate, decimal? totalPrice = null)
         {
-            Id = id;
-            GameId = gameId;
-            ClientId = clientId;
-            OwnerId = ownerId;
-            StartDate = startDate;
-            EndDate = endDate;
-            TotalPrice = totalPrice;
+            this.Id = id;
+            this.GameId = gameId;
+            this.ClientId = clientId;
+            this.OwnerId = ownerId;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
+            this.TotalPrice = totalPrice;
         }
 
         [Key]
@@ -33,7 +35,6 @@ namespace BoardGames.Data.Models
 
         [Column("total_price")]
         public decimal? TotalPrice { get; set; }
-
 
         [Column("game_id")]
         public int GameId { get; set; }
@@ -51,8 +52,7 @@ namespace BoardGames.Data.Models
         public int OwnerId { get; set; }
 
         [ForeignKey(nameof(OwnerId))]
-        public User? Owner { get; set; } 
-
+        public User? Owner { get; set; }
 
         public Payment? Payment { get; set; }
 

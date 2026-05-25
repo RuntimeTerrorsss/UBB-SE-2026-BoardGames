@@ -1,25 +1,30 @@
+// <copyright file="FakeApiServices.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Immutable;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using ApiRequestService = BoardRentAndProperty.Api.Services.IRequestService;
-using ApiNotificationService = BoardRentAndProperty.Api.Services.INotificationService;
-using ApiResultCreate = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.CreateRequestError>;
-using ApiResultApprove = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.ApproveRequestError>;
-using ApiResultDeny = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.DenyRequestError>;
-using ApiResultCancel = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.CancelRequestError>;
-using ApiResultOffer = BoardRentAndProperty.Api.Services.Result<int, BoardRentAndProperty.Api.Services.OfferError>;
-using BookedDateRange = BoardRentAndProperty.Api.Services.BookedDateRange;
-using CreateRequestError = BoardRentAndProperty.Api.Services.CreateRequestError;
-using ApproveRequestError = BoardRentAndProperty.Api.Services.ApproveRequestError;
-using DenyRequestError = BoardRentAndProperty.Api.Services.DenyRequestError;
-using CancelRequestError = BoardRentAndProperty.Api.Services.CancelRequestError;
-using OfferError = BoardRentAndProperty.Api.Services.OfferError;
+using ApiRequestService = BoardGames.Api.Services.IRequestService;
+using ApiNotificationService = BoardGames.Api.Services.INotificationService;
+using ApiResultCreate = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.CreateRequestError>;
+using ApiResultApprove = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.ApproveRequestError>;
+using ApiResultDeny = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.DenyRequestError>;
+using ApiResultCancel = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.CancelRequestError>;
+using ApiResultOffer = BoardGames.Api.Services.Result<int, BoardGames.Api.Services.OfferError>;
+using BookedDateRange = BoardGames.Api.Services.BookedDateRange;
+using CreateRequestError = BoardGames.Api.Services.CreateRequestError;
+using ApproveRequestError = BoardGames.Api.Services.ApproveRequestError;
+using DenyRequestError = BoardGames.Api.Services.DenyRequestError;
+using CancelRequestError = BoardGames.Api.Services.CancelRequestError;
+using OfferError = BoardGames.Api.Services.OfferError;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Tests.Fakes
 {
     internal sealed class FakeApiRequestService : ApiRequestService
     {
         public int OnGameDeactivatedCallCount { get; private set; }
+
         public int LastDeactivatedGameId { get; private set; }
 
         public ImmutableList<RequestDTO> GetRequestsForRenter(Guid renterAccountId) =>
@@ -49,8 +54,8 @@ namespace BoardGames.Tests.Fakes
 
         public void OnGameDeactivated(int gameId)
         {
-            OnGameDeactivatedCallCount++;
-            LastDeactivatedGameId = gameId;
+            this.OnGameDeactivatedCallCount++;
+            this.LastDeactivatedGameId = gameId;
         }
 
         public bool CheckAvailability(int gameId, DateTime startDate, DateTime endDate) => true;
@@ -65,8 +70,11 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeApiNotificationService : ApiNotificationService
     {
         public int DeleteLinkedNotificationCallCount { get; private set; }
+
         public int SendNotificationCallCount { get; private set; }
+
         public int LastLinkedRequestId { get; private set; }
+
         public Guid LastRecipientAccountId { get; private set; }
 
         public ImmutableList<NotificationDTO> GetNotificationsForUser(Guid accountId) =>
@@ -82,14 +90,14 @@ namespace BoardGames.Tests.Fakes
 
         public void SendNotificationToUser(Guid recipientAccountId, NotificationDTO notificationDto)
         {
-            SendNotificationCallCount++;
-            LastRecipientAccountId = recipientAccountId;
+            this.SendNotificationCallCount++;
+            this.LastRecipientAccountId = recipientAccountId;
         }
 
         public void DeleteNotificationsLinkedToRequest(int relatedRequestId)
         {
-            DeleteLinkedNotificationCallCount++;
-            LastLinkedRequestId = relatedRequestId;
+            this.DeleteLinkedNotificationCallCount++;
+            this.LastLinkedRequestId = relatedRequestId;
         }
     }
 }

@@ -1,7 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+// <copyright file="UsersController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -10,47 +12,55 @@ namespace BoardGames.Api.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserRepository _repo;
+        private readonly IUserRepository repo;
 
-        public UsersController(IUserRepository repo)
+        public UsersController(IUserRepository repository)
         {
-            _repo = repo;
+            this.repo = repository;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _repo.GetById(id);
-            if (user == null) return NotFound();
-            return Ok(user);
+            var user = await this.repo.GetById(id);
+            if (user == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.Ok(user);
         }
 
         [HttpGet]
         public async Task<ActionResult<List<User>>> GetAll()
         {
-            return Ok(await _repo.GetAll());
+            return this.Ok(await this.repo.GetAll());
         }
 
         [HttpPut("{id}/address")]
         public async Task<ActionResult> SaveAddress(int id, [FromBody] Address address)
         {
-            await _repo.SaveAddress(id, address);
-            return NoContent();
+            await this.repo.SaveAddress(id, address);
+            return this.NoContent();
         }
 
         [HttpGet("{id}/balance")]
         public async Task<ActionResult<decimal>> GetBalance(int id)
         {
-            var user = await _repo.GetById(id);
-            if (user == null) return NotFound();
-            return Ok(user.Balance);
+            var user = await this.repo.GetById(id);
+            if (user == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.Ok(user.Balance);
         }
 
         [HttpPut("{id}/balance")]
         public async Task<ActionResult> UpdateBalance(int id, [FromBody] decimal newBalance)
         {
-            await _repo.UpdateBalance(id, newBalance);
-            return NoContent();
+            await this.repo.UpdateBalance(id, newBalance);
+            return this.NoContent();
         }
 
         [HttpPost("login")]
@@ -58,13 +68,16 @@ namespace BoardGames.Api.Controllers
         {
             if (request == null || string.IsNullOrWhiteSpace(request.EmailOrUsername) || string.IsNullOrWhiteSpace(request.Password))
             {
-                return BadRequest();
+                return this.BadRequest();
             }
 
-            var user = await _repo.Login(request.EmailOrUsername, request.Password);
-            if (user == null) return Unauthorized();
+            var user = await this.repo.Login(request.EmailOrUsername, request.Password);
+            if (user == null)
+            {
+                return this.Unauthorized();
+            }
 
-            return Ok(user);
+            return this.Ok(user);
         }
 
         public class LoginRequest
@@ -77,12 +90,13 @@ namespace BoardGames.Api.Controllers
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] User newUser)
         {
-            var success = await _repo.Register(newUser);
+            var success = await this.repo.Register(newUser);
             if (!success)
             {
-                return BadRequest("Registration failed. Username/Email already exists.");
+                return this.BadRequest("Registration failed. Username/Email already exists.");
             }
-            return Ok();
+
+            return this.Ok();
         }
     }
 }

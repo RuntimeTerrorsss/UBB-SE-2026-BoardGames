@@ -1,4 +1,6 @@
-using System;
+// <copyright file="ReadReceiptDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Data.Models
 {

@@ -1,11 +1,11 @@
+// <copyright file="NotificationsViewModelTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -21,9 +21,9 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            notificationService = new FakeClientNotificationService();
-            currentUserContext = new FakeCurrentUserContext { CurrentUserId = currentUserId };
-            serverClient = new FakeServerClient
+            this.notificationService = new FakeClientNotificationService();
+            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.currentUserId };
+            this.serverClient = new FakeServerClient
             {
                 ConnectionStatus = NotificationConnectionStatus.Connected,
             };
@@ -32,14 +32,14 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task Constructor_LoadsNotificationsForCurrentUser()
         {
-            notificationService.NotificationsForUser = ImmutableList.Create(
-                    new NotificationDTO { Id = 1, Recipient = new UserDTO { Id = currentUserId }, Title = "a", Body = "b" },
-                    new NotificationDTO { Id = 2, Recipient = new UserDTO { Id = currentUserId }, Title = "c", Body = "d" });
+            this.notificationService.NotificationsForUser = ImmutableList.Create(
+                    new NotificationDTO { Id = 1, Recipient = new UserDTO { Id = this.currentUserId }, Title = "a", Body = "b" },
+                    new NotificationDTO { Id = 2, Recipient = new UserDTO { Id = this.currentUserId }, Title = "c", Body = "d" });
 
             using var viewModel = new NotificationsViewModel(
-                notificationService,
-                currentUserContext,
-                serverClient);
+                this.notificationService,
+                this.currentUserContext,
+                this.serverClient);
             await viewModel.LoadCurrentUserNotificationsAsync();
 
             Assert.That(viewModel.PagedItems.Count, Is.EqualTo(2));
@@ -48,17 +48,17 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task DeleteNotificationByIdentifier_CallsServiceDelete()
         {
-            notificationService.NotificationsForUser = ImmutableList<NotificationDTO>.Empty;
+            this.notificationService.NotificationsForUser = ImmutableList<NotificationDTO>.Empty;
 
             using var viewModel = new NotificationsViewModel(
-                notificationService,
-                currentUserContext,
-                serverClient);
+                this.notificationService,
+                this.currentUserContext,
+                this.serverClient);
 
             await viewModel.DeleteNotificationByIdentifierAsync(7);
 
-            Assert.That(notificationService.DeleteNotificationCallCount, Is.EqualTo(1));
-            Assert.That(notificationService.LastDeletedNotificationId, Is.EqualTo(7));
+            Assert.That(this.notificationService.DeleteNotificationCallCount, Is.EqualTo(1));
+            Assert.That(this.notificationService.LastDeletedNotificationId, Is.EqualTo(7));
         }
     }
 }

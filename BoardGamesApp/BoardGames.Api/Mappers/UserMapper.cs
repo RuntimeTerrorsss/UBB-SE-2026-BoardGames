@@ -1,11 +1,15 @@
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+// <copyright file="UserMapper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Mappers
 {
     public class UserMapper
     {
-        public UserDTO? ToDTO(Account? account)
+        public UserDTO? ToDTO(User? account)
         {
             if (account == null)
             {
@@ -19,14 +23,14 @@ namespace BoardGames.Api.Mappers
             };
         }
 
-        public Account? ToModel(UserDTO? dto)
+        public User? ToModel(UserDTO? dto)
         {
             if (dto == null)
             {
                 return null;
             }
 
-            return new Account { Id = dto.Id, DisplayName = dto.DisplayName };
+            return new User { Id = dto.Id, DisplayName = dto.DisplayName };
         }
     }
 }

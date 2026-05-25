@@ -1,18 +1,16 @@
-﻿// <copyright file="IConversationService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="IConversationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public interface IConversationService
     {
         void Initialize(int userIdInput);
+
         void OnMessageReceived(Message message);
 
         void OnMessageUpdateReceived(Message message);
@@ -25,9 +23,9 @@ namespace BoardGames.Api.Services
 
         Task<string> GetOtherUserNameByConversationDTO(ConversationDTO conversation);
 
-        Task UpdateMessage(MessageDataTransferObject message);
+        Task UpdateMessage(MessageDTO message);
 
-        Task SendMessage(MessageDataTransferObject message);
+        Task SendMessage(MessageDTO message);
 
         Task OnCardPaymentSelected(int messageId);
 
@@ -39,12 +37,12 @@ namespace BoardGames.Api.Services
 
         void StopPolling();
 
-        event Action<MessageDataTransferObject, string> ActionMessageProcessed;
+        event Action<MessageDTO, string> ActionMessageProcessed;
 
         event Action<ConversationDTO, string> ActionConversationProcessed;
 
         event Action<ReadReceiptDTO> ActionReadReceiptProcessed;
 
-        event Action<MessageDataTransferObject, string> ActionMessageUpdateProcessed;
+        event Action<MessageDTO, string> ActionMessageUpdateProcessed;
     }
 }

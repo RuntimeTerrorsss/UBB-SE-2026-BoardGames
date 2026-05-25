@@ -1,7 +1,3 @@
-using System;
-using System.Net;
-using BoardRentAndProperty.ApiClient;
-
 namespace BoardGames.Desktop.Services
 {
     public static class RequestErrorMapper

@@ -1,4 +1,7 @@
-using BoardRentAndProperty.ViewModels;
+// <copyright file="PriceInputParserTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

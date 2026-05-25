@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
+// <copyright file="AdminService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
+using System.Net.Http.Json;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -16,43 +14,43 @@ namespace BoardGames.Shared.ProxyServices
         {
         }
 
-        public Task<ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>> GetAllAccountsAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        public Task<ServiceResult<IReadOnlyList<AccountProfileDTO>>> GetAllAccountsAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
-            return ApiResponseReader.SendAsync<IReadOnlyList<AccountProfileDataTransferObject>>(
+            var client = this.CreateClient();
+            return ApiResponseReader.SendAsync<IReadOnlyList<AccountProfileDTO>>(
                 token => client.GetAsync($"api/admin/accounts?page={page}&pageSize={pageSize}", token),
                 async (response, token) =>
                 {
-                    var result = await ApiResponseReader.ReadJsonAsync<List<AccountProfileDataTransferObject>>(response, token);
+                    var result = await ApiResponseReader.ReadJsonAsync<List<AccountProfileDTO>>(response, token);
                     if (!result.Success)
                     {
-                        return ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>.Fail(result);
+                        return ServiceResult<IReadOnlyList<AccountProfileDTO>>.Fail(result);
                     }
 
-                    var profiles = result.Data ?? new List<AccountProfileDataTransferObject>();
+                    var profiles = result.Data ?? new List<AccountProfileDTO>();
                     foreach (var profile in profiles)
                     {
                         ApiUrlHelper.RebaseAvatarUrl(client.BaseAddress!, profile);
                     }
 
-                    return ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>.Ok(profiles);
+                    return ServiceResult<IReadOnlyList<AccountProfileDTO>>.Ok(profiles);
                 },
                 cancellationToken);
         }
 
         public Task<ServiceResult> SuspendAccountAsync(Guid accountId, CancellationToken cancellationToken = default)
-            => SendStatusOnlyAsync(client => client.PutAsync($"api/admin/accounts/{accountId}/suspend", content: null, cancellationToken), cancellationToken);
+            => this.SendStatusOnlyAsync(client => client.PutAsync($"api/admin/accounts/{accountId}/suspend", content: null, cancellationToken), cancellationToken);
 
         public Task<ServiceResult> UnsuspendAccountAsync(Guid accountId, CancellationToken cancellationToken = default)
-            => SendStatusOnlyAsync(client => client.PutAsync($"api/admin/accounts/{accountId}/unsuspend", content: null, cancellationToken), cancellationToken);
+            => this.SendStatusOnlyAsync(client => client.PutAsync($"api/admin/accounts/{accountId}/unsuspend", content: null, cancellationToken), cancellationToken);
 
         public Task<ServiceResult> UnlockAccountAsync(Guid accountId, CancellationToken cancellationToken = default)
-            => SendStatusOnlyAsync(client => client.PutAsync($"api/admin/accounts/{accountId}/unlock", content: null, cancellationToken), cancellationToken);
+            => this.SendStatusOnlyAsync(client => client.PutAsync($"api/admin/accounts/{accountId}/unlock", content: null, cancellationToken), cancellationToken);
 
         public Task<ServiceResult> ResetPasswordAsync(Guid accountId, string newPassword, CancellationToken cancellationToken = default)
         {
-            var body = new ResetPasswordDataTransferObject { NewPassword = newPassword };
-            var client = CreateClient();
+            var body = new ResetPasswordDTO { NewPassword = newPassword };
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PutAsJsonAsync($"api/admin/accounts/{accountId}/reset-password", body, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -61,7 +59,7 @@ namespace BoardGames.Shared.ProxyServices
 
         private Task<ServiceResult> SendStatusOnlyAsync(Func<HttpClient, Task<HttpResponseMessage>> send, CancellationToken cancellationToken)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 _ => send(client),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),

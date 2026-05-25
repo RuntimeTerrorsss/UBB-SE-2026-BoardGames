@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+// <copyright file="AccountService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Api.Mappers;
 using BoardGames.Api.Security;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -19,29 +20,30 @@ namespace BoardGames.Api.Services
         private readonly AccountProfileMapper accountProfileMapper;
         private readonly IAvatarStorageService avatarStorageService;
 
-        public AccountService(IAccountRepository accountRepository,
-                              AccountProfileMapper accountProfileMapper,
-                              IAvatarStorageService avatarStorageService)
+        public AccountService(
+            IAccountRepository accountRepository,
+            AccountProfileMapper accountProfileMapper,
+            IAvatarStorageService avatarStorageService)
         {
             this.accountRepository = accountRepository;
             this.accountProfileMapper = accountProfileMapper;
             this.avatarStorageService = avatarStorageService;
         }
 
-        public async Task<ServiceResult<AccountProfileDataTransferObject>> GetProfileAsync(Guid accountId)
+        public async Task<ServiceResult<AccountProfileDTO>> GetProfileAsync(Guid accountId)
         {
-            var accountEntity = await accountRepository.GetByIdAsync(accountId);
+            var accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("Account not found.");
+                return ServiceResult<AccountProfileDTO>.Fail("Account not found.");
             }
 
-            return ServiceResult<AccountProfileDataTransferObject>.Ok(accountProfileMapper.ToDataTransferObject(accountEntity)!);
+            return ServiceResult<AccountProfileDTO>.Ok(this.accountProfileMapper.ToDTO(accountEntity)!);
         }
 
-        public async Task<ServiceResult<bool>> UpdateProfileAsync(Guid accountId, AccountProfileDataTransferObject profileUpdateData)
+        public async Task<ServiceResult<bool>> UpdateProfileAsync(Guid accountId, AccountProfileDTO profileUpdateData)
         {
-            var accountEntity = await accountRepository.GetByIdAsync(accountId);
+            var accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
@@ -51,7 +53,7 @@ namespace BoardGames.Api.Services
 
             if (!string.IsNullOrWhiteSpace(profileUpdateData.Email) && profileUpdateData.Email != accountEntity.Email)
             {
-                var accountWithDuplicateEmail = await accountRepository.GetByEmailAsync(profileUpdateData.Email);
+                var accountWithDuplicateEmail = await this.accountRepository.GetByEmailAsync(profileUpdateData.Email);
                 if (accountWithDuplicateEmail != null && accountWithDuplicateEmail.Id != accountId)
                 {
                     validationErrors.Add("Email|This email address is already taken by another account.");
@@ -63,15 +65,15 @@ namespace BoardGames.Api.Services
                 return ServiceResult<bool>.Fail(string.Join(";", validationErrors));
             }
 
-            accountProfileMapper.ApplyToEntity(accountEntity, profileUpdateData);
-            await accountRepository.UpdateAsync(accountEntity);
+            this.accountProfileMapper.ApplyToEntity(accountEntity, profileUpdateData);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<bool>> ChangePasswordAsync(Guid accountId, string currentPassword, string newPassword)
         {
-            var accountEntity = await accountRepository.GetByIdAsync(accountId);
+            var accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
@@ -91,14 +93,14 @@ namespace BoardGames.Api.Services
             accountEntity.PasswordHash = PasswordHasher.HashPassword(newPassword);
             accountEntity.UpdatedAt = DateTime.UtcNow;
 
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<string>> SetAvatarUrlAsync(Guid accountId, string avatarRelativeUrl)
         {
-            var accountEntity = await accountRepository.GetByIdAsync(accountId);
+            var accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<string>.Fail("Account not found.");
@@ -107,14 +109,14 @@ namespace BoardGames.Api.Services
             accountEntity.AvatarUrl = avatarRelativeUrl;
             accountEntity.UpdatedAt = DateTime.UtcNow;
 
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<string>.Ok(avatarRelativeUrl);
         }
 
         public async Task<ServiceResult<bool>> RemoveAvatarAsync(Guid accountId)
         {
-            var accountEntity = await accountRepository.GetByIdAsync(accountId);
+            var accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
@@ -122,18 +124,18 @@ namespace BoardGames.Api.Services
 
             if (!string.IsNullOrWhiteSpace(accountEntity.AvatarUrl))
             {
-                avatarStorageService.Delete(accountEntity.AvatarUrl);
+                this.avatarStorageService.Delete(accountEntity.AvatarUrl);
             }
 
             accountEntity.AvatarUrl = string.Empty;
             accountEntity.UpdatedAt = DateTime.UtcNow;
 
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
-        private static List<string> ValidateProfileDetails(AccountProfileDataTransferObject profileData)
+        private static List<string> ValidateProfileDetails(AccountProfileDTO profileData)
         {
             var errors = new List<string>();
 

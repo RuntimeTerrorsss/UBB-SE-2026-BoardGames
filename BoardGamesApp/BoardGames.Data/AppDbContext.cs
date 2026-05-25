@@ -1,6 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+// <copyright file="AppDbContext.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -23,19 +24,30 @@ namespace BoardGames.Data
 
         // DbSets from project 1
         public DbSet<User> Users { get; set; }
+
         public DbSet<Game> Games { get; set; }
+
         public DbSet<Rental> Rentals { get; set; }
+
         public DbSet<Payment> Payments { get; set; }
+
         public DbSet<Conversation> Conversations { get; set; }
+
         public DbSet<Message> Messages { get; set; }
+
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
+
         public DbSet<City> Cities { get; set; }
 
         // DbSets from project 2
         public DbSet<Role> Roles { get; set; }
+
         public DbSet<AccountRole> AccountRoles { get; set; }
+
         public DbSet<FailedLoginAttempt> FailedLoginAttempts { get; set; }
+
         public DbSet<Request> Requests { get; set; }
+
         public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -259,13 +271,11 @@ namespace BoardGames.Data
                 .Property(city => city.Names)
                 .HasConversion(
                     namesList => string.Join(',', namesList),
-                    commaSeparatedNames => commaSeparatedNames.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
-                )
+                    commaSeparatedNames => commaSeparatedNames.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList())
                 .Metadata.SetValueComparer(new ValueComparer<List<string>>(
                     (list1, list2) => list1.SequenceEqual(list2),
                     namesList => namesList.Aggregate(0, (accumulator, name) => HashCode.Combine(accumulator, name.GetHashCode())),
-                    namesList => namesList.ToList()
-                ));
+                    namesList => namesList.ToList()));
 
             SeedData(modelBuilder);
         }

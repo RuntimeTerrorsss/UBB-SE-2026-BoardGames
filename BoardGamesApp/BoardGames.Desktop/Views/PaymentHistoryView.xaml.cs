@@ -3,9 +3,6 @@
 // </copyright>
 
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Sharing.DTO;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 namespace BookingBoardGames.Src.Views
 {
@@ -27,7 +24,7 @@ namespace BookingBoardGames.Src.Views
 
         public void OnReceiptButtonClicked(object sender, RoutedEventArgs routedArgs)
         {
-            if (sender is Button clickedButton && clickedButton.DataContext is PaymentDataTransferObject selectedPayment)
+            if (sender is Button clickedButton && clickedButton.DataContext is PaymentDTO selectedPayment)
             {
                 if (this.ViewModel.OpenReceiptCommand != null && this.ViewModel.OpenReceiptCommand.CanExecute(selectedPayment))
                 {
@@ -36,7 +33,7 @@ namespace BookingBoardGames.Src.Views
             }
 
             // fallback for null
-            else if (sender is Button fallbackButton && fallbackButton.Tag is PaymentDataTransferObject fallbackPayment)
+            else if (sender is Button fallbackButton && fallbackButton.Tag is PaymentDTO fallbackPayment)
             {
                 if (this.ViewModel.OpenReceiptCommand != null && this.ViewModel.OpenReceiptCommand.CanExecute(fallbackPayment))
                 {

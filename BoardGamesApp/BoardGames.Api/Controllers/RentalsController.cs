@@ -1,9 +1,10 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="RentalsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Globalization;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -36,24 +37,32 @@ namespace BoardGames.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Rental>> GetRental(int id)
         {
-            var rental = await rentalRepository.GetById(id);
-            if (rental == null) return NotFound();
-            return Ok(rental);
+            var rental = await this.rentalRepository.GetById(id);
+            if (rental == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.Ok(rental);
         }
 
         [HttpGet("game/{gameId}/unavailable")]
         public async Task<ActionResult<List<TimeRange>>> GetUnavailable(int gameId)
         {
-            var list = await rentalRepository.GetUnavailableTimeRanges(gameId);
-            return Ok(list);
+            var list = await this.rentalRepository.GetUnavailableTimeRanges(gameId);
+            return this.Ok(list);
         }
 
         [HttpGet("{id}/timerange")]
         public async Task<ActionResult<TimeRange>> GetRentalTimeRange(int id)
         {
-            var range = await rentalRepository.GetRentalTimeRange(id);
-            if (range == null) return NotFound();
-            return Ok(range);
+            var range = await this.rentalRepository.GetRentalTimeRange(id);
+            if (range == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.Ok(range);
         }
 
         [HttpGet("user/{userId}")]
@@ -61,11 +70,11 @@ namespace BoardGames.Api.Controllers
         {
             if (userId <= 0)
             {
-                return BadRequest("A valid user id is required.");
+                return this.BadRequest("A valid user id is required.");
             }
 
-            var rentals = await rentalRepository.GetRentalsForUser(userId);
-            return Ok(rentals);
+            var rentals = await this.rentalRepository.GetRentalsForUser(userId);
+            return this.Ok(rentals);
         }
 
         [HttpPost("book")]
@@ -73,7 +82,7 @@ namespace BoardGames.Api.Controllers
         {
             if (request.ClientId <= 0)
             {
-                return BadRequest("A valid renter account is required.");
+                return this.BadRequest("A valid renter account is required.");
             }
 
             request = request with
@@ -84,28 +93,28 @@ namespace BoardGames.Api.Controllers
 
             if (request.EndDate < request.StartDate)
             {
-                return BadRequest("End date must be on or after the start date.");
+                return this.BadRequest("End date must be on or after the start date.");
             }
 
-            var game = await gamesRepository.GetGameById(request.GameId);
+            var game = await this.gamesRepository.GetGameById(request.GameId);
             if (game == null)
             {
-                return NotFound($"Game with id {request.GameId} was not found.");
+                return this.NotFound($"Game with id {request.GameId} was not found.");
             }
 
             if (request.ClientId == game.OwnerId)
             {
-                return BadRequest("You cannot rent your own game listing.");
+                return this.BadRequest("You cannot rent your own game listing.");
             }
 
-            bool available = await rentalRepository.CheckGameAvailability(
+            bool available = await this.rentalRepository.CheckGameAvailability(
                 request.StartDate,
                 request.EndDate,
                 request.GameId);
 
             if (!available)
             {
-                return Conflict("This game is not available for the selected dates.");
+                return this.Conflict("This game is not available for the selected dates.");
             }
 
             int bookingDays = (request.EndDate - request.StartDate).Days + MinimumValidDayCount;
@@ -123,9 +132,9 @@ namespace BoardGames.Api.Controllers
                 game.OwnerId,
                 totalPrice);
 
-            await rentalRepository.AddRental(rental);
+            await this.rentalRepository.AddRental(rental);
 
-            int conversationId = await conversationRepository.FindOrCreateConversationBetweenUsers(
+            int conversationId = await this.conversationRepository.FindOrCreateConversationBetweenUsers(
                 request.ClientId,
                 game.OwnerId);
 
@@ -150,22 +159,22 @@ namespace BoardGames.Api.Controllers
                 Receiver = null!,
             };
 
-            await conversationRepository.HandleNewMessage(rentalRequestMessage);
+            await this.conversationRepository.HandleNewMessage(rentalRequestMessage);
             return this.Ok(rental.RentalId);
         }
 
         [HttpPost]
         public async Task<ActionResult> CreateRental([FromBody] Rental rental)
         {
-            await rentalRepository.AddRental(rental);
+            await this.rentalRepository.AddRental(rental);
             return Ok(rental.RentalId);
         }
 
         [HttpPost("{id}/check")]
         public async Task<ActionResult<bool>> CheckAvailability(int id, [FromBody] TimeRange range)
         {
-            var available = await rentalRepository.CheckGameAvailability(range.StartTime, range.EndTime, id);
-            return Ok(available);
+            var available = await this.rentalRepository.CheckGameAvailability(range.StartTime, range.EndTime, id);
+            return this.Ok(available);
         }
     }
 }

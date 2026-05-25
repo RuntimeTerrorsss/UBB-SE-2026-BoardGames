@@ -1,7 +1,6 @@
-﻿// <copyright file="ICashPaymentMapper.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ICashPaymentMapper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
 
 // <copyright file="ICashPaymentMapper.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
@@ -13,8 +12,8 @@ namespace BoardGames.Api.Mappers
 {
     public interface ICashPaymentMapper
     {
-        public Payment TurnDataTransferObjectIntoEntity(CashPaymentDataTransferObject paymentDto);
+        public Payment TurnDTOIntoEntity(CashPaymentDTO paymentDto);
 
-        public CashPaymentDataTransferObject TurnEntityIntoDataTransferObject(Payment payment);
+        public CashPaymentDTO TurnEntityIntoDTO(Payment payment);
     }
 }

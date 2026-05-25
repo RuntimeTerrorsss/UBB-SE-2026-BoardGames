@@ -1,7 +1,9 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="UsersController2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -20,7 +22,7 @@ namespace BoardGames.Api.Controllers
         [HttpGet("except/{excludeAccountId:guid}")]
         public ActionResult<IReadOnlyList<UserDTO>> GetUsersExcept(Guid excludeAccountId)
         {
-            return Ok(userService.GetUsersExcept(excludeAccountId));
+            return this.Ok(this.userService.GetUsersExcept(excludeAccountId));
         }
     }
 }

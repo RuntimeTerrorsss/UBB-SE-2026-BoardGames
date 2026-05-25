@@ -1,3 +1,7 @@
+// <copyright file="GameRepository2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 /*
 using System;
 using System.Collections.Generic;
