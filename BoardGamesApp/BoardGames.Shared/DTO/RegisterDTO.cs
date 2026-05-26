@@ -1,6 +1,6 @@
 namespace BoardGames.Shared.DTO
 {
-    public class RegisterDataTransferObject
+    public class RegisterDTO
     {
         public string DisplayName { get; set; }
 

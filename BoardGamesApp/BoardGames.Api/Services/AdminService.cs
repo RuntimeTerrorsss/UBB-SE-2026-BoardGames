@@ -21,11 +21,11 @@ namespace BoardGames.Api.Services
             this.failedLoginRepository = failedLoginRepository;
         }
 
-        public async Task<ServiceResult<List<AccountProfileDataTransferObject>>> GetAllAccountsAsync(int pageNumber, int pageSize)
+        public async Task<ServiceResult<List<AccountProfileDTO>>> GetAllAccountsAsync(int pageNumber, int pageSize)
         {
             List<Account> accountEntities = await accountRepository.GetAllAsync(pageNumber, pageSize);
 
-            List<AccountProfileDataTransferObject> accountProfileDtos = new List<AccountProfileDataTransferObject>();
+            List<AccountProfileDTO> accountProfileDtos = new List<AccountProfileDTO>();
 
             foreach (Account accountEntity in accountEntities)
             {
@@ -36,7 +36,7 @@ namespace BoardGames.Api.Services
                     && failedAttempt.LockedUntil.HasValue
                     && failedAttempt.LockedUntil.Value > DateTime.UtcNow;
 
-                accountProfileDtos.Add(new AccountProfileDataTransferObject
+                accountProfileDtos.Add(new AccountProfileDTO
                 {
                     Id = accountEntity.Id,
                     PamUserId = accountEntity.PamUserId,
@@ -45,7 +45,7 @@ namespace BoardGames.Api.Services
                     Email = accountEntity.Email,
                     PhoneNumber = accountEntity.PhoneNumber,
                     AvatarUrl = accountEntity.AvatarUrl,
-                    Role = new RoleDataTransferObject
+                    Role = new RoleDTO
                     {
                         Id = firstRole?.Id ?? Guid.Empty,
                         Name = firstRole?.Name ?? "Standard User",
@@ -59,7 +59,7 @@ namespace BoardGames.Api.Services
                 });
             }
 
-            return ServiceResult<List<AccountProfileDataTransferObject>>.Ok(accountProfileDtos);
+            return ServiceResult<List<AccountProfileDTO>>.Ok(accountProfileDtos);
         }
 
         public async Task<ServiceResult<bool>> SuspendAccountAsync(Guid accountId)
@@ -92,11 +92,9 @@ namespace BoardGames.Api.Services
 
         public async Task<ServiceResult<bool>> ResetPasswordAsync(Guid accountId, string newPassword)
         {
-            const int MinimumPasswordLength = 6;
-            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < MinimumPasswordLength)
-            {
-                return ServiceResult<bool>.Fail("Password must be at least 6 characters long.");
-            }
+            var (isPasswordValid, passwordErrorMessage) = PasswordValidator.Validate(newPassword);
+            if (!isPasswordValid)
+                return ServiceResult<bool>.Fail(passwordErrorMessage ?? "Password is invalid");
 
             Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)

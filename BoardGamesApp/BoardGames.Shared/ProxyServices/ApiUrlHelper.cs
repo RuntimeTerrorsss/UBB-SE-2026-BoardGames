@@ -20,7 +20,7 @@ namespace BoardGames.Shared.ProxyServices
             return new Uri(apiBaseAddress, relativeOrAbsoluteUrl).ToString();
         }
 
-        public static void RebaseAvatarUrl(Uri apiBaseAddress, AccountProfileDataTransferObject profile)
+        public static void RebaseAvatarUrl(Uri apiBaseAddress, AccountProfileDTO profile)
         {
             if (profile == null)
             {

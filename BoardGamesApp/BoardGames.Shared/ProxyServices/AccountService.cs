@@ -17,14 +17,14 @@ namespace BoardGames.Shared.ProxyServices
         {
         }
 
-        public Task<ServiceResult<AccountProfileDataTransferObject>> GetProfileAsync(Guid accountId, CancellationToken cancellationToken = default)
+        public Task<ServiceResult<AccountProfileDTO>> GetProfileAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
-            return ApiResponseReader.SendAsync<AccountProfileDataTransferObject>(
+            return ApiResponseReader.SendAsync<AccountProfileDTO>(
                 token => client.GetAsync($"api/accounts/{accountId}", token),
                 async (response, token) =>
                 {
-                    var result = await ApiResponseReader.ReadJsonAsync<AccountProfileDataTransferObject>(response, token);
+                    var result = await ApiResponseReader.ReadJsonAsync<AccountProfileDTO>(response, token);
                     if (result.Success && result.Data is not null)
                     {
                         ApiUrlHelper.RebaseAvatarUrl(client.BaseAddress!, result.Data);
@@ -35,7 +35,7 @@ namespace BoardGames.Shared.ProxyServices
                 cancellationToken);
         }
 
-        public Task<ServiceResult> UpdateProfileAsync(Guid accountId, AccountProfileDataTransferObject profileUpdateData, CancellationToken cancellationToken = default)
+        public Task<ServiceResult> UpdateProfileAsync(Guid accountId, AccountProfileDTO profileUpdateData, CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
             return ApiResponseReader.SendAsync(
@@ -46,7 +46,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> ChangePasswordAsync(Guid accountId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
         {
-            var body = new ChangePasswordDataTransferObject
+            var body = new ChangePasswordDTO
             {
                 CurrentPassword = currentPassword,
                 NewPassword = newPassword,
@@ -72,7 +72,7 @@ namespace BoardGames.Shared.ProxyServices
                 multipartContent.Add(byteContent, "file", Path.GetFileName(sourceFilePath));
 
                 using var response = await client.PostAsync($"api/accounts/{accountId}/avatar", multipartContent, cancellationToken);
-                var result = await ApiResponseReader.ReadJsonAsync<AvatarUploadResponseDataTransferObject>(response, cancellationToken);
+                var result = await ApiResponseReader.ReadJsonAsync<AvatarUploadResponseDTO>(response, cancellationToken);
                 if (!result.Success)
                 {
                     return ServiceResult<string>.Fail(result);

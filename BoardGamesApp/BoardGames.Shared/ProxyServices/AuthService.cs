@@ -14,7 +14,7 @@ namespace BoardGames.Shared.ProxyServices
         {
         }
 
-        public Task<ServiceResult> RegisterAsync(RegisterDataTransferObject request, CancellationToken cancellationToken = default)
+        public Task<ServiceResult> RegisterAsync(RegisterDTO request, CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
             return ApiResponseReader.SendAsync(
@@ -23,14 +23,14 @@ namespace BoardGames.Shared.ProxyServices
                 cancellationToken);
         }
 
-        public Task<ServiceResult<AccountProfileDataTransferObject>> LoginAsync(LoginDataTransferObject request, CancellationToken cancellationToken = default)
+        public Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO request, CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
-            return ApiResponseReader.SendAsync<AccountProfileDataTransferObject>(
+            return ApiResponseReader.SendAsync<AccountProfileDTO>(
                 token => client.PostAsJsonAsync("api/auth/login", request, token),
                 async (response, token) =>
                 {
-                    var result = await ApiResponseReader.ReadJsonAsync<AccountProfileDataTransferObject>(response, token);
+                    var result = await ApiResponseReader.ReadJsonAsync<AccountProfileDTO>(response, token);
                     if (result.Success && result.Data is not null)
                     {
                         ApiUrlHelper.RebaseAvatarUrl(client.BaseAddress!, result.Data);

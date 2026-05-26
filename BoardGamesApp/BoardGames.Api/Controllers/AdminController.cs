@@ -5,11 +5,18 @@ using BoardGames.Api.Services;
 using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/admin")]
+    [Authorize(Roles = "Admin")]
+    /* Task 7 must register IAuthService, IAccountService, IAdminService, 
+     * IAvatarStorageService, IAccountRepository, 
+     * and IFailedLoginRepository in the DI container.
+     
+     Also, middleware so the "Admin" role is extracted correctly*/
     public class AdminController : ControllerBase
     {
         private const int DefaultPageNumber = 1;
@@ -23,7 +30,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("accounts")]
-        public async Task<ActionResult<List<AccountProfileDataTransferObject>>> GetAccounts(
+        public async Task<ActionResult<List<AccountProfileDTO>>> GetAccounts(
             [FromQuery] int page = DefaultPageNumber,
             [FromQuery] int pageSize = DefaultPageSize)
         {
@@ -61,7 +68,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("accounts/{accountId:guid}/reset-password")]
-        public async Task<IActionResult> ResetPassword(Guid accountId, [FromBody] ResetPasswordDataTransferObject body)
+        public async Task<IActionResult> ResetPassword(Guid accountId, [FromBody] ResetPasswordDTO body)
         {
             var result = await adminService.ResetPasswordAsync(accountId, body.NewPassword);
             if (!result.Success)

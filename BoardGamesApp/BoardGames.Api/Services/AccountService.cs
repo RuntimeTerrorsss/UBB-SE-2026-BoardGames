@@ -19,28 +19,39 @@ namespace BoardGames.Api.Services
         private readonly IAccountRepository accountRepository;
         private readonly AccountProfileMapper accountProfileMapper;
         private readonly IAvatarStorageService avatarStorageService;
+        private readonly IFailedLoginRepository failedLoginRepository;
 
         public AccountService(IAccountRepository accountRepository,
                               AccountProfileMapper accountProfileMapper,
-                              IAvatarStorageService avatarStorageService)
+                              IAvatarStorageService avatarStorageService,
+                              IFailedLoginRepository failedLoginRepository)
         {
             this.accountRepository = accountRepository;
             this.accountProfileMapper = accountProfileMapper;
             this.avatarStorageService = avatarStorageService;
+            this.failedLoginRepository = failedLoginRepository;
         }
 
-        public async Task<ServiceResult<AccountProfileDataTransferObject>> GetProfileAsync(Guid accountId)
+        public async Task<ServiceResult<AccountProfileDTO>> GetProfileAsync(Guid accountId)
         {
             var accountEntity = await accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("Account not found.");
+                return ServiceResult<AccountProfileDTO>.Fail("Account not found.");
             }
 
-            return ServiceResult<AccountProfileDataTransferObject>.Ok(accountProfileMapper.ToDataTransferObject(accountEntity)!);
+            var failedAttempt = await failedLoginRepository.GetByAccountIdAsync(accountId);
+
+            bool isLocked = failedAttempt?.LockedUntil.HasValue == true
+                && failedAttempt.LockedUntil.Value > DateTime.UtcNow;
+
+            var dto = accountProfileMapper.ToDataTransferObject(accountEntity)!;
+            dto.IsLocked = isLocked;
+
+            return ServiceResult<AccountProfileDTO>.Ok(dto);
         }
 
-        public async Task<ServiceResult<bool>> UpdateProfileAsync(Guid accountId, AccountProfileDataTransferObject profileUpdateData)
+        public async Task<ServiceResult<bool>> UpdateProfileAsync(Guid accountId, AccountProfileDTO profileUpdateData)
         {
             var accountEntity = await accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
@@ -134,7 +145,7 @@ namespace BoardGames.Api.Services
             return ServiceResult<bool>.Ok(true);
         }
 
-        private static List<string> ValidateProfileDetails(AccountProfileDataTransferObject profileData)
+        private static List<string> ValidateProfileDetails(AccountProfileDTO profileData)
         {
             var errors = new List<string>();
 
