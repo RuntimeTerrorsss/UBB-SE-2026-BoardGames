@@ -32,7 +32,7 @@
             <Button x:Name="NotificationsButton" Content="Notifications" Click="NotificationsButton_Click"/>
             <Button x:Name="DashboardButton" Content="Dashboard" Click="DashboardButton_Click"/>
             <Button x:Name="ChatButton" Content="Chat" Click="ChatButton_Click"/>
-            <Button x:Name="LogoutButton" Content="Logout" Click="LogoutButton_Click"/>
+            <Button x:Name="AccountButton" Content="Account" Click="AccountButton_Click"/>
         </StackPanel>
 
         

@@ -127,12 +127,12 @@ namespace BoardGames.Desktop.Views
             this.Frame.Navigate(typeof(LoginView));
         }
 
-        private void LogoutButton_Click(object sender, RoutedEventArgs routedArgs)
-        {
-            AuthSession.Clear(App.Session);
-            this.UpdateAuthUi();
-            this.Frame.Navigate(typeof(LoginView));
-        }
+        //private void LogoutButton_Click(object sender, RoutedEventArgs routedArgs)
+        //{
+        //    AuthSession.Clear(App.Session);
+        //    this.UpdateAuthUi();
+        //    this.Frame.Navigate(typeof(LoginView));
+        //}
 
         private void ChatButton_Click(object sender, RoutedEventArgs routedArgs)
         {
@@ -176,6 +176,17 @@ namespace BoardGames.Desktop.Views
             }
 
             this.Frame.Navigate(typeof(ListingsPage));
+        }
+
+        private void AccountButton_Click(object sender, RoutedEventArgs routedArgs)
+        {
+            if (!AuthSession.IsLoggedIn)
+            {
+                _ = this.ShowLoginRequiredDialogAsync();
+                return;
+            }
+
+            this.Frame.Navigate(typeof(ProfilePage));
         }
     }
 }
