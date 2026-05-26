@@ -5,15 +5,15 @@ using BookingBoardGames.Data.Enum;
 using BookingBoardGames.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardGames.Api.Controllers
+namespace BoardGames.Api.Legacy.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class GamesController : ControllerBase
+    [Route("api/legacy/games")]
+    public class LegacyGamesController : ControllerBase
     {
         private readonly InterfaceGamesRepository gamesRepository;
 
-        public GamesController(InterfaceGamesRepository gamesRepository)
+        public LegacyGamesController(InterfaceGamesRepository gamesRepository)
         {
             this.gamesRepository = gamesRepository;
         }

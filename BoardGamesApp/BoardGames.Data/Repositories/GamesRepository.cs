@@ -70,6 +70,15 @@ public class GamesRepository : InterfaceGamesRepository
     }
 
     /// <summary>
+    /// Gets all games including inactive ones (for Admin).
+    /// </summary>
+    /// <returns>A list of all games.</returns>
+    public async Task<List<Game>> GetAllIncludingInactive()
+    {
+        return await appContext.Games.Include(game => game.Owner).ToListAsync();
+    }
+
+    /// <summary>
     /// Gets games that match the provided filter criteria.
     /// </summary>
     /// <param name="filter">
