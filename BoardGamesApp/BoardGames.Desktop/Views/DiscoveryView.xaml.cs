@@ -164,7 +164,7 @@ namespace BoardGames.Desktop.Views
                 return;
             }
 
-            this.Frame.Navigate(typeof(NotificationsPage), SessionContext.GetInstance().UserId);
+            this.Frame.Navigate(typeof(NotificationsPage));
         }
     }
 }
