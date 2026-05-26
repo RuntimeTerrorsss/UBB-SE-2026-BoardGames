@@ -124,7 +124,7 @@ namespace BoardGames.Desktop.Views
 
         private void LoginButton_Click(object sender, RoutedEventArgs routedArgs)
         {
-            this.Frame.Navigate(typeof(LoginView));
+            this.Frame.Navigate(typeof(LoginPage));
         }
 
         //private void LogoutButton_Click(object sender, RoutedEventArgs routedArgs)
@@ -153,7 +153,7 @@ namespace BoardGames.Desktop.Views
                 return;
             }
 
-            this.Frame.Navigate(typeof(DashboardView), SessionContext.GetInstance().UserId);
+            this.Frame.Navigate(typeof(PaymentHistoryView), SessionContext.GetInstance().UserId);
         }
 
         private void NotificationsButton_Click(object sender, RoutedEventArgs routedArgs)

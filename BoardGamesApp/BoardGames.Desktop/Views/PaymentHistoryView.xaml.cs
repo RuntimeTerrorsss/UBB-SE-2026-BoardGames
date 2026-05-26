@@ -52,7 +52,7 @@ namespace BoardGames.Desktop.Views
 
             if (currentParentElement is Frame navigationFrame)
             {
-                navigationFrame.Navigate(typeof(DashboardView));
+                navigationFrame.Navigate(typeof(DiscoveryView));
             }
         }
     }
