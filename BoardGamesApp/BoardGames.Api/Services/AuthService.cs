@@ -22,12 +22,23 @@ namespace BoardGames.Api.Services
             this.failedLoginRepository = failedLoginRepository;
         }
 
-        public async Task<ServiceResult<bool>> RegisterAsync(RegisterDataTransferObject registrationRequest)
+        public async Task<ServiceResult<bool>> RegisterAsync(RegisterDTO registrationRequest)
         {
+
+            var (isPasswordValid, passwordErrorMessage) = PasswordValidator.Validate(registrationRequest.Password);
+            if (!isPasswordValid)
+                return ServiceResult<bool>.Fail(passwordErrorMessage ?? "Password is invalid.");
+
             var existingByUsername = await accountRepository.GetByUsernameAsync(registrationRequest.Username);
             if (existingByUsername != null)
             {
                 return ServiceResult<bool>.Fail("Username|Username is already taken.");
+            }
+
+            var existingByEmail = await accountRepository.GetByEmailAsync(registrationRequest.Email);
+            if (existingByEmail != null)
+            {
+                return ServiceResult<bool>.Fail("Email|This email address is already registered.");
             }
 
             var newAccount = new Account
@@ -54,37 +65,38 @@ namespace BoardGames.Api.Services
             return ServiceResult<bool>.Ok(true);
         }
 
-        public async Task<ServiceResult<AccountProfileDataTransferObject>> LoginAsync(LoginDataTransferObject loginRequest)
+        public async Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO loginRequest)
         {
             var account = await accountRepository.GetByUsernameAsync(loginRequest.UsernameOrEmail)
                        ?? await accountRepository.GetByEmailAsync(loginRequest.UsernameOrEmail);
             if (account == null)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("Invalid username or password.");
+                return ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
             }
 
             if (account.IsSuspended)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("This account has been suspended.");
+                return ServiceResult<AccountProfileDTO>.Fail("This account has been suspended.");
             }
 
             var failedLoginAttempt = await failedLoginRepository.GetByAccountIdAsync(account.Id);
             if (failedLoginAttempt?.LockedUntil.HasValue == true
                 && failedLoginAttempt.LockedUntil.Value > DateTime.UtcNow)
             {
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("This account is locked. Please contact an administrator or try again later.");
+                return ServiceResult<AccountProfileDTO>.Fail("This account is locked. Please contact an administrator or try again later.");
             }
 
             if (!PasswordHasher.VerifyPassword(loginRequest.Password, account.PasswordHash))
             {
                 await failedLoginRepository.IncrementAsync(account.Id);
-                return ServiceResult<AccountProfileDataTransferObject>.Fail("Invalid username or password.");
+                return ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
             }
 
             await failedLoginRepository.ResetAsync(account.Id);
             string primaryRole = account.Roles?.FirstOrDefault()?.Name ?? StandardUserRoleName;
+            bool isLocked = failedLoginAttempt?.LockedUntil.HasValue == true && failedLoginAttempt.LockedUntil.Value > DateTime.UtcNow;
 
-            return ServiceResult<AccountProfileDataTransferObject>.Ok(new AccountProfileDataTransferObject
+            return ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO
             {
                 Id = account.Id,
                 PamUserId = account.PamUserId,
@@ -98,7 +110,8 @@ namespace BoardGames.Api.Services
                 StreetName = account.StreetName,
                 StreetNumber = account.StreetNumber,
                 IsSuspended = account.IsSuspended,
-                Role = new RoleDataTransferObject { Name = primaryRole },
+                IsLocked = isLocked,
+                Role = new RoleDTO { Name = primaryRole },
             });
         }
 

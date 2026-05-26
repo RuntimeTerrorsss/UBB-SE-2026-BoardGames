@@ -9,7 +9,7 @@ namespace BoardGames.Api.Mappers
     {
         private const string StandardAccountRoleName = "Standard User";
 
-        public AccountProfileDataTransferObject? ToDataTransferObject(Account? account)
+        public AccountProfileDTO ToDataTransferObject(Account account)
         {
             if (account == null)
             {
@@ -18,7 +18,7 @@ namespace BoardGames.Api.Mappers
 
             Role? primaryRole = account.Roles?.FirstOrDefault();
 
-            return new AccountProfileDataTransferObject
+            return new AccountProfileDTO
             {
                 Id = account.Id,
                 PamUserId = account.PamUserId,
@@ -27,7 +27,7 @@ namespace BoardGames.Api.Mappers
                 Email = account.Email,
                 PhoneNumber = account.PhoneNumber,
                 AvatarUrl = account.AvatarUrl,
-                Role = new RoleDataTransferObject
+                Role = new RoleDTO
                 {
                     Id = primaryRole?.Id ?? Guid.Empty,
                     Name = primaryRole?.Name ?? StandardAccountRoleName,
@@ -40,7 +40,7 @@ namespace BoardGames.Api.Mappers
             };
         }
 
-        public void ApplyToEntity(Account account, AccountProfileDataTransferObject dataTransferObject)
+        public void ApplyToEntity(Account account, AccountProfileDTO dataTransferObject)
         {
             account.DisplayName = dataTransferObject.DisplayName;
             account.Email = dataTransferObject.Email;

@@ -8,7 +8,7 @@ namespace BoardGames.Shared.ProxyServices
 {
     public interface IAdminService
     {
-        Task<ServiceResult<IReadOnlyList<AccountProfileDataTransferObject>>> GetAllAccountsAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<ServiceResult<IReadOnlyList<AccountProfileDTO>>> GetAllAccountsAsync(int page, int pageSize, CancellationToken cancellationToken = default);
 
         Task<ServiceResult> SuspendAccountAsync(Guid accountId, CancellationToken cancellationToken = default);
 

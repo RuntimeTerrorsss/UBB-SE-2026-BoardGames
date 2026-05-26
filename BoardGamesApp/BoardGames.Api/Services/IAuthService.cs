@@ -6,9 +6,9 @@ namespace BoardGames.Api.Services
 {
     public interface IAuthService
     {
-        Task<ServiceResult<bool>> RegisterAsync(RegisterDataTransferObject dto);
+        Task<ServiceResult<bool>> RegisterAsync(RegisterDTO dto);
 
-        Task<ServiceResult<AccountProfileDataTransferObject>> LoginAsync(LoginDataTransferObject dto);
+        Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO dto);
 
         Task<ServiceResult<bool>> LogoutAsync();
 

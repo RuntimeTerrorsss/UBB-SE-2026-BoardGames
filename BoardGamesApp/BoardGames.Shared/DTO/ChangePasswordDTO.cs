@@ -1,6 +1,6 @@
 namespace BoardGames.Shared.DTO
 {
-    public class ChangePasswordDataTransferObject
+    public class ChangePasswordDTO
     {
         public string CurrentPassword { get; set; }
         public string NewPassword { get; set; }

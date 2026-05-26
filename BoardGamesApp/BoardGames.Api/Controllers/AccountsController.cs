@@ -49,7 +49,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{accountId:guid}/password")]
-        public async Task<IActionResult> ChangePassword(Guid accountId, [FromBody] ChangePasswordDataTransferObject body)
+        public async Task<IActionResult> ChangePassword(Guid accountId, [FromBody] ChangePasswordDTO body)
         {
             var result = await accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
             if (!result.Success)
@@ -62,7 +62,7 @@ namespace BoardGames.Api.Controllers
 
         [HttpPost("{accountId:guid}/avatar")]
         [RequestSizeLimit(MaximumAvatarUploadBytes)]
-        public async Task<ActionResult<AvatarUploadResponseDataTransferObject>> UploadAvatar(Guid accountId, IFormFile file)
+        public async Task<ActionResult<AvatarUploadResponseDTO>> UploadAvatar(Guid accountId, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -83,7 +83,7 @@ namespace BoardGames.Api.Controllers
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(new AvatarUploadResponseDataTransferObject { AvatarUrl = relativeUrl });
+            return Ok(new AvatarUploadResponseDTO { AvatarUrl = relativeUrl });
         }
 
         [HttpDelete("{accountId:guid}/avatar")]

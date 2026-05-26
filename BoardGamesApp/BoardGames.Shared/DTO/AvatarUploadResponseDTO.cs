@@ -1,6 +1,6 @@
 namespace BoardGames.Shared.DTO
 {
-    public class AvatarUploadResponseDataTransferObject
+    public class AvatarUploadResponseDTO
     {
         public string AvatarUrl { get; set; } = string.Empty;
     }

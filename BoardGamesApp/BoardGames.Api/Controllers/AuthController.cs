@@ -19,7 +19,7 @@ namespace BoardGames.Api.Controllers
         }
   
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDataTransferObject body)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO body)
         {
             var result = await authService.RegisterAsync(body);
             if (!result.Success)
@@ -31,7 +31,7 @@ namespace BoardGames.Api.Controllers
         }
    
         [HttpPost("login")]
-        public async Task<ActionResult<AccountProfileDataTransferObject>> Login([FromBody] LoginDataTransferObject body)
+        public async Task<ActionResult<AccountProfileDTO>> Login([FromBody] LoginDTO body)
         {
 
             var result = await authService.LoginAsync(body);
