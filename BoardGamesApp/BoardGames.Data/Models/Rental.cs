@@ -51,8 +51,10 @@ namespace BoardGames.Data.Models
         public int OwnerId { get; set; }
 
         [ForeignKey(nameof(OwnerId))]
-        public User? Owner { get; set; } 
+        public User? Owner { get; set; }
 
+        /// <summary>Alias for Client — used by the canonical request/rental lifecycle.</summary>
+        public User? Renter => Client;
 
         public Payment? Payment { get; set; }
 
