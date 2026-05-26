@@ -24,21 +24,21 @@ namespace BoardGames.Desktop.Views
         /// <summary>
         /// Gets the view model associated with the discovery logic.
         /// </summary>
-        public DiscoveryViewModel ViewModel { get; private set; } = null!;
+        public FilteredSearchViewModel ViewModel { get; private set; } = null!;
 
         /// <summary>
         /// Invoked when the Page is loaded and becomes the current source of a parent Frame.
         /// </summary>
         /// <param name="navigationArgs">Event data that can be examined by overriding code.</param>
-        protected override void OnNavigatedTo(NavigationEventArgs navigationArgs)
+        protected async override void OnNavigatedTo(NavigationEventArgs navigationArgs)
         {
             base.OnNavigatedTo(navigationArgs);
 
             this.UpdateAuthUi();
 
-            this.ViewModel = new DiscoveryViewModel(App.SearchAndFilterService, App.GlobalGeographicalService);
+            var criteria = navigationArgs.Parameter as FilterCriteria ?? new FilterCriteria();
+            this.ViewModel = new FilteredSearchViewModel(App.SearchAndFilterService, App.GlobalGeographicalService);
 
-            this.ViewModel.OnSearchRequest += this.HandleSearchRequest;
             this.ViewModel.OnGameSelectedRequest += gameId =>
             {
                 if (!this.EnsureLoggedIn())
@@ -49,14 +49,11 @@ namespace BoardGames.Desktop.Views
                 this.Frame.Navigate(typeof(GameDetailsView), gameId);
             };
 
-            this.ViewModel.OnPageChanged += () =>
-            {
-                this.MainScrollViewer.ScrollToVerticalOffset(0);
-            };
-
-            this.DataContext = this.ViewModel;
             this.StartDatePicker.Date = this.ViewModel.SelectedStartDate;
             this.EndDatePicker.Date = this.ViewModel.SelectedEndDate;
+
+            await this.ViewModel.Initialize(criteria);
+            this.DataContext = this.ViewModel;
         }
 
         private void UpdateAuthUi()
@@ -66,11 +63,6 @@ namespace BoardGames.Desktop.Views
             this.DashboardButton.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
             this.ChatButton.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
             this.LogoutButton.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        private void HandleSearchRequest(FilterCriteria filter)
-        {
-            this.Frame.Navigate(typeof(FilteredSearchView), filter);
         }
 
         private void Game_Click(object sender, ItemClickEventArgs itemClickedArgs)
