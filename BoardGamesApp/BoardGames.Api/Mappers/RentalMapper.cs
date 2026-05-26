@@ -43,7 +43,7 @@ namespace BoardGames.Api.Mappers
             {
                 Id = dto.Id,
                 Game = gameMapper.ToModel(dto.Game),
-                Renter = participantMapper.ToModel(dto.Renter),
+                Client = participantMapper.ToModel(dto.Renter),
                 Owner = participantMapper.ToModel(dto.Owner),
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
