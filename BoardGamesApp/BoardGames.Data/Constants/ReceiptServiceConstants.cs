@@ -1,4 +1,4 @@
-﻿// <copyright file="ReceiptServiceConstants.cs" company="BoardRent">
+// <copyright file="ReceiptServiceConstants.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -21,7 +21,7 @@ namespace BoardGames.Data.Constants
         public const int DatePartIndex = 2;
 
         // file constants
-        public const string BaseFolderName = "BookingBoardgames";
+        public const string BaseFolderName = "BoardGames";
         public const string FileDateFormat = "yyMMdd";
         public const string DisplayDateFormat = "dd/MM/yyyy";
         public const string FileNameSeparator = "_";

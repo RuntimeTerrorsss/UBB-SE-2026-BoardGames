@@ -8,6 +8,8 @@ using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 
+namespace BoardGames.Shared.ProxyRepositories;
+
 /// <summary>
 /// Repository responsible for reading game/listing data from the database.
 /// Important:
@@ -91,13 +93,14 @@ public class GamesAPIProxy : InterfaceGamesRepository
                ?? new List<Game>();
     }
 
-    public void AddGame(Game game) => throw new NotSupportedException();
+    public void AddGame(Game game) => throw new NotImplementedException();
+    public Game DeleteGame(int id) => throw new NotImplementedException();
+    public void UpdateGame(int id, Game updated) => throw new NotImplementedException();
+    public Game GetGame(int id) => throw new NotImplementedException();
+    public System.Collections.Immutable.ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId) => throw new NotImplementedException();
 
-    public Game DeleteGame(int id) => throw new NotSupportedException();
-
-    public void UpdateGame(int id, Game updated) => throw new NotSupportedException();
-
-    public Game GetGame(int id) => throw new NotSupportedException();
-
-    public System.Collections.Immutable.ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId) => throw new NotSupportedException();
+    public void Add(Game entity) => throw new NotImplementedException();
+    public Game Delete(int id) => throw new NotImplementedException();
+    public void Update(int id, Game entity) => throw new NotImplementedException();
+    public Game Get(int id) => throw new NotImplementedException();
 }

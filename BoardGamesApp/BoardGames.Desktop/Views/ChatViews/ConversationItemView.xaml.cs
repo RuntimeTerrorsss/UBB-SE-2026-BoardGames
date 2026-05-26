@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BookingBoardGames.Src.Views.ChatViews
+namespace BoardGames.Desktop.Views.ChatViews
 {
     public sealed partial class ConversationItemView : UserControl
     {

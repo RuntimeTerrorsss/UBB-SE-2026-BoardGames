@@ -4,7 +4,7 @@
 
 using BoardGames.Desktop.ViewModels;
 
-namespace BookingBoardGames.Src.Views;
+namespace BoardGames.Desktop.Views;
 /// <summary>
 /// Provides the user interface for confirming a booking, allowing date modification and final submission.
 /// </summary>
@@ -180,7 +180,7 @@ public sealed partial class ConfirmBookingView : Page
     private void OnMessageUserClicked(object sender, RoutedEventArgs eventArgs)
     {
         var viewModel = (ConfirmBookingViewModel)this.DataContext;
-        int currentUserId = BookingBoardGames.Data.Enum.SessionContext.GetInstance().UserId;
+        int currentUserId = BoardGames.Data.Enums.SessionContext.GetInstance().UserId;
         this.Frame.Navigate(typeof(ChatViews.ChatPageView), (currentUserId, viewModel.GameAndUserDetails.UserId));
     }
 }

@@ -4,7 +4,7 @@
 
 using BoardGames.Desktop.ViewModels;
 
-namespace BookingBoardGames.Src.Views.ChatViews
+namespace BoardGames.Desktop.Views.ChatViews
 {
     public sealed partial class ChatView : UserControl
     {
@@ -201,7 +201,7 @@ namespace BookingBoardGames.Src.Views.ChatViews
             picker.FileTypeFilter.Add(".png");
 
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(
-                (Application.Current as BookingBoardGames.App)?.Window);
+                (Application.Current as BoardGames.App)?.Window);
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
             var file = await picker.PickSingleFileAsync();

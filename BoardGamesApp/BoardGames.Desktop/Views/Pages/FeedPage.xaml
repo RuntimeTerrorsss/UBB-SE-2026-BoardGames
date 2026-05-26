@@ -1,8 +1,8 @@
 <Page
-    x:Class="BookingBoardGames.Src.Views.Pages.FeedPage"
+    x:Class="BoardGames.Desktop.Views.Pages.FeedPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:BookingBoardGames.Src.Views.Controls">
+    xmlns:controls="using:BoardGames.Desktop.Views.Controls">
 
     <Grid Padding="24">
 

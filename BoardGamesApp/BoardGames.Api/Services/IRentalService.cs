@@ -1,4 +1,4 @@
-﻿// <copyright file="IRentalService.cs" company="BoardRent">
+// <copyright file="IRentalService.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

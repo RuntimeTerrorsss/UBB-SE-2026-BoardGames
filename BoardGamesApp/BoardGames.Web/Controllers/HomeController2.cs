@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BoardGames.Web.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : Controller // not used
     {
         public IActionResult Index()
         {

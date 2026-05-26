@@ -1,5 +1,5 @@
 <UserControl
-    x:Class="BookingBoardGames.Src.Views.Controls.GameCard"
+    x:Class="BoardGames.Desktop.Views.Controls.GameCard"
     x:Name="root"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">

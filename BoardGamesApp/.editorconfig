@@ -1,0 +1,10 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+
+[*.cs]
+dotnet_style_namespace_match_folder = true:warning
+dotnet_sort_system_directives_first = true:warning
+dotnet_separate_import_directive_groups = false:warning

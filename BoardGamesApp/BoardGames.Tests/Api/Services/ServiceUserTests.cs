@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
-using UserService = BoardRentAndProperty.Api.Services.UserService;
+using UserService = BoardGames.Api.Services.UserService;
 
 namespace BoardGames.Tests.Api.Services
 {

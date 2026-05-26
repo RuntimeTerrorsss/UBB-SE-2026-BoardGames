@@ -45,7 +45,7 @@ namespace BoardGames.Tests.Api.Services
         public async Task GetProfileAsync_AccountExists_ReturnsSuccessResultWithProfileData()
         {
             var accountId = Guid.NewGuid();
-            var account = new Account
+            var account = new User
             {
                 Id = accountId,
                 Username = "test_user",
@@ -66,7 +66,7 @@ namespace BoardGames.Tests.Api.Services
         public async Task UpdateProfileAsync_ValidData_UpdatesAccountAndReturnsSuccess()
         {
             var accountId = Guid.NewGuid();
-            var account = new Account
+            var account = new User
             {
                 Id = accountId,
                 DisplayName = "Original Name",

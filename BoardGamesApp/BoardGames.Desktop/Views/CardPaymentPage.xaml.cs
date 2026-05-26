@@ -5,7 +5,7 @@
 using BoardGames.Desktop.Navigation;
 using BoardGames.Desktop.ViewModels;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class CardPaymentPage : Page
     {

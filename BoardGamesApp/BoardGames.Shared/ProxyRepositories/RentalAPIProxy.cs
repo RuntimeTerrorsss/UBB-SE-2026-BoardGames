@@ -99,22 +99,14 @@ namespace BoardGames.Shared.ProxyRepositories
             response.EnsureSuccessStatusCode();
         }
 
-        public System.Collections.Immutable.ImmutableList<Rental> GetAll() => throw new NotSupportedException();
-
-        public void Add(Rental rental) => throw new NotSupportedException();
-
-        public Rental Delete(int id) => throw new NotSupportedException();
-
-        public void Update(int id, Rental updated) => throw new NotSupportedException();
-
-        public Rental Get(int id) => throw new NotSupportedException();
-
-        public void AddConfirmed(Rental rental) => throw new NotSupportedException();
-
-        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId) => throw new NotSupportedException();
-
-        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId) => throw new NotSupportedException();
-
-        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByGame(int gameId) => throw new NotSupportedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetAll() => throw new NotImplementedException();
+        public void Add(Rental rental) => throw new NotImplementedException();
+        public Rental Delete(int id) => throw new NotImplementedException();
+        public void Update(int id, Rental updated) => throw new NotImplementedException();
+        public Rental Get(int id) => throw new NotImplementedException();
+        public void AddConfirmed(Rental confirmedRental) => throw new NotImplementedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId) => throw new NotImplementedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId) => throw new NotImplementedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByGame(int gameId) => throw new NotImplementedException();
     }
 }

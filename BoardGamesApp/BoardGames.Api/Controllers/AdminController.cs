@@ -6,6 +6,7 @@ using BoardGames.Api.Common;
 using BoardGames.Api.Services;
 using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
+using BoardGames.Api.Common;
 
 namespace BoardGames.Api.Controllers
 {

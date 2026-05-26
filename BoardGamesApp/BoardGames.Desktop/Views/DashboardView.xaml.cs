@@ -2,9 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BookingBoardGames.Src.Views.ChatViews;
+using BoardGames.Desktop.Views.ChatViews;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class DashboardView : Page
     {

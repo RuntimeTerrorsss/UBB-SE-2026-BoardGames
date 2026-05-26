@@ -141,7 +141,7 @@ namespace BoardGames.Api.Services
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    "Could not load Assets/RO.txt from the output directory or from the application package. Ensure RO.txt is listed as Content in BookingBoardGames.csproj.",
+                    "Could not load Assets/RO.txt from the output directory or from the application package. Ensure RO.txt is listed as Content in BoardGames.csproj.",
                     ex);
             }
         }

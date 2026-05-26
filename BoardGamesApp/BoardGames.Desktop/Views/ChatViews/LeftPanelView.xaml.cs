@@ -4,7 +4,7 @@
 
 using BoardGames.Desktop.ViewModels;
 
-namespace BookingBoardGames.Src.Views.ChatViews
+namespace BoardGames.Desktop.Views.ChatViews
 {
     public sealed partial class LeftPanelView : UserControl
     {

@@ -1,7 +1,6 @@
-using BoardGames.Desktop.Views;
 using BoardGames.Desktop.ViewModels;
 
-namespace BoardRentAndProperty.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class RequestsToOthersPage : Page
     {

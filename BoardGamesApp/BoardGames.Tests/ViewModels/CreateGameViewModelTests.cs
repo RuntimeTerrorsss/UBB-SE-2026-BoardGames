@@ -23,7 +23,7 @@ namespace BoardGames.Tests.ViewModels
         {
             this.gameService = new FakeClientGameService
             {
-                ValidateGameHandler = game => BoardRentAndProperty.Api.Services.GameInputHelper.BuildValidationErrors(
+                ValidateGameHandler = game => BoardGames.Api.Services.GameInputHelper.BuildValidationErrors(
                     game.Name,
                     game.Price,
                     game.MinimumPlayerNumber,

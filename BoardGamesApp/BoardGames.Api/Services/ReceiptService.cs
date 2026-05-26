@@ -1,4 +1,4 @@
-﻿// <copyright file="ReceiptService.cs" company="BoardRent">
+// <copyright file="ReceiptService.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -43,7 +43,7 @@ namespace BoardGames.Api.Services
 
         /// <summary>
         /// Get the full path to the receipt pdf.
-        /// Source: D:\Downloads\BookingBoardgames\receipts
+        /// Source: D:\Downloads\BoardGames\receipts
         ///
         /// If pdf for receipt does not exist at source, it is created and full path to it returned.
         /// Otherwise, full path to existing pdf is returned.
@@ -190,7 +190,7 @@ namespace BoardGames.Api.Services
 
         /// <summary>
         /// Creates a new pdf locally for a receipt at relative path.
-        /// Destination: D:\Downloads\BookingBoardgames\receipts.
+        /// Destination: D:\Downloads\BoardGames\receipts
         /// </summary>
         /// <param name="payment">transaction for generating the content of pdf.</param>
         /// <returns>full path to created pdf.</returns>
@@ -210,7 +210,7 @@ namespace BoardGames.Api.Services
 
         /// <summary>
         /// Get full path from a relative path in base folder.
-        /// Base folder: D:\Downloads\BookingBoardgames\.
+        /// Base folder: D:\Downloads\BoardGames\
         /// </summary>
         /// <param name="relativePath">string.</param>
         /// <returns>full path.</returns>

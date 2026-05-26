@@ -2,9 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using BoardGames.Desktop.Views;
+
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
-namespace BookingBoardGames
+namespace BoardGames.Desktop
 {
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
@@ -18,8 +20,7 @@ namespace BookingBoardGames
         {
             this.InitializeComponent();
 
-            this.RootFrame.Navigate(typeof(RegisterView));
-            //this.RootFrame.Navigate(typeof(DiscoveryView));
+            this.RootFrame.Navigate(typeof(DiscoveryView));
 
             this.Closed += this.MainWindow_Closed;
         }

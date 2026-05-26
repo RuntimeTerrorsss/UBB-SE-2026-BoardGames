@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using BoardGames.Data.Models;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
-using RentalService = BoardRentAndProperty.Api.Services.RentalService;
+using RentalService = BoardGames.Api.Services.RentalService;
 
 namespace BoardGames.Tests.Api.Services
 {

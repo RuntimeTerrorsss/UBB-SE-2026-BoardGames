@@ -4,7 +4,7 @@
 
 using BoardGames.Desktop.ViewModels;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class PaymentHistoryView : Page
     {
@@ -52,7 +52,7 @@ namespace BookingBoardGames.Src.Views
 
             if (currentParentElement is Frame navigationFrame)
             {
-                navigationFrame.Navigate(typeof(DashboardView));
+                navigationFrame.Navigate(typeof(DiscoveryView));
             }
         }
     }

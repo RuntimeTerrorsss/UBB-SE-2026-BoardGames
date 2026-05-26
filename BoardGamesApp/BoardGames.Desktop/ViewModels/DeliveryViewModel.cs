@@ -1,4 +1,4 @@
-﻿// <copyright file="DeliveryViewModel.cs" company="PlaceholderCompany">
+// <copyright file="DeliveryViewModel.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

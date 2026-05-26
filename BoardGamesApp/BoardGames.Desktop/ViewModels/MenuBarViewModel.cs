@@ -17,7 +17,7 @@ namespace BoardGames.Desktop.ViewModels
             navigationActionsByMenuLabel = BuildNavigationActions();
         }
 
-        public MenuBarViewModel(BoardRentAndProperty.Utilities.ISessionContext sessionContext)
+        public MenuBarViewModel(BoardGames.Desktop.Helpers.ISessionContext sessionContext)
             : this(new DesktopAuthorizationService(sessionContext))
         {
         }

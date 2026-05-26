@@ -1,4 +1,4 @@
-﻿// <copyright file="InterfaceSearchAndFilterService.cs" company="BoardRent">
+// <copyright file="InterfaceSearchAndFilterService.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

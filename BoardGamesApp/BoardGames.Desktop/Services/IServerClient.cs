@@ -1,4 +1,4 @@
-﻿namespace BoardGames.Desktop.Services
+namespace BoardGames.Desktop.Services
 {
     public interface IServerClient : IObservable<IncomingNotification>
     {

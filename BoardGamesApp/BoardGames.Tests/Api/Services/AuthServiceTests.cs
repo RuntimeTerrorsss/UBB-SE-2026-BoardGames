@@ -5,9 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
-using AuthService = BoardRentAndProperty.Api.Services.AuthService;
 
 namespace BoardGames.Tests.Api.Services
 {

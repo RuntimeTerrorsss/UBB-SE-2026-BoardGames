@@ -3,9 +3,11 @@
 // </copyright>
 
 using System;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
-using NotificationService = BoardRentAndProperty.Api.Services.NotificationService;
 
 namespace BoardGames.Tests.Api.Services
 {

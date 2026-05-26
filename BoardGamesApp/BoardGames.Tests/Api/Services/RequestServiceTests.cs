@@ -3,6 +3,8 @@
 // </copyright>
 
 using System;
+using BoardGames.Data.Models;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
 using RequestService = BoardGames.Api.Services.RequestService;
@@ -38,12 +40,12 @@ namespace BoardGames.Tests.Api.Services
         public void CreateRequest_WhenRenterIsOwner_ReturnsOwnerCannotRent()
         {
             var ownerId = Guid.NewGuid();
-            this.gameRepository.GamesById[10] = new Game
-            {
-                Id = 10,
-                Owner = new Account { Id = ownerId, DisplayName = "Owner" },
-                IsActive = true,
-            };
+            gameRepository.GamesById[10] = new Game
+                {
+                    Id = 10,
+                    Owner = new User { Id = ownerId, DisplayName = "Owner" },
+                    IsActive = true,
+                };
 
             var result = this.service.CreateRequest(
                 10,

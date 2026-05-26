@@ -35,9 +35,12 @@ namespace BoardGames.Tests.UnitTests
         {
             var service = new MapService(this._httpClient);
 
-            Assert.True(this._httpClient.DefaultRequestHeaders.Contains("User-Agent"));
-            var userAgent = this._httpClient.DefaultRequestHeaders.UserAgent.ToString();
-            Assert.Equal("BookingBoardgames/1.0", userAgent);
+            var service = new MapService(_httpClient);
+
+
+            Assert.True(_httpClient.DefaultRequestHeaders.Contains("User-Agent"));
+            var userAgent = _httpClient.DefaultRequestHeaders.UserAgent.ToString();
+            Assert.Equal("BoardGames/1.0", userAgent);
         }
 
         #endregion

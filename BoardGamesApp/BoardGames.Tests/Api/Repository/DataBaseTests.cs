@@ -107,12 +107,12 @@ namespace BoardGames.Tests.Api.Repository
 
             while (!string.IsNullOrWhiteSpace(currentDirectory))
             {
-                string candidatePath = Path.Combine(currentDirectory, "BoardRentAndProperty.Api", "appsettings.json");
+                string candidatePath = Path.Combine(currentDirectory, "BoardGames.Api", "appsettings.json");
                 if (File.Exists(candidatePath))
                 {
                     using var jsonDocument = JsonDocument.Parse(File.ReadAllText(candidatePath));
                     if (jsonDocument.RootElement.TryGetProperty("ConnectionStrings", out var connectionStrings)
-                        && connectionStrings.TryGetProperty("BoardRentAndProperty", out var connectionStringValue))
+                        && connectionStrings.TryGetProperty("BoardGames.Desktop", out var connectionStringValue))
                     {
                         return connectionStringValue.GetString() ?? string.Empty;
                     }

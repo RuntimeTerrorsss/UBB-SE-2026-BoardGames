@@ -1,8 +1,8 @@
 namespace BoardGames.Desktop.ViewModels
 {
     using BoardGames.Desktop.Services;
-    using ApiAccountService = BoardRentAndProperty.ApiClient.IAccountService;
-    using ApiAuthService = BoardRentAndProperty.ApiClient.IAuthService;
+    using ApiAccountService = BoardGames.ApiClient.IAccountService;
+    using ApiAuthService = BoardGames.ApiClient.IAuthService;
 
     public partial class ProfileViewModel : BaseViewModel
     {

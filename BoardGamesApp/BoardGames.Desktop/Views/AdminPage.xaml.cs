@@ -1,4 +1,4 @@
-namespace BoardRentAndProperty.Views
+namespace BoardGames.Desktop.Views
 {
     using BoardGames.Desktop.Services;
     using BoardGames.Desktop.ViewModels;

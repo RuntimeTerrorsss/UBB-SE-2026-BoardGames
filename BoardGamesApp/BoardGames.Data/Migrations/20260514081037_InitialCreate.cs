@@ -1,4 +1,4 @@
-﻿// <copyright file="20260514081037_InitialCreate.cs" company="BoardRent">
+// <copyright file="20260514081037_InitialCreate.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace BoardRentAndProperty.Api.Migrations
+namespace BoardGames.Api.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

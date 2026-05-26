@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BookingBoardGames.Src.Views.Test
+namespace BoardGames.Desktop.Views.Test
 {
     /// <summary>
     /// Represents a test page for the games feed, used to verify the visual layout with mock data.

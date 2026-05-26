@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.

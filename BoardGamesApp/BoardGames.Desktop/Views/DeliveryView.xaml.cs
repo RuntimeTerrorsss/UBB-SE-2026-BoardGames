@@ -3,8 +3,9 @@
 // </copyright>
 
 using BoardGames.Desktop.ViewModels;
+using BoardGames.Desktop.Navigation;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class DeliveryView : Page
     {

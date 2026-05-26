@@ -4,7 +4,7 @@
 
 using BoardGames.Desktop.ViewModels;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     /// <summary>
     /// Provides the user interface for viewing detailed information about a game and selecting rental dates.
