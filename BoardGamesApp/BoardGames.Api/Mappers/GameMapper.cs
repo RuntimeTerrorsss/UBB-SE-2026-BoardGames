@@ -1,3 +1,4 @@
+using System;
 using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
 
@@ -12,46 +13,75 @@ namespace BoardGames.Api.Mappers
             this.ownerMapper = ownerMapper;
         }
 
-        public GameDTO? ToDTO(Game? game)
+        private string GetImageUrl(Game game)
         {
-            if (game == null)
+            if (game.Image != null && game.Image.Length > 0)
             {
-                return null;
+                return $"/api/games/{game.Id}/image";
             }
+            return GameImageMapper.GetImageUrl(game.Name);
+        }
 
-            return new GameDTO
+        public GameSummaryDTO ToSummaryDTO(Game game)
+        {
+            return new GameSummaryDTO
             {
                 Id = game.Id,
-                Owner = ownerMapper.ToDTO(game.Owner),
                 Name = game.Name,
                 Price = game.PricePerDay,
+                City = game.Owner?.City ?? string.Empty,
                 MinimumPlayerNumber = game.MinimumPlayerNumber,
                 MaximumPlayerNumber = game.MaximumPlayerNumber,
-                Description = game.Description,
-                Image = game.Image,
-                IsActive = game.IsActive,
+                ImageUrl = GetImageUrl(game),
+                OwnerDisplayName = game.Owner?.DisplayName ?? string.Empty,
+                OwnerAccountId = game.Owner?.Id ?? Guid.Empty,
+                IsActive = game.IsActive
             };
         }
 
-        public Game? ToModel(GameDTO? dto)
+        public GameDetailDTO ToDetailDTO(Game game)
         {
-            if (dto == null)
+            return new GameDetailDTO
             {
-                return null;
-            }
+                Id = game.Id,
+                Name = game.Name,
+                Price = game.PricePerDay,
+                City = game.Owner?.City ?? string.Empty,
+                MinimumPlayerNumber = game.MinimumPlayerNumber,
+                MaximumPlayerNumber = game.MaximumPlayerNumber,
+                ImageUrl = GetImageUrl(game),
+                OwnerDisplayName = game.Owner?.DisplayName ?? string.Empty,
+                OwnerAccountId = game.Owner?.Id ?? Guid.Empty,
+                IsActive = game.IsActive,
+                Description = game.Description,
+                Owner = ownerMapper.ToDTO(game.Owner)
+            };
+        }
 
+        public Game ToModel(GameCreateDTO dto, Guid ownerAccountId)
+        {
             return new Game
             {
-                Id = dto.Id,
-                Owner = ownerMapper.ToModel(dto.Owner),
                 Name = dto.Name,
                 PricePerDay = dto.Price,
                 MinimumPlayerNumber = dto.MinimumPlayerNumber,
                 MaximumPlayerNumber = dto.MaximumPlayerNumber,
                 Description = dto.Description,
                 Image = dto.Image,
-                IsActive = dto.IsActive,
+                IsActive = true, // By default games are active when created
+                Owner = new User { Id = ownerAccountId } // Repository resolves this via ResolveUser
             };
+        }
+
+        public void ApplyUpdate(Game existing, GameUpdateDTO dto)
+        {
+            existing.Name = dto.Name;
+            existing.PricePerDay = dto.Price;
+            existing.MinimumPlayerNumber = dto.MinimumPlayerNumber;
+            existing.MaximumPlayerNumber = dto.MaximumPlayerNumber;
+            existing.Description = dto.Description;
+            existing.Image = dto.Image;
+            existing.IsActive = dto.IsActive;
         }
     }
 }

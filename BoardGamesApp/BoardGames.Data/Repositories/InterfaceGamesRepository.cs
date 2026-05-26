@@ -42,5 +42,6 @@ namespace BoardGames.Data.Repositories
         void UpdateGame(int id, Game updated);
         Game GetGame(int id);
         ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId);
+        Task<List<Game>> GetAllIncludingInactive();
     }
 }

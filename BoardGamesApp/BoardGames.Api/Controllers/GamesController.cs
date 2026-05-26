@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Threading.Tasks;
 using BoardGames.Api.Services;
-using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,89 +19,132 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IReadOnlyList<GameDTO>> GetAll()
+        public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAll()
         {
-            return Ok(gameService.GetAllGames());
+            var games = await gameService.GetAllActiveGames();
+            return Ok(games);
         }
 
         [HttpGet("{gameId:int}")]
-        public ActionResult<GameDTO> GetById(int gameId)
+        public async Task<ActionResult<GameDetailDTO>> GetById(int gameId)
         {
             try
             {
-                return Ok(gameService.GetGameByIdentifier(gameId));
+                var game = await gameService.GetGameById(gameId);
+                return Ok(game);
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
-                return this.ApiNotFound("Game not found.", "game_not_found");
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("{gameId:int}/image")]
+        public async Task<IActionResult> GetImage(int gameId)
+        {
+            try
+            {
+                var imageBytes = await gameService.GetGameImage(gameId);
+                if (imageBytes == null || imageBytes.Length == 0)
+                {
+                    return NotFound("Image not found");
+                }
+                return File(imageBytes, "image/jpeg");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
         }
 
         [HttpGet("owner/{ownerAccountId:guid}")]
-        public ActionResult<IReadOnlyList<GameDTO>> GetByOwner(Guid ownerAccountId)
+        public ActionResult<IReadOnlyList<GameSummaryDTO>> GetByOwner(Guid ownerAccountId)
         {
-            return Ok(gameService.GetGamesForOwner(ownerAccountId));
+            var games = gameService.GetGamesForOwner(ownerAccountId);
+            return Ok(games);
         }
 
         [HttpGet("owner/{ownerAccountId:guid}/active")]
-        public ActionResult<IReadOnlyList<GameDTO>> GetActiveByOwner(Guid ownerAccountId)
+        public ActionResult<IReadOnlyList<GameSummaryDTO>> GetActiveByOwner(Guid ownerAccountId)
         {
-            return Ok(gameService.GetActiveGamesForOwner(ownerAccountId));
+            var games = gameService.GetActiveGamesForOwner(ownerAccountId);
+            return Ok(games);
         }
 
-        [HttpGet("renter/{renterAccountId:guid}/available")]
-        public ActionResult<IReadOnlyList<GameDTO>> GetAvailableForRenter(Guid renterAccountId)
+        [HttpGet("admin")]
+        public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAllGamesAdmin()
         {
-            return Ok(gameService.GetAvailableGamesForRenter(renterAccountId));
+            // Note: Authorization is enforced by the caller/middleware (Admin role required)
+            var games = await gameService.GetAllGamesAdmin();
+            return Ok(games);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] GameDTO body)
+        public ActionResult<GameDetailDTO> Create([FromBody] GameCreateDTO body)
         {
             try
             {
-                gameService.AddGame(body);
-                return Ok();
+                // OwnerAccountId is temporarily sourced from the body until Task 7 wires up session identity.
+                var game = gameService.CreateGame(body, body.OwnerAccountId);
+                return CreatedAtAction(nameof(GetById), new { gameId = game.Id }, game);
             }
-            catch (ArgumentException exception)
+            catch (ArgumentException ex)
             {
-                return this.ApiValidation(exception.Message, "game_validation_failed");
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{gameId:int}")]
-        public IActionResult Update(int gameId, [FromBody] GameDTO body)
+        public IActionResult Update(int gameId, [FromBody] GameUpdateDTO body, [FromQuery] Guid requestingAccountId, [FromQuery] bool isAdmin = false)
         {
             try
             {
-                gameService.UpdateGameByIdentifier(gameId, body);
+                // requestingAccountId & isAdmin are temporarily sourced from query params until Task 7 wires up session identity.
+                gameService.UpdateGame(gameId, body, requestingAccountId, isAdmin);
                 return NoContent();
-            }
-            catch (ArgumentException exception)
-            {
-                return this.ApiValidation(exception.Message, "game_validation_failed");
             }
             catch (KeyNotFoundException)
             {
-                return this.ApiNotFound("Game not found.", "game_not_found");
+                return NotFound();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpDelete("{gameId:int}")]
-        public ActionResult<GameDTO> Delete(int gameId)
+        public ActionResult<GameDetailDTO> Delete(int gameId, [FromQuery] Guid requestingAccountId, [FromQuery] bool isAdmin = false)
         {
             try
             {
-                return Ok(gameService.DeleteGameByIdentifier(gameId));
-            }
-            catch (InvalidOperationException exception)
-            {
-                return this.ApiConflict(exception.Message, "game_delete_conflict");
+                // requestingAccountId & isAdmin are temporarily sourced from query params until Task 7 wires up session identity.
+                var deletedGame = gameService.DeleteGame(gameId, requestingAccountId, isAdmin);
+                return Ok(deletedGame);
             }
             catch (KeyNotFoundException)
             {
-                return this.ApiNotFound("Game not found.", "game_not_found");
+                return NotFound();
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("search")]
+        public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> SearchGames([FromBody] GameSearchCriteriaDTO criteria)
+        {
+            var games = await gameService.SearchGames(criteria);
+            return Ok(games);
         }
     }
 }

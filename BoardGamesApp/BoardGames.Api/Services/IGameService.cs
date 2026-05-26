@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public interface IGameService
     {
-        void AddGame(GameDTO gameDto);
-        void UpdateGameByIdentifier(int gameId, GameDTO updatedGameDTO);
-        GameDTO DeleteGameByIdentifier(int gameId);
-        GameDTO GetGameByIdentifier(int gameId);
-        ImmutableList<GameDTO> GetGamesForOwner(Guid ownerAccountId);
-        ImmutableList<GameDTO> GetAllGames();
-        List<string> ValidateGame(GameDTO gameDto);
-        ImmutableList<GameDTO> GetAvailableGamesForRenter(Guid renterAccountId);
-        ImmutableList<GameDTO> GetActiveGamesForOwner(Guid ownerAccountId);
+        Task<IReadOnlyList<GameSummaryDTO>> GetAllActiveGames();
+        IReadOnlyList<GameSummaryDTO> GetGamesForOwner(Guid ownerAccountId);
+        IReadOnlyList<GameSummaryDTO> GetActiveGamesForOwner(Guid ownerAccountId);
+        Task<IReadOnlyList<GameSummaryDTO>> GetAllGamesAdmin();
+        Task<GameDetailDTO> GetGameById(int gameId);
+        GameDetailDTO CreateGame(GameCreateDTO dto, Guid ownerAccountId);
+        void UpdateGame(int gameId, GameUpdateDTO dto, Guid requestingAccountId, bool isAdmin);
+        GameDetailDTO DeleteGame(int gameId, Guid requestingAccountId, bool isAdmin);
+        Task<IReadOnlyList<GameSummaryDTO>> SearchGames(GameSearchCriteriaDTO criteria);
+        Task<byte[]?> GetGameImage(int gameId);
     }
 }
