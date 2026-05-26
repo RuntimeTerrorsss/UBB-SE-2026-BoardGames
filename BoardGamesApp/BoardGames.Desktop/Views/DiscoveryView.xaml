@@ -28,6 +28,7 @@
                     HorizontalAlignment="Right"
                     Spacing="8">
             <Button x:Name="LoginButton" Content="Login" Click="LoginButton_Click"/>
+            <Button x:Name="NotificationsButton" Content="Notifications" Click="NotificationsButton_Click"/>
             <Button x:Name="DashboardButton" Content="Dashboard" Click="DashboardButton_Click"/>
             <Button x:Name="ChatButton" Content="Chat" Click="ChatButton_Click"/>
             <Button x:Name="LogoutButton" Content="Logout" Click="LogoutButton_Click"/>

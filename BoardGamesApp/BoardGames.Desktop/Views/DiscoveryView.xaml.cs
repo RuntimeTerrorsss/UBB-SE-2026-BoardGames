@@ -155,5 +155,16 @@ namespace BoardGames.Desktop.Views
 
             this.Frame.Navigate(typeof(DashboardView), SessionContext.GetInstance().UserId);
         }
+
+        private void NotificationsButton_Click(object sender, RoutedEventArgs routedArgs)
+        {
+            if (!AuthSession.IsLoggedIn)
+            {
+                _ = this.ShowLoginRequiredDialogAsync();
+                return;
+            }
+
+            this.Frame.Navigate(typeof(NotificationsPage), SessionContext.GetInstance().UserId);
+        }
     }
 }
