@@ -2,11 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using System.Linq;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
-
 namespace BoardGames.Api.Services
 {
     public class ConversationNotifier : IConversationNotifier

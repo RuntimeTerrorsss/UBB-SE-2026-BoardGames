@@ -1,28 +1,9 @@
-using System;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.Services.Listeners;
 using BoardGames.Desktop.ViewModels;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.Views;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using H.NotifyIcon;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Windows.AppLifecycle;
+using BoardGames.Desktop.Views;
 
-namespace BoardRentAndProperty
+namespace BoardGames.Desktop
 {
     public partial class App : Application
     {
@@ -39,7 +20,7 @@ namespace BoardRentAndProperty
         private const string TwoWindowsEnvironmentKey = "TWO_WINDOWS";
         private const string EnabledEnvironmentValue = "true";
         private const string NotificationNavigationArgumentKey = "navigate";
-        private const string TrayIconIdentityPrefix = "BoardRentAndProperty.TrayIcon";
+        private const string TrayIconIdentityPrefix = "BoardGames.Desktop.TrayIcon";
 
         public static IServiceProvider Services { get; private set; } = default!;
         public static Window? MainWindow { get; set; }
@@ -68,7 +49,7 @@ namespace BoardRentAndProperty
                 StartNotificationServer();
             }
 
-            AppUserModelId = $"BoardRentAndProperty -- slot-{CurrentProcessSlot}";
+            AppUserModelId = $"BoardGames.Desktop -- slot-{CurrentProcessSlot}";
 
             notificationManager = new NotificationManager();
             SetupNotificationManager();
@@ -383,7 +364,7 @@ namespace BoardRentAndProperty
                 Id = CreateTrayIconId(CurrentProcessSlot),
                 CustomName = $"{TrayIconIdentityPrefix}.Slot{CurrentProcessSlot}",
                 ToolTipText = AppUserModelId,
-                IconSource = new BitmapImage(new Uri(global::BoardRentAndProperty.Constants.App.AppTrayIconUri)),
+                IconSource = new BitmapImage(new Uri(global::BoardGames.Shared.Common.App.AppTrayIconUri)),
             };
             var trayOpenCommand = new XamlUICommand();
             trayOpenCommand.ExecuteRequested += (sender, args) => ActivateWindow();

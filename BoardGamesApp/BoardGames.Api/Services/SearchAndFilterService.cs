@@ -1,17 +1,13 @@
-﻿// <copyright file="SearchAndFilterService.cs" company="PlaceholderCompany">
+using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
+// <copyright file="SearchAndFilterService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {

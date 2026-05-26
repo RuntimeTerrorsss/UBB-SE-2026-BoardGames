@@ -1,8 +1,8 @@
 <Page
-    x:Class="BoardRentAndProperty.Views.ListingsPage"
+    x:Class="BoardGames.Desktop.Views.ListingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:BoardRentAndProperty.Utilities"
+    xmlns:converters="using:BoardGames.Desktop.Helpers"
     Background="#1E1E1E">
 
     <Page.Resources>

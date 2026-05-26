@@ -1,9 +1,9 @@
+using BoardGames.Data.Repositories;
+using BoardGames.Data.Models;
+using BoardGames.Data.Enums;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 

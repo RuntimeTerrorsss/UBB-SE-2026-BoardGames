@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Mappers
 {

@@ -1,12 +1,12 @@
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
 
 namespace BoardGames.Tests.Fakes
 {

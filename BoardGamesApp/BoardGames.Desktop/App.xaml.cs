@@ -2,17 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Diagnostics;
-using BoardGames.Desktop;
-using BoardGames.Data;
-using BoardGames.Data.Repositories;
-using BoardGames.Shared.Mapper;
-using BoardGames.Api.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Xaml;
-
-namespace BookingBoardGames
+namespace BoardGames.Desktop
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -22,7 +12,7 @@ namespace BookingBoardGames
         public static readonly string BaseApiUrl = "http://localhost:5000/api/";
         public static readonly string RemoteApiUrl = "http://172.30.250.124:5000/api/";
 
-        public static readonly System.Net.Http.HttpClient Client = new System.Net.Http.HttpClient { BaseAddress = new Uri(RemoteApiUrl) };
+        public static readonly System.Net.Http.HttpClient Client = new System.Net.Http.HttpClient { BaseAddress = new Uri(BaseApiUrl) };
         private Window? window;
 
         /// <summary>

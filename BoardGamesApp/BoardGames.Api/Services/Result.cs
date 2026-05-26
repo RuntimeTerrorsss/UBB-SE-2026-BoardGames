@@ -1,5 +1,3 @@
-using System;
-
 namespace BoardGames.Api.Services
 {
     public sealed class Result<TSuccess, TError>

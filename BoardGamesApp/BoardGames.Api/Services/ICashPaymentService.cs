@@ -1,9 +1,8 @@
-﻿// <copyright file="ICashPaymentService.cs" company="PlaceholderCompany">
+using BoardGames.Shared.DTO;
+// <copyright file="ICashPaymentService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Threading.Tasks;
-using BookingBoardGames.Sharing.DTO;
 
 namespace BoardGames.Api.Services
 {

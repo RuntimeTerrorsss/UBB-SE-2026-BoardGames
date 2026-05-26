@@ -2,8 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using System.Linq;
 using BoardGames.Data.Constants;
 using Microsoft.EntityFrameworkCore;
 

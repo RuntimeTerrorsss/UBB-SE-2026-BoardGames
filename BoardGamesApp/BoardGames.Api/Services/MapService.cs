@@ -2,18 +2,15 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace BoardGames.Api.Services
 {
     public class MapService : IMapService
     {
         private const string NominatimUrlTemplate = "https://nominatim.openstreetmap.org/reverse?lat={0}&lon={1}&format=json";
-        private const string UserAgentValue = "BookingBoardgames/1.0";
+        private const string UserAgentValue = "BoardGames/1.0";
         private const double DefaultCoordinate = 0.0;
         private readonly HttpClient httpClient;
 

@@ -1,5 +1,5 @@
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Mappers
 {

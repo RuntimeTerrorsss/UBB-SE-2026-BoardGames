@@ -1,6 +1,4 @@
 using System;
-using BoardRentAndProperty.Api.Constants;
-using BoardRentAndProperty.Api.Services;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

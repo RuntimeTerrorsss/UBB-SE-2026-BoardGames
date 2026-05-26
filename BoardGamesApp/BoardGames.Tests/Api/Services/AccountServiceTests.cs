@@ -1,13 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using NUnit.Framework;
-using AccountService = BoardRentAndProperty.Api.Services.AccountService;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -46,7 +43,7 @@ namespace BoardGames.Tests.Api.Services
         public async Task GetProfileAsync_AccountExists_ReturnsSuccessResultWithProfileData()
         {
             var accountId = Guid.NewGuid();
-            var account = new Account
+            var account = new User
             {
                 Id = accountId,
                 Username = "test_user",
@@ -67,7 +64,7 @@ namespace BoardGames.Tests.Api.Services
         public async Task UpdateProfileAsync_ValidData_UpdatesAccountAndReturnsSuccess()
         {
             var accountId = Guid.NewGuid();
-            var account = new Account
+            var account = new User
             {
                 Id = accountId,
                 DisplayName = "Original Name",

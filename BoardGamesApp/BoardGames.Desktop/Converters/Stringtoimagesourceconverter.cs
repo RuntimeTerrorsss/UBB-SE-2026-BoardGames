@@ -2,10 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Media.Imaging;
-
 namespace BoardGames.Desktop.Converters
 {
     public class StringToImageSourceConverter : IValueConverter

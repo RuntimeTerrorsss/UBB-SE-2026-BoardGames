@@ -2,8 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {

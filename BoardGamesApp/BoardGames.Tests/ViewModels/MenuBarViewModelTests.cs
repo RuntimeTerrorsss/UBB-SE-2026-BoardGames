@@ -1,6 +1,4 @@
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

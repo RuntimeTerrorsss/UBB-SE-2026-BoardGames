@@ -1,6 +1,3 @@
-using GUI_BRAP.ProxyServices;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace BoardGames.Web.Infrastructure
 {
     public static class ServiceCollectionExtensions

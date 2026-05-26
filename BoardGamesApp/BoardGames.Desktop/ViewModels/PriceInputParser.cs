@@ -1,6 +1,3 @@
-using System;
-using System.Globalization;
-
 namespace BoardGames.Desktop.ViewModels
 {
     internal static class PriceInputParser

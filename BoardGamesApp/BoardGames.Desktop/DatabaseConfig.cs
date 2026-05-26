@@ -2,9 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using Microsoft.Data.SqlClient;
-
 namespace BoardGames.Desktop
 {
     public static class DatabaseConfig

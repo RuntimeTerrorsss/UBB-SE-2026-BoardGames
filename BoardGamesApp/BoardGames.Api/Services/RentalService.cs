@@ -1,13 +1,10 @@
-﻿// <copyright file="RentalService.cs" company="PlaceholderCompany">
+using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
+// <copyright file="RentalService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {

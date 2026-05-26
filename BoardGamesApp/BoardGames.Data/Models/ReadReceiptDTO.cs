@@ -1,5 +1,3 @@
-using System;
-
 namespace BoardGames.Data.Models
 {
     public record ReadReceiptDTO(

@@ -1,10 +1,8 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using BookingBoardGames.Sharing.Services;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -47,7 +45,7 @@ namespace BoardGames.Tests.UnitTests
 
             Assert.True(_httpClient.DefaultRequestHeaders.Contains("User-Agent"));
             var userAgent = _httpClient.DefaultRequestHeaders.UserAgent.ToString();
-            Assert.Equal("BookingBoardgames/1.0", userAgent);
+            Assert.Equal("BoardGames/1.0", userAgent);
         }
 
         #endregion

@@ -2,15 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Shared.ProxyRepositories
 {
@@ -103,5 +98,15 @@ namespace BoardGames.Shared.ProxyRepositories
                 JsonOptions);
             response.EnsureSuccessStatusCode();
         }
+
+        public System.Collections.Immutable.ImmutableList<Rental> GetAll() => throw new NotImplementedException();
+        public void Add(Rental rental) => throw new NotImplementedException();
+        public Rental Delete(int id) => throw new NotImplementedException();
+        public void Update(int id, Rental updated) => throw new NotImplementedException();
+        public Rental Get(int id) => throw new NotImplementedException();
+        public void AddConfirmed(Rental confirmedRental) => throw new NotImplementedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId) => throw new NotImplementedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId) => throw new NotImplementedException();
+        public System.Collections.Immutable.ImmutableList<Rental> GetRentalsByGame(int gameId) => throw new NotImplementedException();
     }
 }

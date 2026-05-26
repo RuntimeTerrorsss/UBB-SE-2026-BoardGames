@@ -2,20 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Threading.Tasks;
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Sharing.Validators;
-using BookingBoardGames.Src.Navigation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Web.WebView2.Core;
+using BoardGames.Desktop.Navigation;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class DeliveryView : Page
     {

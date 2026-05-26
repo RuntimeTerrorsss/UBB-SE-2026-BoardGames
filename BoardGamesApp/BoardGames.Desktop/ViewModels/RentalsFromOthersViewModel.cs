@@ -1,11 +1,3 @@
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
-
 namespace BoardGames.Desktop.ViewModels
 {
     public class RentalsFromOthersViewModel : PagedViewModel<RentalDTO>

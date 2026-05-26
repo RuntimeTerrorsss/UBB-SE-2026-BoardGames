@@ -1,5 +1,3 @@
-using System;
-
 namespace BoardGames.Shared.ProxyServices
 {
     public sealed class ApiClientOptions

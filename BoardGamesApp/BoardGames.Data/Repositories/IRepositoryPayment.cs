@@ -2,8 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-
 namespace BoardGames.Data.Repositories
 {
     /// <summary>

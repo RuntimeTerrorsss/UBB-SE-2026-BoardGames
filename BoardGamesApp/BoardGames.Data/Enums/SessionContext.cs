@@ -2,7 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
 using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Enums

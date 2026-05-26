@@ -7,7 +7,6 @@ namespace BoardGames.Web.Controllers
     using BoardGames.Web.Infrastructure;
     using BoardGames.Web.Models.Account;
     using BoardGames.Shared.DTO;
-    using GUI_BRAP.ProxyServices;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;

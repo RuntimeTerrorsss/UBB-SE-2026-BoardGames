@@ -1,9 +1,5 @@
-using BookingBoardGames.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {

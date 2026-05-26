@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Web.Models.Rentals

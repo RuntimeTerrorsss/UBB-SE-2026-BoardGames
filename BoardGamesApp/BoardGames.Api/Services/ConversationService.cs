@@ -1,16 +1,11 @@
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 // <copyright file="ConversationService.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Services
 {

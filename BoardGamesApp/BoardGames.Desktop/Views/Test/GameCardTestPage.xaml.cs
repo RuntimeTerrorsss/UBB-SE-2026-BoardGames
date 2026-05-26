@@ -2,9 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using Microsoft.UI.Xaml.Controls;
-
-namespace BookingBoardGames.Src.Views.Test
+namespace BoardGames.Desktop.Views.Test
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.

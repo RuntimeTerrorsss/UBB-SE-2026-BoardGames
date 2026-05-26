@@ -2,15 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BookingBoardGames;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.Services;
-using BookingBoardGames.Src.Views.ChatViews;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
+using BoardGames.Desktop.Views.ChatViews;
 
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class DashboardView : Page
     {

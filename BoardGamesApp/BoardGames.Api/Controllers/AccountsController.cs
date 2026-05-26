@@ -1,10 +1,5 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using BoardGames.Api.Services;
-using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers

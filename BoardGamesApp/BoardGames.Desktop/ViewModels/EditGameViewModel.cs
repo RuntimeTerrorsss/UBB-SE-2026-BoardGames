@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Constants;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 
 namespace BoardGames.Desktop.ViewModels
 {

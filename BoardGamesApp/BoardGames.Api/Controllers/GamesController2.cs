@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using BoardGames.Shared.DTO;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
+using BoardGames.Api.Common;
 
 namespace BoardGames.Api.Controllers
 {

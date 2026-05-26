@@ -2,17 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 public class UserAPIProxy : IUserRepository
 {

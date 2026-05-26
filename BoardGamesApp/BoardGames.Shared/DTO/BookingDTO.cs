@@ -2,8 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-
 namespace BoardGames.Shared.DTO;
 /// <summary>
 /// Represents the data transfer object for a booking, containing information about the booked game, user, and related

@@ -2,7 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Mappers
