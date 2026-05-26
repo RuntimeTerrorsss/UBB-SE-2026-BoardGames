@@ -1,78 +1,32 @@
-using BookingBoardGames.Data.Interfaces;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private const int FirstPageNumber = 1;
 
-        public UserService(IUserRepository userRepository)
+        private readonly IAccountRepository accountRepository;
+        private readonly UserMapper userMapper;
+
+        public UserService(IAccountRepository accountRepository, UserMapper userMapper)
         {
-            _userRepository = userRepository;
+            this.accountRepository = accountRepository;
+            this.userMapper = userMapper;
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public ImmutableList<UserDTO> GetUsersExcept(Guid excludeAccountId)
         {
-            return await _userRepository.GetById(id);
-        }
-
-        public async Task<List<User>> GetAllUsersAsync()
-        {
-            return await _userRepository.GetAll();
-        }
-
-        public async Task<User?> LoginAsync(string identifier, string password)
-        {
-
-            var user = await _userRepository.Login(identifier, password);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            if (user.IsSuspended)
-            {
-
-                return null;
-            }
-
-            return user;
-        }
-
-        private bool AreFieldsEmpty(User newUser)
-        {
-            return string.IsNullOrEmpty(newUser.Username)
-                || string.IsNullOrEmpty(newUser.DisplayName)
-                || string.IsNullOrEmpty(newUser.Email)
-                || string.IsNullOrEmpty(newUser.PasswordHash)
-                || string.IsNullOrEmpty(newUser.City)
-                || string.IsNullOrEmpty(newUser.Country);
-        }
-
-        public async Task<bool> RegisterUserAsync(User newUser)
-        {
-            if (AreFieldsEmpty(newUser))
-            {
-                return false;
-            }
-
-            return await _userRepository.Register(newUser);
-        }
-
-        public async Task<decimal> GetBalanceAsync(int userId)
-        {
-            return await _userRepository.GetUserBalance(userId);
-        }
-
-        public async Task UpdateBalanceAsync(int userId, decimal amount)
-        {
-            await _userRepository.UpdateBalance(userId, amount);
+            var allAccounts = accountRepository.GetAllAsync(FirstPageNumber, int.MaxValue).GetAwaiter().GetResult();
+            return allAccounts
+                .Where(account => account.Id != excludeAccountId)
+                .Select(account => userMapper.ToDTO(account)!)
+                .ToImmutableList();
         }
     }
 }
