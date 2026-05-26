@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using BoardRentAndProperty.Constants;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Desktop.Constants;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.Services
 {

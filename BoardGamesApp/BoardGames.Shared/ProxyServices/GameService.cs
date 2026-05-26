@@ -47,7 +47,7 @@ namespace BoardGames.Shared.ProxyServices
                     }
 
                     var parsed = await ApiResponseReader.ReadJsonAsync<GameDTO>(response, token);
-                    return parsed.Success ? parsed : ServiceResult<GameDTO>.Ok(new GameDTO { GameId = gameId });
+                    return parsed.Success ? parsed : ServiceResult<GameDTO>.Ok(new GameDTO { Id = gameId });
                 },
                 cancellationToken);
         }

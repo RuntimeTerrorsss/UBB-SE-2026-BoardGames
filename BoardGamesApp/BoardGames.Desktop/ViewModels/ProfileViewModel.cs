@@ -6,14 +6,14 @@ namespace BoardGames.Desktop.ViewModels
     using System.Threading.Tasks;
     using System.Windows.Input;
     using BoardGames.Desktop.Services;
-    using BoardRentAndProperty.Constants;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
-    using BoardRentAndProperty.Utilities;
+    using BoardGames.Desktop.Constants;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Desktop.Services;
     using CommunityToolkit.Mvvm.Input;
     using Microsoft.UI.Xaml.Media;
     using Microsoft.UI.Xaml.Media.Imaging;
-    using ApiAccountService = BoardRentAndProperty.ApiClient.IAccountService;
-    using ApiAuthService = BoardRentAndProperty.ApiClient.IAuthService;
+    using ApiAccountService = BoardGames.Shared.ProxyServices.IAccountService;
+    using ApiAuthService = BoardGames.Shared.ProxyServices.IAuthService;
 
     public partial class ProfileViewModel : BaseViewModel
     {

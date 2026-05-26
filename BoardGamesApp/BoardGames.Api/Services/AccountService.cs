@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Api.Security;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
 
 namespace BoardGames.Api.Services
 {

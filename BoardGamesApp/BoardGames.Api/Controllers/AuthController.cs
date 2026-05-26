@@ -1,6 +1,6 @@
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Api.Utilities;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

@@ -1,5 +1,7 @@
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
+using DataRequestStatus = BoardGames.Data.Enums.RequestStatus;
+using DtoRequestStatus = BoardGames.Shared.DTO.RequestStatus;
 
 namespace BoardGames.Api.Mappers
 {
@@ -29,7 +31,7 @@ namespace BoardGames.Api.Mappers
                 Owner = participantMapper.ToDTO(request.Owner),
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
-                Status = request.Status,
+                Status = ToDataTransferObjectStatus(request.Status),
                 OfferingUser = request.OfferingUser != null ? participantMapper.ToDTO(request.OfferingUser) : null,
             };
         }
@@ -49,9 +51,15 @@ namespace BoardGames.Api.Mappers
                 Owner = participantMapper.ToModel(dto.Owner),
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                Status = dto.Status,
+                Status = ToModelStatus(dto.Status),
                 OfferingUser = dto.OfferingUser != null ? participantMapper.ToModel(dto.OfferingUser) : null,
             };
         }
+
+        public static DtoRequestStatus ToDataTransferObjectStatus(DataRequestStatus requestStatus) =>
+            (DtoRequestStatus)(int)requestStatus;
+
+        public static DataRequestStatus ToModelStatus(DtoRequestStatus requestStatus) =>
+            (DataRequestStatus)(int)requestStatus;
     }
 }

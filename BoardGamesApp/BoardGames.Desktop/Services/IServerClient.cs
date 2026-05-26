@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.Services
 {

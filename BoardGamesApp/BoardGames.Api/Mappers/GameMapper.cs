@@ -1,5 +1,5 @@
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Mappers
 {
@@ -24,7 +24,7 @@ namespace BoardGames.Api.Mappers
                 Id = game.Id,
                 Owner = ownerMapper.ToDTO(game.Owner),
                 Name = game.Name,
-                Price = game.Price,
+                Price = game.PricePerDay,
                 MinimumPlayerNumber = game.MinimumPlayerNumber,
                 MaximumPlayerNumber = game.MaximumPlayerNumber,
                 Description = game.Description,
@@ -45,7 +45,7 @@ namespace BoardGames.Api.Mappers
                 Id = dto.Id,
                 Owner = ownerMapper.ToModel(dto.Owner),
                 Name = dto.Name,
-                Price = dto.Price,
+                PricePerDay = dto.Price,
                 MinimumPlayerNumber = dto.MinimumPlayerNumber,
                 MaximumPlayerNumber = dto.MaximumPlayerNumber,
                 Description = dto.Description,

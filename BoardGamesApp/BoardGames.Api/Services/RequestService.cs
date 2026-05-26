@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using BoardRentAndProperty.Api.Constants;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Contracts.Models;
+using BoardGames.Data.Constants;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using DataRequestStatus = BoardGames.Data.Enums.RequestStatus;
+using DtoRequestStatus = BoardGames.Shared.DTO.RequestStatus;
 
 namespace BoardGames.Api.Services
 {
@@ -44,7 +45,7 @@ namespace BoardGames.Api.Services
             requestDataRepository.GetRequestsByOwner(ownerAccountId).Select(request => requestDtoMapper.ToDTO(request)!).ToImmutableList();
 
         public ImmutableList<RequestDTO> GetOpenRequestsForOwner(Guid ownerAccountId) =>
-            GetRequestsForOwner(ownerAccountId).Where(request => request.Status == RequestStatus.Open).ToImmutableList();
+            GetRequestsForOwner(ownerAccountId).Where(request => request.Status == DtoRequestStatus.Open).ToImmutableList();
 
         public Result<int, CreateRequestError> CreateRequest(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate)
         {
@@ -96,7 +97,7 @@ namespace BoardGames.Api.Services
                 return Result<int, ApproveRequestError>.Failure(ApproveRequestError.Unauthorized);
             }
 
-            if (req.Status != RequestStatus.Open)
+            if (req.Status != DataRequestStatus.Open)
             {
                 return Result<int, ApproveRequestError>.Failure(ApproveRequestError.NotFound);
             }
@@ -171,7 +172,7 @@ namespace BoardGames.Api.Services
         public void OnGameDeactivated(int deactivatedGameId)
         {
             var pending = requestDataRepository.GetRequestsByGame(deactivatedGameId)
-                .Where(request => request.Status == RequestStatus.Open || request.Status == RequestStatus.OfferPending).ToImmutableList();
+                .Where(request => request.Status == DataRequestStatus.Open || request.Status == DataRequestStatus.OfferPending).ToImmutableList();
 
             foreach (var pendingRequest in pending)
             {
@@ -258,7 +259,7 @@ namespace BoardGames.Api.Services
                 return Result<int, OfferError>.Failure(OfferError.NotOwner);
             }
 
-            if (req.Status != RequestStatus.Open)
+            if (req.Status != DataRequestStatus.Open)
             {
                 return Result<int, OfferError>.Failure(OfferError.RequestNotOpen);
             }

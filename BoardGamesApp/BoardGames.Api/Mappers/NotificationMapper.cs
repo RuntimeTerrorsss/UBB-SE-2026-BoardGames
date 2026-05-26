@@ -1,5 +1,7 @@
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
+using DataNotificationType = BoardGames.Data.Enums.NotificationType;
+using DtoNotificationType = BoardGames.Shared.DTO.NotificationType;
 
 namespace BoardGames.Api.Mappers
 {
@@ -26,7 +28,7 @@ namespace BoardGames.Api.Mappers
                 Timestamp = notification.Timestamp,
                 Title = notification.Title,
                 Body = notification.Body,
-                Type = notification.Type,
+                Type = ToDataTransferObjectType(notification.Type),
                 RelatedRequestId = notification.RelatedRequest?.Id,
             };
         }
@@ -45,9 +47,15 @@ namespace BoardGames.Api.Mappers
                 Timestamp = dto.Timestamp,
                 Title = dto.Title,
                 Body = dto.Body,
-                Type = dto.Type,
+                Type = ToModelType(dto.Type),
                 RelatedRequest = dto.RelatedRequestId.HasValue ? new Request { Id = dto.RelatedRequestId.Value } : null,
             };
         }
+
+        public static DtoNotificationType ToDataTransferObjectType(DataNotificationType notificationType) =>
+            (DtoNotificationType)(int)notificationType;
+
+        public static DataNotificationType ToModelType(DtoNotificationType notificationType) =>
+            (DataNotificationType)(int)notificationType;
     }
 }

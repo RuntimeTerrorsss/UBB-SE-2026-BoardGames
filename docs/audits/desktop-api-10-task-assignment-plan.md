@@ -110,6 +110,11 @@ Controllers -> Services -> Repositories -> AppDbContext -> Database
 - One accepted identity/session contract.
 - A short list of "forbidden final dependencies".
 
+### Task 1 Output Documents
+
+- `docs/audits/task-1-architecture-boundary-identity-contract.md`
+- `docs/audits/task-1-boundary-violation-inventory.md`
+
 ### Acceptance Criteria
 
 - Every other task can use this as its contract.

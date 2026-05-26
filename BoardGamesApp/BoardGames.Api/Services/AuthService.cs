@@ -2,9 +2,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Api.Security;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
 
 namespace BoardGames.Api.Services
 {
@@ -86,6 +87,7 @@ namespace BoardGames.Api.Services
             return ServiceResult<AccountProfileDataTransferObject>.Ok(new AccountProfileDataTransferObject
             {
                 Id = account.Id,
+                PamUserId = account.PamUserId,
                 Username = account.Username,
                 DisplayName = account.DisplayName,
                 Email = account.Email,

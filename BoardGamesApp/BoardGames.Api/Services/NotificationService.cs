@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -50,7 +50,7 @@ namespace BoardGames.Api.Services
                 Timestamp = timestamp,
                 Title = notificationToSend.Title,
                 Body = notificationToSend.Body,
-                Type = notificationToSend.Type,
+                Type = NotificationMapper.ToModelType(notificationToSend.Type),
                 RelatedRequest = notificationToSend.RelatedRequestId.HasValue ? new Request { Id = notificationToSend.RelatedRequestId.Value } : null,
             };
 

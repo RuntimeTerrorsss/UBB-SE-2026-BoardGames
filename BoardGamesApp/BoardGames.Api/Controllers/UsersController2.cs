@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BoardGames.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers

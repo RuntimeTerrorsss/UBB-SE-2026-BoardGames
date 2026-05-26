@@ -4,10 +4,10 @@ namespace BoardGames.Desktop.ViewModels
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using BoardRentAndProperty.ApiClient;
-    using BoardRentAndProperty.Constants;
-    using BoardRentAndProperty.Contracts.DataTransferObjects;
-    using BoardRentAndProperty.Utilities;
+    using BoardGames.Shared.ProxyServices;
+    using BoardGames.Desktop.Constants;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Desktop.Services;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
 

@@ -8,9 +8,9 @@ using System.Text;
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.Services.Listeners;
 using BoardGames.Desktop.ViewModels;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 using BoardRentAndProperty.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using H.NotifyIcon;
@@ -383,7 +383,7 @@ namespace BoardRentAndProperty
                 Id = CreateTrayIconId(CurrentProcessSlot),
                 CustomName = $"{TrayIconIdentityPrefix}.Slot{CurrentProcessSlot}",
                 ToolTipText = AppUserModelId,
-                IconSource = new BitmapImage(new Uri(global::BoardRentAndProperty.Constants.App.AppTrayIconUri)),
+                IconSource = new BitmapImage(new Uri(global::BoardGames.Desktop.Constants.App.AppTrayIconUri)),
             };
             var trayOpenCommand = new XamlUICommand();
             trayOpenCommand.ExecuteRequested += (sender, args) => ActivateWindow();
