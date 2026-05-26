@@ -44,7 +44,7 @@ namespace BoardGames.Api.Services
                 throw new ArgumentException("Start date must be before end date and not in the past.");
             }
 
-            var game = gameLookupRepository.Get(gameId);
+            var game = gameLookupRepository.GetGame(gameId);
             if (game.Owner?.Id != ownerAccountId)
             {
                 throw new InvalidOperationException("Seller ID must match Game Owner ID [ENT-REN-04].");
@@ -55,7 +55,14 @@ namespace BoardGames.Api.Services
                 throw new InvalidOperationException($"Selected dates fall within the mandatory {DomainConstants.RentalBufferHours}-hour buffer of another rental.");
             }
 
-            var rental = new Rental(NewRentalId, new Game { Id = gameId }, new Account { Id = renterAccountId }, new Account { Id = ownerAccountId }, startDate, endDate);
+            var rental = new Rental
+            {
+                Game = new Game { Id = gameId },
+                Client = new Account { Id = renterAccountId },
+                Owner = new Account { Id = ownerAccountId },
+                StartDate = startDate,
+                EndDate = endDate,
+            };
             rentalDataRepository.AddConfirmed(rental);
         }
 

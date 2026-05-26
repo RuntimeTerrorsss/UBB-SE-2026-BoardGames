@@ -57,7 +57,7 @@ namespace BoardGames.Api.Services
             Game game;
             try
             {
-                game = gameValidationRepository.Get(gameId);
+                game = gameValidationRepository.GetGame(gameId);
             }
             catch (KeyNotFoundException)
             {
@@ -77,6 +77,12 @@ namespace BoardGames.Api.Services
 
             var newRequest = new Request(NewRequestId, new Game { Id = gameId }, new Account { Id = renterAccountId }, new Account { Id = effectiveOwnerId }, startDate, endDate);
             requestDataRepository.Add(newRequest);
+
+            var ownerNotificationGameName = game.Name ?? "a game";
+            SendNotificationToAccount(effectiveOwnerId, NotificationTitles.RentalRequestReceived,
+                $"You have a new rental request for {ownerNotificationGameName} {FormatPeriod(startDate, endDate)}.",
+                relatedRequestId: newRequest.Id);
+
             return Result<int, CreateRequestError>.Success(newRequest.Id);
         }
 
@@ -219,7 +225,7 @@ namespace BoardGames.Api.Services
             Game game;
             try
             {
-                game = gameValidationRepository.Get(gameId);
+                game = gameValidationRepository.GetGame(gameId);
             }
             catch (KeyNotFoundException)
             {
