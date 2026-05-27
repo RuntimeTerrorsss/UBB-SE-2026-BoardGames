@@ -30,5 +30,7 @@ namespace BoardGames.Data.Repositories
         Task<Message?> HandleRentalRequestFinalization(int messageId);
 
         Task<Message?> CreateCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId);
+
+        Task<RentalRequestMessage?> FindRentalRequestMessageByRequestId(int requestId);
     }
 }

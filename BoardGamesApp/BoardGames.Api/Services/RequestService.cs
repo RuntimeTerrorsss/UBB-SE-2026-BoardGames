@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using BoardGames.Data.Constants;
 using BoardGames.Api.Mappers;
 using BoardGames.Data.Models;
@@ -23,18 +24,21 @@ namespace BoardGames.Api.Services
         private readonly IRentalRepository rentalConflictRepository;
         private readonly INotificationService requestNotificationService;
         private readonly IGameRepository gameValidationRepository;
+        private readonly IConversationApiService conversationApiService;
         private readonly RequestMapper requestDtoMapper;
 
         public RequestService(IRequestRepository requestRepository,
                               IRentalRepository rentalRepository,
                               IGameRepository gameRepository,
                               INotificationService notificationService,
+                              IConversationApiService conversationApiService,
                               RequestMapper requestMapper)
         {
             requestDataRepository = requestRepository;
             rentalConflictRepository = rentalRepository;
             gameValidationRepository = gameRepository;
             requestNotificationService = notificationService;
+            this.conversationApiService = conversationApiService;
             requestDtoMapper = requestMapper;
         }
 
@@ -47,7 +51,7 @@ namespace BoardGames.Api.Services
         public ImmutableList<RequestDTO> GetOpenRequestsForOwner(Guid ownerAccountId) =>
             GetRequestsForOwner(ownerAccountId).Where(request => request.Status == DtoRequestStatus.Open).ToImmutableList();
 
-        public Result<int, CreateRequestError> CreateRequest(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate)
+        public async Task<Result<int, CreateRequestError>> CreateRequest(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate)
         {
             if (!DateRangeValidationHelper.HasValidFutureDateRange(startDate, endDate))
             {
@@ -83,10 +87,19 @@ namespace BoardGames.Api.Services
                 $"You have a new rental request for {ownerNotificationGameName} {FormatPeriod(startDate, endDate)}.",
                 relatedRequestId: newRequest.Id);
 
+            try
+            {
+                await conversationApiService.AttachRentalRequestMessage(newRequest.Id, renterAccountId, effectiveOwnerId, ownerNotificationGameName, startDate, endDate);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARN] AttachRentalRequestMessage failed for request {newRequest.Id}: {ex.Message}");
+            }
+
             return Result<int, CreateRequestError>.Success(newRequest.Id);
         }
 
-        public Result<int, ApproveRequestError> ApproveRequest(int requestId, Guid ownerAccountId)
+        public async Task<Result<int, ApproveRequestError>> ApproveRequest(int requestId, Guid ownerAccountId)
         {
             Request req;
             try
@@ -108,7 +121,8 @@ namespace BoardGames.Api.Services
                 return Result<int, ApproveRequestError>.Failure(ApproveRequestError.NotFound);
             }
 
-            if (!TryApproveOpenRequestAndNotify(req, out var rentalId))
+            var (success, rentalId) = await TryApproveOpenRequestAndNotify(req);
+            if (!success)
             {
                 return Result<int, ApproveRequestError>.Failure(ApproveRequestError.TransactionFailed);
             }
@@ -116,7 +130,7 @@ namespace BoardGames.Api.Services
             return Result<int, ApproveRequestError>.Success(rentalId);
         }
 
-        public Result<int, DenyRequestError> DenyRequest(int requestId, Guid ownerAccountId, string denialReason)
+        public async Task<Result<int, DenyRequestError>> DenyRequest(int requestId, Guid ownerAccountId, string denialReason)
         {
             Request req;
             try
@@ -141,6 +155,15 @@ namespace BoardGames.Api.Services
             var gameName = req.Game?.Name ?? "the selected game";
             SendNotificationToAccount(renterId, NotificationTitles.RentalRequestDeclined,
                 $"Your request for {gameName} {FormatPeriod(req.StartDate, req.EndDate)} was declined. Reason: {reason}");
+
+            try
+            {
+                await conversationApiService.FinalizeRentalRequestMessage(requestId, accepted: false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARN] FinalizeRentalRequestMessage(deny) failed for request {requestId}: {ex.Message}");
+            }
 
             return Result<int, DenyRequestError>.Success(requestId);
         }
@@ -248,7 +271,7 @@ namespace BoardGames.Api.Services
                 .Any(request => request.StartDate.AddHours(-DomainConstants.RentalBufferHours) < endDate && request.EndDate.AddHours(DomainConstants.RentalBufferHours) > startDate);
         }
 
-        public Result<int, OfferError> OfferGame(int requestId, Guid offeringOwnerAccountId)
+        public async Task<Result<int, OfferError>> OfferGame(int requestId, Guid offeringOwnerAccountId)
         {
             Request req;
             try
@@ -270,7 +293,8 @@ namespace BoardGames.Api.Services
                 return Result<int, OfferError>.Failure(OfferError.RequestNotOpen);
             }
 
-            if (!TryApproveOpenRequestAndNotify(req, out var rentalId))
+            var (success, rentalId) = await TryApproveOpenRequestAndNotify(req);
+            if (!success)
             {
                 return Result<int, OfferError>.Failure(OfferError.TransactionFailed);
             }
@@ -297,12 +321,13 @@ namespace BoardGames.Api.Services
             });
         }
 
-        private bool TryApproveOpenRequestAndNotify(Request req, out int rentalId)
+        private async Task<(bool Success, int RentalId)> TryApproveOpenRequestAndNotify(Request req)
         {
             var buffStart = req.StartDate.AddHours(-DomainConstants.RentalBufferHours);
             var buffEnd = req.EndDate.AddHours(DomainConstants.RentalBufferHours);
             var conflicts = requestDataRepository.GetOverlappingRequests(req.Game?.Id ?? MissingForeignKeyId, req.Id, buffStart, buffEnd);
 
+            int rentalId;
             try
             {
                 rentalId = requestDataRepository.ApproveAtomically(req, conflicts);
@@ -310,8 +335,7 @@ namespace BoardGames.Api.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] TryApproveOpenRequestAndNotify failed: {ex}");
-                rentalId = MissingForeignKeyId;
-                return false;
+                return (false, MissingForeignKeyId);
             }
 
             var gameName = req.Game?.Name ?? "the selected game";
@@ -326,7 +350,16 @@ namespace BoardGames.Api.Services
             SendNotificationToAccount(renterId, NotificationTitles.RentalRequestApproved,
                 $"Your request for {gameName} {FormatPeriod(req.StartDate, req.EndDate)} was approved.");
 
-            return true;
+            try
+            {
+                await conversationApiService.FinalizeRentalRequestMessage(req.Id, accepted: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARN] FinalizeRentalRequestMessage(approve) failed for request {req.Id}: {ex.Message}");
+            }
+
+            return (true, rentalId);
         }
 
         private static string FormatPeriod(DateTime start, DateTime end) => $"({start:d}-{end:d})";

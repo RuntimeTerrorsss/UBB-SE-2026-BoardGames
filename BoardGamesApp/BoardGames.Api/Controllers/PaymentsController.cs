@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BookingBoardGames.Data;
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Api.Services;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -13,11 +14,13 @@ namespace BoardGames.Api.Controllers
     {
         private readonly IPaymentRepository _repo;
         private readonly IRepositoryPayment _historyRepo;
+        private readonly IDashboardService _dashboardService;
 
-        public PaymentsController(IPaymentRepository repo, IRepositoryPayment historyRepo)
+        public PaymentsController(IPaymentRepository repo, IRepositoryPayment historyRepo, IDashboardService dashboardService)
         {
             _repo = repo;
             _historyRepo = historyRepo;
+            _dashboardService = dashboardService;
         }
 
         [HttpGet("{id}")]
@@ -34,7 +37,6 @@ namespace BoardGames.Api.Controllers
             return Ok(await _repo.GetAllPaymentsAsync());
         }
 
-        // Returns HistoryPayment records with GameName + OwnerName populated via JOIN.
         [HttpGet("history")]
         public async Task<ActionResult<IReadOnlyList<HistoryPayment>>> GetHistory()
         {
@@ -47,6 +49,13 @@ namespace BoardGames.Api.Controllers
             var result = await _historyRepo.GetPaymentById(id);
             if (result == null) return NotFound();
             return Ok(result);
+        }
+
+        [HttpGet("user/{accountId:guid}/history")]
+        public async Task<ActionResult<List<PaymentDataTransferObject>>> GetHistoryForUser(Guid accountId)
+        {
+            var history = await _dashboardService.GetPaymentHistoryForUser(accountId);
+            return Ok(history);
         }
 
         [HttpPost]
