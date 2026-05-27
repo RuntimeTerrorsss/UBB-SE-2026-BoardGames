@@ -78,7 +78,7 @@ namespace BoardGames.Api.Services
                 ConversationId = conversationId,
                 MessageSenderId = renterPamId,
                 MessageReceiverId = ownerPamId,
-                RentalRequestId = 0,
+                RentalRequestId = requestId,
                 RequestContent = content,
                 MessageContentAsString = content,
                 MessageSentTime = DateTime.UtcNow,
