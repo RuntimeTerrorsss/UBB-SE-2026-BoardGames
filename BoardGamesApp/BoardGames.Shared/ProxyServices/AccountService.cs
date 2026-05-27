@@ -1,10 +1,12 @@
-// <copyright file="AccountService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.IO;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
+
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -17,7 +19,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<AccountProfileDTO>> GetProfileAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync<AccountProfileDTO>(
                 token => client.GetAsync($"api/accounts/{accountId}", token),
                 async (response, token) =>
@@ -35,7 +37,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> UpdateProfileAsync(Guid accountId, AccountProfileDTO profileUpdateData, CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PutAsJsonAsync($"api/accounts/{accountId}", profileUpdateData, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -51,7 +53,7 @@ namespace BoardGames.Shared.ProxyServices
                 ConfirmPassword = newPassword,
             };
 
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PutAsJsonAsync($"api/accounts/{accountId}/password", body, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -62,7 +64,7 @@ namespace BoardGames.Shared.ProxyServices
         {
             try
             {
-                var client = this.CreateClient();
+                var client = CreateClient();
                 using var multipartContent = new MultipartFormDataContent();
                 byte[] fileBytes = await File.ReadAllBytesAsync(sourceFilePath, cancellationToken);
                 var byteContent = new ByteArrayContent(fileBytes);
@@ -91,7 +93,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> RemoveAvatarAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.DeleteAsync($"api/accounts/{accountId}/avatar", token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),

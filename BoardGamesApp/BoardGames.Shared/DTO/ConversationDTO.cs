@@ -1,6 +1,10 @@
-// <copyright file="ConversationDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="ConversationDTO.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BoardGames.Shared.DTO
 {
@@ -8,37 +12,37 @@ namespace BoardGames.Shared.DTO
     {
         public ConversationDTO(
             int conversationId,
-            ICollection<ConversationParticipant> participants,
-            List<MessageDTO> messages,
+            IReadOnlyList<int> participantUserIds,
+            List<MessageDataTransferObject> messages,
             Dictionary<int, DateTime> lastRead)
         {
-            this.Id = conversationId;
-            this.Participants = participants;
-            this.MessageList = messages;
-            this.LastRead = lastRead;
-            this.UnreadCount = participants.ToDictionary(participant => participant.UserId, _ => 0);
-            this.UpdateUnreadCounts();
+            Id = conversationId;
+            ParticipantUserIds = participantUserIds;
+            MessageList = messages;
+            LastRead = lastRead;
+            UnreadCount = participantUserIds.ToDictionary(userId => userId, _ => 0);
+            UpdateUnreadCounts();
         }
 
         public int Id { get; set; }
 
-        public List<MessageDTO> MessageList { get; set; }
+        public List<MessageDataTransferObject> MessageList { get; set; }
 
-        public ICollection<ConversationParticipant> Participants { get; set; }
+        public IReadOnlyList<int> ParticipantUserIds { get; set; }
 
         public Dictionary<int, DateTime> LastRead { get; set; }
 
         public Dictionary<int, int> UnreadCount { get; set; }
 
-        public void AddMessageToListDTO(MessageDTO newMessage)
+        public void AddMessageToListDTO(MessageDataTransferObject newMessage)
         {
-            if (this.MessageList.Any(message => message.Id == newMessage.Id))
+            if (MessageList.Any(message => message.Id == newMessage.Id))
             {
                 return;
             }
 
-            this.MessageList.Add(newMessage);
-            this.UpdateUnreadCounts();
+            MessageList.Add(newMessage);
+            UpdateUnreadCounts();
         }
 
         public void UpdateUnreadCounts()
@@ -46,26 +50,26 @@ namespace BoardGames.Shared.DTO
             int defaultUnreadCount = 0;
             int systemMessageSenderIdentifier = 0;
 
-            foreach (var participantItem in this.Participants)
+            foreach (var participantUserId in ParticipantUserIds)
             {
-                this.UnreadCount[participantItem.UserId] = defaultUnreadCount;
+                UnreadCount[participantUserId] = defaultUnreadCount;
             }
 
-            foreach (var messageItem in this.MessageList)
+            foreach (var messageItem in MessageList)
             {
                 if (messageItem.ReceiverId == systemMessageSenderIdentifier)
                 {
                     continue;
                 }
 
-                DateTime receiverLastRead = this.LastRead.TryGetValue(messageItem.ReceiverId, out DateTime readTime)
+                DateTime receiverLastRead = LastRead.TryGetValue(messageItem.ReceiverId, out DateTime readTime)
                     ? readTime
                     : DateTime.MinValue;
 
                 if (messageItem.SentAt >= receiverLastRead
-                    && this.UnreadCount.TryGetValue(messageItem.ReceiverId, out int _))
+                    && UnreadCount.TryGetValue(messageItem.ReceiverId, out int _))
                 {
-                    this.UnreadCount[messageItem.ReceiverId]++;
+                    UnreadCount[messageItem.ReceiverId]++;
                 }
             }
         }

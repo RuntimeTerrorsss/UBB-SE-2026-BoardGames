@@ -1,7 +1,5 @@
-// <copyright file="AccountProfileMapper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Linq;
 using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
 
@@ -11,7 +9,7 @@ namespace BoardGames.Api.Mappers
     {
         private const string StandardAccountRoleName = "Standard User";
 
-        public AccountProfileDTO? ToDTO(User? account)
+        public AccountProfileDTO ToDataTransferObject(Account account)
         {
             if (account == null)
             {
@@ -23,6 +21,7 @@ namespace BoardGames.Api.Mappers
             return new AccountProfileDTO
             {
                 Id = account.Id,
+                PamUserId = account.PamUserId,
                 Username = account.Username,
                 DisplayName = account.DisplayName,
                 Email = account.Email,
@@ -41,19 +40,19 @@ namespace BoardGames.Api.Mappers
             };
         }
 
-        public void ApplyToEntity(User account, AccountProfileDTO DTO)
+        public void ApplyToEntity(Account account, AccountProfileDTO dataTransferObject)
         {
-            account.DisplayName = DTO.DisplayName;
-            account.Email = DTO.Email;
-            account.PhoneNumber = DTO.PhoneNumber;
-            account.Country = DTO.Country;
-            account.City = DTO.City;
-            account.StreetName = DTO.StreetName;
-            account.StreetNumber = DTO.StreetNumber;
+            account.DisplayName = dataTransferObject.DisplayName;
+            account.Email = dataTransferObject.Email;
+            account.PhoneNumber = dataTransferObject.PhoneNumber;
+            account.Country = dataTransferObject.Country;
+            account.City = dataTransferObject.City;
+            account.StreetName = dataTransferObject.StreetName;
+            account.StreetNumber = dataTransferObject.StreetNumber;
 
-            if (!string.IsNullOrWhiteSpace(DTO.AvatarUrl))
+            if (!string.IsNullOrWhiteSpace(dataTransferObject.AvatarUrl))
             {
-                account.AvatarUrl = DTO.AvatarUrl;
+                account.AvatarUrl = dataTransferObject.AvatarUrl;
             }
 
             account.UpdatedAt = DateTime.UtcNow;

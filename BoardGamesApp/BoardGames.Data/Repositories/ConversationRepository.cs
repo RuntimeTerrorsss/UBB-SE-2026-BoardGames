@@ -172,6 +172,14 @@ namespace BoardGames.Data.Repositories
                 .FirstAsync(requestMessage => requestMessage.MessageId == messageId);
         }
 
+        public async Task<RentalRequestMessage?> FindRentalRequestMessageByRequestId(int requestId)
+        {
+            string prefix = $"[req:{requestId}]";
+            return await context.Messages
+                .OfType<RentalRequestMessage>()
+                .FirstOrDefaultAsync(m => m.RequestContent != null && m.RequestContent.StartsWith(prefix));
+        }
+
         public async Task<Message?> CreateCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId)
         {
             var parent = await this.context.Messages

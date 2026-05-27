@@ -1,11 +1,11 @@
-// <copyright file="AuthController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Api.Common;
+using System.Security.Claims;
 using BoardGames.Api.Services;
+using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace BoardGames.Api.Controllers
 {
@@ -13,6 +13,8 @@ namespace BoardGames.Api.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
+        public const string PamUserIdClaimType = "pam_user_id";
+
         private readonly IAuthService authService;
 
         public AuthController(IAuthService authService)
@@ -23,49 +25,76 @@ namespace BoardGames.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO body)
         {
-            var result = await this.authService.RegisterAsync(body);
+            var result = await authService.RegisterAsync(body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.Ok(new { result.Data });
+            return Ok(new { result.Data });
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<AccountProfileDTO>> Login([FromBody] LoginDTO body)
         {
-            var result = await this.authService.LoginAsync(body);
-            if (!result.Success)
+            var result = await authService.LoginAsync(body);
+            if (!result.Success || result.Data is null)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.Ok(result.Data);
+            var profile = result.Data;
+            string roleName = profile.Role?.Name ?? "Standard User";
+
+            // Map "Administrator" → "Admin" so [Authorize(Roles = "Admin")] on AdminController matches.
+            string authorizationRole = string.Equals(roleName, "Administrator", System.StringComparison.OrdinalIgnoreCase)
+                ? "Admin"
+                : roleName;
+
+            var claims = new System.Collections.Generic.List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, profile.Id.ToString()),
+                new(ClaimTypes.Name, profile.Username ?? string.Empty),
+                new(ClaimTypes.Role, authorizationRole),
+            };
+
+            if (profile.PamUserId.HasValue)
+            {
+                claims.Add(new Claim(PamUserIdClaimType, profile.PamUserId.Value.ToString()));
+            }
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            return Ok(profile);
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var result = await this.authService.LogoutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var result = await authService.LogoutAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.NoContent();
+            return NoContent();
         }
 
         [HttpGet("forgot-password")]
         public async Task<ActionResult<string>> ForgotPassword()
         {
-            var result = await this.authService.ForgotPasswordAsync();
+            var result = await authService.ForgotPasswordAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.Ok(result.Data);
+            return Ok(result.Data);
         }
     }
 }

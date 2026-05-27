@@ -21,7 +21,7 @@ namespace BoardGames.Data.Repositories;
 /// - When your "using" block finishes, it calls .Close().
 /// - Microsoft intercepts your .Close() command. It doesn't actually destroy the connection to the database. It just wipes the data clean and parks it back in the hidden pool for.  the next person to use.
 /// </summary>
-public class GamesRepository : InterfaceGamesRepository
+public class GamesRepository : InterfaceGamesRepository, IGameRepository
 {
     /// <summary>
     /// Represents the ID used for unauthenticated users.
@@ -64,6 +64,15 @@ public class GamesRepository : InterfaceGamesRepository
     public async Task<List<Game>> GetAll()
     {
         return await this.GetAllActiveGames(AnonymousUserId);
+    }
+
+    /// <summary>
+    /// Gets all games including inactive ones (for Admin).
+    /// </summary>
+    /// <returns>A list of all games.</returns>
+    public async Task<List<Game>> GetAllIncludingInactive()
+    {
+        return await appContext.Games.Include(game => game.Owner).ToListAsync();
     }
 
     /// <summary>

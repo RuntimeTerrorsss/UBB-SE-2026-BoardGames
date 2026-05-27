@@ -39,17 +39,66 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.1.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
+    <PackageReference Include="H.NotifyIcon.WinUI" Version="2.4.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
   </ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
-		<ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
 		<ProjectReference Include="..\ServerCommunication\ServerCommunication.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+		<Compile Remove="App.xaml2.cs" />
+		<Compile Remove="MainWindow.xaml2.cs" />
+		<Compile Remove="DatabaseBootstrap.cs" />
+		<Compile Remove="DatabaseConfig.cs" />
+		<Compile Remove="Navigation\BookingNavigationArguments.cs" />
+		<Compile Remove="ViewModels\CardPaymentViewModel.cs" />
+		<Compile Remove="ViewModels\CashPaymentViewModel.cs" />
+		<Compile Remove="ViewModels\ChatPageViewModel.cs" />
+		<Compile Remove="ViewModels\ChatViewModel.cs" />
+		<Compile Remove="ViewModels\ConfirmBookingViewModel.cs" />
+		<Compile Remove="ViewModels\DeliveryViewModel.cs" />
+		<Compile Remove="ViewModels\DiscoveryViewModel.cs" />
+		<Compile Remove="ViewModels\FilteredSearchViewModel.cs" />
+		<Compile Remove="ViewModels\GameDetailsViewModel.cs" />
+		<Compile Remove="ViewModels\LeftPanelViewModel.cs" />
+		<Compile Remove="ViewModels\LoginViewModel.cs" />
+		<Compile Remove="ViewModels\MessageViewModel.cs" />
+		<Compile Remove="ViewModels\PaymentHistoryViewModel.cs" />
+		<Compile Remove="Views\CardPaymentPage.xaml.cs" />
+		<Compile Remove="Views\CashPaymentPage.xaml.cs" />
+		<Compile Remove="Views\ConfirmBookingView.xaml.cs" />
+		<Compile Remove="Views\DashboardView.xaml.cs" />
+		<Compile Remove="Views\DeliveryView.xaml.cs" />
+		<Compile Remove="Views\DiscoveryView.xaml.cs" />
+		<Compile Remove="Views\FilteredSearchView.xaml.cs" />
+		<Compile Remove="Views\GameDetailsView.xaml.cs" />
+		<Compile Remove="Views\LoginView.xaml.cs" />
+		<Compile Remove="Views\PaymentHistoryView.xaml.cs" />
+		<Compile Remove="Views\PaymentHistoryView.xaml.g.cs" />
+		<Compile Remove="Views\RegisterView.xaml.cs" />
+		<Compile Remove="Views\ChatViews\**\*.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Remove="App2.xaml" />
+		<Page Remove="MainWindow2.xaml" />
+		<Page Remove="Views\CardPaymentPage.xaml" />
+		<Page Remove="Views\CashPaymentPage.xaml" />
+		<Page Remove="Views\ConfirmBookingView.xaml" />
+		<Page Remove="Views\DashboardView.xaml" />
+		<Page Remove="Views\DeliveryView.xaml" />
+		<Page Remove="Views\DiscoveryView.xaml" />
+		<Page Remove="Views\FilteredSearchView.xaml" />
+		<Page Remove="Views\GameDetailsView.xaml" />
+		<Page Remove="Views\LoginView.xaml" />
+		<Page Remove="Views\PaymentHistoryView.xaml" />
+		<Page Remove="Views\RegisterView.xaml" />
+		<Page Remove="Views\ChatViews\**\*.xaml" />
 	</ItemGroup>
 
   <!--

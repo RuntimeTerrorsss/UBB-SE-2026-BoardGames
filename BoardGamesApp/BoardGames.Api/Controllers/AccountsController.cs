@@ -1,10 +1,10 @@
-// <copyright file="AccountsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Api.Common;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using BoardGames.Api.Services;
+using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -27,37 +27,37 @@ namespace BoardGames.Api.Controllers
         [HttpGet("{accountId:guid}")]
         public async Task<ActionResult<AccountProfileDTO>> GetProfile(Guid accountId)
         {
-            var result = await this.accountService.GetProfileAsync(accountId);
+            var result = await accountService.GetProfileAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.Ok(result.Data);
+            return Ok(result.Data);
         }
 
         [HttpPut("{accountId:guid}")]
         public async Task<IActionResult> UpdateProfile(Guid accountId, [FromBody] AccountProfileDTO body)
         {
-            var result = await this.accountService.UpdateProfileAsync(accountId, body);
+            var result = await accountService.UpdateProfileAsync(accountId, body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.NoContent();
+            return NoContent();
         }
 
         [HttpPut("{accountId:guid}/password")]
         public async Task<IActionResult> ChangePassword(Guid accountId, [FromBody] ChangePasswordDTO body)
         {
-            var result = await this.accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
+            var result = await accountService.ChangePasswordAsync(accountId, body.CurrentPassword, body.NewPassword);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.NoContent();
+            return NoContent();
         }
 
         [HttpPost("{accountId:guid}/avatar")]
@@ -73,29 +73,29 @@ namespace BoardGames.Api.Controllers
             string relativeUrl;
             await using (var stream = file.OpenReadStream())
             {
-                relativeUrl = await this.avatarStorageService.SaveAsync(accountId, stream, extension);
+                relativeUrl = await avatarStorageService.SaveAsync(accountId, stream, extension);
             }
 
-            var result = await this.accountService.SetAvatarUrlAsync(accountId, relativeUrl);
+            var result = await accountService.SetAvatarUrlAsync(accountId, relativeUrl);
             if (!result.Success)
             {
-                this.avatarStorageService.Delete(relativeUrl);
+                avatarStorageService.Delete(relativeUrl);
                 return this.FromServiceError(result.Error);
             }
 
-            return this.Ok(new AvatarUploadResponseDTO { AvatarUrl = relativeUrl });
+            return Ok(new AvatarUploadResponseDTO { AvatarUrl = relativeUrl });
         }
 
         [HttpDelete("{accountId:guid}/avatar")]
         public async Task<IActionResult> RemoveAvatar(Guid accountId)
         {
-            var result = await this.accountService.RemoveAvatarAsync(accountId);
+            var result = await accountService.RemoveAvatarAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return this.NoContent();
+            return NoContent();
         }
     }
 }
