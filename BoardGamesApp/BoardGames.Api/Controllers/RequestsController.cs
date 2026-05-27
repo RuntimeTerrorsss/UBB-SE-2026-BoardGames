@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BoardGames.Api.Services;
 using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
@@ -38,9 +39,9 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<int> Create([FromBody] CreateRequestDataTransferObject body)
+        public async Task<ActionResult<int>> Create([FromBody] CreateRequestDataTransferObject body)
         {
-            var result = requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
+            var result = await requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
             if (!result.IsSuccess)
             {
                 return MapCreateError(result.Error);
@@ -50,9 +51,9 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/approve")]
-        public ActionResult<int> Approve(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public async Task<ActionResult<int>> Approve(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = requestService.ApproveRequest(requestId, body.AccountId);
+            var result = await requestService.ApproveRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
                 return MapApproveError(result.Error);
@@ -62,9 +63,9 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/deny")]
-        public IActionResult Deny(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public async Task<IActionResult> Deny(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
+            var result = await requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
             if (!result.IsSuccess)
             {
                 return MapDenyError(result.Error);
@@ -86,9 +87,9 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/offer")]
-        public ActionResult<int> Offer(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public async Task<ActionResult<int>> Offer(int requestId, [FromBody] RequestActionDataTransferObject body)
         {
-            var result = requestService.OfferGame(requestId, body.AccountId);
+            var result = await requestService.OfferGame(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
                 return MapOfferError(result.Error);
