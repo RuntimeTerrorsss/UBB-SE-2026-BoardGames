@@ -1,12 +1,12 @@
-// <copyright file="MessageDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="MessageDataTransferObject.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using BoardGames.Data.Enums;
+using System;
 
 namespace BoardGames.Shared.DTO
 {
-    public record MessageDTO(
+    public record MessageDataTransferObject(
         int Id,
         int ConversationId,
         int SenderId,
@@ -26,9 +26,9 @@ namespace BoardGames.Shared.DTO
         {
             int maximumPreviewLength = 50;
 
-            return this.Type switch
+            return Type switch
             {
-                MessageType.MessageText or MessageType.MessageSystem => this.Content.Length > maximumPreviewLength ? this.Content[..maximumPreviewLength] : this.Content,
+                MessageType.MessageText or MessageType.MessageSystem => Content.Length > maximumPreviewLength ? Content[..maximumPreviewLength] : Content,
                 MessageType.MessageImage => "[Image]",
                 MessageType.MessageRentalRequest => "[Rental Request]",
                 MessageType.MessageCashAgreement => "[Cash Agreement]",

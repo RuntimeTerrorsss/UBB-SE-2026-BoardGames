@@ -1,7 +1,8 @@
-// <copyright file="RentalService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Immutable;
+using System.Linq;
+using BoardGames.Data.Constants;
+using BoardGames.Api.Mappers;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
@@ -10,134 +11,65 @@ namespace BoardGames.Api.Services
 {
     public class RentalService : IRentalService
     {
-        private const int MinimumValidDayCount = 1;
+        private const int NewRentalId = 0;
 
-        private readonly IRentalRepository rentalRepository;
-        private readonly InterfaceGamesRepository gameRepository;
+        private readonly IRentalRepository rentalDataRepository;
+        private readonly IGameRepository gameLookupRepository;
+        private readonly RentalMapper rentalDtoMapper;
 
-        public RentalService(IRentalRepository rentalRepository, InterfaceGamesRepository gameRepository)
+        public RentalService(IRentalRepository rentalRepository, IGameRepository gameRepository, RentalMapper rentalMapper)
         {
-            this.rentalRepository = rentalRepository;
-            this.gameRepository = gameRepository;
+            rentalDataRepository = rentalRepository;
+            gameLookupRepository = gameRepository;
+            rentalDtoMapper = rentalMapper;
         }
 
-        public async Task<List<RentalDTO>> GetRentalsForUser(int userId)
+        public bool IsSlotAvailable(int gameId, DateTime startDate, DateTime endDate)
         {
-            var rentals = await rentalRepository.GetRentalsForUser(userId);
-
-            return rentals.Select(rental => new RentalDTO(
-                rental.RentalId,
-                rental.GameId,
-                rental.Game?.Name ?? "Unknown Game",
-                rental.ClientId,
-                rental.Client?.DisplayName ?? "Unknown Renter",
-                rental.OwnerId,
-                rental.Owner?.DisplayName ?? "Unknown Owner",
-                rental.StartDate,
-                rental.EndDate,
-                rental.TotalPrice ?? 0m)).ToList();
-        }
-
-        public async Task<Rental> GetRentalById(int rentalId)
-        {
-            return await rentalRepository.GetById(rentalId);
-        }
-
-        public async Task<decimal> GetRentalPrice(int rentalId)
-        {
-            var rental = await rentalRepository.GetById(rentalId);
-
-            if (rental == null)
+            foreach (var rental in rentalDataRepository.GetRentalsByGame(gameId))
             {
-                return 0m;
+                if (startDate < rental.EndDate.AddHours(DomainConstants.RentalBufferHours) && endDate > rental.StartDate.AddHours(-DomainConstants.RentalBufferHours))
+                {
+                    return false;
+                }
             }
 
-            var pricePerDay = await gameRepository.GetPriceGameById(rental.GameId);
-            var timeRange = new TimeRange(rental.StartDate, rental.EndDate);
-
-            return await CalculateTotalPriceForRentingASpecificGame(pricePerDay, timeRange);
+            return true;
         }
 
-        public async Task<string> GetGameName(int rentalId)
+        public void CreateConfirmedRental(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate)
         {
-            var rental = await rentalRepository.GetById(rentalId);
-
-            if (rental == null)
+            if (!DateRangeValidationHelper.HasValidFutureDateRange(startDate, endDate))
             {
-                return "Unknown Rental";
+                throw new ArgumentException("Start date must be before end date and not in the past.");
             }
 
-            var game = await gameRepository.GetGameById(rental.GameId);
-
-            if (game == null)
+            var game = gameLookupRepository.GetGame(gameId);
+            if (game.Owner?.Id != ownerAccountId)
             {
-                return "Unknown Game";
+                throw new InvalidOperationException("Seller ID must match Game Owner ID [ENT-REN-04].");
             }
 
-            return game.Name;
-        }
-
-        public async Task<List<TimeRange>> GetUnavailableTimeRanges(int gameId)
-        {
-            return await rentalRepository.GetUnavailableTimeRanges(gameId);
-        }
-
-        public async Task<bool> CheckGameAvailability(int gameId, DateTime startDate, DateTime endDate)
-        {
-            if (endDate.Date < startDate.Date)
+            if (!IsSlotAvailable(gameId, startDate, endDate))
             {
-                return false;
+                throw new InvalidOperationException($"Selected dates fall within the mandatory {DomainConstants.RentalBufferHours}-hour buffer of another rental.");
             }
-
-            return await rentalRepository.CheckGameAvailability(startDate.Date, endDate.Date, gameId);
-        }
-
-        public async Task<decimal> CalculateTotalPriceForRentingASpecificGame(decimal price, TimeRange timeRange)
-        {
-            int days = await CalculateNumberOfDaysInAGivenTimeRange(timeRange);
-            return days * price;
-        }
-
-        public async Task<int> CalculateNumberOfDaysInAGivenTimeRange(TimeRange selectedTimeRange)
-        {
-            int days = (selectedTimeRange.EndTime.Date - selectedTimeRange.StartTime.Date).Days + MinimumValidDayCount;
-            return days < MinimumValidDayCount ? MinimumValidDayCount : days;
-        }
-
-        public async Task<Rental> CreateRental(int gameId, int clientId, int ownerId, DateTime startDate, DateTime endDate)
-        {
-            if (endDate.Date < startDate.Date)
-            {
-                throw new ArgumentException("End date must be on or after the start date.");
-            }
-
-            startDate = startDate.Date;
-            endDate = endDate.Date;
-
-            bool isAvailable = await CheckGameAvailability(gameId, startDate, endDate);
-
-            if (!isAvailable)
-            {
-                throw new InvalidOperationException("The game is not available for the selected period.");
-            }
-
-            var pricePerDay = await gameRepository.GetPriceGameById(gameId);
-            var timeRange = new TimeRange(startDate, endDate);
-            var totalPrice = await CalculateTotalPriceForRentingASpecificGame(pricePerDay, timeRange);
 
             var rental = new Rental
             {
-                GameId = gameId,
-                ClientId = clientId,
-                OwnerId = ownerId,
+                Game = new Game { Id = gameId },
+                Client = new Account { Id = renterAccountId },
+                Owner = new Account { Id = ownerAccountId },
                 StartDate = startDate,
                 EndDate = endDate,
-                TotalPrice = totalPrice,
             };
-
-            await rentalRepository.AddRental(rental);
-
-            return rental;
+            rentalDataRepository.AddConfirmed(rental);
         }
+
+        public ImmutableList<RentalDTO> GetRentalsForRenter(Guid renterAccountId) =>
+            rentalDataRepository.GetRentalsByRenter(renterAccountId).Select(rental => rentalDtoMapper.ToDTO(rental)!).ToImmutableList();
+
+        public ImmutableList<RentalDTO> GetRentalsForOwner(Guid ownerAccountId) =>
+            rentalDataRepository.GetRentalsByOwner(ownerAccountId).Select(rental => rentalDtoMapper.ToDTO(rental)!).ToImmutableList();
     }
 }

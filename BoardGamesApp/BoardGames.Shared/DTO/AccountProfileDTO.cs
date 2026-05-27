@@ -1,6 +1,4 @@
-// <copyright file="AccountProfileDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
 
 namespace BoardGames.Shared.DTO
 {
@@ -8,28 +6,30 @@ namespace BoardGames.Shared.DTO
     {
         public Guid Id { get; set; }
 
-        public string Username { get; set; }
+        public int? PamUserId { get; set; }
 
-        public string DisplayName { get; set; }
+        public string Username { get; set; } = string.Empty;
 
-        public string Email { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
 
-        public string PhoneNumber { get; set; }
+        public string Email { get; set; } = string.Empty;
 
-        public string AvatarUrl { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
 
-        public RoleDTO Role { get; set; }
+        public string AvatarUrl { get; set; } = string.Empty;
+
+        public RoleDTO? Role { get; set; }
 
         public bool IsSuspended { get; set; }
 
         public bool IsLocked { get; set; }
 
-        public string Country { get; set; }
+        public string Country { get; set; } = string.Empty;
 
-        public string City { get; set; }
+        public string City { get; set; } = string.Empty;
 
-        public string StreetName { get; set; }
+        public string StreetName { get; set; } = string.Empty;
 
-        public string StreetNumber { get; set; }
+        public string StreetNumber { get; set; } = string.Empty;
     }
 }

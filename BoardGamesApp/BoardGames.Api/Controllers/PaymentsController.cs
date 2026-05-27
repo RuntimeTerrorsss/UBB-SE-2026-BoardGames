@@ -1,8 +1,9 @@
-// <copyright file="PaymentsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BoardGames.Api.Services;
 using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
@@ -11,50 +12,50 @@ namespace BoardGames.Api.Controllers
     [Route("api/[controller]")]
     public class PaymentsController : ControllerBase
     {
-        private readonly IPaymentRepository repo;
-        private readonly IRepositoryPayment historyRepo;
+        private readonly IPaymentRepository _repo;
+        private readonly IRepositoryPayment _historyRepo;
+        private readonly IDashboardService _dashboardService;
 
-        public PaymentsController(IPaymentRepository repository, IRepositoryPayment historyRepository)
+        public PaymentsController(IPaymentRepository repo, IRepositoryPayment historyRepo, IDashboardService dashboardService)
         {
-            this.repo = repository;
-            this.historyRepo = historyRepository;
+            _repo = repo;
+            _historyRepo = historyRepo;
+            _dashboardService = dashboardService;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetPayment(int id)
         {
-            var payment = await this.repo.GetPaymentByIdentifierAsync(id);
-            if (payment == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.Ok(payment);
+            var payment = await _repo.GetPaymentByIdentifierAsync(id);
+            if (payment == null) return NotFound();
+            return Ok(payment);
         }
 
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Payment>>> GetAll()
         {
-            return this.Ok(await this.repo.GetAllPaymentsAsync());
+            return Ok(await _repo.GetAllPaymentsAsync());
         }
 
-        // Returns HistoryPayment records with GameName + OwnerName populated via JOIN.
         [HttpGet("history")]
         public async Task<ActionResult<IReadOnlyList<HistoryPayment>>> GetHistory()
         {
-            return this.Ok(await this.historyRepo.GetAllPayments());
+            return Ok(await _historyRepo.GetAllPayments());
         }
 
         [HttpGet("history/{id}")]
         public async Task<ActionResult<HistoryPayment>> GetHistoryById(int id)
         {
-            var result = await this.historyRepo.GetPaymentById(id);
-            if (result == null)
-            {
-                return this.NotFound();
-            }
+            var result = await _historyRepo.GetPaymentById(id);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
-            return this.Ok(result);
+        [HttpGet("user/{accountId:guid}/history")]
+        public async Task<ActionResult<List<PaymentDTO>>> GetHistoryForUser(Guid accountId)
+        {
+            var history = await _dashboardService.GetPaymentHistoryForUser(accountId);
+            return Ok(history);
         }
 
         [HttpPost]
@@ -67,12 +68,12 @@ namespace BoardGames.Api.Controllers
                     payment.DateOfTransaction = DateTime.Now;
                 }
 
-                int newId = await this.repo.AddPaymentAsync(payment);
-                return this.Ok(newId);
+                int newId = await _repo.AddPaymentAsync(payment);
+                return Ok(newId);
             }
             catch (Exception ex)
             {
-                return this.Problem(detail: ex.InnerException?.Message ?? ex.Message, statusCode: 500);
+                return Problem(detail: ex.InnerException?.Message ?? ex.Message, statusCode: 500);
             }
         }
 
@@ -80,26 +81,18 @@ namespace BoardGames.Api.Controllers
         public async Task<ActionResult<Payment>> UpdatePayment(int id, [FromBody] Payment payment)
         {
             payment.TransactionIdentifier = id;
-            var updated = await this.repo.UpdatePaymentAsync(payment);
-            if (updated == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.Ok(updated);
+            var updated = await _repo.UpdatePaymentAsync(payment);
+            if (updated == null) return NotFound();
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePayment(int id)
         {
-            var existing = await this.repo.GetPaymentByIdentifierAsync(id);
-            if (existing == null)
-            {
-                return this.NotFound();
-            }
-
-            bool deleted = await this.repo.DeletePaymentAsync(existing);
-            return deleted ? this.NoContent() : this.StatusCode(500);
+            var existing = await _repo.GetPaymentByIdentifierAsync(id);
+            if (existing == null) return NotFound();
+            bool deleted = await _repo.DeletePaymentAsync(existing);
+            return deleted ? NoContent() : StatusCode(500);
         }
     }
 }

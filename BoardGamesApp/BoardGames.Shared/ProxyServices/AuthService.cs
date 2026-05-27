@@ -1,9 +1,9 @@
-// <copyright file="AuthService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
+
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -16,7 +16,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> RegisterAsync(RegisterDTO request, CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PostAsJsonAsync("api/auth/register", request, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -25,7 +25,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO request, CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync<AccountProfileDTO>(
                 token => client.PostAsJsonAsync("api/auth/login", request, token),
                 async (response, token) =>
@@ -43,7 +43,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> LogoutAsync(CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PostAsync("api/auth/logout", content: null, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -52,7 +52,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<string>> ForgotPasswordAsync(CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.GetAsync("api/auth/forgot-password", token),
                 (response, token) => ApiResponseReader.ReadStringAsync(response, token),

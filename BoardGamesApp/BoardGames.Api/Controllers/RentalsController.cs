@@ -1,180 +1,64 @@
-// <copyright file="RentalsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System.Globalization;
-using BoardGames.Data.Models;
-using BoardGames.Data.Repositories;
+using System;
+using System.Collections.Generic;
+using BoardGames.Api.Services;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/rentals")]
     public class RentalsController : ControllerBase
     {
-        private const int MinimumValidDayCount = 1;
+        private readonly IRentalService rentalService;
 
-        private readonly IRentalRepository rentalRepository;
-
-        private readonly IConversationRepository conversationRepository;
-
-        private readonly InterfaceGamesRepository gamesRepository;
-
-        public RentalsController(
-            IRentalRepository rentalRepository,
-            IConversationRepository conversationRepository,
-            InterfaceGamesRepository gamesRepository)
+        public RentalsController(IRentalService rentalService)
         {
-            this.rentalRepository = rentalRepository;
-            this.conversationRepository = conversationRepository;
-            this.gamesRepository = gamesRepository;
+            this.rentalService = rentalService;
         }
 
-        /// <summary>Creates the rental record and adds a rental-request message to the renter ↔ owner conversation.</summary>
-        public record BookGameWithRentalRequestBody(int ClientId, int GameId, DateTime StartDate, DateTime EndDate);
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Rental>> GetRental(int id)
+        [HttpGet("owner/{ownerAccountId:guid}")]
+        public ActionResult<IReadOnlyList<RentalDTO>> GetForOwner(Guid ownerAccountId)
         {
-            var rental = await this.rentalRepository.GetById(id);
-            if (rental == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.Ok(rental);
+            return Ok(rentalService.GetRentalsForOwner(ownerAccountId));
         }
 
-        [HttpGet("game/{gameId}/unavailable")]
-        public async Task<ActionResult<List<TimeRange>>> GetUnavailable(int gameId)
+        [HttpGet("renter/{renterAccountId:guid}")]
+        public ActionResult<IReadOnlyList<RentalDTO>> GetForRenter(Guid renterAccountId)
         {
-            var list = await this.rentalRepository.GetUnavailableTimeRanges(gameId);
-            return this.Ok(list);
+            return Ok(rentalService.GetRentalsForRenter(renterAccountId));
         }
 
-        [HttpGet("{id}/timerange")]
-        public async Task<ActionResult<TimeRange>> GetRentalTimeRange(int id)
-        {
-            var range = await this.rentalRepository.GetRentalTimeRange(id);
-            if (range == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.Ok(range);
-        }
-
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<List<Rental>>> GetRentalsForUser(int userId)
-        {
-            if (userId <= 0)
-            {
-                return this.BadRequest("A valid user id is required.");
-            }
-
-            var rentals = await this.rentalRepository.GetRentalsForUser(userId);
-            return this.Ok(rentals);
-        }
-
-        [HttpPost("book")]
-        public async Task<ActionResult<int>> BookGameWithRentalRequest([FromBody] BookGameWithRentalRequestBody request)
-        {
-            if (request.ClientId <= 0)
-            {
-                return this.BadRequest("A valid renter account is required.");
-            }
-
-            request = request with
-            {
-                StartDate = request.StartDate.Date,
-                EndDate = request.EndDate.Date,
-            };
-
-            if (request.EndDate < request.StartDate)
-            {
-                return this.BadRequest("End date must be on or after the start date.");
-            }
-
-            var game = await this.gamesRepository.GetGameById(request.GameId);
-            if (game == null)
-            {
-                return this.NotFound($"Game with id {request.GameId} was not found.");
-            }
-
-            if (request.ClientId == game.OwnerId)
-            {
-                return this.BadRequest("You cannot rent your own game listing.");
-            }
-
-            bool available = await this.rentalRepository.CheckGameAvailability(
-                request.StartDate,
-                request.EndDate,
-                request.GameId);
-
-            if (!available)
-            {
-                return this.Conflict("This game is not available for the selected dates.");
-            }
-
-            int bookingDays = (request.EndDate - request.StartDate).Days + MinimumValidDayCount;
-            if (bookingDays < MinimumValidDayCount)
-            {
-                bookingDays = MinimumValidDayCount;
-            }
-
-            decimal totalPrice = bookingDays * game.PricePerDay;
-            var rental = new Rental(
-                request.StartDate,
-                request.EndDate,
-                request.GameId,
-                request.ClientId,
-                game.OwnerId,
-                totalPrice);
-
-            await this.rentalRepository.AddRental(rental);
-
-            int conversationId = await this.conversationRepository.FindOrCreateConversationBetweenUsers(
-                request.ClientId,
-                game.OwnerId);
-
-            string formattedTotal = totalPrice.ToString("0.##", CultureInfo.InvariantCulture);
-            string requestSummary =
-                $"{game.Name}: {request.StartDate:dd MMM yyyy} – {request.EndDate:dd MMM yyyy}" +
-                $" ({bookingDays} day(s), total {formattedTotal}).";
-
-            var rentalRequestMessage = new RentalRequestMessage
-            {
-                ConversationId = conversationId,
-                MessageSenderId = request.ClientId,
-                MessageReceiverId = game.OwnerId,
-                MessageSentTime = DateTime.Now,
-                RentalRequestId = rental.RentalId,
-                RequestContent = requestSummary,
-                MessageContentAsString = "Rental Request",
-                IsRequestResolved = false,
-                IsRequestAccepted = false,
-                Conversation = null!,
-                Sender = null!,
-                Receiver = null!,
-            };
-
-            await this.conversationRepository.HandleNewMessage(rentalRequestMessage);
-            return this.Ok(rental.RentalId);
-        }
-
+        /// <summary>
+        /// Internal/admin route only. Normal user flow must go through POST api/requests instead.
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult> CreateRental([FromBody] Rental rental)
+        public IActionResult Create([FromBody] CreateRentalDTO body)
         {
-            await this.rentalRepository.AddRental(rental);
-            return Ok(rental.RentalId);
+            try
+            {
+                rentalService.CreateConfirmedRental(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
+                return Ok();
+            }
+            catch (ArgumentException exception)
+            {
+                return this.ApiValidation(exception.Message, "rental_validation_failed");
+            }
+            catch (InvalidOperationException exception)
+            {
+                return this.ApiConflict(exception.Message, "rental_conflict");
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.ApiNotFound("Game not found.", "game_not_found");
+            }
         }
 
-        [HttpPost("{id}/check")]
-        public async Task<ActionResult<bool>> CheckAvailability(int id, [FromBody] TimeRange range)
+        [HttpGet("games/{gameId:int}/availability")]
+        public ActionResult<bool> CheckSlot(int gameId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            var available = await this.rentalRepository.CheckGameAvailability(range.StartTime, range.EndTime, id);
-            return this.Ok(available);
+            return Ok(rentalService.IsSlotAvailable(gameId, startDate, endDate));
         }
     }
 }

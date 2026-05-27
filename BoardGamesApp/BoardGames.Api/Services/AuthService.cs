@@ -1,12 +1,11 @@
-// <copyright file="AuthService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using BoardGames.Api.Security;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
 
 namespace BoardGames.Api.Services
 {
@@ -25,13 +24,24 @@ namespace BoardGames.Api.Services
 
         public async Task<ServiceResult<bool>> RegisterAsync(RegisterDTO registrationRequest)
         {
-            var existingByUsername = await this.accountRepository.GetByUsernameAsync(registrationRequest.Username);
+
+            var (isPasswordValid, passwordErrorMessage) = PasswordValidator.Validate(registrationRequest.Password);
+            if (!isPasswordValid)
+                return ServiceResult<bool>.Fail(passwordErrorMessage ?? "Password is invalid.");
+
+            var existingByUsername = await accountRepository.GetByUsernameAsync(registrationRequest.Username);
             if (existingByUsername != null)
             {
                 return ServiceResult<bool>.Fail("Username|Username is already taken.");
             }
 
-            var newAccount = new User
+            var existingByEmail = await accountRepository.GetByEmailAsync(registrationRequest.Email);
+            if (existingByEmail != null)
+            {
+                return ServiceResult<bool>.Fail("Email|This email address is already registered.");
+            }
+
+            var newAccount = new Account
             {
                 Id = Guid.NewGuid(),
                 DisplayName = registrationRequest.DisplayName,
@@ -49,16 +59,16 @@ namespace BoardGames.Api.Services
                 IsSuspended = false,
             };
 
-            await this.accountRepository.AddAsync(newAccount);
-            await this.accountRepository.AddRoleAsync(newAccount.Id, StandardUserRoleName);
+            await accountRepository.AddAsync(newAccount);
+            await accountRepository.AddRoleAsync(newAccount.Id, StandardUserRoleName);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO loginRequest)
         {
-            var account = await this.accountRepository.GetByUsernameAsync(loginRequest.UsernameOrEmail)
-                       ?? await this.accountRepository.GetByEmailAsync(loginRequest.UsernameOrEmail);
+            var account = await accountRepository.GetByUsernameAsync(loginRequest.UsernameOrEmail)
+                       ?? await accountRepository.GetByEmailAsync(loginRequest.UsernameOrEmail);
             if (account == null)
             {
                 return ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
@@ -69,7 +79,7 @@ namespace BoardGames.Api.Services
                 return ServiceResult<AccountProfileDTO>.Fail("This account has been suspended.");
             }
 
-            var failedLoginAttempt = await this.failedLoginRepository.GetByAccountIdAsync(account.Id);
+            var failedLoginAttempt = await failedLoginRepository.GetByAccountIdAsync(account.Id);
             if (failedLoginAttempt?.LockedUntil.HasValue == true
                 && failedLoginAttempt.LockedUntil.Value > DateTime.UtcNow)
             {
@@ -78,16 +88,18 @@ namespace BoardGames.Api.Services
 
             if (!PasswordHasher.VerifyPassword(loginRequest.Password, account.PasswordHash))
             {
-                await this.failedLoginRepository.IncrementAsync(account.Id);
+                await failedLoginRepository.IncrementAsync(account.Id);
                 return ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
             }
 
-            await this.failedLoginRepository.ResetAsync(account.Id);
+            await failedLoginRepository.ResetAsync(account.Id);
             string primaryRole = account.Roles?.FirstOrDefault()?.Name ?? StandardUserRoleName;
+            bool isLocked = failedLoginAttempt?.LockedUntil.HasValue == true && failedLoginAttempt.LockedUntil.Value > DateTime.UtcNow;
 
             return ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO
             {
                 Id = account.Id,
+                PamUserId = account.PamUserId,
                 Username = account.Username,
                 DisplayName = account.DisplayName,
                 Email = account.Email,
@@ -98,6 +110,7 @@ namespace BoardGames.Api.Services
                 StreetName = account.StreetName,
                 StreetNumber = account.StreetNumber,
                 IsSuspended = account.IsSuspended,
+                IsLocked = isLocked,
                 Role = new RoleDTO { Name = primaryRole },
             });
         }

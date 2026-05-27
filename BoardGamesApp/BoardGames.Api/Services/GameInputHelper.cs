@@ -1,6 +1,7 @@
-// <copyright file="GameInputHelper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
+using System.Collections.Generic;
+using System.IO;
+using BoardGames.Data.Constants;
 
 namespace BoardGames.Api.Services
 {
@@ -25,27 +26,27 @@ namespace BoardGames.Api.Services
 
             if (string.IsNullOrWhiteSpace(gameName) || gameName.Length < minimumNameLength || gameName.Length > maximumNameLength)
             {
-                gameValidationErrors.Add(ValidationMessages.NameLengthRange(minimumNameLength, maximumNameLength));
+                gameValidationErrors.Add(ValidationMessages2.NameLengthRange(minimumNameLength, maximumNameLength));
             }
 
             if (gamePrice < minimumAllowedPrice)
             {
-                gameValidationErrors.Add(ValidationMessages.PriceMinimum(minimumAllowedPrice));
+                gameValidationErrors.Add(ValidationMessages2.PriceMinimum(minimumAllowedPrice));
             }
 
             if (minimumPlayerCount < absoluteMinimumPlayerCount)
             {
-                gameValidationErrors.Add(ValidationMessages.MinimumPlayerCount(absoluteMinimumPlayerCount));
+                gameValidationErrors.Add(ValidationMessages2.MinimumPlayerCount(absoluteMinimumPlayerCount));
             }
 
             if (maximumPlayerCount < minimumPlayerCount)
             {
-                gameValidationErrors.Add(ValidationMessages.MaximumPlayerCountComparedToMinimum);
+                gameValidationErrors.Add(ValidationMessages2.MaximumPlayerCountComparedToMinimum);
             }
 
             if (string.IsNullOrWhiteSpace(gameDescription) || gameDescription.Length < minimumDescriptionLength || gameDescription.Length > maximumDescriptionLength)
             {
-                gameValidationErrors.Add(ValidationMessages.DescriptionLengthRange(minimumDescriptionLength, maximumDescriptionLength));
+                gameValidationErrors.Add(ValidationMessages2.DescriptionLengthRange(minimumDescriptionLength, maximumDescriptionLength));
             }
 
             return gameValidationErrors;
