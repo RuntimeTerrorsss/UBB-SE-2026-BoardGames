@@ -39,7 +39,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Create([FromBody] CreateRequestDataTransferObject body)
+        public async Task<ActionResult<int>> Create([FromBody] CreateRequestDTO body)
         {
             var result = await requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
             if (!result.IsSuccess)
@@ -51,7 +51,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/approve")]
-        public async Task<ActionResult<int>> Approve(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public async Task<ActionResult<int>> Approve(int requestId, [FromBody] RequestActionDTO body)
         {
             var result = await requestService.ApproveRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
@@ -63,7 +63,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/deny")]
-        public async Task<IActionResult> Deny(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public async Task<IActionResult> Deny(int requestId, [FromBody] RequestActionDTO body)
         {
             var result = await requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
             if (!result.IsSuccess)
@@ -75,7 +75,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/cancel")]
-        public IActionResult Cancel(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public IActionResult Cancel(int requestId, [FromBody] RequestActionDTO body)
         {
             var result = requestService.CancelRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
@@ -87,7 +87,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/offer")]
-        public async Task<ActionResult<int>> Offer(int requestId, [FromBody] RequestActionDataTransferObject body)
+        public async Task<ActionResult<int>> Offer(int requestId, [FromBody] RequestActionDTO body)
         {
             var result = await requestService.OfferGame(requestId, body.AccountId);
             if (!result.IsSuccess)
@@ -99,10 +99,10 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("games/{gameId:int}/booked-dates")]
-        public ActionResult<IReadOnlyList<BookedDateRangeDataTransferObject>> GetBookedDates(int gameId, [FromQuery] int month = 0, [FromQuery] int year = 0)
+        public ActionResult<IReadOnlyList<BookedDateRangeDTO>> GetBookedDates(int gameId, [FromQuery] int month = 0, [FromQuery] int year = 0)
         {
             var ranges = requestService.GetBookedDates(gameId, month, year)
-                .Select(range => new BookedDateRangeDataTransferObject
+                .Select(range => new BookedDateRangeDTO
                 {
                     StartDate = range.StartDate,
                     EndDate = range.EndDate,

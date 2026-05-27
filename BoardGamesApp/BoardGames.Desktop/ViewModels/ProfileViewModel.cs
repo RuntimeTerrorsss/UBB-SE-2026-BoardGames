@@ -166,7 +166,7 @@ namespace BoardGames.Desktop.ViewModels
 
             Guid currentAccountId = sessionContext.AccountId;
 
-            AccountProfileDataTransferObject updateInformation = new AccountProfileDataTransferObject
+            AccountProfileDTO updateInformation = new AccountProfileDTO
             {
                 DisplayName = DisplayName,
                 Email = Email,
@@ -285,7 +285,7 @@ namespace BoardGames.Desktop.ViewModels
             OnSignOutSuccess?.Invoke();
         }
 
-        private void ApplyProfile(AccountProfileDataTransferObject profile)
+        private void ApplyProfile(AccountProfileDTO profile)
         {
             Username = profile.Username;
             DisplayName = profile.DisplayName;

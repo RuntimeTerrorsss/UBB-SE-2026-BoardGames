@@ -1,6 +1,5 @@
-using Microsoft.UI.Xaml;
-
-namespace BoardRentAndProperty
+namespace BoardGames.Desktop
+namespace BoardGames.Desktop
 {
     public sealed partial class MainWindow : Window
     {

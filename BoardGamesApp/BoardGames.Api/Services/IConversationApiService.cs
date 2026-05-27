@@ -12,9 +12,9 @@ namespace BoardGames.Api.Services
 
         Task<ConversationDTO?> GetConversationById(int conversationId);
 
-        Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto);
+        Task<MessageDTO> SendMessage(MessageDTO dto);
 
-        Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto);
+        Task<MessageDTO?> UpdateMessage(MessageDTO dto);
 
         Task HandleReadReceipt(ReadReceiptDTO dto);
 
@@ -24,6 +24,6 @@ namespace BoardGames.Api.Services
 
         Task FinalizeRentalRequestMessage(int requestId, bool accepted);
 
-        Task<MessageDataTransferObject?> CreateCashAgreementMessage(int parentMessageId, int paymentId);
+        Task<MessageDTO?> CreateCashAgreementMessage(int parentMessageId, int paymentId);
     }
 }

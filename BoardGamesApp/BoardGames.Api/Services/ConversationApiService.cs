@@ -39,7 +39,7 @@ namespace BoardGames.Api.Services
             }
         }
 
-        public async Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto)
+        public async Task<MessageDTO> SendMessage(MessageDTO dto)
         {
             var entity = MapDtoToEntity(dto);
             entity.MessageId = 0;
@@ -47,7 +47,7 @@ namespace BoardGames.Api.Services
             return MapEntityToDto(persisted);
         }
 
-        public async Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto)
+        public async Task<MessageDTO?> UpdateMessage(MessageDTO dto)
         {
             var entity = MapDtoToEntity(dto);
             var updated = await conversationRepository.HandleMessageUpdate(entity);
@@ -105,7 +105,7 @@ namespace BoardGames.Api.Services
             await conversationRepository.HandleMessageUpdate(message);
         }
 
-        public async Task<MessageDataTransferObject?> CreateCashAgreementMessage(int parentMessageId, int paymentId)
+        public async Task<MessageDTO?> CreateCashAgreementMessage(int parentMessageId, int paymentId)
         {
             var created = await conversationRepository.CreateCashAgreementMessage(parentMessageId, paymentId);
             return created is null ? null : MapEntityToDto(created);
@@ -119,19 +119,30 @@ namespace BoardGames.Api.Services
 
         private static ConversationDTO MapConversationToDTO(Conversation conversation)
         {
-            var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDataTransferObject>();
+            var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDTO>();
             var lastRead = conversation.Participants?
                 .Where(p => p.LastMessageReadTime.HasValue)
                 .ToDictionary(p => p.UserId, p => p.LastMessageReadTime!.Value)
                 ?? new Dictionary<int, DateTime>();
+            var participants = conversation.Participants?
+                .Select(participant => new ConversationParticipantDTO
+                {
+                    ConversationId = participant.ConversationId,
+                    UserId = participant.UserId,
+                    LastMessageReadTime = participant.LastMessageReadTime,
+                    UnreadMessagesCount = participant.UnreadMessagesCount,
+                })
+                .ToList()
+                ?? new List<ConversationParticipantDTO>();
+
             return new ConversationDTO(
                 conversation.ConversationId,
-                conversation.Participants ?? new List<ConversationParticipant>(),
+                participants,
                 messages,
                 lastRead);
         }
 
-        private static MessageDataTransferObject MapEntityToDto(Message message)
+        private static MessageDTO MapEntityToDto(Message message)
         {
             const int defaultMissingIdentifier = -1;
 
@@ -153,7 +164,7 @@ namespace BoardGames.Api.Services
                 _ => message.MessageContentAsString ?? string.Empty,
             };
 
-            return new MessageDataTransferObject(
+            return new MessageDTO(
                 Id: message.MessageId,
                 ConversationId: message.ConversationId,
                 SenderId: message.MessageSenderId,
@@ -172,7 +183,7 @@ namespace BoardGames.Api.Services
                 PaymentId: message is CashAgreementMessage cam2 ? cam2.CashPaymentId : defaultMissingIdentifier);
         }
 
-        private static Message MapDtoToEntity(MessageDataTransferObject dto)
+        private static Message MapDtoToEntity(MessageDTO dto)
         {
             return dto.Type switch
             {

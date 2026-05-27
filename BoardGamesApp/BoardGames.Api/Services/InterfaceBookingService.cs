@@ -1,9 +1,8 @@
-﻿// <copyright file="InterfaceBookingService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="InterfaceBookingService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Threading.Tasks;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

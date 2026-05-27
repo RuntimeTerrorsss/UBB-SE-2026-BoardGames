@@ -1,6 +1,7 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+// <copyright file="IAccountService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices

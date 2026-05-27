@@ -1,12 +1,9 @@
-﻿// <copyright file="InterfaceSearchAndFilterService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="InterfaceSearchAndFilterService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

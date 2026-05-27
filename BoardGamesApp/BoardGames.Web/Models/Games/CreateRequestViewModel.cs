@@ -1,5 +1,7 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="CreateRequestViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using BoardGames.Shared.DTO;
 

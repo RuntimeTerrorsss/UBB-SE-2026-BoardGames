@@ -52,7 +52,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("user/{accountId:guid}/history")]
-        public async Task<ActionResult<List<PaymentDataTransferObject>>> GetHistoryForUser(Guid accountId)
+        public async Task<ActionResult<List<PaymentDTO>>> GetHistoryForUser(Guid accountId)
         {
             var history = await _dashboardService.GetPaymentHistoryForUser(accountId);
             return Ok(history);

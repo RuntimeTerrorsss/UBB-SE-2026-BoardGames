@@ -1,68 +1,88 @@
+// <copyright file="FakeClientRequestAndNotificationServices.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardRentAndProperty.ApiClient;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Services;
+using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Tests.Fakes
 {
     internal sealed class FakeClientRequestService : IRequestService
     {
         public ImmutableList<RequestDTO> RequestsForRenter { get; set; } = ImmutableList<RequestDTO>.Empty;
+
         public ImmutableList<RequestDTO> RequestsForOwner { get; set; } = ImmutableList<RequestDTO>.Empty;
+
         public ImmutableList<RequestDTO> OpenRequestsForOwner { get; set; } = ImmutableList<RequestDTO>.Empty;
+
         public ImmutableList<(DateTime StartDate, DateTime EndDate)> BookedDates { get; set; } =
             ImmutableList<(DateTime StartDate, DateTime EndDate)>.Empty;
+
         public Result<int, CreateRequestError> CreateRequestResult { get; set; } =
             Result<int, CreateRequestError>.Success(1);
+
         public Result<int, ApproveRequestError> ApproveRequestResult { get; set; } =
             Result<int, ApproveRequestError>.Success(1);
+
         public Result<int, DenyRequestError> DenyRequestResult { get; set; } =
             Result<int, DenyRequestError>.Success(1);
+
         public Result<int, CancelRequestError> CancelRequestResult { get; set; } =
             Result<int, CancelRequestError>.Success(1);
+
         public Result<int, OfferError> OfferGameResult { get; set; } =
             Result<int, OfferError>.Success(1);
+
         public bool AvailabilityResult { get; set; } = true;
+
         public int CreateRequestCallCount { get; private set; }
+
         public int CancelRequestCallCount { get; private set; }
+
         public int ApproveRequestCallCount { get; private set; }
+
         public int DenyRequestCallCount { get; private set; }
+
         public int LastRequestId { get; private set; }
+
         public int LastGameId { get; private set; }
+
         public Guid LastRenterAccountId { get; private set; }
+
         public Guid LastOwnerAccountId { get; private set; }
 
         public Task<ServiceResult<IReadOnlyList<RequestDTO>>> GetRequestsForRenterAsync(
             Guid renterAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<RequestDTO>>.Ok(RequestsForRenter));
+            Task.FromResult(ServiceResult<IReadOnlyList<RequestDTO>>.Ok(this.RequestsForRenter));
 
         public Task<ServiceResult<IReadOnlyList<RequestDTO>>> GetRequestsForOwnerAsync(
             Guid ownerAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<RequestDTO>>.Ok(RequestsForOwner));
+            Task.FromResult(ServiceResult<IReadOnlyList<RequestDTO>>.Ok(this.RequestsForOwner));
 
         public Task<ServiceResult<IReadOnlyList<RequestDTO>>> GetOpenRequestsForOwnerAsync(
             Guid ownerAccountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<RequestDTO>>.Ok(OpenRequestsForOwner));
+            Task.FromResult(ServiceResult<IReadOnlyList<RequestDTO>>.Ok(this.OpenRequestsForOwner));
 
         public Task<ServiceResult<int>> CreateRequestAsync(
-            CreateRequestDataTransferObject request,
+            CreateRequestDTO request,
             CancellationToken cancellationToken = default)
         {
-            CreateRequestCallCount++;
-            LastGameId = request.GameId;
-            LastRenterAccountId = request.RenterAccountId;
-            LastOwnerAccountId = request.OwnerAccountId;
-            return Task.FromResult(CreateRequestResult.IsSuccess
-                ? ServiceResult<int>.Ok(CreateRequestResult.Value)
-                : MapCreateFailure(CreateRequestResult.Error));
+            this.CreateRequestCallCount++;
+            this.LastGameId = request.GameId;
+            this.LastRenterAccountId = request.RenterAccountId;
+            this.LastOwnerAccountId = request.OwnerAccountId;
+            return Task.FromResult(this.CreateRequestResult.IsSuccess
+                ? ServiceResult<int>.Ok(this.CreateRequestResult.Value)
+                : MapCreateFailure(this.CreateRequestResult.Error));
         }
 
         public Task<ServiceResult<int>> ApproveRequestAsync(
@@ -70,64 +90,64 @@ namespace BoardGames.Tests.Fakes
             Guid ownerAccountId,
             CancellationToken cancellationToken = default)
         {
-            ApproveRequestCallCount++;
-            LastRequestId = requestId;
-            LastOwnerAccountId = ownerAccountId;
-            return Task.FromResult(ApproveRequestResult.IsSuccess
-                ? ServiceResult<int>.Ok(ApproveRequestResult.Value)
-                : MapApproveFailure(ApproveRequestResult.Error));
+            this.ApproveRequestCallCount++;
+            this.LastRequestId = requestId;
+            this.LastOwnerAccountId = ownerAccountId;
+            return Task.FromResult(this.ApproveRequestResult.IsSuccess
+                ? ServiceResult<int>.Ok(this.ApproveRequestResult.Value)
+                : MapApproveFailure(this.ApproveRequestResult.Error));
         }
 
         public Task<ServiceResult<int>> DenyRequestAsync(
             int requestId,
-            RequestActionDataTransferObject action,
+            RequestActionDTO action,
             CancellationToken cancellationToken = default)
         {
-            DenyRequestCallCount++;
-            LastRequestId = requestId;
-            LastOwnerAccountId = action.AccountId;
-            return Task.FromResult(DenyRequestResult.IsSuccess
-                ? ServiceResult<int>.Ok(DenyRequestResult.Value)
-                : MapDenyFailure(DenyRequestResult.Error));
+            this.DenyRequestCallCount++;
+            this.LastRequestId = requestId;
+            this.LastOwnerAccountId = action.AccountId;
+            return Task.FromResult(this.DenyRequestResult.IsSuccess
+                ? ServiceResult<int>.Ok(this.DenyRequestResult.Value)
+                : MapDenyFailure(this.DenyRequestResult.Error));
         }
 
         public Task<ServiceResult<int>> CancelRequestAsync(
             int requestId,
-            RequestActionDataTransferObject action,
+            RequestActionDTO action,
             CancellationToken cancellationToken = default)
         {
-            CancelRequestCallCount++;
-            LastRequestId = requestId;
-            return Task.FromResult(CancelRequestResult.IsSuccess
-                ? ServiceResult<int>.Ok(CancelRequestResult.Value)
-                : MapCancelFailure(CancelRequestResult.Error));
+            this.CancelRequestCallCount++;
+            this.LastRequestId = requestId;
+            return Task.FromResult(this.CancelRequestResult.IsSuccess
+                ? ServiceResult<int>.Ok(this.CancelRequestResult.Value)
+                : MapCancelFailure(this.CancelRequestResult.Error));
         }
 
         public Task<ServiceResult<int>> OfferGameAsync(
             int requestId,
-            RequestActionDataTransferObject action,
+            RequestActionDTO action,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(OfferGameResult.IsSuccess
-                ? ServiceResult<int>.Ok(OfferGameResult.Value)
-                : MapOfferFailure(OfferGameResult.Error));
+            Task.FromResult(this.OfferGameResult.IsSuccess
+                ? ServiceResult<int>.Ok(this.OfferGameResult.Value)
+                : MapOfferFailure(this.OfferGameResult.Error));
 
         public Task<ServiceResult<bool>> CheckAvailabilityAsync(
             int gameId,
             DateTime startDate,
             DateTime endDate,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<bool>.Ok(AvailabilityResult));
+            Task.FromResult(ServiceResult<bool>.Ok(this.AvailabilityResult));
 
-        public Task<ServiceResult<IReadOnlyList<BookedDateRangeDataTransferObject>>> GetBookedDatesAsync(
+        public Task<ServiceResult<IReadOnlyList<BookedDateRangeDTO>>> GetBookedDatesAsync(
             int gameId,
             int calendarMonth,
             int calendarYear,
             CancellationToken cancellationToken = default)
         {
-            var bookedDateRanges = new List<BookedDateRangeDataTransferObject>();
-            foreach (var bookedDate in BookedDates)
+            var bookedDateRanges = new List<BookedDateRangeDTO>();
+            foreach (var bookedDate in this.BookedDates)
             {
-                bookedDateRanges.Add(new BookedDateRangeDataTransferObject
+                bookedDateRanges.Add(new BookedDateRangeDTO
                 {
                     StartDate = bookedDate.StartDate,
                     EndDate = bookedDate.EndDate,
@@ -135,7 +155,7 @@ namespace BoardGames.Tests.Fakes
             }
 
             return Task.FromResult(
-                ServiceResult<IReadOnlyList<BookedDateRangeDataTransferObject>>.Ok(bookedDateRanges));
+                ServiceResult<IReadOnlyList<BookedDateRangeDTO>>.Ok(bookedDateRanges));
         }
 
         private static ServiceResult<int> MapCreateFailure(CreateRequestError error) =>
@@ -224,10 +244,15 @@ namespace BoardGames.Tests.Fakes
     {
         public ImmutableList<NotificationDTO> NotificationsForUser { get; set; } =
             ImmutableList<NotificationDTO>.Empty;
+
         public int SendNotificationCallCount { get; private set; }
+
         public int DeleteNotificationCallCount { get; private set; }
+
         public int DeleteLinkedNotificationCallCount { get; private set; }
+
         public Guid LastRecipientAccountId { get; private set; }
+
         public int LastDeletedNotificationId { get; private set; }
 
         public IDisposable Subscribe(IObserver<NotificationDTO> observer) => new EmptyDisposable();
@@ -241,8 +266,8 @@ namespace BoardGames.Tests.Fakes
             int notificationId,
             CancellationToken cancellationToken = default)
         {
-            DeleteNotificationCallCount++;
-            LastDeletedNotificationId = notificationId;
+            this.DeleteNotificationCallCount++;
+            this.LastDeletedNotificationId = notificationId;
             return Task.FromResult(ServiceResult<NotificationDTO>.Ok(new NotificationDTO { Id = notificationId }));
         }
 
@@ -257,21 +282,21 @@ namespace BoardGames.Tests.Fakes
             NotificationDTO notification,
             CancellationToken cancellationToken = default)
         {
-            SendNotificationCallCount++;
-            LastRecipientAccountId = recipientAccountId;
+            this.SendNotificationCallCount++;
+            this.LastRecipientAccountId = recipientAccountId;
             return Task.FromResult(ServiceResult.Ok());
         }
 
         public Task<ServiceResult<IReadOnlyList<NotificationDTO>>> GetNotificationsForUserAsync(
             Guid accountId,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult(ServiceResult<IReadOnlyList<NotificationDTO>>.Ok(NotificationsForUser));
+            Task.FromResult(ServiceResult<IReadOnlyList<NotificationDTO>>.Ok(this.NotificationsForUser));
 
         public Task<ServiceResult> DeleteNotificationsLinkedToRequestAsync(
             int relatedRequestId,
             CancellationToken cancellationToken = default)
         {
-            DeleteLinkedNotificationCallCount++;
+            this.DeleteLinkedNotificationCallCount++;
             return Task.FromResult(ServiceResult.Ok());
         }
 
@@ -293,8 +318,11 @@ namespace BoardGames.Tests.Fakes
         public event EventHandler<NotificationConnectionStatusChangedEventArgs>? ConnectionStatusChanged;
 
         public NotificationConnectionStatus ConnectionStatus { get; set; }
+
         public int SubscribeToServerCallCount { get; private set; }
+
         public int StopListeningCallCount { get; private set; }
+
         public int LastTargetUserId { get; private set; }
 
         public IDisposable Subscribe(IObserver<IncomingNotification> observer) => new EmptyDisposable();
@@ -303,8 +331,8 @@ namespace BoardGames.Tests.Fakes
 
         public void SubscribeToServer(int targetUserId)
         {
-            SubscribeToServerCallCount++;
-            LastTargetUserId = targetUserId;
+            this.SubscribeToServerCallCount++;
+            this.LastTargetUserId = targetUserId;
         }
 
         public void SendNotification(int targetUserId, string notificationTitle, string notificationBody)
@@ -313,13 +341,13 @@ namespace BoardGames.Tests.Fakes
 
         public void StopListening()
         {
-            StopListeningCallCount++;
+            this.StopListeningCallCount++;
         }
 
         public void RaiseConnectionStatusChanged(NotificationConnectionStatus status)
         {
-            ConnectionStatus = status;
-            ConnectionStatusChanged?.Invoke(
+            this.ConnectionStatus = status;
+            this.ConnectionStatusChanged?.Invoke(
                 this,
                 new NotificationConnectionStatusChangedEventArgs(status));
         }

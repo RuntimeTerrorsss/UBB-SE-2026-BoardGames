@@ -1,8 +1,3 @@
-using System;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
-
 namespace BoardGames.Desktop.Views
 {
     internal static class ImageFailureHandler

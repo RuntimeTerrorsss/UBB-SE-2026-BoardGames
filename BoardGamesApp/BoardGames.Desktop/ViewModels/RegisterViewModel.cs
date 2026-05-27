@@ -99,7 +99,7 @@ namespace BoardGames.Desktop.ViewModels
 
             this.IsLoading = true;
 
-            RegisterDataTransferObject registrationRequest = new RegisterDataTransferObject
+            RegisterDTO registrationRequest = new RegisterDTO
             {
                 DisplayName = this.DisplayName,
                 Username = this.Username,
@@ -117,7 +117,7 @@ namespace BoardGames.Desktop.ViewModels
 
             if (registrationResult.Success)
             {
-                var loginResult = await authService.LoginAsync(new LoginDataTransferObject
+                var loginResult = await authService.LoginAsync(new LoginDTO
                 {
                     UsernameOrEmail = registrationRequest.Username,
                     Password = registrationRequest.Password,

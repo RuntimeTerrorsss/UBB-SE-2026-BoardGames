@@ -1,17 +1,16 @@
-﻿// <copyright file="ICashPaymentService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ICashPaymentService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Threading.Tasks;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
     public interface ICashPaymentService
     {
-        public Task<int> AddCashPaymentAsync(CashPaymentDataTransferObject paymentDto);
+        public Task<int> AddCashPaymentAsync(CashPaymentDTO paymentDto);
 
-        public Task<CashPaymentDataTransferObject> GetCashPaymentAsync(int paymentId);
+        public Task<CashPaymentDTO> GetCashPaymentAsync(int paymentId);
 
         public Task ConfirmDeliveryAsync(int paymentId);
 

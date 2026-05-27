@@ -1,20 +1,16 @@
-﻿// <copyright file="AddressValidator.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="AddressValidator.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoardGames.Shared.Validators
 {
-    public class AddressValidator : IValidator<Dictionary<string, string>, Address>
+    using BoardGames.Shared.DTO;
+
+    public class AddressValidator : IValidator<Dictionary<string, string>, AddressDTO>
     {
         private const string RequiredFieldMessage = "is required";
 
-        public Dictionary<string, string> Validate(Address address)
+        public Dictionary<string, string> Validate(AddressDTO address)
         {
             var validationErrors = new Dictionary<string, string>();
 

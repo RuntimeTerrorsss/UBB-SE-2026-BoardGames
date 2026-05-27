@@ -35,7 +35,7 @@ namespace BoardGames.Desktop.Services
 
         bool IsLoggedIn { get; }
 
-        void Populate(AccountProfileDataTransferObject accountProfile);
+        void Populate(AccountProfileDTO accountProfile);
 
         void Clear();
     }

@@ -1,3 +1,7 @@
+// <copyright file="NotificationType.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Shared.DTO
 {
     internal static class NotificationTypeValues
@@ -11,6 +15,6 @@ namespace BoardGames.Shared.DTO
     {
         Informational = NotificationTypeValues.Informational,
         OfferReceived = NotificationTypeValues.OfferReceived,
-        OfferResult = NotificationTypeValues.OfferResult
+        OfferResult = NotificationTypeValues.OfferResult,
     }
 }

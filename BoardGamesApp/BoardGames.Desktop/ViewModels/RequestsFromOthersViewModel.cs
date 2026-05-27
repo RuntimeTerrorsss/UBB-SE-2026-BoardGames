@@ -65,7 +65,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task<string?> TryDenyRequestAsync(int requestIdToDeny, string? rawDenialReason)
         {
-            var denialAction = new RequestActionDataTransferObject
+            var denialAction = new RequestActionDTO
             {
                 AccountId = CurrentGameOwnerUserId,
                 Reason = rawDenialReason ?? string.Empty,
@@ -88,7 +88,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task<string?> TryOfferGameAsync(int requestIdForGameOffer)
         {
-            var offerAction = new RequestActionDataTransferObject { AccountId = CurrentGameOwnerUserId };
+            var offerAction = new RequestActionDTO { AccountId = CurrentGameOwnerUserId };
             var gameOfferResult = await rentalRequestService.OfferGameAsync(
                 requestIdForGameOffer,
                 offerAction);

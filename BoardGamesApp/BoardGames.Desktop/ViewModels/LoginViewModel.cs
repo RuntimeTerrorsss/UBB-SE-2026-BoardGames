@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BookingBoardGames.Sharing.Services;
+using BoardGames.Desktop.Helpers;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -77,7 +69,7 @@ namespace BoardGames.Desktop.ViewModels
         {
             this.userService = userService;
             this.sessionService = sessionService;
-            LoginCommand = new RelayCommandNoParam(async () => await LoginAsync(), () => !IsLoading);
+            LoginCommand = new RelayCommandNoParam(LoginAsync, () => !IsLoading);
             GoToRegisterCommand = new RelayCommandNoParam(() => NavigateToRegister?.Invoke());
         }
 
@@ -93,21 +85,51 @@ namespace BoardGames.Desktop.ViewModels
                 return;
             }
 
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-
-            var user = await userService.LoginAsync(Identifier.Trim(), Password);
-
-            if (user == null)
+            RunOnUiThread(() =>
             {
-                ErrorMessage = "Invalid username/email or password.";
-                IsLoading = false;
-                return;
-            }
+                IsLoading = true;
+                ErrorMessage = string.Empty;
+            });
 
-            sessionService.SetUser(user.Id, user.Username, user.DisplayName);
-            IsLoading = false;
-            NavigateToHome?.Invoke();
+            try
+            {
+                var user = await userService.LoginAsync(Identifier.Trim(), Password);
+
+                if (user == null)
+                {
+                    RunOnUiThread(() => ErrorMessage = "Invalid username/email or password.");
+                    return;
+                }
+
+                RunOnUiThread(() =>
+                {
+                    AuthSession.SetAuthenticatedUser(user, sessionService);
+                    NavigateToHome?.Invoke();
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Login failed: {ex}");
+                RunOnUiThread(() =>
+                    ErrorMessage = "Sign-in failed. Please check your connection and try again.");
+            }
+            finally
+            {
+                RunOnUiThread(() => IsLoading = false);
+            }
+        }
+
+        private static void RunOnUiThread(Action action)
+        {
+            var dispatcher = ((App)Microsoft.UI.Xaml.Application.Current).Window?.DispatcherQueue;
+            if (dispatcher != null)
+            {
+                dispatcher.TryEnqueue(() => action());
+            }
+            else
+            {
+                action();
+            }
         }
 
         private bool ValidateUser()

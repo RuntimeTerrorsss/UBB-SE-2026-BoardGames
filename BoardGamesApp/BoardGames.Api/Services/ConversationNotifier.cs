@@ -1,11 +1,8 @@
-// <copyright file="ConversationNotifier.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ConversationNotifier.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using System.Linq;
-using BookingBoardGames.Data;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Services
 {
@@ -16,23 +13,23 @@ namespace BoardGames.Api.Services
 
         public void Register(int userId, IConversationService observer)
         {
-            lock (subscribersLock)
+            lock (this.subscribersLock)
             {
-                subscribers[userId] = observer;
+                this.subscribers[userId] = observer;
             }
         }
 
         public void Unregister(int userId)
         {
-            lock (subscribersLock)
+            lock (this.subscribersLock)
             {
-                subscribers.Remove(userId);
+                this.subscribers.Remove(userId);
             }
         }
 
         public void NotifyMessage(IEnumerable<int> participantUserIds, Message message)
         {
-            foreach (IConversationService observer in SnapshotSubscribers(participantUserIds))
+            foreach (IConversationService observer in this.SnapshotSubscribers(participantUserIds))
             {
                 observer.OnMessageReceived(message);
             }
@@ -40,7 +37,7 @@ namespace BoardGames.Api.Services
 
         public void NotifyMessageUpdate(IEnumerable<int> participantUserIds, Message message)
         {
-            foreach (IConversationService observer in SnapshotSubscribers(participantUserIds))
+            foreach (IConversationService observer in this.SnapshotSubscribers(participantUserIds))
             {
                 observer.OnMessageUpdateReceived(message);
             }
@@ -48,7 +45,7 @@ namespace BoardGames.Api.Services
 
         public void NotifyReadReceipt(IEnumerable<int> participantUserIds, ReadReceiptDTO readReceipt)
         {
-            foreach (IConversationService observer in SnapshotSubscribers(participantUserIds))
+            foreach (IConversationService observer in this.SnapshotSubscribers(participantUserIds))
             {
                 observer.OnReadReceiptReceived(readReceipt);
             }
@@ -57,7 +54,7 @@ namespace BoardGames.Api.Services
         public void NotifyNewConversation(Conversation conversation)
         {
             IEnumerable<int> participantUserIds = conversation.Participants.Select(participant => participant.UserId);
-            foreach (IConversationService observer in SnapshotSubscribers(participantUserIds))
+            foreach (IConversationService observer in this.SnapshotSubscribers(participantUserIds))
             {
                 observer.OnConversationReceived(conversation);
             }
@@ -68,11 +65,11 @@ namespace BoardGames.Api.Services
             var observers = new List<IConversationService>();
             var distinctIds = userIds.Distinct().ToList();
 
-            lock (subscribersLock)
+            lock (this.subscribersLock)
             {
                 foreach (int userId in distinctIds)
                 {
-                    if (subscribers.TryGetValue(userId, out IConversationService? observer))
+                    if (this.subscribers.TryGetValue(userId, out IConversationService? observer))
                     {
                         observers.Add(observer);
                     }

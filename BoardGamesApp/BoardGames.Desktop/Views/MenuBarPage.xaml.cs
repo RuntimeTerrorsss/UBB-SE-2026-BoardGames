@@ -1,17 +1,11 @@
-namespace BoardRentAndProperty.Views
+namespace BoardGames.Desktop.Views
 {
-    using System;
-    using System.Collections.Generic;
     using BoardGames.Desktop.Services;
     using BoardGames.Desktop.ViewModels;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
 
     public sealed partial class MenuBarPage : Page
     {
-        private static readonly Dictionary<AppPage, Type> PageTypeMap = new ()
+        private static readonly Dictionary<AppPage, Type> PageTypeMap = new()
         {
             { AppPage.Listings,            typeof(ListingsPage) },
             { AppPage.RequestsFromOthers,  typeof(RequestsFromOthersPage) },

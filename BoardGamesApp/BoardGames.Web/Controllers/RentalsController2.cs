@@ -1,7 +1,9 @@
-using System;
-using System.Threading.Tasks;
+// <copyright file="RentalsController2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
 using BoardGames.Web.Helpers;
-using GUI_BRAP.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,14 +22,14 @@ namespace BoardGames.Web.Controllers
         public async Task<IActionResult> My()
         {
             Guid renterId = User.GetAccountId();
-            var rentals = await rentalProxyService.GetRentalsForRenterAsync(renterId);
+            var rentals = await this.rentalProxyService.GetRentalsForRenterAsync(renterId);
             return View(rentals);
         }
 
         public async Task<IActionResult> Others()
         {
             Guid ownerId = User.GetAccountId();
-            var rentals = await rentalProxyService.GetRentalsForOwnerAsync(ownerId);
+            var rentals = await this.rentalProxyService.GetRentalsForOwnerAsync(ownerId);
             return View(rentals);
         }
     }

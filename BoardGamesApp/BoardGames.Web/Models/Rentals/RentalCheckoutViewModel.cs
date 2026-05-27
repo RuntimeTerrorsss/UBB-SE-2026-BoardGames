@@ -1,3 +1,7 @@
+// <copyright file="RentalCheckoutViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 
 namespace BoardGames.Web.Models.Rentals

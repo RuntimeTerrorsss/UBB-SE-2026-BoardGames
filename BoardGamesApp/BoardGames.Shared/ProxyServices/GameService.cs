@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
+// <copyright file="GameService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
+using System.Net.Http.Json;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -18,7 +16,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> CreateGameAsync(GameDTO game, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PostAsJsonAsync("api/games", game, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -27,7 +25,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> UpdateGameAsync(int gameId, GameDTO game, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PutAsJsonAsync($"api/games/{gameId}", game, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -36,7 +34,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<GameDTO>> DeleteGameAsync(int gameId, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<GameDTO>(
                 token => client.DeleteAsync($"api/games/{gameId}", token),
                 async (response, token) =>
@@ -54,7 +52,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<GameDTO>> GetGameByIdAsync(int gameId, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<GameDTO>(
                 token => client.GetAsync($"api/games/{gameId}", token),
                 (response, token) => ApiResponseReader.ReadJsonAsync<GameDTO>(response, token),
@@ -62,20 +60,20 @@ namespace BoardGames.Shared.ProxyServices
         }
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/games/owner/{ownerAccountId}", cancellationToken);
+            => this.FetchListAsync($"api/games/owner/{ownerAccountId}", cancellationToken);
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetAllGamesAsync(CancellationToken cancellationToken = default)
-            => FetchListAsync("api/games", cancellationToken);
+            => this.FetchListAsync("api/games", cancellationToken);
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetAvailableGamesForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/games/renter/{renterAccountId}/available", cancellationToken);
+            => this.FetchListAsync($"api/games/renter/{renterAccountId}/available", cancellationToken);
 
         public Task<ServiceResult<IReadOnlyList<GameDTO>>> GetActiveGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/games/owner/{ownerAccountId}/active", cancellationToken);
+            => this.FetchListAsync($"api/games/owner/{ownerAccountId}/active", cancellationToken);
 
         private Task<ServiceResult<IReadOnlyList<GameDTO>>> FetchListAsync(string requestPath, CancellationToken cancellationToken)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<IReadOnlyList<GameDTO>>(
                 token => client.GetAsync(requestPath, token),
                 async (response, token) =>

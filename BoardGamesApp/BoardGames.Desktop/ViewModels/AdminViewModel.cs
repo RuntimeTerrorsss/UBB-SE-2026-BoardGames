@@ -8,13 +8,13 @@ namespace BoardGames.Desktop.ViewModels
     using BoardGames.Shared.ProxyServices;
     using CommunityToolkit.Mvvm.Input;
 
-    public class AdminViewModel : PagedViewModel<AccountProfileDataTransferObject>
+    public class AdminViewModel : PagedViewModel<AccountProfileDTO>
     {
         private const string AdminAccessDeniedMessage = "Unauthorized access. Administrator role is required.";
 
         private readonly IAdminService adminService;
         private readonly IDesktopAuthorizationService authorizationService;
-        private AccountProfileDataTransferObject selectedAccount;
+        private AccountProfileDTO selectedAccount;
         private string errorMessage;
         private bool isLoading;
 
@@ -41,7 +41,7 @@ namespace BoardGames.Desktop.ViewModels
         public IRelayCommand NextPageCommand { get; }
         public IRelayCommand PreviousPageCommand { get; }
 
-        public AccountProfileDataTransferObject SelectedAccount
+        public AccountProfileDTO SelectedAccount
         {
             get => selectedAccount;
             set

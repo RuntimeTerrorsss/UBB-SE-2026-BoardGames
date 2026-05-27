@@ -35,7 +35,7 @@ namespace BoardGames.Desktop.Services
 
         public bool IsLoggedIn => AccountId != Guid.Empty;
 
-        public void Populate(AccountProfileDataTransferObject accountProfile)
+        public void Populate(AccountProfileDTO accountProfile)
         {
             ArgumentNullException.ThrowIfNull(accountProfile);
 

@@ -71,5 +71,43 @@ namespace BoardGames.Api.Services
 
         public ImmutableList<RentalDTO> GetRentalsForOwner(Guid ownerAccountId) =>
             rentalDataRepository.GetRentalsByOwner(ownerAccountId).Select(rental => rentalDtoMapper.ToDTO(rental)!).ToImmutableList();
+
+        public Task<Rental?> GetRentalById(int rentalId)
+        {
+            try
+            {
+                return Task.FromResult<Rental?>(rentalDataRepository.Get(rentalId));
+            }
+            catch (KeyNotFoundException)
+            {
+                return Task.FromResult<Rental?>(null);
+            }
+        }
+
+        public Task<decimal> GetRentalPrice(int rentalId)
+        {
+            var rental = rentalDataRepository.Get(rentalId);
+            if (rental.TotalPrice.HasValue)
+            {
+                return Task.FromResult(rental.TotalPrice.Value);
+            }
+
+            var game = rental.Game ?? gameLookupRepository.GetGame(rental.GameId);
+            var days = Math.Max(1, (rental.EndDate.Date - rental.StartDate.Date).Days + 1);
+            return Task.FromResult(game.PricePerDay * days);
+        }
+
+        public Task<string> GetGameName(int rentalId)
+        {
+            var rental = rentalDataRepository.Get(rentalId);
+            var game = rental.Game ?? gameLookupRepository.GetGame(rental.GameId);
+            return Task.FromResult(game.Name);
+        }
+
+        public async Task<List<RentalDTO>> GetRentalsForUser(int userId)
+        {
+            var rentals = await rentalDataRepository.GetRentalsForUser(userId);
+            return rentals.Select(rental => rentalDtoMapper.ToDTO(rental)!).ToList();
+        }
     }
 }

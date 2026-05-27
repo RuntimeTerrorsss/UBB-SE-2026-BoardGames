@@ -58,6 +58,24 @@ namespace BoardGames.Api.Mappers
             };
         }
 
+        public GameDTO ToDTO(Game game)
+        {
+            return new GameDTO
+            {
+                Id = game.Id,
+                Name = game.Name,
+                Price = game.PricePerDay,
+                City = game.Owner?.City ?? string.Empty,
+                MinimumPlayerNumber = game.MinimumPlayerNumber,
+                MaximumPlayerNumber = game.MaximumPlayerNumber,
+                Description = game.Description,
+                Image = game.Image ?? Array.Empty<byte>(),
+                ImageUrl = GetImageUrl(game),
+                IsActive = game.IsActive,
+                Owner = ownerMapper.ToDTO(game.Owner) ?? new UserDTO(),
+            };
+        }
+
         public Game ToModel(GameCreateDTO dto, Guid ownerAccountId)
         {
             return new Game
@@ -70,6 +88,22 @@ namespace BoardGames.Api.Mappers
                 Image = dto.Image,
                 IsActive = true, // By default games are active when created
                 Owner = new User { Id = ownerAccountId } // Repository resolves this via ResolveUser
+            };
+        }
+
+        public Game ToModel(GameDTO dto)
+        {
+            return new Game
+            {
+                Id = dto.Id,
+                Name = dto.Name,
+                PricePerDay = dto.Price,
+                MinimumPlayerNumber = dto.MinimumPlayerNumber,
+                MaximumPlayerNumber = dto.MaximumPlayerNumber,
+                Description = dto.Description,
+                Image = dto.Image,
+                IsActive = dto.IsActive,
+                Owner = dto.Owner != null ? ownerMapper.ToModel(dto.Owner) : null,
             };
         }
 

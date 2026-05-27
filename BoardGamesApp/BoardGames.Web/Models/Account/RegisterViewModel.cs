@@ -1,5 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿// <copyright file="RegisterViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System.ComponentModel.DataAnnotations;
 
 namespace BoardGames.Web.Models.Account
 {

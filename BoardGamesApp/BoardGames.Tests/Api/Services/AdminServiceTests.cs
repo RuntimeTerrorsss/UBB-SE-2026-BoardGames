@@ -1,11 +1,13 @@
+// <copyright file="AdminServiceTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
 using NUnit.Framework;
-using AdminService = BoardRentAndProperty.Api.Services.AdminService;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -19,9 +21,9 @@ namespace BoardGames.Tests.Api.Services
         [SetUp]
         public void SetUp()
         {
-            accountRepository = new FakeAccountRepository();
-            failedLoginRepository = new FakeFailedLoginRepository();
-            service = new AdminService(accountRepository, failedLoginRepository);
+            this.accountRepository = new FakeAccountRepository();
+            this.failedLoginRepository = new FakeFailedLoginRepository();
+            this.service = new AdminService(this.accountRepository, this.failedLoginRepository);
         }
 
         [Test]
@@ -38,14 +40,14 @@ namespace BoardGames.Tests.Api.Services
                 Roles = new List<Role> { new Role { Id = Guid.NewGuid(), Name = "Administrator" } },
             };
 
-            accountRepository.Accounts = new List<Account> { account };
-            failedLoginRepository.FailedLoginAttempts[accountId] = new FailedLoginAttempt
+            this.accountRepository.Accounts = new List<Account> { account };
+            this.failedLoginRepository.FailedLoginAttempts[accountId] = new FailedLoginAttempt
             {
                 AccountId = accountId,
                 LockedUntil = DateTime.UtcNow.AddMinutes(5),
             };
 
-            var serviceResult = await service.GetAllAccountsAsync(1, 10);
+            var serviceResult = await this.service.GetAllAccountsAsync(1, 10);
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(serviceResult.Data, Has.Count.EqualTo(1));
@@ -60,14 +62,14 @@ namespace BoardGames.Tests.Api.Services
             var accountId = Guid.NewGuid();
             var account = new Account { Id = accountId, IsSuspended = false };
 
-            accountRepository.AccountsById[accountId] = account;
+            this.accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await service.SuspendAccountAsync(accountId);
+            var serviceResult = await this.service.SuspendAccountAsync(accountId);
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(account.IsSuspended, Is.True);
-            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
 
         [Test]
@@ -76,20 +78,20 @@ namespace BoardGames.Tests.Api.Services
             var accountId = Guid.NewGuid();
             var account = new Account { Id = accountId, IsSuspended = true };
 
-            accountRepository.AccountsById[accountId] = account;
+            this.accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await service.UnsuspendAccountAsync(accountId);
+            var serviceResult = await this.service.UnsuspendAccountAsync(accountId);
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(account.IsSuspended, Is.False);
-            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
 
         [Test]
         public async Task ResetPasswordAsync_PasswordTooShort_ReturnsFailResult()
         {
-            var serviceResult = await service.ResetPasswordAsync(Guid.NewGuid(), "123");
+            var serviceResult = await this.service.ResetPasswordAsync(Guid.NewGuid(), "123");
 
             Assert.That(serviceResult.Success, Is.False);
             Assert.That(serviceResult.Error, Does.Contain("at least 6 characters"));
@@ -102,14 +104,14 @@ namespace BoardGames.Tests.Api.Services
             string originalHash = "old_hash";
             var account = new Account { Id = accountId, PasswordHash = originalHash };
 
-            accountRepository.AccountsById[accountId] = account;
+            this.accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await service.ResetPasswordAsync(accountId, "NewSecurePass123!");
+            var serviceResult = await this.service.ResetPasswordAsync(accountId, "NewSecurePass123!");
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(account.PasswordHash, Is.Not.EqualTo(originalHash));
-            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
 
         [Test]
@@ -117,11 +119,11 @@ namespace BoardGames.Tests.Api.Services
         {
             var accountId = Guid.NewGuid();
 
-            var serviceResult = await service.UnlockAccountAsync(accountId);
+            var serviceResult = await this.service.UnlockAccountAsync(accountId);
 
             Assert.That(serviceResult.Success, Is.True);
-            Assert.That(failedLoginRepository.ResetCallCount, Is.EqualTo(1));
-            Assert.That(failedLoginRepository.LastAccountId, Is.EqualTo(accountId));
+            Assert.That(this.failedLoginRepository.ResetCallCount, Is.EqualTo(1));
+            Assert.That(this.failedLoginRepository.LastAccountId, Is.EqualTo(accountId));
         }
     }
 }

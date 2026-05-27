@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BoardGames.Web.Infrastructure;
-using BoardGames.Shared.ProxyServices;
+// <copyright file="NotificationProxyServiceAdapter.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
@@ -18,9 +17,9 @@ namespace BoardGames.Web.Infrastructure
         }
 
         public async Task<IReadOnlyList<NotificationDTO>> GetNotificationsForUserAsync(Guid accountId)
-            => (await notificationService.GetNotificationsForUserAsync(accountId)).ThrowIfFailed();
+            => (await this.notificationService.GetNotificationsForUserAsync(accountId)).ThrowIfFailed();
 
         public async Task DeleteNotificationAsync(int notificationId)
-            => (await notificationService.DeleteNotificationByIdentifierAsync(notificationId)).ThrowIfFailed();
+            => (await this.notificationService.DeleteNotificationByIdentifierAsync(notificationId)).ThrowIfFailed();
     }
 }

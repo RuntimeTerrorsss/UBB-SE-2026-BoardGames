@@ -1,11 +1,8 @@
-﻿// <copyright file="Booltovisibilityconverter.cs" company="PlaceholderCompany">
+// <copyright file="Booltovisibilityconverter.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
-
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class BoolToVisibilityConverter : IValueConverter
     {

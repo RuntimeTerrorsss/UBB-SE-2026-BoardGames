@@ -34,7 +34,7 @@ namespace BoardGames.Api.Controllers
         /// Internal/admin route only. Normal user flow must go through POST api/requests instead.
         /// </summary>
         [HttpPost]
-        public IActionResult Create([FromBody] CreateRentalDataTransferObject body)
+        public IActionResult Create([FromBody] CreateRentalDTO body)
         {
             try
             {

@@ -124,7 +124,7 @@ namespace BoardGames.Desktop.ViewModels
                     Constants.DialogMessages.CreateRentalValidationError);
             }
 
-            var rentalDataTransferObject = new CreateRentalDataTransferObject
+            var rentalDataTransferObject = new CreateRentalDTO
             {
                 GameId = SelectedGameToRent.Id,
                 RenterAccountId = SelectedRenter.Id,

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BoardRentAndProperty.Api.Migrations
+namespace BoardGames.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace BoardRentAndProperty.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Account", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Account", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -153,7 +153,7 @@ namespace BoardRentAndProperty.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.AccountRole", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.AccountRole", b =>
                 {
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
@@ -185,7 +185,7 @@ namespace BoardRentAndProperty.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.FailedLoginAttempt", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.FailedLoginAttempt", b =>
                 {
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
@@ -201,7 +201,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.ToTable("FailedLoginAttempt", (string)null);
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Game", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Game", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -252,7 +252,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.ToTable("Games", (string)null);
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Notification", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -292,7 +292,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Rental", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Rental", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -327,7 +327,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.ToTable("Rentals", (string)null);
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Request", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Request", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -369,7 +369,7 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.ToTable("Requests", (string)null);
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Role", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -400,15 +400,15 @@ namespace BoardRentAndProperty.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.AccountRole", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.AccountRole", b =>
                 {
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Account")
+                    b.HasOne("BoardGames.Api.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Role", "Role")
+                    b.HasOne("BoardGames.Api.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -419,20 +419,20 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.FailedLoginAttempt", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.FailedLoginAttempt", b =>
                 {
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Account")
+                    b.HasOne("BoardGames.Api.Models.Account", "Account")
                         .WithOne()
-                        .HasForeignKey("BoardRentAndProperty.Api.Models.FailedLoginAttempt", "AccountId")
+                        .HasForeignKey("BoardGames.Api.Models.FailedLoginAttempt", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Game", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Game", b =>
                 {
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Owner")
+                    b.HasOne("BoardGames.Api.Models.Account", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .HasPrincipalKey("PamUserId")
@@ -442,14 +442,14 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Notification", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Notification", b =>
                 {
-                    b.HasOne("BoardRentAndProperty.Api.Models.Request", "RelatedRequest")
+                    b.HasOne("BoardGames.Api.Models.Request", "RelatedRequest")
                         .WithMany()
                         .HasForeignKey("related_request_id")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Recipient")
+                    b.HasOne("BoardGames.Api.Models.Account", "Recipient")
                         .WithMany()
                         .HasForeignKey("user_id")
                         .HasPrincipalKey("PamUserId")
@@ -460,20 +460,20 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.Navigation("RelatedRequest");
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Rental", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Rental", b =>
                 {
-                    b.HasOne("BoardRentAndProperty.Api.Models.Game", "Game")
+                    b.HasOne("BoardGames.Api.Models.Game", "Game")
                         .WithMany()
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Owner")
+                    b.HasOne("BoardGames.Api.Models.Account", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .HasPrincipalKey("PamUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Renter")
+                    b.HasOne("BoardGames.Api.Models.Account", "Renter")
                         .WithMany()
                         .HasForeignKey("RenterId")
                         .HasPrincipalKey("PamUserId")
@@ -486,26 +486,26 @@ namespace BoardRentAndProperty.Api.Migrations
                     b.Navigation("Renter");
                 });
 
-            modelBuilder.Entity("BoardRentAndProperty.Api.Models.Request", b =>
+            modelBuilder.Entity("BoardGames.Api.Models.Request", b =>
                 {
-                    b.HasOne("BoardRentAndProperty.Api.Models.Game", "Game")
+                    b.HasOne("BoardGames.Api.Models.Game", "Game")
                         .WithMany()
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "OfferingUser")
+                    b.HasOne("BoardGames.Api.Models.Account", "OfferingUser")
                         .WithMany()
                         .HasForeignKey("OfferingUserId")
                         .HasPrincipalKey("PamUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Owner")
+                    b.HasOne("BoardGames.Api.Models.Account", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .HasPrincipalKey("PamUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("BoardRentAndProperty.Api.Models.Account", "Renter")
+                    b.HasOne("BoardGames.Api.Models.Account", "Renter")
                         .WithMany()
                         .HasForeignKey("RenterId")
                         .HasPrincipalKey("PamUserId")

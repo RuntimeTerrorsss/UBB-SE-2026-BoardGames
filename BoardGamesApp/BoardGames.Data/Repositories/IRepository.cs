@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+// <copyright file="IRepository.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Data.Repositories
 {
@@ -28,7 +26,4 @@ namespace BoardGames.Data.Repositories
 }
 
 
-//namespace BookingBoardGames.Src.Repositories;
-
-
-
+// namespace BookingBoardGames.Src.Repositories;

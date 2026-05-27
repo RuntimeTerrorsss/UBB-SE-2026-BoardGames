@@ -1,12 +1,14 @@
+// <copyright file="GameServiceTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Immutable;
+using BoardGames.Data.Models;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
 using NUnit.Framework;
-using GameService = BoardRentAndProperty.Api.Services.GameService;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -24,15 +26,15 @@ namespace BoardGames.Tests.Api.Services
         [SetUp]
         public void SetUp()
         {
-            gameRepository = new FakeGameRepository();
-            rentalRepository = new FakeRentalRepository();
-            requestService = new FakeApiRequestService();
+            this.gameRepository = new FakeGameRepository();
+            this.rentalRepository = new FakeRentalRepository();
+            this.requestService = new FakeApiRequestService();
 
-            service = new GameService(
-                gameRepository,
-                rentalRepository,
+            this.service = new GameService(
+                this.gameRepository,
+                this.rentalRepository,
                 new GameMapper(new UserMapper()),
-                requestService);
+                this.requestService);
         }
 
         [Test]
@@ -41,14 +43,14 @@ namespace BoardGames.Tests.Api.Services
             var activeRental = new Rental(
                 1,
                 new Game { Id = SampleGameIdentifier },
-                new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                new User { Id = Guid.NewGuid(), DisplayName = "Renter" },
+                new User { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
                 DateTime.Now.AddDays(-1),
                 DateTime.Now.AddDays(3));
 
-            rentalRepository.RentalsByGame = ImmutableList.Create(activeRental);
+            this.rentalRepository.RentalsByGame = ImmutableList.Create(activeRental);
 
-            Action deleteAction = () => service.DeleteGameByIdentifier(SampleGameIdentifier);
+            Action deleteAction = () => this.service.DeleteGameByIdentifier(SampleGameIdentifier);
 
             var exception = Assert.Throws<InvalidOperationException>(() => deleteAction());
             Assert.That(exception!.Message, Does.Contain("1 active rental"));
@@ -65,13 +67,13 @@ namespace BoardGames.Tests.Api.Services
                 MinimumPlayerNumber = 2,
                 MaximumPlayerNumber = 4,
                 Description = "A classic strategy board game for two players.",
-                Owner = new UserDTO { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                Owner = new UserDTO { Id = this.sampleOwnerIdentifier, DisplayName = "Owner" },
             };
 
-            service.AddGame(gameDto);
+            this.service.AddGame(gameDto);
 
-            Assert.That(gameRepository.AddCallCount, Is.EqualTo(1));
-            Assert.That(gameRepository.LastAddedGame, Is.Not.Null);
+            Assert.That(this.gameRepository.AddCallCount, Is.EqualTo(1));
+            Assert.That(this.gameRepository.LastAddedGame, Is.Not.Null);
         }
 
         [Test]
@@ -87,7 +89,7 @@ namespace BoardGames.Tests.Api.Services
                 Description = string.Empty,
             };
 
-            Action addAction = () => service.AddGame(gameDto);
+            Action addAction = () => this.service.AddGame(gameDto);
 
             Assert.Throws<ArgumentException>(() => addAction());
         }
@@ -99,20 +101,20 @@ namespace BoardGames.Tests.Api.Services
                 1,
                 new Game { Id = SampleGameIdentifier },
                 new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                new Account { Id = this.sampleOwnerIdentifier, DisplayName = "Owner" },
                 DateTime.Now.AddDays(-1),
                 DateTime.Now.AddDays(3));
             var secondRental = new Rental(
                 2,
                 new Game { Id = SampleGameIdentifier },
                 new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                new Account { Id = this.sampleOwnerIdentifier, DisplayName = "Owner" },
                 DateTime.Now.AddDays(4),
                 DateTime.Now.AddDays(6));
 
-            rentalRepository.RentalsByGame = ImmutableList.Create(firstRental, secondRental);
+            this.rentalRepository.RentalsByGame = ImmutableList.Create(firstRental, secondRental);
 
-            Action deleteAction = () => service.DeleteGameByIdentifier(SampleGameIdentifier);
+            Action deleteAction = () => this.service.DeleteGameByIdentifier(SampleGameIdentifier);
 
             var exception = Assert.Throws<InvalidOperationException>(() => deleteAction());
             Assert.That(exception!.Message, Does.Contain("2 active rentals"));
@@ -121,9 +123,9 @@ namespace BoardGames.Tests.Api.Services
         [Test]
         public void GetGameByIdentifier_WithValidId_ReturnsGameDto()
         {
-            gameRepository.GamesById[SampleGameIdentifier] = new Game { Id = SampleGameIdentifier };
+            this.gameRepository.GamesById[SampleGameIdentifier] = new Game { Id = SampleGameIdentifier };
 
-            var retrievedGame = service.GetGameByIdentifier(SampleGameIdentifier);
+            var retrievedGame = this.service.GetGameByIdentifier(SampleGameIdentifier);
 
             Assert.That(retrievedGame.Id, Is.EqualTo(SampleGameIdentifier));
         }
@@ -139,27 +141,27 @@ namespace BoardGames.Tests.Api.Services
                 MinimumPlayerNumber = 2,
                 MaximumPlayerNumber = 4,
                 Description = "A valid updated description for the game.",
-                Owner = new UserDTO { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                Owner = new UserDTO { Id = this.sampleOwnerIdentifier, DisplayName = "Owner" },
             };
 
-            service.UpdateGameByIdentifier(SampleGameIdentifier, gameDto);
+            this.service.UpdateGameByIdentifier(SampleGameIdentifier, gameDto);
 
-            Assert.That(gameRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(gameRepository.LastUpdatedGameId, Is.EqualTo(SampleGameIdentifier));
+            Assert.That(this.gameRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(this.gameRepository.LastUpdatedGameId, Is.EqualTo(SampleGameIdentifier));
         }
 
         [Test]
         public void DeleteGameByIdentifier_WithNoActiveRentals_DeletesGameAndNotifiesRequestService()
         {
-            rentalRepository.RentalsByGame = ImmutableList<Rental>.Empty;
-            gameRepository.GamesById[SampleGameIdentifier] = new Game { Id = SampleGameIdentifier };
+            this.rentalRepository.RentalsByGame = ImmutableList<Rental>.Empty;
+            this.gameRepository.GamesById[SampleGameIdentifier] = new Game { Id = SampleGameIdentifier };
 
-            service.DeleteGameByIdentifier(SampleGameIdentifier);
+            this.service.DeleteGameByIdentifier(SampleGameIdentifier);
 
-            Assert.That(requestService.OnGameDeactivatedCallCount, Is.EqualTo(1));
-            Assert.That(requestService.LastDeactivatedGameId, Is.EqualTo(SampleGameIdentifier));
-            Assert.That(gameRepository.DeleteCallCount, Is.EqualTo(1));
-            Assert.That(gameRepository.LastDeletedGameId, Is.EqualTo(SampleGameIdentifier));
+            Assert.That(this.requestService.OnGameDeactivatedCallCount, Is.EqualTo(1));
+            Assert.That(this.requestService.LastDeactivatedGameId, Is.EqualTo(SampleGameIdentifier));
+            Assert.That(this.gameRepository.DeleteCallCount, Is.EqualTo(1));
+            Assert.That(this.gameRepository.LastDeletedGameId, Is.EqualTo(SampleGameIdentifier));
         }
     }
 }

@@ -1,10 +1,10 @@
+// <copyright file="ProfileViewModelTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
-using CommunityToolkit.Mvvm.Input;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -22,13 +22,13 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            testAccountId = Guid.NewGuid();
-            accountService = new FakeClientAccountService();
-            authService = new FakeClientAuthService();
-            filePickerService = new FakeFilePickerService();
-            sessionContext = new FakeSessionContext
+            this.testAccountId = Guid.NewGuid();
+            this.accountService = new FakeClientAccountService();
+            this.authService = new FakeClientAuthService();
+            this.filePickerService = new FakeFilePickerService();
+            this.sessionContext = new FakeSessionContext
             {
-                AccountId = testAccountId,
+                AccountId = this.testAccountId,
                 Username = "testuser",
                 DisplayName = "Test User",
                 Email = "test@test.com",
@@ -39,69 +39,69 @@ namespace BoardGames.Tests.ViewModels
                 StreetNumber = string.Empty,
             };
 
-            systemUnderTest = new ProfileViewModel(
-                accountService,
-                authService,
-                filePickerService,
-                sessionContext);
+            this.systemUnderTest = new ProfileViewModel(
+                this.accountService,
+                this.authService,
+                this.filePickerService,
+                this.sessionContext);
         }
 
         [Test]
         public async Task LoadProfileAsync_ValidData_PopulatesProperties()
         {
-            var profileData = new AccountProfileDataTransferObject
+            var profileData = new AccountProfileDTO
             {
-                Id = testAccountId,
+                Id = this.testAccountId,
                 Username = "loaded_user",
                 DisplayName = "Loaded Name",
                 Email = "loaded@test.com",
             };
 
-            accountService.ProfileResult =
-                ServiceResult<AccountProfileDataTransferObject>.Ok(profileData);
+            this.accountService.ProfileResult =
+                ServiceResult<AccountProfileDTO>.Ok(profileData);
 
-            await systemUnderTest.LoadProfileAsync();
+            await this.systemUnderTest.LoadProfileAsync();
 
-            Assert.That(systemUnderTest.Username, Is.EqualTo("loaded_user"));
-            Assert.That(systemUnderTest.DisplayName, Is.EqualTo("Loaded Name"));
-            Assert.That(systemUnderTest.Email, Is.EqualTo("loaded@test.com"));
+            Assert.That(this.systemUnderTest.Username, Is.EqualTo("loaded_user"));
+            Assert.That(this.systemUnderTest.DisplayName, Is.EqualTo("Loaded Name"));
+            Assert.That(this.systemUnderTest.Email, Is.EqualTo("loaded@test.com"));
         }
 
         [Test]
         public async Task SaveProfileCommand_InvalidData_SetsDisplayNameError()
         {
-            systemUnderTest.DisplayName = "A";
+            this.systemUnderTest.DisplayName = "A";
 
             var failureResult = ServiceResult<bool>.Fail("DisplayName|Display name must be between 2 and 50 characters long.");
-            accountService.UpdateProfileResult = failureResult;
+            this.accountService.UpdateProfileResult = failureResult;
 
-            await ((IAsyncRelayCommand)systemUnderTest.SaveProfileCommand).ExecuteAsync(null);
+            await ((IAsyncRelayCommand)this.systemUnderTest.SaveProfileCommand).ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.DisplayNameError, Is.EqualTo("Display name must be between 2 and 50 characters long."));
+            Assert.That(this.systemUnderTest.DisplayNameError, Is.EqualTo("Display name must be between 2 and 50 characters long."));
         }
 
         [Test]
         public async Task SelectAvatarCommand_UserPicksFile_SetsAvatarUrlPreview()
         {
             string fakePath = "C:\\test_avatar.jpg";
-            filePickerService.SelectedPath = fakePath;
+            this.filePickerService.SelectedPath = fakePath;
 
-            await ((IAsyncRelayCommand)systemUnderTest.SelectAvatarCommand).ExecuteAsync(null);
+            await ((IAsyncRelayCommand)this.systemUnderTest.SelectAvatarCommand).ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.AvatarUrl, Is.EqualTo(fakePath));
-            Assert.That(accountService.UploadAvatarCallCount, Is.EqualTo(0));
+            Assert.That(this.systemUnderTest.AvatarUrl, Is.EqualTo(fakePath));
+            Assert.That(this.accountService.UploadAvatarCallCount, Is.EqualTo(0));
         }
 
         [Test]
         public async Task SaveNewPasswordCommand_PasswordsDoNotMatch_SetsConfirmError()
         {
-            systemUnderTest.NewPassword = "Password123!";
-            systemUnderTest.ConfirmPassword = "DifferentPassword123!";
+            this.systemUnderTest.NewPassword = "Password123!";
+            this.systemUnderTest.ConfirmPassword = "DifferentPassword123!";
 
-            await ((IAsyncRelayCommand)systemUnderTest.SaveNewPasswordCommand).ExecuteAsync(null);
+            await ((IAsyncRelayCommand)this.systemUnderTest.SaveNewPasswordCommand).ExecuteAsync(null);
 
-            Assert.That(systemUnderTest.ConfirmPasswordError, Is.EqualTo("Passwords do not match."));
-            Assert.That(accountService.ChangePasswordCallCount, Is.EqualTo(0));
+            Assert.That(this.systemUnderTest.ConfirmPasswordError, Is.EqualTo("Passwords do not match."));
+            Assert.That(this.accountService.ChangePasswordCallCount, Is.EqualTo(0));
         }
     }
 }

@@ -11,7 +11,7 @@ using BoardGames.Desktop.ViewModels;
 using BoardGames.Shared.ProxyServices;
 using BoardGames.Shared.DTO;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.Views;
+using BoardGames.Desktop.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using H.NotifyIcon;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +22,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.AppLifecycle;
 
-namespace BoardRentAndProperty
+namespace BoardGames.Desktop
 {
     public partial class App : Application
     {
@@ -39,7 +39,7 @@ namespace BoardRentAndProperty
         private const string TwoWindowsEnvironmentKey = "TWO_WINDOWS";
         private const string EnabledEnvironmentValue = "true";
         private const string NotificationNavigationArgumentKey = "navigate";
-        private const string TrayIconIdentityPrefix = "BoardRentAndProperty.TrayIcon";
+        private const string TrayIconIdentityPrefix = "BoardGames.Desktop.TrayIcon";
 
         public static IServiceProvider Services { get; private set; } = default!;
         public static Window? MainWindow { get; set; }
@@ -68,7 +68,7 @@ namespace BoardRentAndProperty
                 StartNotificationServer();
             }
 
-            AppUserModelId = $"BoardRentAndProperty -- slot-{CurrentProcessSlot}";
+            AppUserModelId = $"BoardGames.Desktop -- slot-{CurrentProcessSlot}";
 
             notificationManager = new NotificationManager();
             SetupNotificationManager();

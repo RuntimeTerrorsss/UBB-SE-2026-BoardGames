@@ -1,6 +1,8 @@
+// <copyright file="MenuBarViewModelTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Utilities;
-using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -17,17 +19,17 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            sessionContext = new FakeSessionContext { Role = "Standard User" };
-            viewModel = new MenuBarViewModel(sessionContext);
-            capturedNavigationTarget = null;
-            navigationWasTriggered = false;
-            navigationTriggerCount = 0;
+            this.sessionContext = new FakeSessionContext { Role = "Standard User" };
+            this.viewModel = new MenuBarViewModel(this.sessionContext);
+            this.capturedNavigationTarget = null;
+            this.navigationWasTriggered = false;
+            this.navigationTriggerCount = 0;
         }
 
         [Test]
         public void Constructor_WhenViewModelIsCreated_RegistersMainMenuEntries()
         {
-            var registeredMenuLabels = viewModel.NavigationActionsByMenuLabel.Keys;
+            var registeredMenuLabels = this.viewModel.NavigationActionsByMenuLabel.Keys;
 
             Assert.That(registeredMenuLabels, Does.Contain("My Games"));
             Assert.That(registeredMenuLabels, Does.Contain("Others' Requests"));
@@ -40,67 +42,67 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void SelectedPageName_MyGames_FiresListingsNavigation()
         {
-            viewModel.RequestNavigation += CaptureNavigationTarget;
-            viewModel.SelectedPageName = "My Games";
-            Assert.That(capturedNavigationTarget, Is.EqualTo(AppPage.Listings));
+            this.viewModel.RequestNavigation += CaptureNavigationTarget;
+            this.viewModel.SelectedPageName = "My Games";
+            Assert.That(this.capturedNavigationTarget, Is.EqualTo(AppPage.Listings));
         }
 
         [Test]
         public void SelectedPageName_Notifications_FiresNotificationsNavigation()
         {
-            viewModel.RequestNavigation += CaptureNavigationTarget;
-            viewModel.SelectedPageName = "Notifications";
-            Assert.That(capturedNavigationTarget, Is.EqualTo(AppPage.Notifications));
+            this.viewModel.RequestNavigation += CaptureNavigationTarget;
+            this.viewModel.SelectedPageName = "Notifications";
+            Assert.That(this.capturedNavigationTarget, Is.EqualTo(AppPage.Notifications));
         }
 
         [Test]
         public void SelectedPageName_MyRentals_FiresRentalsFromOthersNavigation()
         {
-            viewModel.RequestNavigation += CaptureNavigationTarget;
-            viewModel.SelectedPageName = "My Rentals";
-            Assert.That(capturedNavigationTarget, Is.EqualTo(AppPage.RentalsFromOthers));
+            this.viewModel.RequestNavigation += CaptureNavigationTarget;
+            this.viewModel.SelectedPageName = "My Rentals";
+            Assert.That(this.capturedNavigationTarget, Is.EqualTo(AppPage.RentalsFromOthers));
         }
 
         [Test]
         public void SelectedPageName_OthersRentals_FiresRentalsToOthersNavigation()
         {
-            viewModel.RequestNavigation += CaptureNavigationTarget;
-            viewModel.SelectedPageName = "Others' Rentals";
-            Assert.That(capturedNavigationTarget, Is.EqualTo(AppPage.RentalsToOthers));
+            this.viewModel.RequestNavigation += CaptureNavigationTarget;
+            this.viewModel.SelectedPageName = "Others' Rentals";
+            Assert.That(this.capturedNavigationTarget, Is.EqualTo(AppPage.RentalsToOthers));
         }
 
         [Test]
         public void SelectedPageName_UnrecognisedLabel_DoesNotFireNavigation()
         {
-            viewModel.RequestNavigation += MarkNavigationAsTriggered;
-            viewModel.SelectedPageName = "Unknown page";
-            Assert.That(navigationWasTriggered, Is.False);
+            this.viewModel.RequestNavigation += MarkNavigationAsTriggered;
+            this.viewModel.SelectedPageName = "Unknown page";
+            Assert.That(this.navigationWasTriggered, Is.False);
         }
 
         [Test]
         public void SelectedPageName_SetToSameValueTwice_FiresNavigationOnlyOnce()
         {
-            viewModel.RequestNavigation += IncrementNavigationTriggerCount;
-            viewModel.SelectedPageName = "My Rentals";
-            viewModel.SelectedPageName = "My Rentals";
-            Assert.That(navigationTriggerCount, Is.EqualTo(1));
+            this.viewModel.RequestNavigation += IncrementNavigationTriggerCount;
+            this.viewModel.SelectedPageName = "My Rentals";
+            this.viewModel.SelectedPageName = "My Rentals";
+            Assert.That(this.navigationTriggerCount, Is.EqualTo(1));
         }
 
         private void CaptureNavigationTarget(AppPage selectedPage)
         {
-            capturedNavigationTarget = selectedPage;
+            this.capturedNavigationTarget = selectedPage;
         }
 
         private void MarkNavigationAsTriggered(AppPage selectedPage)
         {
             _ = selectedPage;
-            navigationWasTriggered = true;
+            this.navigationWasTriggered = true;
         }
 
         private void IncrementNavigationTriggerCount(AppPage selectedPage)
         {
             _ = selectedPage;
-            navigationTriggerCount++;
+            this.navigationTriggerCount++;
         }
     }
 }

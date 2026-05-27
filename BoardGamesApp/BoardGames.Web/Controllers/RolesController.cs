@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+// <copyright file="RolesController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Data;
 using BoardGames.Data.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Web.Controllers
 {
@@ -16,13 +15,13 @@ namespace BoardGames.Web.Controllers
 
         public RolesController(AppDbContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         // GET: Roles
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Roles.ToListAsync());
+            return this.View(await this._context.Roles.ToListAsync());
         }
 
         // GET: Roles/Details/5
@@ -30,23 +29,23 @@ namespace BoardGames.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var role = await _context.Roles
+            var role = await this._context.Roles
                 .FirstOrDefaultAsync(inputAccount => inputAccount.Id == id);
             if (role == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            return View(role);
+            return this.View(role);
         }
 
         // GET: Roles/Create
         public IActionResult Create()
         {
-            return View();
+            return this.View();
         }
 
         // POST: Roles/Create
@@ -54,14 +53,15 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Role role)
         {
-            if (ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
                 role.Id = Guid.NewGuid();
-                _context.Add(role);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                this._context.Add(role);
+                await this._context.SaveChangesAsync();
+                return this.RedirectToAction(nameof(this.Index));
             }
-            return View(role);
+
+            return this.View(role);
         }
 
         // GET: Roles/Edit/5
@@ -69,15 +69,16 @@ namespace BoardGames.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var role = await _context.Roles.FindAsync(id);
+            var role = await this._context.Roles.FindAsync(id);
             if (role == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
-            return View(role);
+
+            return this.View(role);
         }
 
         // POST: Roles/Edit/5
@@ -87,30 +88,32 @@ namespace BoardGames.Web.Controllers
         {
             if (id != role.Id)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(role);
-                    await _context.SaveChangesAsync();
+                    this._context.Update(role);
+                    await this._context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RoleExists(role.Id))
+                    if (!this.RoleExists(role.Id))
                     {
-                        return NotFound();
+                        return this.NotFound();
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                return this.RedirectToAction(nameof(this.Index));
             }
-            return View(role);
+
+            return this.View(role);
         }
 
         // GET: Roles/Delete/5
@@ -118,17 +121,17 @@ namespace BoardGames.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var role = await _context.Roles
+            var role = await this._context.Roles
                 .FirstOrDefaultAsync(inputRole => inputRole.Id == id);
             if (role == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            return View(role);
+            return this.View(role);
         }
 
         // POST: Roles/Delete/5
@@ -136,19 +139,19 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var role = await _context.Roles.FindAsync(id);
+            var role = await this._context.Roles.FindAsync(id);
             if (role != null)
             {
-                _context.Roles.Remove(role);
+                this._context.Roles.Remove(role);
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            await this._context.SaveChangesAsync();
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         private bool RoleExists(Guid id)
         {
-            return _context.Roles.Any(inputRole => inputRole.Id == id);
+            return this._context.Roles.Any(inputRole => inputRole.Id == id);
         }
     }
 }

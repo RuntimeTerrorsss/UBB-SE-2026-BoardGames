@@ -2,10 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using BoardGames.Api.Services;
-using Microsoft.UI.Xaml;
-
 namespace BoardGames.Desktop.Navigation
 {
     public class BookingNavigationArguments

@@ -44,7 +44,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task<string?> TryCancelRequestAsync(int requestIdToCancel)
         {
-            var cancellationAction = new RequestActionDataTransferObject { AccountId = CurrentRenterUserId };
+            var cancellationAction = new RequestActionDTO { AccountId = CurrentRenterUserId };
             var cancellationResult = await rentalRequestService.CancelRequestAsync(
                 requestIdToCancel,
                 cancellationAction);

@@ -49,7 +49,7 @@ namespace BoardGames.Desktop.ViewModels
 
             IsLoading = true;
 
-            LoginDataTransferObject loginRequest = new LoginDataTransferObject
+            LoginDTO loginRequest = new LoginDTO
             {
                 UsernameOrEmail = this.UsernameOrEmail,
                 Password = Password,

@@ -1,9 +1,6 @@
-﻿// <copyright file="PagedResult.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="PagedResult.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System;
-using System.Collections.Generic;
 
 namespace BoardGames.Shared.DTO
 {
@@ -17,11 +14,11 @@ namespace BoardGames.Shared.DTO
 
         public int PageSize { get; set; }
 
-        public int TotalPages => TotalCount == 0 ? 0 : CalculateTotalPages();
+        public int TotalPages => this.TotalCount == 0 ? 0 : this.CalculateTotalPages();
 
         private int CalculateTotalPages()
         {
-            return (int)Math.Ceiling((double)TotalCount / PageSize);
+            return (int)Math.Ceiling((double)this.TotalCount / this.PageSize);
         }
     }
 }

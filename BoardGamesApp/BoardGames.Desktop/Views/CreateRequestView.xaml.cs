@@ -6,7 +6,7 @@ using BoardGames.Shared.DTO;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.Views;
 
-namespace BoardRentAndProperty.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class CreateRequestView : Page
     {

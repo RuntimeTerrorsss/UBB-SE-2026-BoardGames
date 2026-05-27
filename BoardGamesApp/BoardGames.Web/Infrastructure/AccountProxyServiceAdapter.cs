@@ -1,9 +1,9 @@
-using System;
-using System.Threading.Tasks;
-using BoardGames.Web.Infrastructure;
-using BoardGames.Shared.ProxyServices;
+// <copyright file="AccountProxyServiceAdapter.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
@@ -16,19 +16,19 @@ namespace BoardGames.Web.Infrastructure
             this.accountService = accountService;
         }
 
-        public async Task<AccountProfileDataTransferObject> GetProfileAsync(Guid accountId)
-            => (await accountService.GetProfileAsync(accountId)).ThrowIfFailed();
+        public async Task<AccountProfileDTO> GetProfileAsync(Guid accountId)
+            => (await this.accountService.GetProfileAsync(accountId)).ThrowIfFailed();
 
-        public async Task UpdateProfileAsync(Guid accountId, AccountProfileDataTransferObject updateData)
-            => (await accountService.UpdateProfileAsync(accountId, updateData)).ThrowIfFailed();
+        public async Task UpdateProfileAsync(Guid accountId, AccountProfileDTO updateData)
+            => (await this.accountService.UpdateProfileAsync(accountId, updateData)).ThrowIfFailed();
 
         public async Task UploadAvatarAsync(Guid accountId, string imagePath)
-            => (await accountService.UploadAvatarAsync(accountId, imagePath)).ThrowIfFailed();
+            => (await this.accountService.UploadAvatarAsync(accountId, imagePath)).ThrowIfFailed();
 
         public async Task RemoveAvatarAsync(Guid accountId)
-            => (await accountService.RemoveAvatarAsync(accountId)).ThrowIfFailed();
+            => (await this.accountService.RemoveAvatarAsync(accountId)).ThrowIfFailed();
 
         public async Task ChangePasswordAsync(Guid accountId, string currentPassword, string newPassword)
-            => (await accountService.ChangePasswordAsync(accountId, currentPassword, newPassword)).ThrowIfFailed();
+            => (await this.accountService.ChangePasswordAsync(accountId, currentPassword, newPassword)).ThrowIfFailed();
     }
 }

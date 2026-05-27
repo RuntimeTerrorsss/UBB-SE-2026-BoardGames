@@ -1,14 +1,13 @@
-// <copyright file="BookingService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="BookingService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services;
+
 /// <summary>
 /// Service responsible for handling booking operations, including retrieving game details,
 /// checking availability, and managing rental time rentaltimeranges.
@@ -46,20 +45,24 @@ public class BookingService : InterfaceBookingService
     {
         try
         {
-            var bookedGame = await gamesRepository.GetGameById(gameId);
+            var bookedGame = await this.gamesRepository.GetGameById(gameId);
             Debug.WriteLine($"bookedGame: {bookedGame?.Name ?? "NULL"}");
 
             if (bookedGame == null)
+            {
                 throw new InvalidOperationException($"Game with id {gameId} was not found.");
+            }
 
-            var gameOwner = await usersRepository.GetGameById(bookedGame.OwnerId);
+            var gameOwner = await this.usersRepository.GetGameById(bookedGame.OwnerId);
             Debug.WriteLine($"gameOwner: {gameOwner?.DisplayName ?? "NULL"}");
 
             if (gameOwner == null)
+            {
                 throw new InvalidOperationException($"Owner for game id {gameId} was not found.");
+            }
 
-            return new BookingDTO 
-            { 
+            return new BookingDTO
+            {
                 GameId = bookedGame.Id,
                 Name = bookedGame.Name,
                 Image = bookedGame.Image,
@@ -68,11 +71,11 @@ public class BookingService : InterfaceBookingService
                 MinimumNrPlayers = bookedGame.MinimumPlayerNumber,
                 MaximumNumberPlayers = bookedGame.MaximumPlayerNumber,
                 Description = bookedGame.Description,
-                UserId = gameOwner.Id,
+                UserId = gameOwner.PamUserId,
                 DisplayName = gameOwner.DisplayName,
                 IsSuspended = gameOwner.IsSuspended,
                 AvatarUrl = gameOwner.AvatarUrl,
-                CreatedAt = gameOwner.CreatedAt
+                CreatedAt = gameOwner.CreatedAt,
             };
         }
         catch (Exception exception)
@@ -92,7 +95,7 @@ public class BookingService : InterfaceBookingService
     {
         try
         {
-            return (await rentalsRepository.GetUnavailableTimeRanges(gameId)).ToArray();
+            return (await this.rentalsRepository.GetUnavailableTimeRanges(gameId)).ToArray();
         }
         catch (Exception exception)
         {
@@ -110,7 +113,7 @@ public class BookingService : InterfaceBookingService
     {
         try
         {
-            return await rentalsRepository.CheckGameAvailability(timeRange.StartTime, timeRange.EndTime, gameId);
+            return await this.rentalsRepository.CheckGameAvailability(timeRange.StartTime, timeRange.EndTime, gameId);
         }
         catch (Exception exception)
         {
@@ -156,7 +159,7 @@ public class BookingService : InterfaceBookingService
 
         try
         {
-            await rentalsRepository.BookGameWithRentalRequest(
+            await this.rentalsRepository.BookGameWithRentalRequest(
                 clientId,
                 gameId,
                 timeRange.StartTime.Date,

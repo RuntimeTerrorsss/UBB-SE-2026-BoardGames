@@ -1,3 +1,7 @@
+// <copyright file="ConversationListItemViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Web.Models.Chats
 {
     public class ConversationListItemViewModel

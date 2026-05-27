@@ -1,4 +1,7 @@
-using System;
+// <copyright file="UserAccountRole.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BoardGames.Data.Models

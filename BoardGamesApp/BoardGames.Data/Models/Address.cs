@@ -1,16 +1,19 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿// <copyright file="Address.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 [Owned]
 public class Address
 {
     public Address(string country, string city, string street, string streetNumber)
     {
-        Country = country;
-        City = city;
-        Street = street;
-        StreetNumber = streetNumber;
+        this.Country = country;
+        this.City = city;
+        this.Street = street;
+        this.StreetNumber = streetNumber;
     }
 
     public Address()
@@ -31,6 +34,6 @@ public class Address
 
     public override string ToString()
     {
-        return $"{Street} {StreetNumber}, {City}, {Country}";
+        return $"{this.Street} {this.StreetNumber}, {this.City}, {this.Country}";
     }
 }

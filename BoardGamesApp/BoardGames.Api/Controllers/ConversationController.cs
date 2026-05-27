@@ -63,14 +63,14 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPost("messages")]
-        public async Task<ActionResult<MessageDataTransferObject>> SendMessage([FromBody] MessageDataTransferObject messageDto)
+        public async Task<ActionResult<MessageDTO>> SendMessage([FromBody] MessageDTO messageDto)
         {
             var persisted = await conversationService.SendMessage(messageDto);
             return Ok(persisted);
         }
 
         [HttpPut("messages")]
-        public async Task<ActionResult<MessageDataTransferObject>> UpdateMessage([FromBody] MessageDataTransferObject messageDto)
+        public async Task<ActionResult<MessageDTO>> UpdateMessage([FromBody] MessageDTO messageDto)
         {
             var updated = await conversationService.UpdateMessage(messageDto);
             if (updated is null)
@@ -103,7 +103,7 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPost("cash/{parentMessageId}/{paymentId}")]
-        public async Task<ActionResult<MessageDataTransferObject>> CreateCashAgreementMessage(int parentMessageId, int paymentId)
+        public async Task<ActionResult<MessageDTO>> CreateCashAgreementMessage(int parentMessageId, int paymentId)
         {
             var created = await conversationService.CreateCashAgreementMessage(parentMessageId, paymentId);
             if (created is null)

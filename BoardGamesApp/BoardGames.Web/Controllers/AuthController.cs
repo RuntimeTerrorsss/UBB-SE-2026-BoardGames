@@ -1,10 +1,11 @@
-using System;
+// <copyright file="AuthController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Security.Claims;
-using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
 using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Account;
-using BoardGames.Contracts.DataTransferObjects;
-using BoardGames.ProxyServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +26,7 @@ namespace BoardGames.Web.Controllers
         [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
-            return View(new LoginViewModel { ReturnUrl = returnUrl });
+            return this.View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
         [HttpPost]
@@ -33,15 +34,15 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                return View(model);
+                return this.View(model);
             }
 
-            AccountProfileDataTransferObject profile;
+            AccountProfileDTO profile;
             try
             {
-                profile = await authProxyService.LoginAsync(new LoginDataTransferObject
+                profile = await this.authProxyService.LoginAsync(new LoginDTO
                 {
                     UsernameOrEmail = model.UsernameOrEmail,
                     Password = model.Password,
@@ -50,8 +51,8 @@ namespace BoardGames.Web.Controllers
             }
             catch (ProxyServiceException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
+                this.ModelState.AddModelError(string.Empty, ex.Message);
+                return this.View(model);
             }
 
             ClaimsIdentity identity = BuildIdentity(profile);
@@ -61,14 +62,19 @@ namespace BoardGames.Web.Controllers
                 AllowRefresh = true,
             };
 
-            await HttpContext.SignInAsync(
+            await this.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity),
                 authProperties);
 
-            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+            if (!string.IsNullOrEmpty(model.ReturnUrl) && this.Url.IsLocalUrl(model.ReturnUrl))
             {
-                return Redirect(model.ReturnUrl);
+                return this.Redirect(model.ReturnUrl);
+            }
+
+            if (profile.Role?.Name?.Equals("admin", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return RedirectToAction("Index", "Admin");
             }
 
             return RedirectToAction("Index", "Games");
@@ -78,7 +84,7 @@ namespace BoardGames.Web.Controllers
         [AllowAnonymous]
         public IActionResult Register()
         {
-            return View(new RegisterViewModel());
+            return this.View(new RegisterViewModel());
         }
 
         [HttpPost]
@@ -86,14 +92,14 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                return View(model);
+                return this.View(model);
             }
 
             try
             {
-                await authProxyService.RegisterAsync(new RegisterDataTransferObject
+                await this.authProxyService.RegisterAsync(new RegisterDTO
                 {
                     DisplayName = model.DisplayName,
                     Username = model.Username,
@@ -109,14 +115,14 @@ namespace BoardGames.Web.Controllers
             }
             catch (ProxyServiceException ex)
             {
-                AddFieldErrors(ex.Message);
-                return View(model);
+                this.AddFieldErrors(ex.Message);
+                return this.View(model);
             }
 
-            AccountProfileDataTransferObject profile;
+            AccountProfileDTO profile;
             try
             {
-                profile = await authProxyService.LoginAsync(new LoginDataTransferObject
+                profile = await this.authProxyService.LoginAsync(new LoginDTO
                 {
                     UsernameOrEmail = model.Username,
                     Password = model.Password,
@@ -124,16 +130,16 @@ namespace BoardGames.Web.Controllers
             }
             catch (ProxyServiceException)
             {
-                return RedirectToAction(nameof(Login));
+                return this.RedirectToAction(nameof(this.Login));
             }
 
             ClaimsIdentity identity = BuildIdentity(profile);
-            await HttpContext.SignInAsync(
+            await this.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity),
                 new AuthenticationProperties { IsPersistent = false, AllowRefresh = true });
 
-            return RedirectToAction("Index", "Games");
+            return this.RedirectToAction("Index", "Games");
         }
 
         [HttpGet]
@@ -143,15 +149,15 @@ namespace BoardGames.Web.Controllers
             string message;
             try
             {
-                message = await authProxyService.ForgotPasswordAsync();
+                message = await this.authProxyService.ForgotPasswordAsync();
             }
             catch (ProxyServiceException)
             {
                 message = "Please contact the administrator at admin@boardrent.com.";
             }
 
-            ViewData["Message"] = message;
-            return View();
+            this.ViewData["Message"] = message;
+            return this.View();
         }
 
         [HttpPost]
@@ -161,24 +167,24 @@ namespace BoardGames.Web.Controllers
         {
             try
             {
-                await authProxyService.LogoutAsync();
+                await this.authProxyService.LogoutAsync();
             }
             catch (ProxyServiceException)
             {
             }
 
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
+            await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return this.RedirectToAction(nameof(this.Login));
         }
 
         [HttpGet]
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {
-            return View();
+            return this.View();
         }
 
-        private static ClaimsIdentity BuildIdentity(AccountProfileDataTransferObject profile)
+        private static ClaimsIdentity BuildIdentity(AccountProfileDTO profile)
         {
             ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, profile.Id.ToString()));
@@ -203,11 +209,11 @@ namespace BoardGames.Web.Controllers
                 string[] parts = error.Split('|', maximumSplitParts);
                 if (parts.Length == maximumSplitParts)
                 {
-                    ModelState.AddModelError(parts[0].Trim(), parts[1].Trim());
+                    this.ModelState.AddModelError(parts[0].Trim(), parts[1].Trim());
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, error.Trim());
+                    this.ModelState.AddModelError(string.Empty, error.Trim());
                 }
             }
         }

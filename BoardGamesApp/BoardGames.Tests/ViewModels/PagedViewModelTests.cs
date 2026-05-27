@@ -1,5 +1,8 @@
+// <copyright file="PagedViewModelTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.Immutable;
-using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -95,17 +98,17 @@ namespace BoardGames.Tests.ViewModels
             public FakePagedViewModel(ImmutableList<string> items)
             {
                 this.items = items;
-                Reload();
+                this.Reload();
             }
 
             public void TriggerReload()
             {
-                Reload();
+                this.Reload();
             }
 
             protected override void Reload()
             {
-                SetAllItems(items);
+                SetAllItems(this.items);
             }
         }
     }

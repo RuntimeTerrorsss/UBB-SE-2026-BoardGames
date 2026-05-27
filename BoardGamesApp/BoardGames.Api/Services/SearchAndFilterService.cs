@@ -1,17 +1,14 @@
-﻿// <copyright file="SearchAndFilterService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="SearchAndFilterService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Data.Interfaces;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Sharing.Mapper;
+using BoardGames.Api.Mappers;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -55,7 +52,7 @@ namespace BoardGames.Api.Services
                 string? originalFilterCity = filter.City;
                 filter.City = null;
 
-                var filteredGamesFromRepository = await gamesRepository.GetGamesByFilter(filter);
+                var filteredGamesFromRepository = await this.gamesRepository.GetGamesByFilter(filter);
                 filter.City = originalFilterCity;
 
                 var filteredGamesResult = new List<GameDTO>();
@@ -65,7 +62,7 @@ namespace BoardGames.Api.Services
                 {
                     if (!cachedOwnersById.TryGetValue(filteredGame.OwnerId, out var cachedOwnerGame))
                     {
-                        cachedOwnerGame = await usersRepository.GetGameById(filteredGame.OwnerId);
+                        cachedOwnerGame = await this.usersRepository.GetGameById(filteredGame.OwnerId);
 
                         if (cachedOwnerGame != null)
                         {
@@ -75,18 +72,18 @@ namespace BoardGames.Api.Services
 
                     var gameOwner = cachedOwnersById[filteredGame.OwnerId];
 
-                    var gameDataTransferObject = new GameDTO
+                    var gameDTO = new GameDTO
                     {
                         GameId = filteredGame.Id,
                         Name = filteredGame.Name,
-                        Image = GameImageMapper.GetImageUrl(filteredGame.Name),
+                        ImageUrl = GameImageMapper.GetImageUrl(filteredGame.Name),
                         Price = filteredGame.PricePerDay,
                         City = gameOwner != null ? gameOwner.City : string.Empty,
                         MaximumPlayerNumber = filteredGame.MaximumPlayerNumber,
                         MinimumPlayerNumber = filteredGame.MinimumPlayerNumber,
                     };
 
-                    filteredGamesResult.Add(gameDataTransferObject);
+                    filteredGamesResult.Add(gameDTO);
                 }
 
                 GameDTO[] filteredGamesArray = filteredGamesResult.ToArray();
@@ -96,7 +93,7 @@ namespace BoardGames.Api.Services
                 //// this is if we decide to only use this methode and remove the ApplyFilters method
                 //// only runs this code if SortOption is set, so never from feed
 
-                return await ApplyFilters(filteredGamesArray, filter);
+                return await this.ApplyFilters(filteredGamesArray, filter);
             }
             catch (Exception thrownException)
             {
@@ -113,17 +110,17 @@ namespace BoardGames.Api.Services
         {
             try
             {
-                var availableTonightGameList = await gamesRepository.GetGamesForFeedAvailableTonight(userId);
+                var availableTonightGameList = await this.gamesRepository.GetGamesForFeedAvailableTonight(userId);
                 var availableTonightGamesResult = new List<GameDTO>();
 
                 foreach (var availableTonightGame in availableTonightGameList)
                 {
-                    var gameOwner = await usersRepository.GetGameById(availableTonightGame.OwnerId);
+                    var gameOwner = await this.usersRepository.GetGameById(availableTonightGame.OwnerId);
 
                     if (gameOwner != null)
                     {
-                        var gameDataTransferObject = MapToGameDTO(availableTonightGame, gameOwner);
-                        availableTonightGamesResult.Add(gameDataTransferObject);
+                        var gameDTO = this.MapToGameDTO(availableTonightGame, gameOwner);
+                        availableTonightGamesResult.Add(gameDTO);
                     }
                 }
 
@@ -144,19 +141,19 @@ namespace BoardGames.Api.Services
         {
             try
             {
-                var otherFeedGames = await gamesRepository.GetRemainingGamesForFeed(userId);
+                var otherFeedGames = await this.gamesRepository.GetRemainingGamesForFeed(userId);
                 var otherFeedGamesResult = new List<GameDTO>();
                 foreach (var otherFeedGame in otherFeedGames)
                 {
-                    var gameOwner = await usersRepository.GetGameById(otherFeedGame.OwnerId);
+                    var gameOwner = await this.usersRepository.GetGameById(otherFeedGame.OwnerId);
 
                     if (gameOwner == null)
                     {
                         continue;
                     }
 
-                    var gameDataTransferObject = MapToGameDTO(otherFeedGame, gameOwner);
-                    otherFeedGamesResult.Add(gameDataTransferObject);
+                    var gameDTO = this.MapToGameDTO(otherFeedGame, gameOwner);
+                    otherFeedGamesResult.Add(gameDTO);
                 }
 
                 return otherFeedGamesResult.ToArray();
@@ -179,8 +176,8 @@ namespace BoardGames.Api.Services
             try
             {
                 IEnumerable<GameDTO> filteredGames = initialGamesCollection;
-                var resolvedCityName = ResolveCityName(activeFilter.City);
-                var normalizedFilterCity = NormalizeCityName(resolvedCityName);
+                var resolvedCityName = this.ResolveCityName(activeFilter.City);
+                var normalizedFilterCity = this.NormalizeCityName(resolvedCityName);
 
                 if (!string.IsNullOrWhiteSpace(activeFilter.Name))
                 {
@@ -222,7 +219,7 @@ namespace BoardGames.Api.Services
                         if (!string.IsNullOrWhiteSpace(resolvedCityName))
                         {
                             var userCityDetails =
-                                geographicalService.GetCityDetails(resolvedCityName);
+                                this.geographicalService.GetCityDetails(resolvedCityName);
 
                             if (userCityDetails.IsFound)
                             {
@@ -238,7 +235,7 @@ namespace BoardGames.Api.Services
                                     if (!cachedCityDistanceLookup.TryGetValue(filteredGame.City, out double? cachedDistance))
                                     {
                                         var gameCityDetails =
-                                            geographicalService.GetCityDetails(filteredGame.City);
+                                            this.geographicalService.GetCityDetails(filteredGame.City);
 
                                         cachedDistance = gameCityDetails.IsFound
                                             ? GeographicDistance.CalculateDistance(
@@ -268,7 +265,7 @@ namespace BoardGames.Api.Services
                     var tasks = filteredGames.Select(async game => new
                     {
                         Game = game,
-                        IsAvailable = await rentalsRepository.CheckGameAvailability(activeFilter.AvailabilityRange.StartTime, activeFilter.AvailabilityRange.EndTime, game.GameId)
+                        IsAvailable = await this.rentalsRepository.CheckGameAvailability(activeFilter.AvailabilityRange.StartTime, activeFilter.AvailabilityRange.EndTime, game.GameId),
                     });
 
                     var results = await Task.WhenAll(tasks);
@@ -294,8 +291,8 @@ namespace BoardGames.Api.Services
         public async Task<(List<GameDTO> AvailableTonight, List<GameDTO> Others, int TotalAvailableGamesCount)>
             GetDiscoveryFeedPaged(int userId, int page, int pageSize)
         {
-            var availableTonightGameList = await GetGamesFeedAvailableTonightByUser(userId);
-            var otherGameList = await GetOtherGamesFeedByUser(userId);
+            var availableTonightGameList = await this.GetGamesFeedAvailableTonightByUser(userId);
+            var otherGameList = await this.GetOtherGamesFeedByUser(userId);
 
             var allDescoveryFeedGames = availableTonightGameList.Concat(otherGameList).DistinctBy(game => game.GameId).ToList();
             var totalAvailableGamesCount = allDescoveryFeedGames.Count;
@@ -370,7 +367,7 @@ namespace BoardGames.Api.Services
                 ? (int?)selectedMinimumPlayerCount
                 : null;
 
-            if (IsValidDateRange(selectedStartDate, selectedEndDate))
+            if (this.IsValidDateRange(selectedStartDate, selectedEndDate))
             {
                 if (selectedStartDate.HasValue && selectedEndDate.HasValue)
                 {
@@ -401,7 +398,7 @@ namespace BoardGames.Api.Services
             {
                 GameId = gameEntity.Id,
                 Name = gameEntity.Name,
-                Image = GameImageMapper.GetImageUrl(gameEntity.Name),
+                ImageUrl = GameImageMapper.GetImageUrl(gameEntity.Name),
                 Price = gameEntity.PricePerDay,
                 City = gameOwnerEntity?.City ?? string.Empty,
                 MaximumPlayerNumber = gameEntity.MaximumPlayerNumber,
@@ -416,7 +413,7 @@ namespace BoardGames.Api.Services
                 return cityName;
             }
 
-            var cityDetails = geographicalService.GetCityDetails(cityName);
+            var cityDetails = this.geographicalService.GetCityDetails(cityName);
             return cityDetails.IsFound ? cityDetails.CityName : cityName;
         }
 

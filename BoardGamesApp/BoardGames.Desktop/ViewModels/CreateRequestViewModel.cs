@@ -94,7 +94,7 @@ namespace BoardGames.Desktop.ViewModels
                     Constants.DialogMessages.CreateRequestValidationError);
             }
 
-            var requestDataTransferObject = new CreateRequestDataTransferObject
+            var requestDataTransferObject = new CreateRequestDTO
             {
                 GameId = SelectedGame.Id,
                 RenterAccountId = CurrentUserId,

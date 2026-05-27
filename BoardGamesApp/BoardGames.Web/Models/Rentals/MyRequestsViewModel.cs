@@ -1,4 +1,7 @@
-using System.Collections.Generic;
+// <copyright file="MyRequestsViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Web.Models.Rentals

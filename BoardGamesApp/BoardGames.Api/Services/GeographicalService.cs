@@ -1,9 +1,9 @@
-// <copyright file="GeographicalService.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="GeographicalService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
 using System.Globalization;
-using BookingBoardGames.Data.Enum;
+using BoardGames.Data.Enums;
 
 namespace BoardGames.Api.Services
 {
@@ -107,20 +107,20 @@ namespace BoardGames.Api.Services
                     Names = new List<string>(),
                 };
 
-                AddCityAlias(city, primaryCityName);
-                AddCityAlias(city, asciiCityName);
+                this.AddCityAlias(city, primaryCityName);
+                this.AddCityAlias(city, asciiCityName);
 
                 if (asciiCityName.Trim().Equals("Bucuresti", StringComparison.OrdinalIgnoreCase))
                 {
-                    AddCityAlias(city, "Bucharest");
-                    AddCityAlias(city, "București");
+                    this.AddCityAlias(city, "Bucharest");
+                    this.AddCityAlias(city, "București");
                 }
 
                 if (!string.IsNullOrWhiteSpace(alternateCityNames))
                 {
                     foreach (var alternate in alternateCityNames.Split(','))
                     {
-                        AddCityAlias(city, alternate);
+                        this.AddCityAlias(city, alternate);
                     }
                 }
             }
@@ -142,7 +142,7 @@ namespace BoardGames.Api.Services
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    "Could not load Assets/RO.txt from the output directory or from the application package. Ensure RO.txt is listed as Content in BookingBoardGames.csproj.",
+                    "Could not load Assets/RO.txt from the output directory or from the application package. Ensure RO.txt is listed as Content in BoardGames.csproj.",
                     ex);
             }
         }
@@ -157,9 +157,9 @@ namespace BoardGames.Api.Services
         /// coordinate values).</returns>
         public (bool IsFound, string CityName, double Latitude, double Longitude) GetCityDetails(string cityName)
         {
-            var normalizedCityName = NormalizeCityName(cityName);
+            var normalizedCityName = this.NormalizeCityName(cityName);
 
-            if (cityLookupByNormalizedName.TryGetValue(normalizedCityName, out var city))
+            if (this.cityLookupByNormalizedName.TryGetValue(normalizedCityName, out var city))
             {
                 return (true, city.MainName, city.Latitude, city.Longitude);
             }
@@ -176,8 +176,8 @@ namespace BoardGames.Api.Services
         /// found.</returns>
         public double? GetDistanceBetweenCities(string originCityName, string destinationCityName)
         {
-            var originCityDetails = GetCityDetails(originCityName);
-            var destinationCityDetails = GetCityDetails(destinationCityName);
+            var originCityDetails = this.GetCityDetails(originCityName);
+            var destinationCityDetails = this.GetCityDetails(destinationCityName);
 
             if (!originCityDetails.IsFound || !destinationCityDetails.IsFound)
             {
@@ -206,14 +206,14 @@ namespace BoardGames.Api.Services
                 return new List<string>();
             }
 
-            var normalizedPartialName = NormalizeCityName(partialName);
-            var rawSuggestions = cityLookupByNormalizedName
+            var normalizedPartialName = this.NormalizeCityName(partialName);
+            var rawSuggestions = this.cityLookupByNormalizedName
                 .Where(cityLookupEntry => cityLookupEntry.Key.Contains(normalizedPartialName))
                 .Select(cityLookupEntry => cityLookupEntry.Value.MainName)
                 .Distinct();
 
             var normalizedSuggestions = rawSuggestions
-                .Select(NormalizeSuggestion)
+                .Select(this.NormalizeSuggestion)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Take(MaximumCitySuggestions)
                 .ToList();
@@ -238,7 +238,7 @@ namespace BoardGames.Api.Services
 
         private void AddCityAlias(City city, string originalCityName)
         {
-            var normalizedcityname = NormalizeCityName(originalCityName);
+            var normalizedcityname = this.NormalizeCityName(originalCityName);
 
             if (string.IsNullOrWhiteSpace(normalizedcityname))
             {
@@ -247,9 +247,9 @@ namespace BoardGames.Api.Services
 
             city.Names.Add(normalizedcityname);
 
-            if (!cityLookupByNormalizedName.ContainsKey(normalizedcityname))
+            if (!this.cityLookupByNormalizedName.ContainsKey(normalizedcityname))
             {
-                cityLookupByNormalizedName[normalizedcityname] = city;
+                this.cityLookupByNormalizedName[normalizedcityname] = city;
             }
         }
 

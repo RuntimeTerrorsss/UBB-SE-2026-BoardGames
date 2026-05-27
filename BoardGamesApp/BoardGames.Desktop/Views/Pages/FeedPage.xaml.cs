@@ -2,9 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using Microsoft.UI.Xaml.Controls;
-
-namespace BookingBoardGames.Src.Views.Pages
+namespace BoardGames.Desktop.Views.Pages
 {
     /// <summary>
     /// Represents the main feed page where users can browse and discover games.

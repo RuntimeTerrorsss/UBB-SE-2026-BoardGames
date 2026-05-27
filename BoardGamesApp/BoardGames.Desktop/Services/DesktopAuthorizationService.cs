@@ -1,7 +1,7 @@
 using System;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.Services;
-using BoardRentAndProperty.Views;
+using BoardGames.Desktop.Views;
 
 namespace BoardGames.Desktop.Services
 {

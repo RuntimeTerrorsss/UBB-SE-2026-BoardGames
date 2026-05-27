@@ -1,9 +1,9 @@
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Web.Infrastructure;
-using BoardGames.Shared.ProxyServices;
+// <copyright file="AuthProxyServiceAdapter.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using GUI_BRAP.ProxyServices;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
@@ -16,16 +16,16 @@ namespace BoardGames.Web.Infrastructure
             this.authService = authService;
         }
 
-        public async Task<AccountProfileDataTransferObject> LoginAsync(LoginDataTransferObject body, CancellationToken cancellationToken = default)
-            => (await authService.LoginAsync(body, cancellationToken)).ThrowIfFailed();
+        public async Task<AccountProfileDTO> LoginAsync(LoginDTO body, CancellationToken cancellationToken = default)
+            => (await this.authService.LoginAsync(body, cancellationToken)).ThrowIfFailed();
 
-        public async Task RegisterAsync(RegisterDataTransferObject body, CancellationToken cancellationToken = default)
-            => (await authService.RegisterAsync(body, cancellationToken)).ThrowIfFailed();
+        public async Task RegisterAsync(RegisterDTO body, CancellationToken cancellationToken = default)
+            => (await this.authService.RegisterAsync(body, cancellationToken)).ThrowIfFailed();
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default)
-            => (await authService.LogoutAsync(cancellationToken)).ThrowIfFailed();
+            => (await this.authService.LogoutAsync(cancellationToken)).ThrowIfFailed();
 
         public async Task<string> ForgotPasswordAsync(CancellationToken cancellationToken = default)
-            => (await authService.ForgotPasswordAsync(cancellationToken)).ThrowIfFailed();
+            => (await this.authService.ForgotPasswordAsync(cancellationToken)).ThrowIfFailed();
     }
 }

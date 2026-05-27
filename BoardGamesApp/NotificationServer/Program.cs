@@ -1,3 +1,7 @@
+// <copyright file="Program.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace NotificationServer
 {
     internal class Program
