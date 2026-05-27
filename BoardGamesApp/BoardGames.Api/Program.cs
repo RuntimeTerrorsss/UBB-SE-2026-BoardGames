@@ -13,7 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // EF Core — two patterns coexist: AppDbContext (scoped) for repos taking AppDbContext,
 // IDbContextFactory<AppDbContext> for repos that open a context per call.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
-builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
 
 // Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
