@@ -1,4 +1,4 @@
-﻿// <copyright file="ConversationDTO.cs" company="PlaceholderCompany">
+// <copyright file="ConversationDTO.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -12,15 +12,15 @@ namespace BoardGames.Shared.DTO
     {
         public ConversationDTO(
             int conversationId,
-            ICollection<ConversationParticipant> participants,
+            IReadOnlyList<int> participantUserIds,
             List<MessageDataTransferObject> messages,
             Dictionary<int, DateTime> lastRead)
         {
             Id = conversationId;
-            Participants = participants;
+            ParticipantUserIds = participantUserIds;
             MessageList = messages;
             LastRead = lastRead;
-            UnreadCount = participants.ToDictionary(participant => participant.UserId, _ => 0);
+            UnreadCount = participantUserIds.ToDictionary(userId => userId, _ => 0);
             UpdateUnreadCounts();
         }
 
@@ -28,7 +28,7 @@ namespace BoardGames.Shared.DTO
 
         public List<MessageDataTransferObject> MessageList { get; set; }
 
-        public ICollection<ConversationParticipant> Participants { get; set; }
+        public IReadOnlyList<int> ParticipantUserIds { get; set; }
 
         public Dictionary<int, DateTime> LastRead { get; set; }
 
@@ -50,9 +50,9 @@ namespace BoardGames.Shared.DTO
             int defaultUnreadCount = 0;
             int systemMessageSenderIdentifier = 0;
 
-            foreach (var participantItem in Participants)
+            foreach (var participantUserId in ParticipantUserIds)
             {
-                UnreadCount[participantItem.UserId] = defaultUnreadCount;
+                UnreadCount[participantUserId] = defaultUnreadCount;
             }
 
             foreach (var messageItem in MessageList)

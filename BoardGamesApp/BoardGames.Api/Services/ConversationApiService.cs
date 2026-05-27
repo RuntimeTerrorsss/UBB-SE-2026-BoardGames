@@ -120,13 +120,14 @@ namespace BoardGames.Api.Services
         private static ConversationDTO MapConversationToDTO(Conversation conversation)
         {
             var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDataTransferObject>();
+            var participantUserIds = conversation.Participants?.Select(p => p.UserId).ToList() ?? new List<int>();
             var lastRead = conversation.Participants?
                 .Where(p => p.LastMessageReadTime.HasValue)
                 .ToDictionary(p => p.UserId, p => p.LastMessageReadTime!.Value)
                 ?? new Dictionary<int, DateTime>();
             return new ConversationDTO(
                 conversation.ConversationId,
-                conversation.Participants ?? new List<ConversationParticipant>(),
+                participantUserIds,
                 messages,
                 lastRead);
         }

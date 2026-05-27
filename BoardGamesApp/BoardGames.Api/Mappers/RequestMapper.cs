@@ -26,33 +26,13 @@ namespace BoardGames.Api.Mappers
             return new RequestDTO
             {
                 Id = request.Id,
-                Game = gameMapper.ToDTO(request.Game),
+                Game = gameMapper.ToSummaryDTO(request.Game),
                 Renter = participantMapper.ToDTO(request.Renter),
                 Owner = participantMapper.ToDTO(request.Owner),
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
                 Status = ToDataTransferObjectStatus(request.Status),
                 OfferingUser = request.OfferingUser != null ? participantMapper.ToDTO(request.OfferingUser) : null,
-            };
-        }
-
-        public Request? ToModel(RequestDTO? dto)
-        {
-            if (dto == null)
-            {
-                return null;
-            }
-
-            return new Request
-            {
-                Id = dto.Id,
-                Game = gameMapper.ToModel(dto.Game),
-                Renter = participantMapper.ToModel(dto.Renter),
-                Owner = participantMapper.ToModel(dto.Owner),
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
-                Status = ToModelStatus(dto.Status),
-                OfferingUser = dto.OfferingUser != null ? participantMapper.ToModel(dto.OfferingUser) : null,
             };
         }
 
