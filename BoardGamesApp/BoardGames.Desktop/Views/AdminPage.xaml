@@ -23,7 +23,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Account Administration" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+            <TextBlock Text="Account Administration" FontSize="28" FontWeight="SemiBold" VerticalAlignment="Center" />
             <Button Grid.Column="1" Content="Sign Out" VerticalAlignment="Center" Click="OnSignOutClicked" />
         </Grid>
 

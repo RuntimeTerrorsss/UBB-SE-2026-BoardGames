@@ -16,7 +16,7 @@ namespace BoardGames.Data
         private static readonly Guid DariusAccountId = new Guid("00000000-0000-0000-0000-000000000011");
         private static readonly Guid MihaiAccountId = new Guid("00000000-0000-0000-0000-000000000012");
 
-        private const string SeedDevPasswordHash = "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=";
+        private const string SeedDevPasswordHash = "AS4o2F+W83jN8MHnd4zAew==:FPY9GW3I5FVc3HXVLTiTNuGBYoFvDbNlMKrqE/xqIQA=";
 
         public AppDbContext() { }
 

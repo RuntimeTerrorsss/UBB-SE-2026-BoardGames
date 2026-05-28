@@ -4,15 +4,10 @@
     "Projects": [
       {
         "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
-        "Action": "Start",
-        "DebugTarget": "BoardGames.Desktop (Unpackaged)"
-      },
-      {
-        "Path": "BoardGames.Api\\BoardGames.Api.csproj",
         "Action": "Start"
       },
       {
-        "Path": "BoardGames.Web\\BoardGames.Web.csproj",
+        "Path": "BoardGames.Api\\BoardGames.Api.csproj",
         "Action": "Start"
       }
     ]

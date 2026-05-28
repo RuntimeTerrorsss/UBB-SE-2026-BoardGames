@@ -1,14 +1,15 @@
+using System;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using Microsoft.UI.Dispatching;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Immutable;
-    using System.Threading.Tasks;
-    using Microsoft.UI.Dispatching;
-    using System.Runtime.InteropServices;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-
     public class NotificationsViewModel : PagedViewModel<NotificationDTO>, IObserver<NotificationDTO>, IDisposable
     {
         private readonly IDesktopNotificationService notificationLookupService;
@@ -56,6 +57,8 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         protected override void Reload() => _ = ReloadAsync();
+
+        public Task LoadNotificationsForUserAsync(Guid accountId) => ReloadAsync();
 
         private async Task ReloadAsync()
         {

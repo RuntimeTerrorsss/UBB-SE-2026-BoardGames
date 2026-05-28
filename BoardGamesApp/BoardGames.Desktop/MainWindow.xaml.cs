@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using BoardGames.Desktop.Views;
 
 namespace BoardGames.Desktop
 {
@@ -8,10 +7,17 @@ namespace BoardGames.Desktop
         public MainWindow()
         {
             this.InitializeComponent();
+            this.Closed += this.MainWindow_Closed;
+        }
 
-            this.RootFrame.Navigate(typeof(LoginPage));
+        public void SetRootContent(UIElement rootContent)
+        {
+            this.Content = rootContent;
+        }
 
-            this.Closed += (s, e) => System.Environment.Exit(0);
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            Environment.Exit(0);
         }
     }
 }

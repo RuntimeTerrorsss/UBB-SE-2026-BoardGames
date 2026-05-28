@@ -5,7 +5,6 @@
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using BoardGames.Data.Enums;
     using BoardGames.Shared.DTO;
 
     public interface IPaymentService
@@ -26,8 +25,46 @@
 
             if (!response.IsSuccessStatusCode) return ServiceResult<PagedResult<PaymentDTO>>.Fail("Eroare API");
 
-            var data = await response.Content.ReadFromJsonAsync<PagedResult<PaymentDTO>>();
-            return ServiceResult<PagedResult<PaymentDTO>>.Ok(data!);
+            var data = await response.Content.ReadFromJsonAsync<List<PaymentDTO>>() ?? new List<PaymentDTO>();
+            IEnumerable<PaymentDTO> filteredPayments = data;
+
+            if (method != PaymentMethod.ALL)
+            {
+                filteredPayments = filteredPayments.Where(payment =>
+                    string.Equals(payment.PaymentMethod, method.ToString(), StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                filteredPayments = filteredPayments.Where(payment =>
+                    (payment.ProductName ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || (payment.ReceiverName ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || (payment.OtherPartyName ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+
+            filteredPayments = filter switch
+            {
+                FilterType.AlphabeticalAsc => filteredPayments.OrderBy(payment => payment.ProductName),
+                FilterType.AlphabeticalDesc => filteredPayments.OrderByDescending(payment => payment.ProductName),
+                FilterType.Oldest => filteredPayments.OrderBy(payment => payment.SortDate),
+                FilterType.Newest => filteredPayments.OrderByDescending(payment => payment.SortDate),
+                FilterType.Last3Months => filteredPayments.Where(payment => payment.SortDate >= DateTime.UtcNow.AddMonths(-3)),
+                FilterType.Last6Months => filteredPayments.Where(payment => payment.SortDate >= DateTime.UtcNow.AddMonths(-6)),
+                FilterType.Last9Months => filteredPayments.Where(payment => payment.SortDate >= DateTime.UtcNow.AddMonths(-9)),
+                _ => filteredPayments,
+            };
+
+            const int pageSize = 10;
+            var items = filteredPayments.ToList();
+            var paged = new PagedResult<PaymentDTO>
+            {
+                Items = items.Skip(Math.Max(page - 1, 0) * pageSize).Take(pageSize).ToList(),
+                TotalCount = items.Count,
+                PageNumber = page,
+                PageSize = pageSize,
+            };
+
+            return ServiceResult<PagedResult<PaymentDTO>>.Ok(paged);
         }
 
         public async Task<ServiceResult<string>> GetReceiptPathAsync(int paymentId)

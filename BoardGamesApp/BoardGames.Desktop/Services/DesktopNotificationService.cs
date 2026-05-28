@@ -1,5 +1,11 @@
-using ApiNotificationService = BoardGames.ApiClient.INotificationService;
-using CurrentUserContextInterface = BoardGames.Utilities.ICurrentUserContext;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Desktop.Services
 {
@@ -9,26 +15,26 @@ namespace BoardGames.Desktop.Services
         IDisposable
     {
         private const int NewNotificationId = 0;
-
-        private readonly ApiNotificationService apiNotificationService;
+        private readonly INotificationService apiNotificationService;
         private readonly IServerClient serverNotificationClient;
-        private readonly CurrentUserContextInterface currentUserContext;
+        private readonly ISessionContext sessionContext;
         private readonly IToastNotificationService toastNotificationService;
+
         private readonly List<IObserver<NotificationDTO>> notificationObservers = new();
         private readonly object notificationObserversLock = new();
         private bool isDisposed;
 
         public DesktopNotificationService(
-            ApiNotificationService apiNotificationService,
+            INotificationService apiNotificationService,
             IServerClient serverNotificationClient,
-            CurrentUserContextInterface currentUserContext,
+            ISessionContext sessionContext,
             IToastNotificationService toastNotificationService)
         {
             this.apiNotificationService = apiNotificationService;
             this.serverNotificationClient = serverNotificationClient;
-            this.currentUserContext = currentUserContext;
+            this.sessionContext = sessionContext;
             this.toastNotificationService = toastNotificationService;
-            this.serverNotificationClient.Subscribe(this);
+            SubscribeToServer(sessionContext.AccountId);
         }
 
         public Task<ServiceResult<NotificationDTO>> GetNotificationByIdentifierAsync(
@@ -72,12 +78,13 @@ namespace BoardGames.Desktop.Services
             var persistResult = await apiNotificationService.PersistNotificationAsync(
                 notificationToPersist,
                 cancellationToken);
+
             if (!persistResult.Success)
             {
                 return persistResult;
             }
 
-            if (currentUserContext.CurrentUserId == recipientAccountId)
+            if (sessionContext.AccountId == recipientAccountId)
             {
                 NotifyObservers(notificationToPersist);
                 toastNotificationService.Show(notification.Title, notification.Body);
@@ -114,23 +121,19 @@ namespace BoardGames.Desktop.Services
                 }
                 catch (System.Net.Sockets.SocketException socketException)
                 {
-                    System.Diagnostics.Debug.WriteLine($"DesktopNotificationService: listen terminated - {socketException}");
+                    Debug.WriteLine($"DesktopNotificationService: listen terminated - {socketException}");
                 }
                 catch (InvalidOperationException invalidOperationException)
                 {
-                    System.Diagnostics.Debug.WriteLine($"DesktopNotificationService: listen terminated - {invalidOperationException}");
+                    Debug.WriteLine($"DesktopNotificationService: listen terminated - {invalidOperationException}");
                 }
             });
 
         public void StopListening() => serverNotificationClient.StopListening();
 
-        public void OnCompleted()
-        {
-        }
+        public void OnCompleted() { }
 
-        public void OnError(Exception error)
-        {
-        }
+        public void OnError(Exception error) { }
 
         public void OnNext(IncomingNotification incomingNotification)
         {
@@ -162,10 +165,7 @@ namespace BoardGames.Desktop.Services
 
         public void Dispose()
         {
-            if (isDisposed)
-            {
-                return;
-            }
+            if (isDisposed) return;
 
             isDisposed = true;
             StopListening();

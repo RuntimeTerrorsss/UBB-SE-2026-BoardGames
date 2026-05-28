@@ -1,5 +1,9 @@
 namespace BoardGames.Desktop.Views
 {
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using AppConstants = BoardGames.Desktop.Constants.Constants;
+
     internal static class DialogHelper
     {
         public static async Task ShowMessageAsync(XamlRoot xamlRoot, string title, object content)
@@ -8,7 +12,7 @@ namespace BoardGames.Desktop.Views
             {
                 Title = title,
                 Content = content,
-                CloseButtonText = Constants.DialogButtons.Ok,
+                CloseButtonText = AppConstants.DialogButtons.Ok,
                 XamlRoot = xamlRoot
             };
 

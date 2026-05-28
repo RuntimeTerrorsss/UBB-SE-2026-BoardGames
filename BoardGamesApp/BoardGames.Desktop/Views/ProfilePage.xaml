@@ -18,9 +18,6 @@
             <Grid Background="#555" Height="50">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0" Spacing="15">
                     <TextBlock Text="My profile" Foreground="White" VerticalAlignment="Center"/>
-                    <Button Content="Admin Panel" Background="#FF8C00" Foreground="White"
-                            Visibility="{Binding AdminButtonVisibility}"
-                            Command="{Binding NavigateToAdminPanelCommand}"/>
                 </StackPanel>
                 <Button Content="Sign out" Background="Red" Foreground="White" HorizontalAlignment="Right" Margin="0,5,10,5" Command="{Binding SignOutCommand}"/>
             </Grid>
