@@ -36,9 +36,13 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public AsyncRelayCommand SuspendAccountCommand { get; }
+
         public AsyncRelayCommand UnsuspendAccountCommand { get; }
+
         public AsyncRelayCommand UnlockAccountCommand { get; }
+
         public RelayCommand NextPageCommand { get; }
+
         public RelayCommand PreviousPageCommand { get; }
 
         public AccountProfileDTO SelectedAccount
@@ -138,15 +142,21 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private void ExecuteNextPage() => NextPage();
+
         private void ExecutePreviousPage() => PrevPage();
+
         private bool CanModifySelectedAccount() => SelectedAccount != null;
 
         private sealed class AlwaysAuthorizedDesktopAuthorizationService : IDesktopAuthorizationService
         {
             public Guid CurrentAccountId => Guid.Empty;
+
             public bool IsLoggedIn => true;
+
             public bool IsAdministrator => true;
+
             public bool CanAccessPage(Type pageType) => true;
+
             public bool CanAccessMenuPage(AppPage page) => true;
         }
     }

@@ -55,12 +55,17 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public static int PageSize => DefaultPageSize;
+
         public int TotalCount => allPageableItems?.Count ?? NoItemsCount;
+
         public int PageCount => Math.Max(FirstPageNumber, (int)Math.Ceiling((double)TotalCount / PageSize));
+
         public int DisplayedCount => currentPageItems?.Count ?? NoItemsCount;
+
         public virtual string ShowingText => $"Showing {DisplayedCount} of {TotalCount}";
 
         public virtual void NextPage() { if (CurrentPage < PageCount) CurrentPage += PageStep; }
+
         public virtual void PrevPage() { if (CurrentPage > FirstPageNumber) CurrentPage -= PageStep; }
 
         protected abstract void Reload();
@@ -96,6 +101,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

@@ -17,6 +17,7 @@ namespace BoardGames.Desktop.ViewModels
     public class FilterOption
     {
         public FilterType Type { get; set; }
+
         public string DisplayName { get; set; } = string.Empty;
     }
 
@@ -36,17 +37,25 @@ namespace BoardGames.Desktop.ViewModels
         private CancellationTokenSource? searchCancellationTokenSource;
 
         public ObservableCollection<PaymentDTO> Payments { get; } = new();
+
         public ObservableCollection<FilterOption> FilterOptions { get; }
+
         public IEnumerable<PaymentMethod> PaymentMethodOptions { get; } = Enum.GetValues(typeof(PaymentMethod)).Cast<PaymentMethod>();
 
         public RelayCommand<PaymentDTO> OpenReceiptCommand { get; }
+
         public RelayCommandNoParam NextPageCommand { get; }
+
         public RelayCommandNoParam PreviousPageCommand { get; }
 
         public bool IsLoading { get => isLoading; set => SetProperty(ref isLoading, value); }
+
         public string ErrorMessage { get => errorMessage; set => SetProperty(ref errorMessage, value); }
+
         public decimal TotalAmount { get => totalAmount; private set => SetProperty(ref totalAmount, value); }
+
         public int CurrentPage { get => currentPage; set => SetProperty(ref currentPage, value); }
+
         public int TotalPages { get => totalPages; set => SetProperty(ref totalPages, value); }
 
         public string SearchText
@@ -99,6 +108,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private async Task OnNextPage() { CurrentPage++; await ApplyFilter(false); }
+
         private async Task OnPreviousPage() { CurrentPage--; await ApplyFilter(false); }
 
         public async Task ApplyFilter(bool resetPage)

@@ -69,36 +69,59 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public Action OnSignOutSuccess { get; set; }
+
         public ObservableCollection<string> AvailableCountries { get; } = new();
 
         public string Username { get => username; set => this.SetProperty(ref username, value); }
+
         public string DisplayName { get => displayName; set => this.SetProperty(ref displayName, value); }
+
         public string Email { get => email; set => this.SetProperty(ref email, value); }
+
         public string PhoneNumber { get => phoneNumber; set => this.SetProperty(ref phoneNumber, value); }
+
         public string Country { get => country; set => this.SetProperty(ref country, value); }
+
         public string City { get => city; set => this.SetProperty(ref city, value); }
+
         public string StreetName { get => streetName; set => this.SetProperty(ref streetName, value); }
+
         public string StreetNumber { get => streetNumber; set => this.SetProperty(ref streetNumber, value); }
+
         public string CurrentPassword { get => currentPassword; set => this.SetProperty(ref currentPassword, value); }
+
         public string NewPassword { get => newPassword; set => this.SetProperty(ref newPassword, value); }
+
         public string ConfirmPassword { get => confirmPassword; set => this.SetProperty(ref confirmPassword, value); }
 
         public string ConfirmPasswordError { get => confirmPasswordError; set => this.SetProperty(ref confirmPasswordError, value); }
+
         public string CurrentPasswordError { get => currentPasswordError; set => this.SetProperty(ref currentPasswordError, value); }
+
         public string NewPasswordError { get => newPasswordError; set => this.SetProperty(ref newPasswordError, value); }
+
         public string EmailError { get => emailError; set => this.SetProperty(ref emailError, value); }
+
         public string DisplayNameError { get => displayNameError; set => this.SetProperty(ref displayNameError, value); }
+
         public string PhoneError { get => phoneError; set => this.SetProperty(ref phoneError, value); }
+
         public string StreetNumberError { get => streetNumberError; set => this.SetProperty(ref streetNumberError, value); }
+
         public string ErrorMessage { get => errorMessage; set => this.SetProperty(ref errorMessage, value); }
+
         public bool IsLoading { get => isLoading; set => this.SetProperty(ref isLoading, value); }
 
         public IEnumerable<string> Countries => DomainConstants.CountryList;
 
         public ICommand SaveProfileCommand { get; }
+
         public ICommand SelectAvatarCommand { get; }
+
         public ICommand RemoveAvatarCommand { get; }
+
         public ICommand SaveNewPasswordCommand { get; }
+
         public ICommand SignOutCommand { get; }
 
         public string AvatarUrl

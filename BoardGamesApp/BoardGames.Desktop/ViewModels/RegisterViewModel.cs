@@ -34,6 +34,7 @@ namespace BoardGames.Desktop.ViewModels
         public ICommand RegisterCommand { get; }
 
         public ICommand GoToLoginCommand { get; }
+
         public ICommand GoToHomeCommand { get; }
 
         public string Username
