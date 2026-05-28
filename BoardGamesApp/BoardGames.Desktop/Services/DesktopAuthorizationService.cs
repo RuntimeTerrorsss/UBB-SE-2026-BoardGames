@@ -23,6 +23,7 @@ namespace BoardGames.Desktop.Services
         {
             return pageType == typeof(ShellPage)
                 || pageType == typeof(SearchGamesPage)
+                || pageType == typeof(GameDetailsPage)
                 || pageType == typeof(LoginPage)
                 || pageType == typeof(RegisterPage)
                 || (pageType == typeof(PlaceholderPage) && IsLoggedIn);
@@ -30,7 +31,7 @@ namespace BoardGames.Desktop.Services
 
         public bool CanAccessRoute(AppPage page)
         {
-            if (page is AppPage.Filter or AppPage.Login or AppPage.Register)
+            if (page is AppPage.Filter or AppPage.GameDetails or AppPage.Login or AppPage.Register)
             {
                 return true;
             }

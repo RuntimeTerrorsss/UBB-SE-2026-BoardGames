@@ -4,8 +4,7 @@
     "Projects": [
       {
         "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
-        "Action": "Start",
-        "DebugTarget": "BoardGames.Desktop (Unpackaged)"
+        "Action": "Start"
       },
       {
         "Path": "BoardGames.Api\\BoardGames.Api.csproj",

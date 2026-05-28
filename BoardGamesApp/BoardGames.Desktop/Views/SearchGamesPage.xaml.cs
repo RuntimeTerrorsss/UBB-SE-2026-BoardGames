@@ -23,5 +23,13 @@ namespace BoardGames.Desktop.Views
             base.OnNavigatedTo(navigationEventArgs);
             await this.ViewModel.LoadAsync();
         }
+
+        private void Games_ItemClick(object sender, ItemClickEventArgs eventArgs)
+        {
+            if (eventArgs.ClickedItem is SearchGameCardViewModel selectedGame)
+            {
+                App.NavigateTo(AppPage.GameDetails, selectedGame.Id);
+            }
+        }
     }
 }

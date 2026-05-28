@@ -16,6 +16,9 @@ namespace BoardGames.Shared.ProxyServices
 
         Task<ServiceResult<GameSummaryDTO>> GetGameByIdAsync(int gameId, CancellationToken cancellationToken = default);
 
+        Task<ServiceResult<GameDetailDTO>> GetGameDetailsByIdAsync(int gameId, CancellationToken cancellationToken = default)
+            => Task.FromResult(ServiceResult<GameDetailDTO>.Fail("Game details are not implemented by this client."));
+
         Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default);
 
         Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetAllGamesAsync(CancellationToken cancellationToken = default);

@@ -12,8 +12,7 @@ namespace BoardGames.Desktop
 
         public void SetRootContent(UIElement rootContent)
         {
-            RootContentHost.Children.Clear();
-            RootContentHost.Children.Add(rootContent);
+            this.Content = rootContent;
         }
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)

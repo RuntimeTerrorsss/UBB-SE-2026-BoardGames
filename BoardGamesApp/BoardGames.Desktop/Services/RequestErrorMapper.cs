@@ -1,3 +1,6 @@
+using System.Net;
+using BoardGames.Shared.ProxyServices;
+
 namespace BoardGames.Desktop.Services
 {
     public static class RequestErrorMapper

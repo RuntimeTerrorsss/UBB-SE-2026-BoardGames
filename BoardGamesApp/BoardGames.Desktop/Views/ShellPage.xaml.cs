@@ -99,6 +99,7 @@ namespace BoardGames.Desktop.Views
             return route switch
             {
                 AppPage.Filter => (typeof(SearchGamesPage), parameter),
+                AppPage.GameDetails => (typeof(GameDetailsPage), parameter),
                 AppPage.Login => (typeof(LoginPage), parameter),
                 AppPage.Register => (typeof(RegisterPage), parameter),
                 AppPage.Games => (typeof(PlaceholderPage), new PlaceholderPageModel("Games", "Games integration will be connected in Task 10.")),

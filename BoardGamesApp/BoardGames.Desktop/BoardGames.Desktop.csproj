@@ -85,10 +85,13 @@
     <Compile Include="Services\DesktopAuthorizationService.cs" />
     <Compile Include="Services\ISessionContext.cs" />
     <Compile Include="Services\SessionContext.cs" />
+    <Compile Include="Services\RequestErrorMapper.cs" />
+    <Compile Include="Services\RequestServiceErrors.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\AppPage.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
+    <Compile Include="ViewModels\GameDetailsPageViewModel.cs" />
     <Compile Include="ViewModels\SearchGamesViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="Views\LoginPage.xaml.cs">
@@ -99,6 +102,9 @@
     </Compile>
     <Compile Include="Views\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GameDetailsPage.xaml.cs">
+      <DependentUpon>GameDetailsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchGamesPage.xaml.cs">
       <DependentUpon>SearchGamesPage.xaml</DependentUpon>
@@ -112,6 +118,7 @@
     <Page Include="Views\LoginPage.xaml" />
     <Page Include="Views\PlaceholderPage.xaml" />
     <Page Include="Views\RegisterPage.xaml" />
+    <Page Include="Views\GameDetailsPage.xaml" />
     <Page Include="Views\SearchGamesPage.xaml" />
     <Page Include="Views\ShellPage.xaml" />
   </ItemGroup>
