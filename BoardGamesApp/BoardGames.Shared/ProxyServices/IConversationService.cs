@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using BoardGames.Data.Models;
     using BoardGames.Shared.DTO;
 
     public interface IConversationService

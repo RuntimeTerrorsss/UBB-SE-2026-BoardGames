@@ -5,10 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="Root"
-    xmlns:viewModels="using:BoardGames.Desktop.ViewModels"
-    xmlns:shared="using:BoardGames.Sharing.DTO"
     xmlns:converters="using:BoardGames.Desktop.Converters"
-    xmlns:DTO="using:BoardGames.Sharing.DTO"
+    xmlns:DTO="using:BoardGames.Shared.DTO"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -35,7 +33,6 @@
             <Button x:Name="AccountButton" Content="Account" Click="AccountButton_Click"/>
         </StackPanel>
 
-        
         <Border Grid.Row="1"
                 Padding="16"
                 CornerRadius="8"
@@ -46,13 +43,11 @@
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Spacing="6">
                     <TextBlock Text="Game name"/>
-                    <TextBox Text="{Binding CurrentFilter.Name, Mode=TwoWay}"
+                    <TextBox Text="{Binding SearchName, Mode=TwoWay}"
                              PlaceholderText="Enter game name"/>
                 </StackPanel>
 
@@ -63,42 +58,20 @@
                                     ItemsSource="{Binding CitySuggestions, Mode=OneWay}" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Spacing="6">
-                    <TextBlock Text="Start date"/>
-                    <CalendarDatePicker x:Name="StartDatePicker"
-                        PlaceholderText="Today"
-                        MinDate="{Binding MinStartDate}"
-                        DateFormat="{}{month.full} {day.integer}, {year.full}"
-                        Date="{Binding SelectedStartDate, Mode=TwoWay}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="3" Spacing="6">
-                    <TextBlock Text="End date"/>
-                    <CalendarDatePicker x:Name="EndDatePicker"
-                        PlaceholderText="Tomorrow"
-                        MinDate="{Binding MinEndDate}"
-                        DateFormat="{}{month.full} {day.integer}, {year.full}"
-                        Date="{Binding SelectedEndDate, Mode=TwoWay}"
-                        CalendarViewDayItemChanging="EndDatePicker_DayItemChanging"
-                        IsEnabled="{Binding IsEndDateEnabled}"/>
-                </StackPanel>
-
-                <Button Grid.Column="4"
-                        Content="Filter"
+                <Button Grid.Column="2"
+                        Content="Search"
                         Height="40"
                         VerticalAlignment="Bottom"
                         Command="{Binding SearchCommand}"/>
             </Grid>
         </Border>
 
-        
         <Grid Grid.Row="2" ColumnSpacing="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="280"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            
             <Border Grid.Column="0"
                     Padding="16"
                     CornerRadius="8"
@@ -111,35 +84,17 @@
                                FontWeight="SemiBold"/>
 
                     <TextBlock Text="Maximum Price"/>
-                    <Slider
-                        Minimum="1"
-                        Maximum="100"
-                        Value="{Binding SelectedMaximumPrice, Mode=TwoWay}"/>
+                    <Slider Minimum="1"
+                            Maximum="100"
+                            Value="{Binding SelectedMaximumPrice, Mode=TwoWay}"/>
 
                     <TextBlock Text="Number of players"/>
-                    <Slider
-                        Minimum="1"
-                        Maximum="20"
-                        Value="{Binding SelectedMinimumPlayers, Mode=TwoWay}"/>
-
-                    <TextBlock
-                        Text="Sort by"
-                        FontWeight="Bold"
-                        Margin="0,10,0,0"/>
-
-                    <RadioButtons SelectedItem="{Binding SelectedSortOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                        <x:String>Price: lowest to highest</x:String>
-                        <x:String>Price: highest to lowest</x:String>
-                        <x:String>Closest to me</x:String>
-                    </RadioButtons>
-
-                    <TextBlock Text="{Binding LocationError}"
-                               Foreground="Red"
-                               TextWrapping="Wrap"
-                               Margin="0,5,0,0" />
+                    <Slider Minimum="1"
+                            Maximum="20"
+                            Value="{Binding SelectedMinimumPlayers, Mode=TwoWay}"/>
 
                     <Button Content="Apply filters"
-                            Command="{Binding ApplySelectedUiFiltersCommand}"
+                            Command="{Binding SearchCommand}"
                             Margin="0,10,0,0"/>
 
                     <Button Content="Clear filters"
@@ -147,7 +102,6 @@
                 </StackPanel>
             </Border>
 
-            
             <Grid Grid.Column="1" RowSpacing="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -170,7 +124,7 @@
                           IsItemClickEnabled="True"
                           ItemClick="Game_Click">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="DTO:GameDTO">
+                        <DataTemplate x:DataType="DTO:GameSummaryDTO">
                             <Border BorderBrush="LightGray"
                                     BorderThickness="1"
                                     CornerRadius="8"
@@ -178,12 +132,10 @@
                                     Height="180">
                                 <Grid ColumnDefinitions="220,*" ColumnSpacing="20">
 
-                                    <Border Grid.Column="0"
-                                            CornerRadius="8,0,0,8">
+                                    <Border Grid.Column="0" CornerRadius="8,0,0,8">
                                         <Border.Background>
-                                            <ImageBrush
-                                                ImageSource="{x:Bind Image, Mode=OneWay}"
-                                                Stretch="UniformToFill"/>
+                                            <ImageBrush ImageSource="{Binding Image, Converter={StaticResource StringToImageSourceConverter}}"
+                                                        Stretch="UniformToFill"/>
                                         </Border.Background>
                                     </Border>
 

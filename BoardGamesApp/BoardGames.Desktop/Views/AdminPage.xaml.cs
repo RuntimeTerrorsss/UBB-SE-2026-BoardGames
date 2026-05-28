@@ -1,7 +1,12 @@
 namespace BoardGames.Desktop.Views
 {
+    using System.ComponentModel;
     using BoardGames.Desktop.Services;
     using BoardGames.Desktop.ViewModels;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Navigation;
 
     public sealed partial class AdminPage : Page, INotifyPropertyChanged
     {

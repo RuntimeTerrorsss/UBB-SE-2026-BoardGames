@@ -1,3 +1,9 @@
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using BoardGames.Shared.DTO;
+using ServerCommunication;
+
 namespace BoardGames.Desktop.Services.Listeners
 {
     public class NotificationClient : IServerClient, IDisposable

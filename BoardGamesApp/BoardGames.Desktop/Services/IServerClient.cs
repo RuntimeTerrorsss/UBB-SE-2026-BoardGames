@@ -1,5 +1,7 @@
 namespace BoardGames.Desktop.Services
 {
+    using BoardGames.Shared.DTO;
+
     public interface IServerClient : IObservable<IncomingNotification>
     {
         Task ListenAsync();

@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using BoardGames.Data.Models;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
@@ -60,7 +59,13 @@ namespace BoardGames.Desktop.ViewModels
         {
             if (currentConversation == null) return;
 
-            int currentUserId = sessionContext.AccountId.GetHashCode();
+            int currentUserId = sessionContext.PamUserId ?? 0;
+            if (currentUserId == 0)
+            {
+                ErrorMessage = "Chat requires a linked legacy user id for this account.";
+                return;
+            }
+
             var receiverId = currentConversation.ParticipantUserIds.FirstOrDefault(id => id != currentUserId);
 
             var messageDto = new MessageDataTransferObject(
@@ -87,7 +92,8 @@ namespace BoardGames.Desktop.ViewModels
         public async Task SendReadReceiptAsync()
         {
             if (currentConversation == null) return;
-            var dto = new ReadReceiptDTO(ConversationId, sessionContext.AccountId.GetHashCode(), 0, DateTime.UtcNow);
+
+            var dto = new ReadReceiptDTO(ConversationId, sessionContext.PamUserId ?? 0, 0, DateTime.UtcNow);
             await conversationService.SendReadReceiptAsync(dto);
         }
     }

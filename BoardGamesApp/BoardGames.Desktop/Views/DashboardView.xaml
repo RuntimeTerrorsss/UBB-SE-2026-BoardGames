@@ -9,20 +9,20 @@
 
     <Grid Padding="40">
         <StackPanel Spacing="30">
-            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Text="Dashboard" />
+            <TextBlock Text="Dashboard" FontSize="32" FontWeight="SemiBold" />
 
             <StackPanel Orientation="Horizontal" Spacing="20">
                 <Border Background="#333333" Padding="20" CornerRadius="8">
                     <StackPanel>
-                        <TextBlock Text="Mesaje Noi" Style="{StaticResource CaptionTextBlockStyle}"/>
-                        <TextBlock Text="{Binding NewMessagesCount}" FontSize="32" FontWeight="Bold"/>
+                        <TextBlock Text="New Messages" FontSize="13" />
+                        <TextBlock Text="{Binding NewMessagesCount}" FontSize="32" FontWeight="Bold" />
                     </StackPanel>
                 </Border>
 
                 <Border Background="#333333" Padding="20" CornerRadius="8">
                     <StackPanel>
-                        <TextBlock Text="Notificări" Style="{StaticResource CaptionTextBlockStyle}"/>
-                        <TextBlock Text="{Binding PendingNotificationsCount}" FontSize="32" FontWeight="Bold"/>
+                        <TextBlock Text="Notifications" FontSize="13" />
+                        <TextBlock Text="{Binding PendingNotificationsCount}" FontSize="32" FontWeight="Bold" />
                     </StackPanel>
                 </Border>
             </StackPanel>

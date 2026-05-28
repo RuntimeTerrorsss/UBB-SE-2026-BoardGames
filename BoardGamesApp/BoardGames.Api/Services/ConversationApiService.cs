@@ -54,7 +54,7 @@ namespace BoardGames.Api.Services
             return updated is null ? null : MapEntityToDto(updated);
         }
 
-        public async Task HandleReadReceipt(ReadReceiptDTO dto)
+        public async Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto)
         {
             await conversationRepository.HandleReadReceipt(dto);
         }
@@ -78,7 +78,7 @@ namespace BoardGames.Api.Services
                 ConversationId = conversationId,
                 MessageSenderId = renterPamId,
                 MessageReceiverId = ownerPamId,
-                RentalRequestId = 0,
+                RentalRequestId = requestId,
                 RequestContent = content,
                 MessageContentAsString = content,
                 MessageSentTime = DateTime.UtcNow,

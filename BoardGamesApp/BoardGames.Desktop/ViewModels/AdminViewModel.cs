@@ -157,7 +157,7 @@ namespace BoardGames.Desktop.ViewModels
 
             public bool CanAccessPage(Type pageType) => true;
 
-            public bool CanAccessMenuPage(AppPage page) => true;
+            public bool CanAccessRoute(AppPage page) => true;
         }
     }
 }

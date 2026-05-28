@@ -1,5 +1,8 @@
 namespace BoardGames.Desktop.Services
 {
+    using BoardGames.Desktop.Constants;
+    using BoardGames.Shared.DTO;
+
     public static class GameInputValidator
     {
         public static List<string> Validate(GameDTO game)
