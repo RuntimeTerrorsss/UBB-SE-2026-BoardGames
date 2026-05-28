@@ -8,30 +8,29 @@ namespace BoardGames.Web.Helpers
 {
     public static class ClaimsPrincipalExtensions
     {
-        public static Guid GetAccountId(this ClaimsPrincipal user)
+        public static int? GetAccountId(this ClaimsPrincipal user)
         {
             if (user is null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
-
-            string? raw = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(raw) || !Guid.TryParse(raw, out Guid accountId))
+            string? raw = user.FindFirstValue("PamUserId");
+            if (!string.IsNullOrWhiteSpace(raw) && int.TryParse(raw, out int accountId))
             {
-                throw new InvalidOperationException("Account id claim is missing or invalid.");
+                return accountId;
             }
 
-            return accountId;
+            return null;
         }
 
-        public static bool TryGetAccountId(this ClaimsPrincipal user, out Guid accountId)
+        public static bool TryGetAccountId(this ClaimsPrincipal user, out int accountId)
         {
-            accountId = Guid.Empty;
-            string? raw = user?.FindFirstValue(ClaimTypes.NameIdentifier);
-            return !string.IsNullOrWhiteSpace(raw) && Guid.TryParse(raw, out accountId);
+            accountId = -1;
+            string? raw = user?.FindFirstValue("PamUserId");
+            return !string.IsNullOrWhiteSpace(raw) && int.TryParse(raw, out accountId);
         }
 
-        public static string GetDisplayNameOrUsername(this ClaimsPrincipal user)
+        public static string GetDisplayName(this ClaimsPrincipal user)
         {
             if (user is null)
             {

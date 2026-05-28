@@ -9,10 +9,11 @@ using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Chats;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BoardGames.Web.Controllers
 {
-    public class ChatsController : BaseController
+    public class ChatsController : Controller
     {
         private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private const long MaxImageBytes = 5 * 1024 * 1024;
@@ -31,16 +32,23 @@ namespace BoardGames.Web.Controllers
             this.environment = environment;
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
+            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
+            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
+            base.OnActionExecuting(context);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
-                return redirect;
+                return this.RedirectToAction("Login", "Auth");
             }
 
-            int userId = this.CurrentUserId ?? -1;
+            int userId = this.User.GetAccountId() ?? -1;
             this.conversationService.Initialize(userId);
 
             var conversations = await this.conversationService.FetchConversations();
@@ -70,13 +78,12 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> StartChatWithOwner(int ownerUserId)
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
-                return redirect;
+                return this.RedirectToAction("Login", "Auth");
             }
 
-            int currentUserId = this.CurrentUserId ?? -1;
+            int currentUserId = this.User.GetAccountId() ?? -1;
 
             if (currentUserId == ownerUserId)
             {
@@ -93,13 +100,12 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetChat(int conversationId)
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
-                return redirect;
+                return this.Unauthorized();
             }
 
-            int currentUserId = this.CurrentUserId ?? -1;
+            int currentUserId = this.User.GetAccountId() ?? -1;
             this.conversationService.Initialize(currentUserId);
 
             var conversations = await this.conversationService.FetchConversations();
@@ -124,8 +130,7 @@ namespace BoardGames.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SendMessage(int conversationId, string content)
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
                 return this.Unauthorized();
             }
@@ -135,7 +140,7 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest();
             }
 
-            int senderId = this.CurrentUserId ?? -1;
+            int senderId = this.User.GetAccountId() ?? -1;
             this.conversationService.Initialize(senderId);
 
             var receiver = await this.GetReceiverParticipantAsync(conversationId, senderId);
@@ -159,8 +164,7 @@ namespace BoardGames.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SendImage(int conversationId, IFormFile image)
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
                 return this.Unauthorized();
             }
@@ -181,7 +185,7 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest("Only JPG, PNG, GIF, and WebP images are allowed.");
             }
 
-            int senderId = this.CurrentUserId ?? -1;
+            int senderId = this.User.GetAccountId() ?? -1;
             this.conversationService.Initialize(senderId);
 
             var receiver = await this.GetReceiverParticipantAsync(conversationId, senderId);
@@ -216,13 +220,12 @@ namespace BoardGames.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ResolveRentalRequest(int messageId, int conversationId, bool accepted)
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
                 return this.Unauthorized();
             }
 
-            int userId = this.CurrentUserId ?? -1;
+            int userId = this.User.GetAccountId() ?? -1;
             this.conversationService.Initialize(userId);
 
             var conversations = await this.conversationService.FetchConversations();
@@ -252,13 +255,12 @@ namespace BoardGames.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CancelRentalRequest(int messageId, int conversationId)
         {
-            var redirect = this.RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
                 return this.Unauthorized();
             }
 
-            int userId = this.CurrentUserId ?? -1;
+            int userId = this.User.GetAccountId() ?? -1;
             this.conversationService.Initialize(userId);
 
             var conversations = await this.conversationService.FetchConversations();

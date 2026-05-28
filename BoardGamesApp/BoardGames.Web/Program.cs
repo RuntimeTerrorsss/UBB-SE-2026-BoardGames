@@ -2,7 +2,7 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Security.Claims; // Needed for the fake claims
+
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.ProxyRepositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,8 +14,14 @@ string apiBaseUrl = "https://localhost:7027/api/";
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.LoginPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+        options.Cookie.Name = "BoardGames.Auth";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
     });
 
 // Add services to the container.
@@ -65,14 +71,6 @@ builder.Services.AddScoped<ICashPaymentMapper, CashPaymentMapper>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPaymentService, CardPaymentService>();
 
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromHours(2);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 var app = builder.Build();
 
 Directory.CreateDirectory(Path.Combine(app.Environment.WebRootPath, "images"));
@@ -91,24 +89,6 @@ app.UseRouting();
 
 // MIDDLEWARE PIPELINE
 app.UseAuthentication();
-
-// FAKE LOGIN MIDDLEWARE (TEMPORARY FOR TESTING)
-app.Use(async (context, next) =>
-{
-    // Ensure you change "1" to a valid User ID that actually exists in your database!
-    var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, "1"),
-        new Claim(ClaimTypes.Name, "TestUser"),
-    };
-
-    var identity = new ClaimsIdentity(claims, "FakeAuthType");
-    context.User = new ClaimsPrincipal(identity);
-
-    await next();
-});
-
-app.UseSession();
 
 app.UseAuthorization();
 
