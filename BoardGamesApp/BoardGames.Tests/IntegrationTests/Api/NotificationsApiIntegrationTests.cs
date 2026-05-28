@@ -1,7 +1,3 @@
-// <copyright file="NotificationsApiIntegrationTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Linq;
 using System.Net;
@@ -24,45 +20,39 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
         private ApiWebApplicationFactory webApplicationFactory = null!;
         private HttpClient apiHttpClient = null!;
-
         private int persistedNotificationId;
 
         [SetUp]
         public async Task SetUp()
         {
             this.webApplicationFactory = new ApiWebApplicationFactory();
-
             await this.webApplicationFactory.EnsureDatabaseAsync();
 
             this.apiHttpClient = this.webApplicationFactory.CreateClient();
-            using var serviceScope = this.webApplicationFactory.Services.CreateScope();
 
-            var applicationDbContext = serviceScope.ServiceProvider
-                .GetRequiredService<AppDbContext>();
+            using var scope = this.webApplicationFactory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             await ApiTestDataBuilder.SeedUserAsync(
-                applicationDbContext,
+                dbContext,
                 this.notificationRecipientAccountId,
                 50,
                 "notify-user",
                 "notify-user@example.com");
 
-            var seededNotification = new Notification
+            var seededNotificationEntity = new Notification
             {
-                Recipient = applicationDbContext.Users.First(
-                    user => user.Id == this.notificationRecipientAccountId),
-
+                Recipient = dbContext.Users.First(user => user.Id == this.notificationRecipientAccountId),
                 Timestamp = DateTime.UtcNow,
                 Title = "Initial Title",
                 Body = "Initial Body",
                 Type = BoardGames.Data.Enums.NotificationType.Informational,
             };
 
-            applicationDbContext.Notifications.Add(seededNotification);
+            dbContext.Notifications.Add(seededNotificationEntity);
+            await dbContext.SaveChangesAsync();
 
-            await applicationDbContext.SaveChangesAsync();
-
-            this.persistedNotificationId = seededNotification.Id;
+            this.persistedNotificationId = seededNotificationEntity.Id;
         }
 
         [TearDown]
@@ -75,54 +65,118 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task GetForUser_WithExistingNotifications_ReturnsNotifications()
         {
-            var getNotificationsForUserHttpResponse =
+            var getUserNotificationsResponse =
                 await this.apiHttpClient.GetAsync(
                     $"api/notifications/user/{this.notificationRecipientAccountId}");
 
-            Assert.That(
-                getNotificationsForUserHttpResponse.StatusCode,
-                Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(getUserNotificationsResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-            var returnedNotifications =
-                await getNotificationsForUserHttpResponse.Content
+            var userNotifications =
+                await getUserNotificationsResponse.Content
                     .ReadFromJsonAsync<NotificationDTO[]>();
 
-            Assert.That(returnedNotifications, Is.Not.Null);
-
-            Assert.That(
-                returnedNotifications!.Length,
-                Is.GreaterThan(0));
-
-            Assert.That(
-                returnedNotifications.Any(
-                    notification => notification.Id == this.persistedNotificationId),
-                Is.True);
+            Assert.That(userNotifications, Is.Not.Null);
+            Assert.That(userNotifications!.Any(userNotifications => userNotifications.Id == this.persistedNotificationId), Is.True);
         }
 
         [Test]
         public async Task GetById_WithExistingNotification_ReturnsNotification()
         {
-            var getNotificationByIdHttpResponse =
+            var getNotificationByIdResponse =
                 await this.apiHttpClient.GetAsync(
                     $"api/notifications/{this.persistedNotificationId}");
 
+            Assert.That(getNotificationByIdResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+            var notificationById =
+                await getNotificationByIdResponse.Content.ReadFromJsonAsync<NotificationDTO>();
+
+            Assert.That(notificationById, Is.Not.Null);
+            Assert.That(notificationById!.Id, Is.EqualTo(this.persistedNotificationId));
+            Assert.That(notificationById.Title, Is.EqualTo("Initial Title"));
+        }
+
+        [Test]
+        public async Task GetById_WithMissingNotification_ReturnsNotFound()
+        {
+            var getMissingNotificationResponse =
+                await this.apiHttpClient.GetAsync($"api/notifications/{int.MaxValue}");
+
+            Assert.That(getMissingNotificationResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        }
+
+        [Test]
+        public async Task Update_WithValidNotification_ReturnsNoContent()
+        {
+            var updateNotificationDto = new NotificationDTO
+            {
+                Id = this.persistedNotificationId,
+                Title = "Updated Title",
+                Body = "Updated Body",
+                Timestamp = DateTime.UtcNow,
+            };
+
+            var updateNotificationResponse =
+                await this.apiHttpClient.PutAsJsonAsync(
+                    $"api/notifications/{this.persistedNotificationId}",
+                    updateNotificationDto);
+
+            Assert.That(updateNotificationResponse.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        }
+
+        [Test]
+        public async Task Update_WithMissingNotification_ReturnsNotFound()
+        {
+            var updateMissingNotificationDto = new NotificationDTO
+            {
+                Id = int.MaxValue,
+                Title = "X",
+                Body = "Y",
+                Timestamp = DateTime.UtcNow,
+            };
+
+            var updateMissingNotificationResponse =
+                await this.apiHttpClient.PutAsJsonAsync(
+                    $"api/notifications/{int.MaxValue}",
+                    updateMissingNotificationDto);
+
+            Assert.That(updateMissingNotificationResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        }
+
+        [Test]
+        public async Task Delete_WithExistingNotification_ReturnsOk()
+        {
+            var deleteNotificationResponse =
+                await this.apiHttpClient.DeleteAsync(
+                    $"api/notifications/{this.persistedNotificationId}");
+
+            Assert.That(deleteNotificationResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public async Task Delete_WithMissingNotification_ReturnsNotFound()
+        {
+            var deleteMissingNotificationResponse =
+                await this.apiHttpClient.DeleteAsync(
+                    $"api/notifications/{int.MaxValue}");
+
+            Assert.That(deleteMissingNotificationResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        }
+
+        [Test]
+        public async Task GetForUser_MultipleCalls_ReturnsConsistentResults()
+        {
+            var firstUserNotificationsResponse =
+                await this.apiHttpClient.GetFromJsonAsync<NotificationDTO[]>(
+                    $"api/notifications/user/{this.notificationRecipientAccountId}");
+
+            var secondUserNotificationsResponse =
+                await this.apiHttpClient.GetFromJsonAsync<NotificationDTO[]>(
+                    $"api/notifications/user/{this.notificationRecipientAccountId}");
+
             Assert.That(
-                getNotificationByIdHttpResponse.StatusCode,
-                Is.EqualTo(HttpStatusCode.OK));
-
-            var returnedNotification =
-                await getNotificationByIdHttpResponse.Content
-                    .ReadFromJsonAsync<NotificationDTO>();
-
-            Assert.That(returnedNotification, Is.Not.Null);
-
-            Assert.That(
-                returnedNotification!.Id,
-                Is.EqualTo(this.persistedNotificationId));
-
-            Assert.That(
-                returnedNotification.Title,
-                Is.EqualTo("Initial Title"));
+                firstUserNotificationsResponse!.Length,
+                Is.EqualTo(secondUserNotificationsResponse!.Length));
         }
     }
 }
