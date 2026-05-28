@@ -12,9 +12,11 @@ namespace BoardGames.Desktop.ViewModels
         public Guid CurrentUserId => currentUserContext.CurrentUserId;
 
         public ObservableCollection<GameDTO> OwnedActiveGames { get; set; } = new();
+
         public ObservableCollection<UserDTO> AvailableRenters { get; set; } = new();
 
         private GameDTO selectedGameToRent;
+
         public GameDTO SelectedGameToRent
         {
             get => selectedGameToRent;
@@ -26,6 +28,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private UserDTO selectedRenter;
+
         public UserDTO SelectedRenter
         {
             get => selectedRenter;
@@ -37,6 +40,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private DateTimeOffset? rentalStartDate;
+
         public DateTimeOffset? StartDate
         {
             get => rentalStartDate;
@@ -48,6 +52,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private DateTimeOffset? rentalEndDate;
+
         public DateTimeOffset? EndDate
         {
             get => rentalEndDate;
@@ -161,6 +166,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

@@ -1,3 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+
 namespace BoardGames.Desktop.Services
 {
     public interface IDesktopNotificationService : IObservable<NotificationDTO>

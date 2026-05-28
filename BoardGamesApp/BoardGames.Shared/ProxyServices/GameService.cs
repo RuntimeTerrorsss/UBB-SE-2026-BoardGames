@@ -76,7 +76,15 @@ namespace BoardGames.Shared.ProxyServices
         public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetAllGamesAsync(CancellationToken cancellationToken = default)
             => FetchListAsync("api/games", cancellationToken);
 
-        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> SearchGamesAsync(GameSearchCriteriaDTO criteria, CancellationToken cancellationToken = default)
+        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetAvailableGamesForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
+            => FetchListAsync($"api/games/renter/{renterAccountId}/available", cancellationToken);
+
+        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetActiveGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
+            => FetchListAsync($"api/games/owner/{ownerAccountId}/active", cancellationToken);
+
+        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> SearchGamesAsync(
+            GameSearchCriteriaDTO criteria,
+            CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
             return ApiResponseReader.SendAsync<IReadOnlyList<GameSummaryDTO>>(
@@ -90,12 +98,6 @@ namespace BoardGames.Shared.ProxyServices
                 },
                 cancellationToken);
         }
-
-        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetAvailableGamesForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/games/renter/{renterAccountId}/available", cancellationToken);
-
-        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetActiveGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
-            => FetchListAsync($"api/games/owner/{ownerAccountId}/active", cancellationToken);
 
         private Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> FetchListAsync(string requestPath, CancellationToken cancellationToken)
         {

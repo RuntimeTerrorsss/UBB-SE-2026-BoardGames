@@ -1,3 +1,5 @@
+using Moq;
+using Xunit;
 // <copyright file="MapServiceTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

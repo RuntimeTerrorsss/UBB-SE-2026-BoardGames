@@ -1,3 +1,9 @@
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using BoardGames.Shared.DTO;
+using ServerCommunication;
+
 namespace BoardGames.Desktop.Services.Listeners
 {
     public class NotificationClient : IServerClient, IDisposable
@@ -12,6 +18,7 @@ namespace BoardGames.Desktop.Services.Listeners
         private readonly UdpClient udpSocketClient;
 
         private readonly CancellationTokenSource listenCancellationSource = new();
+
         private CancellationToken ListenCancellationToken => listenCancellationSource.Token;
 
         private const int MaxRetries = 5;

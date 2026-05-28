@@ -1,3 +1,5 @@
+using BoardGames.Desktop.Services;
+using BoardGames.Api.Services;
 // <copyright file="FakeClientRequestAndNotificationServices.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
@@ -10,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 
 namespace BoardGames.Tests.Fakes
 {

@@ -1,4 +1,10 @@
 using BoardGames.Desktop.ViewModels;
+using BoardGames.Shared.DTO;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using System.Diagnostics;
 
 namespace BoardGames.Desktop.Views
 {

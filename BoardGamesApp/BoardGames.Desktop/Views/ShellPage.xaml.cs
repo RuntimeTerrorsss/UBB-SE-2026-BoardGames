@@ -102,12 +102,12 @@ namespace BoardGames.Desktop.Views
                 AppPage.GameDetails => (typeof(GameDetailsPage), parameter),
                 AppPage.Login => (typeof(LoginPage), parameter),
                 AppPage.Register => (typeof(RegisterPage), parameter),
-                AppPage.Games => (typeof(PlaceholderPage), new PlaceholderPageModel("Games", "Games integration will be connected in Task 10.")),
-                AppPage.Notifications => (typeof(PlaceholderPage), new PlaceholderPageModel("Notifications", "Notifications integration will be connected in Task 10.")),
-                AppPage.Dashboard => (typeof(PlaceholderPage), new PlaceholderPageModel("Dashboard", "Dashboard integration will be connected in Task 10.")),
-                AppPage.Chat => (typeof(PlaceholderPage), new PlaceholderPageModel("Chat", "Chat integration will be connected in Task 10.")),
-                AppPage.Account => (typeof(PlaceholderPage), new PlaceholderPageModel("Account", "Account integration will be connected in Task 10.")),
-                AppPage.Admin => (typeof(PlaceholderPage), new PlaceholderPageModel("Admin", "Admin integration will be connected in Task 10.")),
+                AppPage.Games => (typeof(ListingsPage), parameter),
+                AppPage.Notifications => (typeof(NotificationsPage), parameter),
+                AppPage.Dashboard => (typeof(DashboardView), parameter),
+                AppPage.Chat => (typeof(ChatPage), parameter),
+                AppPage.Account => (typeof(ProfilePage), parameter),
+                AppPage.Admin => (typeof(AdminPage), parameter),
                 _ => (typeof(SearchGamesPage), parameter),
             };
         }

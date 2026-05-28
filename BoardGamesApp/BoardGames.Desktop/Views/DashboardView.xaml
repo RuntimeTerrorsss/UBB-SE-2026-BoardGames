@@ -1,42 +1,31 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <Page
-	x:Class="BoardGames.Desktop.Views.DashboardView"
-	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-	mc:Ignorable="d">
+    x:Class="BoardGames.Desktop.Views.DashboardView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel
-		HorizontalAlignment="Center"
-		VerticalAlignment="Center"
-		Spacing="20">
-        <TextBlock
-			HorizontalAlignment="Center"
-			Style="{StaticResource TitleTextBlockStyle}"
-			Text="Admin Panel" />
-		<Button
-			Width="200"
-			Height="50"
-			HorizontalAlignment="Center"
-			Click="PaymentHistoryButton_Click"
-			Content="See Payment History"
-			FontSize="16" />
-		<Button
-			Width="200"
-			Height="50"
-			HorizontalAlignment="Center"
-			Click="ChatButton_Click"
-			Content="Create new conversation"
-			FontSize="16" />
-		<Button
-			Width="200"
-			Height="50"
-			HorizontalAlignment="Center"
-			Click="SeeEmptyChat_Click"
-			Content="See an Empty Chat"
-			FontSize="16" />
-        <Button Content=" Back" Click="BackButton_Click" HorizontalAlignment="Right"/>
-	</StackPanel>
+    <Grid Padding="40">
+        <StackPanel Spacing="30">
+            <TextBlock Text="Dashboard" FontSize="32" FontWeight="SemiBold" />
+
+            <StackPanel Orientation="Horizontal" Spacing="20">
+                <Border Background="#333333" Padding="20" CornerRadius="8">
+                    <StackPanel>
+                        <TextBlock Text="New Messages" FontSize="13" />
+                        <TextBlock Text="{Binding NewMessagesCount}" FontSize="32" FontWeight="Bold" />
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#333333" Padding="20" CornerRadius="8">
+                    <StackPanel>
+                        <TextBlock Text="Notifications" FontSize="13" />
+                        <TextBlock Text="{Binding PendingNotificationsCount}" FontSize="32" FontWeight="Bold" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
 </Page>

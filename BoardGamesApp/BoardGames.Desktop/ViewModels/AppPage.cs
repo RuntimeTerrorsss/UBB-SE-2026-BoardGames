@@ -12,6 +12,6 @@ namespace BoardGames.Desktop.ViewModels
         Chat,
         Account,
         Admin,
-        Logout,
+        Logout
     }
 }

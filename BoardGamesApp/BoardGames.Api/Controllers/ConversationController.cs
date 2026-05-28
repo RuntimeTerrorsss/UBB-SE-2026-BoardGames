@@ -86,7 +86,7 @@ namespace BoardGames.Api.Controllers
         [HttpPost("readreceipt")]
         public async Task<ActionResult> SendReadReceipt([FromBody] ReadReceiptRequest request)
         {
-            var dto = new ReadReceiptDTO(
+            var dto = new BoardGames.Data.Models.ReadReceiptDTO(
                 request.ConversationId,
                 request.ReaderId,
                 request.ReceiverId,

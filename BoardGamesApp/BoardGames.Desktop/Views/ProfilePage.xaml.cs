@@ -1,6 +1,9 @@
 namespace BoardGames.Desktop.Views
 {
     using BoardGames.Desktop.ViewModels;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.Extensions.DependencyInjection;
 
     public sealed partial class ProfilePage : Page
     {
@@ -8,7 +11,7 @@ namespace BoardGames.Desktop.Views
         {
             this.InitializeComponent();
 
-            this.ViewModel = Ioc.Default.GetService<ProfileViewModel>();
+            this.ViewModel = App.Services.GetRequiredService<ProfileViewModel>();
             this.DataContext = this.ViewModel;
 
             this.ViewModel.OnSignOutSuccess = () =>

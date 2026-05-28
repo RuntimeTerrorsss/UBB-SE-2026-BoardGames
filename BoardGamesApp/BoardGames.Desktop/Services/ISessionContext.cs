@@ -1,8 +1,8 @@
-using System;
-using BoardGames.Shared.DTO;
-
 namespace BoardGames.Desktop.Services
 {
+    using System;
+    using BoardGames.Shared.DTO;
+
     public interface ISessionContext
     {
         Guid AccountId { get; }

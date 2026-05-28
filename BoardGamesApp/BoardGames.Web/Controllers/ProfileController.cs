@@ -13,18 +13,15 @@ namespace BoardGames.Web.Controllers
     using BoardGames.Web.Models.Account;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Configuration;
 
     [Authorize]
     public class ProfileController : Controller
     {
         private readonly IAccountProxyService accountProxyService;
-        private readonly IConfiguration configuration;
 
-        public ProfileController(IAccountProxyService accountProxyService, IConfiguration configuration)
+        public ProfileController(IAccountProxyService accountProxyService)
         {
             this.accountProxyService = accountProxyService ?? throw new ArgumentNullException(nameof(accountProxyService));
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         [HttpGet]
@@ -38,15 +35,7 @@ namespace BoardGames.Web.Controllers
                 string fullAvatarUrl = string.Empty;
                 if (!string.IsNullOrEmpty(profileData.AvatarUrl))
                 {
-                    string apiBaseUrl = this.configuration["ApiBaseUrl"]?.TrimEnd('/') ?? "http://localhost:5000";
-                    string avatarPath = profileData.AvatarUrl.TrimStart('/');
-
-                    if (!avatarPath.StartsWith("avatars/"))
-                    {
-                        avatarPath = $"avatars/{avatarPath}";
-                    }
-
-                    fullAvatarUrl = $"{apiBaseUrl}/{avatarPath}";
+                    fullAvatarUrl = profileData.AvatarUrl;
                 }
 
                 ProfileViewModel model = new ProfileViewModel
@@ -82,9 +71,7 @@ namespace BoardGames.Web.Controllers
 
                 if (!string.IsNullOrEmpty(profileData.AvatarUrl))
                 {
-                    string apiBaseUrl = this.configuration["ApiBaseUrl"]?.TrimEnd('/') ?? "http://localhost:5000";
-                    string fileName = Path.GetFileName(profileData.AvatarUrl);
-                    model.AvatarUrl = $"{apiBaseUrl}/avatars/{fileName}";
+                    model.AvatarUrl = profileData.AvatarUrl;
                 }
 
                 return this.View(model);
@@ -114,8 +101,7 @@ namespace BoardGames.Web.Controllers
                 var profileData = await this.accountProxyService.GetProfileAsync(currentUserId);
                 if (!string.IsNullOrEmpty(profileData.AvatarUrl))
                 {
-                    string apiBaseUrl = this.configuration["ApiBaseUrl"]?.TrimEnd('/') ?? "http://localhost:5000";
-                    model.AvatarUrl = $"{apiBaseUrl}/avatars/{Path.GetFileName(profileData.AvatarUrl)}";
+                    model.AvatarUrl = profileData.AvatarUrl;
                 }
 
                 this.ModelState.AddModelError(string.Empty, exception.Message);

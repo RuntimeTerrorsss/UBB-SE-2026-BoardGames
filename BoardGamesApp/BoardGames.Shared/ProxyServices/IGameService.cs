@@ -23,10 +23,10 @@ namespace BoardGames.Shared.ProxyServices
 
         Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetAllGamesAsync(CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> SearchGamesAsync(GameSearchCriteriaDTO criteria, CancellationToken cancellationToken = default);
-
         Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetAvailableGamesForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default);
 
         Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetActiveGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default);
+
+        Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> SearchGamesAsync(GameSearchCriteriaDTO criteria, CancellationToken cancellationToken = default);
     }
 }

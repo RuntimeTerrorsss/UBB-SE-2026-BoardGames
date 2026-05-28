@@ -1,3 +1,5 @@
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
 // <copyright file="FakeContexts.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

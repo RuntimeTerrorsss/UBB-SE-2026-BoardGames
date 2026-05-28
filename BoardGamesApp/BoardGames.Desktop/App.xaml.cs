@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Net;
 using BoardGames.Desktop.Services;
+using BoardGames.Desktop.Services.Listeners;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.Views;
 using BoardGames.Shared.ProxyServices;
@@ -106,11 +107,24 @@ namespace BoardGames.Desktop
             serviceCollection.AddSingleton<ISessionContext, SessionContext>();
             serviceCollection.AddSingleton<ICurrentUserContext, CurrentUserContext>();
             serviceCollection.AddSingleton<IDesktopAuthorizationService, DesktopAuthorizationService>();
+            serviceCollection.AddSingleton<IFilePickerService, FilePickerService>();
+            serviceCollection.AddSingleton<IServerClient, NotificationClient>();
+            serviceCollection.AddSingleton<IToastNotificationService, ToastNotificationService>();
+            serviceCollection.AddSingleton<IDesktopNotificationService, DesktopNotificationService>();
 
             serviceCollection.AddSingleton<ShellViewModel>();
             serviceCollection.AddTransient<SearchGamesViewModel>();
+            serviceCollection.AddTransient<GameDetailsPageViewModel>();
             serviceCollection.AddTransient<LoginViewModel>();
             serviceCollection.AddTransient<RegisterViewModel>();
+            serviceCollection.AddTransient<DashboardViewModel>();
+            serviceCollection.AddTransient<ChatViewModel>();
+            serviceCollection.AddTransient<ListingsViewModel>();
+            serviceCollection.AddTransient<NotificationsViewModel>();
+            serviceCollection.AddTransient<ProfileViewModel>();
+            serviceCollection.AddTransient<AdminViewModel>();
+            serviceCollection.AddTransient<CreateGameViewModel>();
+            serviceCollection.AddTransient<EditGameViewModel>();
 
             Services = serviceCollection.BuildServiceProvider();
             Ioc.Default.ConfigureServices(Services);
