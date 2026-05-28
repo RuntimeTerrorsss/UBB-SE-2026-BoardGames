@@ -99,10 +99,13 @@ namespace BoardGames.Desktop.ViewModels
             }
 
             public Guid CurrentAccountId => currentAccountId;
+
             public bool IsLoggedIn => true;
+
             public bool IsAdministrator => false;
 
             public bool CanAccessPage(Type pageType) => true;
+
             public bool CanAccessMenuPage(AppPage page) => true;
         }
     }
