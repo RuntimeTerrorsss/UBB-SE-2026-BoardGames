@@ -1,6 +1,8 @@
 namespace BoardGames.Desktop.Views
 {
     using BoardGames.Desktop.ViewModels;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.Extensions.DependencyInjection;
 
     public sealed partial class RegisterPage : Page
     {
@@ -8,7 +10,7 @@ namespace BoardGames.Desktop.Views
         {
             this.InitializeComponent();
 
-            this.ViewModel = Ioc.Default.GetService<RegisterViewModel>();
+            this.ViewModel = App.Services.GetRequiredService<RegisterViewModel>();
             this.DataContext = this.ViewModel;
 
             this.InitializeNavigationCallbacks();
@@ -20,12 +22,15 @@ namespace BoardGames.Desktop.Views
         {
             this.ViewModel.OnRegistrationSuccess = () =>
             {
-                App.OnUserLoggedIn();
+                this.Frame?.Navigate(typeof(MenuBarPage));
             };
 
             this.ViewModel.OnNavigateBackRequest = () =>
             {
-                App.NavigateBack();
+                if (this.Frame != null && this.Frame.CanGoBack)
+                {
+                    this.Frame.GoBack();
+                }
             };
         }
     }

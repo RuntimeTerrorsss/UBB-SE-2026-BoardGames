@@ -1,6 +1,10 @@
 namespace BoardGames.Desktop.Views
 {
+    using System;
     using BoardGames.Desktop.ViewModels;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
 
     public sealed partial class LoginPage : Page
     {
@@ -8,7 +12,7 @@ namespace BoardGames.Desktop.Views
         {
             this.InitializeComponent();
 
-            this.ViewModel = Ioc.Default.GetService<LoginViewModel>();
+            this.ViewModel = App.Services.GetRequiredService<LoginViewModel>();
             this.DataContext = this.ViewModel;
 
             this.InitializeNavigationCallbacks();
@@ -20,12 +24,12 @@ namespace BoardGames.Desktop.Views
         {
             this.ViewModel.OnLoginSuccess = (roleName) =>
             {
-                App.OnUserLoggedIn();
+                this.Frame?.Navigate(typeof(MenuBarPage));
             };
 
             this.ViewModel.OnNavigateToRegister = () =>
             {
-                App.NavigateTo(typeof(RegisterPage));
+                this.Frame?.Navigate(typeof(RegisterPage));
             };
         }
 
