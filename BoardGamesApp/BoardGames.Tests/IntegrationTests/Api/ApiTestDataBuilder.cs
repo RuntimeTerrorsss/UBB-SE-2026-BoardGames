@@ -1,9 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using BoardGames.Api;
+using BoardGames.Api.Security;
 using BoardGames.Data;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace BoardGames.Tests.IntegrationTests.Api
 {

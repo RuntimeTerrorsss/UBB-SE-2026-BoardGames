@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Api.Services;
 using BoardGames.Data;
+using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace BoardGames.Tests.IntegrationTests.Api
 {

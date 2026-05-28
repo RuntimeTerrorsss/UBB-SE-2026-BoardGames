@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
+using BoardGames.Desktop.ViewModels;
 
 namespace BoardGames.Tests.ViewModels
 {
