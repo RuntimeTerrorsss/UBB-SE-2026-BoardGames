@@ -7,7 +7,7 @@ using BoardGames.Data.Constants;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public class CashPaymentService : PaymentService, ICashPaymentService
     {

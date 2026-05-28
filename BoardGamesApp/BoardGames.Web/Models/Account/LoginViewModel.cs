@@ -8,16 +8,17 @@ namespace BoardGames.Web.Models.Account
 {
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "Username or email is required.")]
+        [Required]
         [Display(Name = "Username or email")]
-        public string Identifier { get; set; } = string.Empty;
+        public string UsernameOrEmail { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Password is required.")]
+        [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Remember me")]
         public bool RememberMe { get; set; }
+
+        public string? ReturnUrl { get; set; }
     }
 }

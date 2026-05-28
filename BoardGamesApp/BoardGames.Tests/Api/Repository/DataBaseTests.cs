@@ -1,3 +1,4 @@
+using BoardGames.Data;
 // <copyright file="DataBaseTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

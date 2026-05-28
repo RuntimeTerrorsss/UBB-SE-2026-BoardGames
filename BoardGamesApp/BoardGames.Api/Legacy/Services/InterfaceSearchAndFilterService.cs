@@ -5,7 +5,7 @@
 using BoardGames.Data.Enums;
 using BoardGames.Shared.DTO;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     /// <summary>
     /// Provides search and filtering capabilities for games.

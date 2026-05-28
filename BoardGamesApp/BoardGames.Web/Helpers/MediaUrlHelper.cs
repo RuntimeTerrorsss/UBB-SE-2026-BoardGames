@@ -16,7 +16,7 @@ namespace BoardGames.Web.Helpers
             return ResolveMediaUrl(imageUrl);
         }
 
-        private static string? ResolveMediaUrl(string? urlOrFileName)
+        public static string? ResolveMediaUrl(string? urlOrFileName)
         {
             if (string.IsNullOrWhiteSpace(urlOrFileName))
             {

@@ -3,6 +3,7 @@
 // </copyright>
 
 using BoardGames.Web.Helpers;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

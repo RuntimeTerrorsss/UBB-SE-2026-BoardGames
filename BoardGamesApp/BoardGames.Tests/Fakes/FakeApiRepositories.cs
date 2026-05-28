@@ -1,3 +1,5 @@
+using BoardGames.Data.Repositories;
+using BoardGames.Api.Services;
 // <copyright file="FakeApiRepositories.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
