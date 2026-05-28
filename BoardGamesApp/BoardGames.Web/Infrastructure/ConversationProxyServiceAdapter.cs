@@ -4,56 +4,69 @@
 
 using System.Net;
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
+using System.Net.Http.Json;
 
 namespace BoardGames.Web.Infrastructure
 {
-    public sealed class ConversationProxyServiceAdapter : IConversationProxyService
+    public sealed class ConversationProxyServiceAdapter : IConversationProxyService, IChatProxyService
     {
-        private readonly IConversationService conversationService;
+        private readonly HttpClient httpClient;
 
-        public ConversationProxyServiceAdapter(IConversationService conversationService)
+        public ConversationProxyServiceAdapter(HttpClient httpClient)
         {
-            this.conversationService = conversationService;
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            if (this.httpClient.BaseAddress is null)
+            {
+                throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
+            }
         }
 
         public async Task<IReadOnlyList<ConversationDTO>> GetConversationsForUserAsync(
             Guid accountId,
             CancellationToken cancellationToken = default)
-            => (await this.conversationService.GetConversationsForUserAsync(accountId, cancellationToken)).ThrowIfFailed();
+        {
+            using var response = await this.httpClient.GetAsync($"conversation/user/{accountId}", cancellationToken);
+            return await HttpProxyClient.ReadAsync<List<ConversationDTO>>(response, cancellationToken);
+        }
 
         public async Task<ConversationDTO?> GetConversationByIdAsync(
             int conversationId,
             CancellationToken cancellationToken = default)
         {
-            var result = await this.conversationService.GetConversationByIdAsync(conversationId, cancellationToken);
-            if (result.Success)
-            {
-                return result.Data;
-            }
-
-            if (result.StatusCode == HttpStatusCode.NotFound)
+            using var response = await this.httpClient.GetAsync($"conversation/{conversationId}", cancellationToken);
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            throw ProxyResultExtensions.ToException(result);
+            return await HttpProxyClient.ReadAsync<ConversationDTO>(response, cancellationToken);
         }
 
         public async Task<int> FindOrCreateConversationAsync(
             Guid senderAccountId,
             Guid receiverAccountId,
             CancellationToken cancellationToken = default)
-            => (await this.conversationService.FindOrCreateConversationAsync(senderAccountId, receiverAccountId, cancellationToken)).ThrowIfFailed();
+        {
+            var body = new { SenderAccountId = senderAccountId, ReceiverAccountId = receiverAccountId };
+            using var response = await this.httpClient.PostAsJsonAsync("conversation", body, cancellationToken);
+            var conversation = await HttpProxyClient.ReadAsync<ConversationDTO>(response, cancellationToken);
+            return conversation.Id;
+        }
 
         public async Task<MessageDataTransferObject> SendMessageAsync(
             MessageDataTransferObject message,
             CancellationToken cancellationToken = default)
-            => (await this.conversationService.SendMessageAsync(message, cancellationToken)).ThrowIfFailed();
+        {
+            using var response = await this.httpClient.PostAsJsonAsync("conversation/messages", message, cancellationToken);
+            return await HttpProxyClient.ReadAsync<MessageDataTransferObject>(response, cancellationToken);
+        }
 
         public async Task<MessageDataTransferObject> UpdateMessageAsync(
             MessageDataTransferObject message,
             CancellationToken cancellationToken = default)
-            => (await this.conversationService.UpdateMessageAsync(message, cancellationToken)).ThrowIfFailed();
+        {
+            using var response = await this.httpClient.PutAsJsonAsync("conversation/messages", message, cancellationToken);
+            return await HttpProxyClient.ReadAsync<MessageDataTransferObject>(response, cancellationToken);
+        }
     }
 }
