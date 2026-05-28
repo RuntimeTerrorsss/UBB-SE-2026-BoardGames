@@ -1,0 +1,100 @@
+@using BoardGames.Web.Helpers
+@model BoardGames.Web.Models.Dashboard.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="fw-bold mb-4">Dashboard</h2>
+
+<div class="row g-4">
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary text-white fw-semibold">
+                <i class="bi bi-calendar-check me-2"></i>Upcoming Rentals
+            </div>
+            <div class="card-body">
+                @if (!Model.UpcomingRentals.Any())
+                {
+                    <p class="text-muted mb-0">No upcoming rentals.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var rental in Model.UpcomingRentals.Take(5))
+                        {
+                            <li class="list-group-item px-0">
+                                <div class="fw-semibold">@rental.Game?.Name</div>
+                                <small class="text-muted">@rental.StartDateDisplay &ndash; @rental.EndDateDisplay</small>
+                            </li>
+                        }
+                    </ul>
+                    @if (Model.UpcomingRentals.Count > 5)
+                    {
+                        <a asp-controller="Rentals" asp-action="My" class="btn btn-sm btn-outline-primary mt-2">View all</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-warning text-dark fw-semibold">
+                <i class="bi bi-inbox me-2"></i>Open Requests
+            </div>
+            <div class="card-body">
+                @if (!Model.OpenRequests.Any())
+                {
+                    <p class="text-muted mb-0">No pending requests.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var request in Model.OpenRequests.Take(5))
+                        {
+                            <li class="list-group-item px-0">
+                                <div class="fw-semibold">@request.Game?.Name</div>
+                                <small class="text-muted">From @request.Renter?.DisplayName &mdash; @request.StartDateDisplay &ndash; @request.EndDateDisplay</small>
+                            </li>
+                        }
+                    </ul>
+                    @if (Model.OpenRequests.Count > 5)
+                    {
+                        <a asp-controller="Requests" asp-action="Others" class="btn btn-sm btn-outline-warning mt-2">View all</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white fw-semibold">
+                <i class="bi bi-credit-card me-2"></i>Recent Payments
+            </div>
+            <div class="card-body">
+                @if (!Model.RecentPayments.Any())
+                {
+                    <p class="text-muted mb-0">No recent payments.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var payment in Model.RecentPayments.Take(5))
+                        {
+                            var strategy = PaymentStrategyFactory.GetStrategy(payment.PaymentMethod);
+                            <li class="list-group-item px-0">
+                                <div class="fw-semibold">@payment.ProductName</div>
+                                <small class="text-muted">@strategy.FormatSummary(payment)</small>
+                                <span class="badge bg-secondary ms-1">@strategy.GetDisplayLabel()</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>

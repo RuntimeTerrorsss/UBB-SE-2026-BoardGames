@@ -31,25 +31,7 @@ namespace BoardGames.Web.Controllers
             {
                 Guid currentUserId = this.User.GetAccountId();
                 AccountProfileDTO profileData = await this.accountProxyService.GetProfileAsync(currentUserId);
-
-                string fullAvatarUrl = string.Empty;
-                if (!string.IsNullOrEmpty(profileData.AvatarUrl))
-                {
-                    fullAvatarUrl = profileData.AvatarUrl;
-                }
-
-                ProfileViewModel model = new ProfileViewModel
-                {
-                    Username = profileData.Username,
-                    DisplayName = profileData.DisplayName ?? string.Empty,
-                    Email = profileData.Email ?? string.Empty,
-                    PhoneNumber = profileData.PhoneNumber,
-                    Country = profileData.Country,
-                    City = profileData.City,
-                    StreetName = profileData.StreetName,
-                    StreetNumber = profileData.StreetNumber,
-                    AvatarUrl = fullAvatarUrl,
-                };
+                ProfileViewModel model = ViewModelAdapter.ToProfileViewModel(profileData);
 
                 return this.View(model);
             }
@@ -80,17 +62,7 @@ namespace BoardGames.Web.Controllers
             try
             {
                 Guid currentUserId = this.User.GetAccountId();
-                AccountProfileDTO updateData = new AccountProfileDTO
-                {
-                    DisplayName = model.DisplayName,
-                    Email = model.Email,
-                    PhoneNumber = model.PhoneNumber,
-                    Country = model.Country,
-                    City = model.City,
-                    StreetName = model.StreetName,
-                    StreetNumber = model.StreetNumber,
-                };
-
+                AccountProfileDTO updateData = ViewModelAdapter.ToAccountProfileDTO(model);
                 await this.accountProxyService.UpdateProfileAsync(currentUserId, updateData);
                 this.TempData["SuccessMessage"] = "Profile updated successfully.";
                 return this.RedirectToAction(nameof(this.Index));
