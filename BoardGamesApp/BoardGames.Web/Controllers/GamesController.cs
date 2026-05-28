@@ -4,13 +4,14 @@
 
 using BoardGames.Data.Enums;
 using BoardGames.Web.Helpers;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
     [Authorize]
-    public class GamesController : BaseController
+    public class GamesController : Controller
     {
         private readonly InterfaceBookingService bookingService;
         private readonly InterfaceSearchAndFilterService searchService;
@@ -21,12 +22,20 @@ namespace BoardGames.Web.Controllers
             this.searchService = searchServiceParam;
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
+            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
+            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
+            base.OnActionExecuting(context);
+        }
+
         public async Task<IActionResult> Index()
         {
             var filter = new FilterCriteria();
-            if (IsLoggedIn)
+            if (this.User?.Identity?.IsAuthenticated == true)
             {
-                filter.UserId = CurrentUserId;
+                filter.UserId = this.User.GetPamUserId();
             }
 
             var games = await this.searchService.SearchGamesByFilter(filter);
@@ -87,13 +96,12 @@ namespace BoardGames.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(int id, DateTime startDate, DateTime endDate, string confirm)
         {
-            var redirect = RequireLogin();
-            if (redirect != null)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
-                return redirect;
+                return this.RedirectToAction("Login", "Auth");
             }
 
-            int clientId = CurrentUserId ?? -1;
+            int clientId = this.User.GetPamUserId() ?? -1;
             if (clientId == -1)
             {
                 return Unauthorized();

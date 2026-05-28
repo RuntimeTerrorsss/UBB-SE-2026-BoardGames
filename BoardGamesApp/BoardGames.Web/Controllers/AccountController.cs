@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BoardGames.Web.Controllers
 {
     [AllowAnonymous]
-    public class AccountController : BaseController
+    public class AccountController : Controller
     {
         private readonly IUserService userService;
 
@@ -40,7 +40,16 @@ namespace BoardGames.Web.Controllers
 
             if (user != null)
             {
-                SessionHelper.SetUser(this.HttpContext.Session, user.Id, user.Username, user.DisplayName);
+                var claims = new List<System.Security.Claims.Claim>
+                {
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new System.Security.Claims.Claim("PamUserId", user.PamUserId.ToString()),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, user.Username),
+                    new System.Security.Claims.Claim("DisplayName", user.DisplayName ?? string.Empty),
+                };
+
+                var identity = new System.Security.Claims.ClaimsIdentity(claims, Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+                await this.HttpContext.SignInAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme, new System.Security.Claims.ClaimsPrincipal(identity));
                 return this.RedirectToAction("Index", "Home");
             }
 
@@ -49,9 +58,9 @@ namespace BoardGames.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            SessionHelper.Clear(this.HttpContext.Session);
+            await this.HttpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
             return this.RedirectToAction("Login");
         }
 
@@ -86,7 +95,16 @@ namespace BoardGames.Web.Controllers
             var loggedInUser = await this.userService.LoginAsync(user.Username, registeringUserViewModel.Password);
             if (loggedInUser != null)
             {
-                SessionHelper.SetUser(this.HttpContext.Session, loggedInUser.Id, loggedInUser.Username, loggedInUser.DisplayName);
+                var claims = new List<System.Security.Claims.Claim>
+                {
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, loggedInUser.Id.ToString()),
+                    new System.Security.Claims.Claim("PamUserId", loggedInUser.PamUserId.ToString()),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, loggedInUser.Username),
+                    new System.Security.Claims.Claim("DisplayName", loggedInUser.DisplayName ?? string.Empty),
+                };
+
+                var identity = new System.Security.Claims.ClaimsIdentity(claims, Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+                await this.HttpContext.SignInAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme, new System.Security.Claims.ClaimsPrincipal(identity));
             }
 
             return this.RedirectToAction("Index", "Home");

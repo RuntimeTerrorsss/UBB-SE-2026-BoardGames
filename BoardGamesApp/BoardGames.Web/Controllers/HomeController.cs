@@ -36,7 +36,7 @@ namespace BoardGames.Web.Controllers
             var filter = new FilterCriteria();
             if (this.User?.Identity?.IsAuthenticated == true)
             {
-                filter.UserId = this.User.GetAccountId();
+                filter.UserId = this.User.GetPamUserId();
             }
 
             var results = await _searchService.SearchGamesByFilter(filter);
@@ -71,7 +71,7 @@ namespace BoardGames.Web.Controllers
                 City = model.City,
                 MaximumPrice = model.MaximumPrice,
                 PlayerCount = model.MinimumPlayers,
-                UserId = this.User?.Identity?.IsAuthenticated == true ? this.User.GetAccountId() : null,
+                UserId = this.User?.Identity?.IsAuthenticated == true ? this.User.GetPamUserId() : null,
                 SortOption = model.SortOption switch
                 {
                     "price_asc" => SortOption.PriceAscending,

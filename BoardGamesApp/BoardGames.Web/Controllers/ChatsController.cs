@@ -48,7 +48,7 @@ namespace BoardGames.Web.Controllers
                 return this.RedirectToAction("Login", "Auth");
             }
 
-            int userId = this.User.GetAccountId() ?? -1;
+            int userId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(userId);
 
             var conversations = await this.conversationService.FetchConversations();
@@ -83,7 +83,7 @@ namespace BoardGames.Web.Controllers
                 return this.RedirectToAction("Login", "Auth");
             }
 
-            int currentUserId = this.User.GetAccountId() ?? -1;
+            int currentUserId = this.User.GetPamUserId() ?? -1;
 
             if (currentUserId == ownerUserId)
             {
@@ -105,7 +105,7 @@ namespace BoardGames.Web.Controllers
                 return this.Unauthorized();
             }
 
-            int currentUserId = this.User.GetAccountId() ?? -1;
+            int currentUserId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(currentUserId);
 
             var conversations = await this.conversationService.FetchConversations();
@@ -140,7 +140,7 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest();
             }
 
-            int senderId = this.User.GetAccountId() ?? -1;
+            int senderId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(senderId);
 
             var receiver = await this.GetReceiverParticipantAsync(conversationId, senderId);
@@ -185,7 +185,7 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest("Only JPG, PNG, GIF, and WebP images are allowed.");
             }
 
-            int senderId = this.User.GetAccountId() ?? -1;
+            int senderId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(senderId);
 
             var receiver = await this.GetReceiverParticipantAsync(conversationId, senderId);
@@ -225,7 +225,7 @@ namespace BoardGames.Web.Controllers
                 return this.Unauthorized();
             }
 
-            int userId = this.User.GetAccountId() ?? -1;
+            int userId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(userId);
 
             var conversations = await this.conversationService.FetchConversations();
@@ -260,7 +260,7 @@ namespace BoardGames.Web.Controllers
                 return this.Unauthorized();
             }
 
-            int userId = this.User.GetAccountId() ?? -1;
+            int userId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(userId);
 
             var conversations = await this.conversationService.FetchConversations();
