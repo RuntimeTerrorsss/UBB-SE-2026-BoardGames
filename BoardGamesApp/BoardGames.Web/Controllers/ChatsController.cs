@@ -2,25 +2,24 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using BoardGames.Data.Enums;
-using BoardGames.Data.Models;
-using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
+using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Chats;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BoardGames.Web.Controllers
 {
+    [Authorize]
     public class ChatsController : Controller
     {
         private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private const long MaxImageBytes = 5 * 1024 * 1024;
 
-        private readonly IConversationService conversationService;
-        private readonly IUserRepository userRepository;
-        private readonly IWebHostEnvironment environment;
+        private readonly IChatProxyService conversationProxyService;
+        private readonly IAccountProxyService accountProxyService;
 
         public ChatsController(
             IConversationService conversationService,
@@ -51,12 +50,11 @@ namespace BoardGames.Web.Controllers
             int userId = this.User.GetPamUserId() ?? -1;
             this.conversationService.Initialize(userId);
 
-            var conversations = await this.conversationService.FetchConversations();
+            var conversations = await this.conversationProxyService.GetConversationsForUserAsync(accountId);
             var items = new List<ConversationListItemViewModel>();
 
             foreach (var conversation in conversations)
             {
-                var otherUser = await GetOtherParticipantUserAsync(conversation, userId);
                 var lastMessage = conversation.MessageList
                     .OrderByDescending(message => message.SentAt)
                     .FirstOrDefault();
@@ -64,10 +62,7 @@ namespace BoardGames.Web.Controllers
                 items.Add(new ConversationListItemViewModel
                 {
                     ConversationId = conversation.Id,
-                    OtherUserName = otherUser != null
-                        ? FormatDisplayName(otherUser)
-                        : await this.conversationService.GetOtherUserNameByConversationDTO(conversation),
-                    OtherUserAvatarUrl = MediaUrlHelper.ResolveUserImageUrl(otherUser?.AvatarUrl),
+                    OtherUserName = this.ResolveOtherUserName(conversation, currentPamUserId),
                     LastMessagePreview = lastMessage?.GetChatMessagePreview() ?? "No messages yet",
                 });
             }
@@ -111,20 +106,15 @@ namespace BoardGames.Web.Controllers
             var conversations = await this.conversationService.FetchConversations();
             var conversation = conversations.FirstOrDefault(c => c.Id == conversationId);
 
-            if (conversation == null)
+            if (conversation is null)
             {
                 return this.NotFound();
             }
 
-            var otherUser = await GetOtherParticipantUserAsync(conversation, currentUserId);
+            this.ViewBag.CurrentUserId = currentPamUserId;
+            this.ViewBag.OtherUserName = this.ResolveOtherUserName(conversation, currentPamUserId);
 
-            this.ViewBag.CurrentUserId = currentUserId;
-            this.ViewBag.OtherUserName = otherUser != null
-                ? FormatDisplayName(otherUser)
-                : await this.conversationService.GetOtherUserNameByConversationDTO(conversation);
-            this.ViewBag.OtherUserAvatarUrl = MediaUrlHelper.ResolveUserImageUrl(otherUser?.AvatarUrl);
-
-            return PartialView("_ActiveChat", conversation);
+            return this.PartialView("_ActiveChat", conversation);
         }
 
         [HttpPost]
@@ -149,15 +139,15 @@ namespace BoardGames.Web.Controllers
                 return this.NotFound();
             }
 
-            var dto = BuildMessageDto(
+            var message = this.BuildMessage(
                 conversationId,
-                senderId,
-                receiver.UserId,
+                senderPamUserId,
+                receiverPamUserId.Value,
                 content.Trim(),
                 MessageType.MessageText,
                 string.Empty);
 
-            await this.conversationService.SendMessage(dto);
+            await this.conversationProxyService.SendMessageAsync(message);
             return this.Ok();
         }
 
@@ -194,7 +184,7 @@ namespace BoardGames.Web.Controllers
                 return this.NotFound();
             }
 
-            string imagesDirectory = Path.Combine(this.environment.WebRootPath, "images");
+            string imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
             Directory.CreateDirectory(imagesDirectory);
 
             string storedFileName = $"{Guid.NewGuid()}{extension}";
@@ -205,15 +195,15 @@ namespace BoardGames.Web.Controllers
                 await image.CopyToAsync(stream);
             }
 
-            var dto = BuildMessageDto(
+            var message = this.BuildMessage(
                 conversationId,
-                senderId,
-                receiver.UserId,
+                senderPamUserId,
+                receiverPamUserId.Value,
                 "[Image]",
                 MessageType.MessageImage,
                 storedFileName);
 
-            await this.conversationService.SendMessage(dto);
+            await this.conversationProxyService.SendMessageAsync(message);
             return this.Ok();
         }
 
@@ -232,12 +222,13 @@ namespace BoardGames.Web.Controllers
             var conversation = conversations.FirstOrDefault(c => c.Id == conversationId);
             var message = conversation?.MessageList.FirstOrDefault(m => m.Id == messageId);
 
-            if (message == null || message.Type != MessageType.MessageRentalRequest)
+            if (message is null || message.Type != MessageType.MessageRentalRequest)
             {
                 return this.NotFound();
             }
 
-            if (message.SenderId == userId)
+            int currentPamUserId = await this.GetCurrentPamUserIdAsync();
+            if (message.SenderId == currentPamUserId)
             {
                 return this.BadRequest("Only the game owner can accept or decline this request.");
             }
@@ -248,7 +239,7 @@ namespace BoardGames.Web.Controllers
                 IsResolved = !accepted,
             };
 
-            await this.conversationService.UpdateMessage(updated);
+            await this.conversationProxyService.UpdateMessageAsync(updated);
             return this.Ok();
         }
 
@@ -267,12 +258,13 @@ namespace BoardGames.Web.Controllers
             var conversation = conversations.FirstOrDefault(c => c.Id == conversationId);
             var message = conversation?.MessageList.FirstOrDefault(m => m.Id == messageId);
 
-            if (message == null || message.Type != MessageType.MessageRentalRequest)
+            if (message is null || message.Type != MessageType.MessageRentalRequest)
             {
                 return this.NotFound();
             }
 
-            if (message.SenderId != userId)
+            int currentPamUserId = await this.GetCurrentPamUserIdAsync();
+            if (message.SenderId != currentPamUserId)
             {
                 return this.BadRequest("Only the person who sent the request can cancel it.");
             }
@@ -283,44 +275,40 @@ namespace BoardGames.Web.Controllers
                 IsResolved = true,
             };
 
-            await this.conversationService.UpdateMessage(updated);
+            await this.conversationProxyService.UpdateMessageAsync(updated);
             return this.Ok();
         }
 
-        private async Task<User?> GetOtherParticipantUserAsync(ConversationDTO conversation, int currentUserId)
+        private async Task<int> GetCurrentPamUserIdAsync()
         {
-            var otherParticipantIds = conversation.Participants
-                .Select(participant => participant.UserId)
-                .Where(participantId => participantId != currentUserId)
-                .Distinct()
-                .ToList();
-
-            if (otherParticipantIds.Count == 0)
+            if (this.User.TryGetPamUserId(out int pamUserId))
             {
-                return null;
+                return pamUserId;
             }
 
-            foreach (var otherUserId in otherParticipantIds)
+            Guid accountId = this.User.GetAccountId();
+            AccountProfileDTO profile = await this.accountProxyService.GetProfileAsync(accountId);
+            if (profile.PamUserId is null or <= 0)
             {
-                var user = await this.userRepository.GetById(otherUserId);
-                if (user is not null &&
-                    !string.Equals(user.Username, "System", StringComparison.OrdinalIgnoreCase))
-                {
-                    return user;
-                }
+                throw new InvalidOperationException("Current account does not have a valid PAM user id.");
             }
 
-            return await this.userRepository.GetById(otherParticipantIds.First());
+            return profile.PamUserId.Value;
         }
 
-        private async Task<ConversationParticipant?> GetReceiverParticipantAsync(int conversationId, int senderId)
+        private string ResolveOtherUserName(ConversationDTO conversation, int currentPamUserId)
         {
-            var conversations = await this.conversationService.FetchConversations();
-            var conversation = conversations.FirstOrDefault(c => c.Id == conversationId);
-            return conversation?.Participants.FirstOrDefault(p => p.UserId != senderId);
+            int? otherPamUserId = this.GetOtherParticipantPamUserId(conversation, currentPamUserId);
+            return otherPamUserId.HasValue ? $"User {otherPamUserId.Value}" : "Unknown user";
         }
 
-        private static MessageDTO BuildMessageDto(
+        private int? GetOtherParticipantPamUserId(ConversationDTO conversation, int currentPamUserId)
+        {
+            return conversation.ParticipantUserIds
+                .FirstOrDefault(participantId => participantId != currentPamUserId);
+        }
+
+        private MessageDataTransferObject BuildMessage(
             int conversationId,
             int senderId,
             int receiverId,
@@ -328,12 +316,12 @@ namespace BoardGames.Web.Controllers
             MessageType type,
             string imageUrl)
         {
-            return new MessageDTO(
+            return new MessageDataTransferObject(
                 Id: 0,
                 ConversationId: conversationId,
                 SenderId: senderId,
                 ReceiverId: receiverId,
-                SentAt: DateTime.Now,
+                SentAt: DateTime.UtcNow,
                 Content: content,
                 Type: type,
                 ImageUrl: imageUrl,
@@ -343,11 +331,6 @@ namespace BoardGames.Web.Controllers
                 IsAcceptedBySeller: false,
                 RequestId: -1,
                 PaymentId: -1);
-        }
-
-        private static string FormatDisplayName(User user)
-        {
-            return !string.IsNullOrWhiteSpace(user.DisplayName) ? user.DisplayName : user.Username;
         }
     }
 }

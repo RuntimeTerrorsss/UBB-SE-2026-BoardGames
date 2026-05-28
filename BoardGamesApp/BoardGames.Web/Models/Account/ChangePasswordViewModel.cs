@@ -2,10 +2,10 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
+
 namespace BoardGames.Web.Models.Account
 {
-    using System.ComponentModel.DataAnnotations;
-
     public class ChangePasswordViewModel
     {
         [Required(ErrorMessage = "Current password is required.")]
@@ -21,7 +21,7 @@ namespace BoardGames.Web.Models.Account
         [Required(ErrorMessage = "Confirm new password is required.")]
         [DataType(DataType.Password)]
         [Display(Name = "Confirm New Password")]
-        [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
+        [Compare(nameof(NewPassword), ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

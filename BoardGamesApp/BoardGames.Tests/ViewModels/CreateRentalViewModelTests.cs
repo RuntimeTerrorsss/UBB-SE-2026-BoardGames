@@ -1,3 +1,4 @@
+using BoardGames.Desktop.ViewModels;
 // <copyright file="CreateRentalViewModelTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

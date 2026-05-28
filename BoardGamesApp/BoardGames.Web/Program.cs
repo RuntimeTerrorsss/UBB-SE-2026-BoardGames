@@ -2,16 +2,24 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using BoardGames.Web.Infrastructure;
 
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.ProxyRepositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
-string apiBaseUrl = "https://localhost:7027/api/";
 
-// ADD AUTHENTICATION
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services.AddControllersWithViews();
+
+string apiBaseUrl = builder.Configuration["ApiBaseUrl"]
+    ?? throw new InvalidOperationException("Configuration value 'ApiBaseUrl' is required.");
+
+builder.Services.AddProxyServices(new Uri(apiBaseUrl));
+
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Auth/Login";
@@ -73,21 +81,15 @@ builder.Services.AddScoped<IPaymentService, CardPaymentService>();
 
 var app = builder.Build();
 
-Directory.CreateDirectory(Path.Combine(app.Environment.WebRootPath, "images"));
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// MIDDLEWARE PIPELINE
 app.UseAuthentication();
 
 app.UseAuthorization();

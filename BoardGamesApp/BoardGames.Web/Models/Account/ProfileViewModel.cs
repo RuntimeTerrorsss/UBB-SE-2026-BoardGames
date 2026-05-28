@@ -2,11 +2,11 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+
 namespace BoardGames.Web.Models.Account
 {
-    using System.ComponentModel.DataAnnotations;
-    using Microsoft.AspNetCore.Http;
-
     public class ProfileViewModel
     {
         [Display(Name = "Username")]

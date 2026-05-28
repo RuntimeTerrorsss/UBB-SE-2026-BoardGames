@@ -1,3 +1,7 @@
+// <copyright file="CreateGameViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.Services;
 
 namespace BoardGames.Desktop.ViewModels
@@ -12,16 +16,23 @@ namespace BoardGames.Desktop.ViewModels
         private readonly ICurrentUserContext currentUserContext;
 
         public string GameName { get; set; } = string.Empty;
+
         public decimal GamePrice { get; set; }
+
         public double GamePriceAsDouble
         {
             get => (double)GamePrice;
             set => GamePrice = (decimal)value;
         }
+
         public int MinimumPlayersRequired { get; set; } = DomainConstants.GameDefaultMinimumPlayers;
+
         public int MaximumPlayersAllowed { get; set; } = DomainConstants.GameDefaultMaximumPlayers;
+
         public string GameDescription { get; set; } = string.Empty;
+
         public bool IsGameActive { get; set; } = true;
+
         public byte[] GameImage { get; set; } = null;
 
         public Guid CurrentUserId => currentUserContext.CurrentUserId;

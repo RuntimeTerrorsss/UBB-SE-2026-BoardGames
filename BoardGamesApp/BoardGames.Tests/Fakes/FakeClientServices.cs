@@ -1,3 +1,4 @@
+using BoardGames.Desktop.Services;
 // <copyright file="FakeClientServices.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

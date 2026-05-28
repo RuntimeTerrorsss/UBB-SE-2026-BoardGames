@@ -1,3 +1,5 @@
+using System;
+
 namespace BoardGames.Desktop.Services
 {
     public interface IDesktopNotificationService : IObservable<NotificationDTO>

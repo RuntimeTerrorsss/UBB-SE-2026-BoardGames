@@ -55,6 +55,12 @@ namespace BoardGames.Api.Controllers
             }
         }
 
+        [HttpGet("games/{gameId:int}/booked-dates")]
+        public ActionResult<IReadOnlyList<BookedDateRangeDTO>> GetBookedDates(int gameId)
+        {
+            return Ok(rentalService.GetBookedDatesForGame(gameId));
+        }
+
         [HttpGet("games/{gameId:int}/availability")]
         public ActionResult<bool> CheckSlot(int gameId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {

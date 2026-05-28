@@ -12,6 +12,7 @@ namespace BoardGames.Desktop.Services.Listeners
         private readonly UdpClient udpSocketClient;
 
         private readonly CancellationTokenSource listenCancellationSource = new();
+
         private CancellationToken ListenCancellationToken => listenCancellationSource.Token;
 
         private const int MaxRetries = 5;

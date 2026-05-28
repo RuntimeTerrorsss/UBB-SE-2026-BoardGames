@@ -5,8 +5,7 @@
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
-using BoardGames.Web.Models.Games;
-using BoardGames.Web.Models.Rentals;
+using BoardGames.Web.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,6 +85,16 @@ namespace BoardGames.Web.Controllers
             Guid renterAccountId = this.User.GetAccountId();
 
             var availableGames = await this.LoadAvailableGamesOrEmptyAsync(renterAccountId);
+
+            if (form.StartDate.Date < DateTime.Today)
+            {
+                this.ModelState.AddModelError(nameof(form.StartDate), "Start date cannot be in the past.");
+            }
+
+            if (form.StartDate.Date > form.EndDate.Date)
+            {
+                this.ModelState.AddModelError(nameof(form.StartDate), "Start date must be before or equal to end date.");
+            }
 
             if (!this.ModelState.IsValid)
             {

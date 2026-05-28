@@ -2,39 +2,29 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
+using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Search;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
-    public class SearchController : BaseController
+    [Authorize]
+    public class SearchController : Controller
     {
-        private readonly InterfaceSearchAndFilterService searchService;
+        private readonly IGameProxyService gameProxyService;
 
-        public SearchController(InterfaceSearchAndFilterService searchService)
+        public SearchController(IGameProxyService gameProxyService)
         {
-            this.searchService = searchService;
+            this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var filter = new FilterCriteria();
-            if (this.IsLoggedIn)
-            {
-                filter.UserId = this.CurrentUserId;
-            }
-
-            var results = await this.searchService.SearchGamesByFilter(filter);
-            var distinct = results.DistinctBy(game => game.Name).ToArray();
-
             var model = new SearchFilterViewModel();
-            model.TotalPages = (int)Math.Ceiling(distinct.Length / (double)model.PageSize);
-            model.TotalPages = Math.Max(1, model.TotalPages);
-            model.Results = distinct.Take(model.PageSize).ToList();
-
-            return this.View(model);
+            return await this.Filter(model);
         }
 
         [HttpGet]
@@ -52,38 +42,39 @@ namespace BoardGames.Web.Controllers
                 return this.View("Index", model);
             }
 
-            var filter = new FilterCriteria
+            try
             {
-                Name = model.Name,
-                City = model.City,
-                MaximumPrice = model.MaximumPrice,
-                PlayerCount = model.MinimumPlayers,
-                UserId = this.IsLoggedIn ? this.CurrentUserId : null,
-                SortOption = model.SortOption switch
+                var criteria = new GameSearchCriteriaDTO
                 {
-                    "price_asc" => SortOption.PriceAscending,
-                    "price_desc" => SortOption.PriceDescending,
-                    "location" => SortOption.Location,
-                    _ => SortOption.None,
-                },
-                AvailabilityRange = model.StartDate.HasValue && model.EndDate.HasValue
-                    ? new TimeRange(model.StartDate.Value, model.EndDate.Value)
-                    : null,
-            };
+                    Name = model.Name,
+                    City = model.City,
+                    MaximumPrice = model.MaximumPrice,
+                    PlayerCount = model.MinimumPlayers,
+                    AvailableFrom = model.StartDate,
+                    AvailableTo = model.EndDate,
+                    SortBy = model.SortOption,
+                };
 
-            var results = await this.searchService.SearchGamesByFilter(filter);
-            var distinct = results.DistinctBy(game => game.Name).ToArray();
+                var results = await this.gameProxyService.SearchGamesAsync(criteria);
+                var distinct = results.DistinctBy(game => game.Name).ToArray();
 
-            model.TotalPages = (int)Math.Ceiling(distinct.Length / (double)model.PageSize);
-            model.TotalPages = Math.Max(1, model.TotalPages);
-            model.Page = Math.Clamp(model.Page, 1, model.TotalPages);
+                model.TotalPages = (int)Math.Ceiling(distinct.Length / (double)model.PageSize);
+                model.TotalPages = Math.Max(1, model.TotalPages);
+                model.Page = Math.Clamp(model.Page, 1, model.TotalPages);
 
-            model.Results = distinct
-                .Skip((model.Page - 1) * model.PageSize)
-                .Take(model.PageSize)
-                .ToList();
+                model.Results = distinct
+                    .Skip((model.Page - 1) * model.PageSize)
+                    .Take(model.PageSize)
+                    .ToList();
 
-            return this.View("Index", model);
+                return this.View("Index", model);
+            }
+            catch (ProxyServiceException ex)
+            {
+                model.ErrorMessage = ex.Message;
+                model.Results = new List<GameDTO>();
+                return this.View("Index", model);
+            }
         }
     }
 }

@@ -1,5 +1,10 @@
 namespace BoardGames.Desktop.Views
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Navigation;
     using BoardGames.Desktop.Services;
     using BoardGames.Desktop.ViewModels;
 
@@ -7,11 +12,9 @@ namespace BoardGames.Desktop.Views
     {
         private static readonly Dictionary<AppPage, Type> PageTypeMap = new()
         {
+            { AppPage.Dashboard,           typeof(DashboardView) },
+            { AppPage.Chat,                typeof(ChatPageView) },
             { AppPage.Listings,            typeof(ListingsPage) },
-            { AppPage.RequestsFromOthers,  typeof(RequestsFromOthersPage) },
-            { AppPage.RentalsFromOthers,   typeof(RentalsFromOthersPage) },
-            { AppPage.RequestsToOthers,    typeof(RequestsToOthersPage) },
-            { AppPage.RentalsToOthers,     typeof(RentalsToOthersPage) },
             { AppPage.Notifications,       typeof(NotificationsPage) },
             { AppPage.Profile,             typeof(ProfilePage) },
             { AppPage.Admin,               typeof(AdminPage) },

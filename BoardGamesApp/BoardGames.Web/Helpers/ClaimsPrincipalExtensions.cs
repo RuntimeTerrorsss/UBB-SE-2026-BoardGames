@@ -80,5 +80,12 @@ namespace BoardGames.Web.Helpers
         {
             return string.Equals(user.GetRoleName(), AppRoles.Administrator, StringComparison.Ordinal);
         }
+
+        public static bool TryGetPamUserId(this ClaimsPrincipal user, out int pamUserId)
+        {
+            pamUserId = 0;
+            string? raw = user?.FindFirstValue("PamUserId");
+            return !string.IsNullOrWhiteSpace(raw) && int.TryParse(raw, out pamUserId);
+        }
     }
 }
