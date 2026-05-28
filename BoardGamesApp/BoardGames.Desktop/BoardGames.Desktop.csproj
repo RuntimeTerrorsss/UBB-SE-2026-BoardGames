@@ -55,8 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="App.xaml2.cs" />
-    <Compile Remove="MainWindow.xaml2.cs" />
     <Compile Remove="DatabaseBootstrap.cs" />
     <Compile Remove="DatabaseConfig.cs" />
     <Compile Remove="Commands\**\*.cs" />
@@ -70,8 +68,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="App2.xaml" />
-    <Page Remove="MainWindow2.xaml" />
     <Page Remove="Views\**\*.xaml" />
   </ItemGroup>
 
