@@ -86,6 +86,16 @@ namespace BoardGames.Web.Controllers
 
             var availableGames = await this.LoadAvailableGamesOrEmptyAsync(renterAccountId);
 
+            if (form.StartDate.Date < DateTime.Today)
+            {
+                this.ModelState.AddModelError(nameof(form.StartDate), "Start date cannot be in the past.");
+            }
+
+            if (form.StartDate.Date > form.EndDate.Date)
+            {
+                this.ModelState.AddModelError(nameof(form.StartDate), "Start date must be before or equal to end date.");
+            }
+
             if (!this.ModelState.IsValid)
             {
                 return this.View(new CreateRequestViewModel
