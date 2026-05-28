@@ -1,8 +1,8 @@
-using System;
-using BoardGames.Shared.DTO;
-
 namespace BoardGames.Desktop.Services
 {
+    using System;
+    using BoardGames.Shared.DTO;
+
     public sealed class SessionContext : ISessionContext
     {
         public Guid AccountId { get; private set; }
@@ -35,7 +35,7 @@ namespace BoardGames.Desktop.Services
 
         public bool IsLoggedIn => AccountId != Guid.Empty;
 
-        public void Populate(AccountProfileDataTransferObject accountProfile)
+        public void Populate(AccountProfileDTO accountProfile)
         {
             ArgumentNullException.ThrowIfNull(accountProfile);
 

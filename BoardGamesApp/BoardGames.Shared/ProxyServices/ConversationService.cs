@@ -1,91 +1,33 @@
-// <copyright file="ConversationService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System.Net.Http.Json;
-using BoardGames.Shared.DTO;
-
-namespace BoardGames.Shared.ProxyServices
+﻿namespace BoardGames.Shared.ProxyServices
 {
-    public sealed class ConversationService : ApiServiceBase, IConversationService
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using BoardGames.Data.Models;
+    using BoardGames.Shared.DTO;
+
+    public class ConversationService : ApiServiceBase, IConversationService
     {
-        public ConversationService(IHttpClientFactory httpClientFactory)
-            : base(httpClientFactory)
-        {
-        }
+        public ConversationService(HttpClient httpClient)
+            : base((IHttpClientFactory)httpClient) { }
 
-        public Task<ServiceResult<IReadOnlyList<ConversationDTO>>> GetConversationsForUserAsync(
-            Guid accountId,
-            CancellationToken cancellationToken = default)
-        {
-            var client = this.CreateClient();
-            return ApiResponseReader.SendAsync<IReadOnlyList<ConversationDTO>>(
-                token => client.GetAsync($"api/conversation/user/{accountId}", token),
-                async (response, token) =>
-                {
-                    var parsed = await ApiResponseReader.ReadJsonAsync<List<ConversationDTO>>(response, token);
-                    return parsed.Success
-                        ? ServiceResult<IReadOnlyList<ConversationDTO>>.Ok(parsed.Data ?? new List<ConversationDTO>())
-                        : ServiceResult<IReadOnlyList<ConversationDTO>>.Fail(parsed);
-                },
-                cancellationToken);
-        }
+        public async Task<ServiceResult<List<ConversationDTO>>> GetConversationsForUserAsync(Guid accountId)
+            => await GetAsync<List<ConversationDTO>>($"api/Conversation/user/{accountId}");
 
-        public Task<ServiceResult<ConversationDTO>> GetConversationByIdAsync(
-            int conversationId,
-            CancellationToken cancellationToken = default)
-        {
-            var client = this.CreateClient();
-            return ApiResponseReader.SendAsync<ConversationDTO>(
-                token => client.GetAsync($"api/conversation/{conversationId}", token),
-                (response, token) => ApiResponseReader.ReadJsonAsync<ConversationDTO>(response, token),
-                cancellationToken);
-        }
+        public async Task<ServiceResult<ConversationDTO>> GetConversationByIdAsync(int id)
+            => await GetAsync<ConversationDTO>($"api/Conversation/{id}");
 
-        public Task<ServiceResult<int>> FindOrCreateConversationAsync(
-            Guid senderAccountId,
-            Guid receiverAccountId,
-            CancellationToken cancellationToken = default)
-        {
-            var client = this.CreateClient();
-            var body = new { SenderAccountId = senderAccountId, ReceiverAccountId = receiverAccountId };
-            return ApiResponseReader.SendAsync<int>(
-                token => client.PostAsJsonAsync("api/conversation", body, token),
-                async (response, token) =>
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return await ApiResponseReader.ToFailAsync<int>(response, token);
-                    }
+        public async Task<ServiceResult<MessageDataTransferObject>> SendMessageAsync(MessageDataTransferObject messageDto)
+            => await PostAsync<MessageDataTransferObject>("api/Conversation/messages", messageDto);
 
-                    var conversation = await ApiResponseReader.ReadJsonAsync<ConversationDTO>(response, token);
-                    return conversation.Success && conversation.Data is not null
-                        ? ServiceResult<int>.Ok(conversation.Data.Id)
-                        : ServiceResult<int>.Ok(0);
-                },
-                cancellationToken);
-        }
+        public async Task<ServiceResult<MessageDataTransferObject>> UpdateMessageAsync(MessageDataTransferObject messageDto)
+            => await PutAsync<MessageDataTransferObject>("api/Conversation/messages", messageDto);
 
-        public Task<ServiceResult<MessageDataTransferObject>> SendMessageAsync(
-            MessageDataTransferObject message,
-            CancellationToken cancellationToken = default)
-        {
-            var client = this.CreateClient();
-            return ApiResponseReader.SendAsync<MessageDataTransferObject>(
-                token => client.PostAsJsonAsync("api/conversation/messages", message, token),
-                (response, token) => ApiResponseReader.ReadJsonAsync<MessageDataTransferObject>(response, token),
-                cancellationToken);
-        }
+        public async Task<ServiceResult> SendReadReceiptAsync(ReadReceiptDTO dto)
+            => await PostAsync("api/Conversation/readreceipt", dto);
 
-        public Task<ServiceResult<MessageDataTransferObject>> UpdateMessageAsync(
-            MessageDataTransferObject message,
-            CancellationToken cancellationToken = default)
-        {
-            var client = this.CreateClient();
-            return ApiResponseReader.SendAsync<MessageDataTransferObject>(
-                token => client.PutAsJsonAsync("api/conversation/messages", message, token),
-                (response, token) => ApiResponseReader.ReadJsonAsync<MessageDataTransferObject>(response, token),
-                cancellationToken);
-        }
+        public async Task<ServiceResult<ConversationDTO>> FindOrCreateConversationAsync(Guid senderId, Guid receiverId)
+            => await PostAsync<ConversationDTO>("api/Conversation", new { SenderAccountId = senderId, ReceiverAccountId = receiverId });
     }
 }

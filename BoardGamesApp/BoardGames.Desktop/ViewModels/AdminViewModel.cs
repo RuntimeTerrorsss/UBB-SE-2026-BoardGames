@@ -1,6 +1,12 @@
 namespace BoardGames.Desktop.ViewModels
 {
+    using System;
+    using System.Collections.Immutable;
+    using System.Threading.Tasks;
+    using BoardGames.Desktop.Commands;
     using BoardGames.Desktop.Services;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Shared.ProxyServices;
 
     public class AdminViewModel : PagedViewModel<AccountProfileDTO>
     {
@@ -20,8 +26,8 @@ namespace BoardGames.Desktop.ViewModels
             SuspendAccountCommand = new AsyncRelayCommand(this.SuspendAccountAsync, this.CanModifySelectedAccount);
             UnsuspendAccountCommand = new AsyncRelayCommand(this.UnsuspendAccountAsync, this.CanModifySelectedAccount);
             UnlockAccountCommand = new AsyncRelayCommand(this.UnlockAccountAsync, this.CanModifySelectedAccount);
-            NextPageCommand = new RelayCommand(this.ExecuteNextPage);
-            PreviousPageCommand = new RelayCommand(this.ExecutePreviousPage);
+            NextPageCommand = new RelayCommand(_ => this.ExecuteNextPage());
+            PreviousPageCommand = new RelayCommand(_ => this.ExecutePreviousPage());
         }
 
         public AdminViewModel(IAdminService adminService)
@@ -29,11 +35,11 @@ namespace BoardGames.Desktop.ViewModels
         {
         }
 
-        public IAsyncRelayCommand SuspendAccountCommand { get; }
-        public IAsyncRelayCommand UnsuspendAccountCommand { get; }
-        public IAsyncRelayCommand UnlockAccountCommand { get; }
-        public IRelayCommand NextPageCommand { get; }
-        public IRelayCommand PreviousPageCommand { get; }
+        public AsyncRelayCommand SuspendAccountCommand { get; }
+        public AsyncRelayCommand UnsuspendAccountCommand { get; }
+        public AsyncRelayCommand UnlockAccountCommand { get; }
+        public RelayCommand NextPageCommand { get; }
+        public RelayCommand PreviousPageCommand { get; }
 
         public AccountProfileDTO SelectedAccount
         {
@@ -43,7 +49,7 @@ namespace BoardGames.Desktop.ViewModels
                 if (selectedAccount != value)
                 {
                     selectedAccount = value;
-                    OnPropertyChanged(nameof(SelectedAccount));
+                    OnPropertyChanged();
                     SuspendAccountCommand.NotifyCanExecuteChanged();
                     UnsuspendAccountCommand.NotifyCanExecuteChanged();
                     UnlockAccountCommand.NotifyCanExecuteChanged();
@@ -54,33 +60,16 @@ namespace BoardGames.Desktop.ViewModels
         public string ErrorMessage
         {
             get => errorMessage;
-            set
-            {
-                if (errorMessage != value)
-                {
-                    errorMessage = value;
-                    OnPropertyChanged(nameof(ErrorMessage));
-                }
-            }
+            set { if (errorMessage != value) { errorMessage = value; OnPropertyChanged(); } }
         }
 
         public bool IsLoading
         {
             get => isLoading;
-            set
-            {
-                if (isLoading != value)
-                {
-                    isLoading = value;
-                    OnPropertyChanged(nameof(IsLoading));
-                }
-            }
+            set { if (isLoading != value) { isLoading = value; OnPropertyChanged(); } }
         }
 
-        protected override void Reload()
-        {
-            _ = LoadAccountsAsync();
-        }
+        protected override void Reload() => _ = LoadAccountsAsync();
 
         public async Task LoadAccountsAsync()
         {
@@ -98,7 +87,7 @@ namespace BoardGames.Desktop.ViewModels
 
             if (serviceResult.Success && serviceResult.Data != null)
             {
-                this.SetAllItems(serviceResult.Data.ToImmutableList());
+                this.SetAllItems(serviceResult.Data);
             }
             else
             {
@@ -110,10 +99,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task ResetPasswordWithValueAsync(string newPassword)
         {
-            if (SelectedAccount == null)
-            {
-                return;
-            }
+            if (SelectedAccount == null) return;
 
             if (!authorizationService.IsAdministrator)
             {
@@ -127,70 +113,40 @@ namespace BoardGames.Desktop.ViewModels
 
         private async Task SuspendAccountAsync()
         {
-            if (!authorizationService.IsAdministrator)
-            {
-                ErrorMessage = AdminAccessDeniedMessage;
-                return;
-            }
+            if (!authorizationService.IsAdministrator) return;
 
             var result = await adminService.SuspendAccountAsync(SelectedAccount.Id);
-            if (result.Success)
-            {
-                await LoadAccountsAsync();
-            }
-            else
-            {
-                ErrorMessage = result.Error;
-            }
+            if (result.Success) await LoadAccountsAsync();
+            else ErrorMessage = result.Error ?? "Failed to suspend.";
         }
 
         private async Task UnsuspendAccountAsync()
         {
-            if (!authorizationService.IsAdministrator)
-            {
-                ErrorMessage = AdminAccessDeniedMessage;
-                return;
-            }
+            if (!authorizationService.IsAdministrator) return;
 
             var result = await adminService.UnsuspendAccountAsync(SelectedAccount.Id);
-            if (result.Success)
-            {
-                await LoadAccountsAsync();
-            }
-            else
-            {
-                ErrorMessage = result.Error;
-            }
+            if (result.Success) await LoadAccountsAsync();
+            else ErrorMessage = result.Error ?? "Failed to unsuspend.";
         }
 
         private async Task UnlockAccountAsync()
         {
-            if (!authorizationService.IsAdministrator)
-            {
-                ErrorMessage = AdminAccessDeniedMessage;
-                return;
-            }
+            if (!authorizationService.IsAdministrator) return;
 
             var result = await adminService.UnlockAccountAsync(SelectedAccount.Id);
             ErrorMessage = result.Success ? "Account unlocked." : result.Error;
         }
 
         private void ExecuteNextPage() => NextPage();
-
         private void ExecutePreviousPage() => PrevPage();
-
         private bool CanModifySelectedAccount() => SelectedAccount != null;
 
         private sealed class AlwaysAuthorizedDesktopAuthorizationService : IDesktopAuthorizationService
         {
             public Guid CurrentAccountId => Guid.Empty;
-
             public bool IsLoggedIn => true;
-
             public bool IsAdministrator => true;
-
             public bool CanAccessPage(Type pageType) => true;
-
             public bool CanAccessMenuPage(AppPage page) => true;
         }
     }

@@ -1,86 +1,71 @@
-using BoardGames.Desktop.Services;
-
 namespace BoardGames.Desktop.ViewModels
 {
-    public class NotificationsViewModel : PagedViewModel<NotificationDTO>,
-                                           IObserver<NotificationDTO>,
-                                           IDisposable
-    {
-        private static readonly Guid InvalidOrUnknownUserId = Guid.Empty;
+    using System;
+    using System.Collections.Immutable;
+    using System.Threading.Tasks;
+    using Microsoft.UI.Dispatching;
+    using System.Runtime.InteropServices;
+    using BoardGames.Desktop.Services;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Shared.ProxyServices;
 
+    public class NotificationsViewModel : PagedViewModel<NotificationDTO>, IObserver<NotificationDTO>, IDisposable
+    {
         private readonly IDesktopNotificationService notificationLookupService;
         private readonly IDisposable notificationSubscription;
-        private readonly ICurrentUserContext currentUserContext;
+        private readonly ISessionContext sessionContext;
         private readonly IServerClient serverClient;
 
         private readonly DispatcherQueue? uiDispatcherQueue;
         private NotificationConnectionStatus currentConnectionStatus;
 
-        public Guid CurrentUserId { get; private set; }
+        public Guid CurrentUserId => sessionContext.AccountId;
+
         public bool HasConnectionWarning =>
             currentConnectionStatus == NotificationConnectionStatus.Offline
             || currentConnectionStatus == NotificationConnectionStatus.Reconnecting;
 
         public string ConnectionWarningMessage => currentConnectionStatus switch
         {
-            NotificationConnectionStatus.Offline => "Notification server is offline. You can keep using the app, but live notifications are temporarily unavailable.",
+            NotificationConnectionStatus.Offline => "Notification server is offline. Live notifications are unavailable.",
             NotificationConnectionStatus.Reconnecting => "Reconnecting to the notification server...",
             _ => string.Empty,
         };
 
         public NotificationsViewModel(
             IDesktopNotificationService notificationLookupService,
-            ICurrentUserContext currentUserContext,
+            ISessionContext sessionContext,
             IServerClient serverClient)
         {
             this.notificationLookupService = notificationLookupService;
-            this.currentUserContext = currentUserContext;
+            this.sessionContext = sessionContext;
             this.serverClient = serverClient;
-            currentConnectionStatus = serverClient.ConnectionStatus;
+            this.currentConnectionStatus = serverClient.ConnectionStatus;
 
-            try
-            {
-                uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            }
-            catch (COMException)
-            {
-                uiDispatcherQueue = null;
-            }
+            try { uiDispatcherQueue = DispatcherQueue.GetForCurrentThread(); }
+            catch (COMException) { uiDispatcherQueue = null; }
 
             this.serverClient.ConnectionStatusChanged += OnConnectionStatusChanged;
 
-            if (currentUserContext.CurrentUserId != InvalidOrUnknownUserId)
+            if (sessionContext.IsLoggedIn)
             {
-                _ = this.LoadNotificationsForUserAsync(currentUserContext.CurrentUserId);
+                _ = ReloadAsync();
             }
-
-            notificationSubscription = notificationLookupService.Subscribe(this);
+            notificationLookupService.SubscribeToServer(sessionContext.AccountId);
+            notificationLookupService.StartListening();
         }
 
-        public Task LoadCurrentUserNotificationsAsync()
-        {
-            return this.LoadNotificationsForUserAsync(currentUserContext.CurrentUserId);
-        }
-
-        public async Task LoadNotificationsForUserAsync(Guid targetUserId)
-        {
-            CurrentUserId = targetUserId;
-            await ReloadAsync();
-        }
-
-        protected override void Reload()
-        {
-            _ = ReloadAsync();
-        }
+        protected override void Reload() => _ = ReloadAsync();
 
         private async Task ReloadAsync()
         {
-            var notificationsResult = await notificationLookupService.GetNotificationsForUserAsync(CurrentUserId);
-            var userNotificationsSortedByNewest = notificationsResult.Success && notificationsResult.Data != null
-                ? notificationsResult.Data.OrderByDescending(notification => notification.Id).ToImmutableList()
-                : ImmutableList<NotificationDTO>.Empty;
+            if (!sessionContext.IsLoggedIn) return;
 
-            SetAllItems(userNotificationsSortedByNewest);
+            var notificationsResult = await notificationLookupService.GetNotificationsForUserAsync(this.sessionContext.AccountId);
+
+            this.SetAllItems(notificationsResult.Success && notificationsResult.Data != null
+                ? notificationsResult.Data.OrderByDescending(n => n.Id).ToImmutableList()
+                : ImmutableList<NotificationDTO>.Empty);
         }
 
         public async Task DeleteNotificationByIdentifierAsync(int notificationIdToDelete)
@@ -89,27 +74,20 @@ namespace BoardGames.Desktop.ViewModels
             await ReloadAsync();
         }
 
-        public void OnCompleted()
-        {
-        }
-
-        public void OnError(Exception observableError)
-        {
-            System.Diagnostics.Debug.WriteLine($"Notification observable error: {observableError.Message}");
-        }
-
         public void OnNext(NotificationDTO incomingNotification)
         {
-            if (CurrentUserId == InvalidOrUnknownUserId) return;
+            if (!sessionContext.IsLoggedIn) return;
 
             if (uiDispatcherQueue != null && !uiDispatcherQueue.HasThreadAccess)
             {
-                uiDispatcherQueue.TryEnqueue(() => _ = LoadNotificationsForUserAsync(CurrentUserId));
+                uiDispatcherQueue.TryEnqueue(() => _ = ReloadAsync());
                 return;
             }
-
-            _ = LoadNotificationsForUserAsync(CurrentUserId);
+            _ = ReloadAsync();
         }
+
+        public void OnCompleted() { }
+        public void OnError(Exception error) => System.Diagnostics.Debug.WriteLine($"Notification error: {error.Message}");
 
         public void Dispose()
         {
@@ -127,12 +105,9 @@ namespace BoardGames.Desktop.ViewModels
             }
 
             if (uiDispatcherQueue != null && !uiDispatcherQueue.HasThreadAccess)
-            {
                 uiDispatcherQueue.TryEnqueue(ApplyStatus);
-                return;
-            }
-
-            ApplyStatus();
+            else
+                ApplyStatus();
         }
     }
 }

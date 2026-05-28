@@ -2,14 +2,12 @@ namespace BoardGames.Desktop.ViewModels
 {
     public enum AppPage
     {
+        Dashboard,
+        Chat,
         Listings,
-        RequestsToOthers,
-        RentalsFromOthers,
-        RequestsFromOthers,
-        RentalsToOthers,
         Notifications,
         Profile,
         Admin,
-        Logout,
+        Logout
     }
 }

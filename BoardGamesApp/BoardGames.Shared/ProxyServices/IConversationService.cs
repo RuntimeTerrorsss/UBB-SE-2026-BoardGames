@@ -1,32 +1,23 @@
-// <copyright file="IConversationService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Shared.DTO;
-
-namespace BoardGames.Shared.ProxyServices
+﻿namespace BoardGames.Shared.ProxyServices
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using BoardGames.Data.Models;
+    using BoardGames.Shared.DTO;
+
     public interface IConversationService
     {
-        Task<ServiceResult<IReadOnlyList<ConversationDTO>>> GetConversationsForUserAsync(
-            Guid accountId,
-            CancellationToken cancellationToken = default);
+        Task<ServiceResult<List<ConversationDTO>>> GetConversationsForUserAsync(Guid accountId);
 
-        Task<ServiceResult<ConversationDTO>> GetConversationByIdAsync(
-            int conversationId,
-            CancellationToken cancellationToken = default);
+        Task<ServiceResult<ConversationDTO>> GetConversationByIdAsync(int id);
 
-        Task<ServiceResult<int>> FindOrCreateConversationAsync(
-            Guid senderAccountId,
-            Guid receiverAccountId,
-            CancellationToken cancellationToken = default);
+        Task<ServiceResult<MessageDataTransferObject>> SendMessageAsync(MessageDataTransferObject messageDto);
 
-        Task<ServiceResult<MessageDataTransferObject>> SendMessageAsync(
-            MessageDataTransferObject message,
-            CancellationToken cancellationToken = default);
+        Task<ServiceResult<MessageDataTransferObject>> UpdateMessageAsync(MessageDataTransferObject messageDto);
 
-        Task<ServiceResult<MessageDataTransferObject>> UpdateMessageAsync(
-            MessageDataTransferObject message,
-            CancellationToken cancellationToken = default);
+        Task<ServiceResult> SendReadReceiptAsync(ReadReceiptDTO dto);
+
+        Task<ServiceResult<ConversationDTO>> FindOrCreateConversationAsync(Guid senderId, Guid receiverId);
     }
 }
