@@ -1,18 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using BoardGames.Desktop.Commands;
+using BoardGames.Desktop.Constants;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Windows.Input;
-    using BoardGames.Desktop.Commands;
-    using BoardGames.Desktop.Constants;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-    using Microsoft.UI.Xaml.Media;
-    using Microsoft.UI.Xaml.Media.Imaging;
-
     public partial class ProfileViewModel : BaseViewModel
     {
         private readonly IAccountService accountService;

@@ -31,5 +31,10 @@ namespace BoardGames.Shared.DTO
         public string StreetName { get; set; } = string.Empty;
 
         public string StreetNumber { get; set; } = string.Empty;
+
+        public static implicit operator AccountProfileDTO(AccountProfileDTO v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

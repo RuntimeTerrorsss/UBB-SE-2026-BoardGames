@@ -1,14 +1,14 @@
+using System;
+using System.Net.Http;
+using BoardGames.Desktop.Services;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Shared.ProxyServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Xaml;
+
 namespace BoardGames.Desktop
 {
-    using System;
-    using System.Net.Http;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.UI.Xaml;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Desktop.ViewModels;
-    using BoardGames.Shared.ProxyServices;
-
     public partial class App : Application
     {
         public static IServiceProvider Services { get; private set; }
@@ -39,11 +39,6 @@ namespace BoardGames.Desktop
                     services.AddTransient<CreateGameViewModel>();
                     services.AddTransient<CreateRentalViewModel>();
                     services.AddTransient<CreateRequestViewModel>();
-                    services.AddTransient<EditGameViewModel>();
-                    services.AddTransient<RentalsFromOthersViewModel>();
-                    services.AddTransient<RentalsToOthersViewModel>();
-                    services.AddTransient<RequestsFromOthersViewModel>();
-                    services.AddTransient<RequestsToOthersViewModel>();
                 })
                 .Build();
 

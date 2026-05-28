@@ -60,7 +60,9 @@ namespace BoardGames.Desktop.ViewModels
         {
             if (currentConversation == null) return;
 
-            int currentUserId = sessionContext.AccountId.GetHashCode();
+            // FIX: use the session AccountId (Guid) directly instead of GetHashCode(),
+            // which is lossy and not a stable or unique integer identity.
+            Guid currentUserId = sessionContext.AccountId;
             var receiverId = currentConversation.ParticipantUserIds.FirstOrDefault(id => id != currentUserId);
 
             var messageDto = new MessageDataTransferObject(
@@ -87,7 +89,9 @@ namespace BoardGames.Desktop.ViewModels
         public async Task SendReadReceiptAsync()
         {
             if (currentConversation == null) return;
-            var dto = new ReadReceiptDTO(ConversationId, sessionContext.AccountId.GetHashCode(), 0, DateTime.UtcNow);
+
+            // FIX: use AccountId (Guid) directly, not GetHashCode().
+            var dto = new ReadReceiptDTO(ConversationId, sessionContext.AccountId, 0, DateTime.UtcNow);
             await conversationService.SendReadReceiptAsync(dto);
         }
     }

@@ -2,6 +2,7 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using BoardGames.Desktop.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 
 namespace BoardGames.Tests.Fakes
 {
