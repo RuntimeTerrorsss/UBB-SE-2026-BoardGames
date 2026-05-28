@@ -45,6 +45,22 @@ namespace BoardGames.Web.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetCount()
+        {
+            Guid accountId = this.User.GetAccountId();
+
+            try
+            {
+                var notifications = await this.notificationProxyService.GetNotificationsForUserAsync(accountId);
+                return this.Json(new { count = notifications.Count });
+            }
+            catch (ProxyServiceException)
+            {
+                return this.Json(new { count = 0 });
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

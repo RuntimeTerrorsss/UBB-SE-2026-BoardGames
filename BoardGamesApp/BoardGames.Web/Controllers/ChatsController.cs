@@ -19,13 +19,16 @@ namespace BoardGames.Web.Controllers
 
         private readonly IChatProxyService conversationProxyService;
         private readonly IAccountProxyService accountProxyService;
+        private readonly IRequestProxyService requestProxyService;
 
         public ChatsController(
             IChatProxyService conversationProxyService,
-            IAccountProxyService accountProxyService)
+            IAccountProxyService accountProxyService,
+            IRequestProxyService requestProxyService)
         {
             this.conversationProxyService = conversationProxyService ?? throw new ArgumentNullException(nameof(conversationProxyService));
             this.accountProxyService = accountProxyService ?? throw new ArgumentNullException(nameof(accountProxyService));
+            this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
         }
 
         [HttpGet]
@@ -176,6 +179,18 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest("Only the game owner can accept or decline this request.");
             }
 
+            Guid ownerAccountId = this.User.GetAccountId();
+            var actionBody = new RequestActionDTO { AccountId = ownerAccountId };
+
+            if (accepted)
+            {
+                await this.requestProxyService.OfferGameAsync(message.RequestId, actionBody);
+            }
+            else
+            {
+                await this.requestProxyService.DenyRequestAsync(message.RequestId, actionBody);
+            }
+
             var updated = message with
             {
                 IsAccepted = accepted,
@@ -202,6 +217,12 @@ namespace BoardGames.Web.Controllers
             {
                 return this.BadRequest("Only the person who sent the request can cancel it.");
             }
+
+            Guid renterAccountId = this.User.GetAccountId();
+            await this.requestProxyService.CancelRequestAsync(message.RequestId, new RequestActionDTO
+            {
+                AccountId = renterAccountId,
+            });
 
             var updated = message with
             {
