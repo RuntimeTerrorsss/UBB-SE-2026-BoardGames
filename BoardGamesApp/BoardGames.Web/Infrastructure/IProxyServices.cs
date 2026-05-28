@@ -112,4 +112,9 @@ namespace BoardGames.Web.Infrastructure
     public interface IChatProxyService : IConversationProxyService
     {
     }
+
+    public interface IPaymentProxyService
+    {
+        Task<IReadOnlyList<PaymentDTO>> GetPaymentHistoryForUserAsync(Guid accountId, CancellationToken cancellationToken = default);
+    }
 }

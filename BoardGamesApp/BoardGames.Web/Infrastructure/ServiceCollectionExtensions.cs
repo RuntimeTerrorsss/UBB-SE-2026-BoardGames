@@ -17,6 +17,7 @@ namespace BoardGames.Web.Infrastructure
             services.AddHttpClient<IAdminProxyService, AdminProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
             services.AddHttpClient<IChatProxyService, ConversationProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
             services.AddHttpClient<IConversationProxyService, ConversationProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IPaymentProxyService, PaymentProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
             return services;
         }
     }
