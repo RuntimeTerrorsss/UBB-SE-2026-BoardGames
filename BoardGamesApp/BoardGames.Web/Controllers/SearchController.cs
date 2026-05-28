@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
-    [Authorize]
     public class SearchController : Controller
     {
         private readonly IGameProxyService gameProxyService;
@@ -20,6 +19,7 @@ namespace BoardGames.Web.Controllers
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -27,6 +27,7 @@ namespace BoardGames.Web.Controllers
             return await this.Filter(model);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Filter(SearchFilterViewModel model)
         {
