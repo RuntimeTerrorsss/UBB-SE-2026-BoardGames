@@ -3,6 +3,9 @@
 // </copyright>
 
 using System.Threading.Tasks;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
 
@@ -17,75 +20,117 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.authService = new FakeClientAuthService();
-            this.systemUnderTest = new RegisterViewModel(this.authService);
+            authService = new FakeClientAuthService();
+            systemUnderTest = new RegisterViewModel(authService);
         }
 
         [Test]
-        public async Task RegisterAsync_SuccessfulRegistration_InvokesSuccessCallback()
+        public async Task RegisterAsync_WithValidInput_SendsTrimmedRequestAndInvokesSuccessCallback()
         {
-            bool registrationSuccessCallbackWasCalled = false;
-            this.systemUnderTest.OnRegistrationSuccess = () => registrationSuccessCallbackWasCalled = true;
-            this.systemUnderTest.Username = "newuser";
-            this.systemUnderTest.Password = "Password123!";
-            this.systemUnderTest.ConfirmPassword = "Password123!";
+            string? successMessage = null;
+            systemUnderTest.OnRegistrationSuccess = message => successMessage = message;
+            systemUnderTest.DisplayName = "  Alice Example  ";
+            systemUnderTest.Username = "  alice  ";
+            systemUnderTest.Email = "  alice@example.com  ";
+            systemUnderTest.Password = "Password123!";
+            systemUnderTest.ConfirmPassword = "Password123!";
+            systemUnderTest.PhoneNumber = "  0712345678  ";
+            systemUnderTest.Country = "  Romania  ";
+            systemUnderTest.City = "  Cluj-Napoca  ";
+            systemUnderTest.StreetName = "  Memorandumului  ";
+            systemUnderTest.StreetNumber = "  12A  ";
 
-            this.authService.RegisterResult = ServiceResult<bool>.Ok(true);
+            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
-
-            Assert.That(registrationSuccessCallbackWasCalled, Is.True);
-            Assert.That(this.authService.RegisterCallCount, Is.EqualTo(1));
+            Assert.That(authService.RegisterCallCount, Is.EqualTo(1));
+            Assert.That(authService.LastRegisterRequest, Is.Not.Null);
+            Assert.That(authService.LastRegisterRequest!.DisplayName, Is.EqualTo("Alice Example"));
+            Assert.That(authService.LastRegisterRequest.Username, Is.EqualTo("alice"));
+            Assert.That(authService.LastRegisterRequest.Email, Is.EqualTo("alice@example.com"));
+            Assert.That(authService.LastRegisterRequest.PhoneNumber, Is.EqualTo("0712345678"));
+            Assert.That(authService.LastRegisterRequest.Country, Is.EqualTo("Romania"));
+            Assert.That(authService.LastRegisterRequest.City, Is.EqualTo("Cluj-Napoca"));
+            Assert.That(authService.LastRegisterRequest.StreetName, Is.EqualTo("Memorandumului"));
+            Assert.That(authService.LastRegisterRequest.StreetNumber, Is.EqualTo("12A"));
+            Assert.That(systemUnderTest.SuccessMessage, Is.EqualTo("Account created successfully."));
+            Assert.That(successMessage, Is.EqualTo("Account created successfully. Please sign in."));
         }
 
         [Test]
-        public async Task RegisterAsync_FieldValidationError_MapsErrorsToCorrectProperties()
+        public async Task RegisterAsync_WithMissingDisplayName_DoesNotCallService()
         {
-            string validationError = "Username|Username already exists;Password|Password is too short";
+            systemUnderTest.DisplayName = string.Empty;
+            systemUnderTest.Username = "alice";
+            systemUnderTest.Email = "alice@example.com";
+            systemUnderTest.Password = "Password123!";
+            systemUnderTest.ConfirmPassword = "Password123!";
 
-            this.authService.RegisterResult = ServiceResult<bool>.Fail(validationError);
+            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
-
-            Assert.That(this.systemUnderTest.UsernameError, Is.EqualTo("Username already exists"));
-            Assert.That(this.systemUnderTest.PasswordError, Is.EqualTo("Password is too short"));
-            Assert.That(this.systemUnderTest.IsLoading, Is.False);
+            Assert.That(authService.RegisterCallCount, Is.EqualTo(0));
+            Assert.That(systemUnderTest.DisplayNameError, Is.EqualTo("Display name is required."));
         }
 
         [Test]
-        public async Task RegisterAsync_GeneralError_SetsGeneralErrorMessage()
+        public async Task RegisterAsync_WithMismatchedPasswords_SetsConfirmPasswordError()
         {
-            string generalError = "Server connection lost";
+            FillInValidRegistration();
+            systemUnderTest.ConfirmPassword = "DifferentPassword!";
 
-            this.authService.RegisterResult = ServiceResult<bool>.Fail(generalError);
+            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
-
-            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(generalError));
-            Assert.That(this.systemUnderTest.EmailError, Is.EqualTo(string.Empty));
+            Assert.That(authService.RegisterCallCount, Is.EqualTo(0));
+            Assert.That(systemUnderTest.ConfirmPasswordError, Is.EqualTo("Passwords do not match."));
         }
 
         [Test]
-        public void GoToLogin_WhenExecuted_InvokesNavigateBackRequest()
+        public async Task RegisterAsync_WithInvalidEmail_SetsEmailError()
         {
-            bool navigateBackWasCalled = false;
-            this.systemUnderTest.OnNavigateBackRequest = () => navigateBackWasCalled = true;
+            FillInValidRegistration();
+            systemUnderTest.Email = "invalid-email";
 
-            this.systemUnderTest.GoToLoginCommand.Execute(null);
+            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            Assert.That(navigateBackWasCalled, Is.True);
+            Assert.That(authService.RegisterCallCount, Is.EqualTo(0));
+            Assert.That(systemUnderTest.EmailError, Is.EqualTo("A valid email is required."));
         }
 
         [Test]
-        public async Task RegisterAsync_ClearsOldErrorsBeforeNewAttempt()
+        public async Task RegisterAsync_WhenServiceFails_ShowsReturnedError()
         {
-            this.systemUnderTest.UsernameError = "Old error";
+            FillInValidRegistration();
+            authService.RegisterResult = ServiceResult.Fail("Username is already taken.");
 
-            this.authService.RegisterResult = ServiceResult<bool>.Ok(true);
+            await systemUnderTest.RegisterCommand.ExecuteAsync(null);
 
-            await this.systemUnderTest.RegisterCommand.ExecuteAsync(null);
+            Assert.That(systemUnderTest.ErrorMessage, Is.EqualTo("Username is already taken."));
+            Assert.That(systemUnderTest.SuccessMessage, Is.EqualTo(string.Empty));
+            Assert.That(systemUnderTest.IsLoading, Is.False);
+        }
 
-            Assert.That(this.systemUnderTest.UsernameError, Is.EqualTo(string.Empty));
+        [Test]
+        public void GoToLogin_WhenExecuted_InvokesNavigationCallback()
+        {
+            bool navigateToLoginWasCalled = false;
+            systemUnderTest.OnNavigateToLogin = () => navigateToLoginWasCalled = true;
+
+            systemUnderTest.GoToLoginCommand.Execute(null);
+
+            Assert.That(navigateToLoginWasCalled, Is.True);
+        }
+
+        private void FillInValidRegistration()
+        {
+            systemUnderTest.DisplayName = "Alice Example";
+            systemUnderTest.Username = "alice";
+            systemUnderTest.Email = "alice@example.com";
+            systemUnderTest.Password = "Password123!";
+            systemUnderTest.ConfirmPassword = "Password123!";
+            systemUnderTest.PhoneNumber = "0712345678";
+            systemUnderTest.Country = "Romania";
+            systemUnderTest.City = "Cluj-Napoca";
+            systemUnderTest.StreetName = "Memorandumului";
+            systemUnderTest.StreetNumber = "12A";
         }
     }
 }

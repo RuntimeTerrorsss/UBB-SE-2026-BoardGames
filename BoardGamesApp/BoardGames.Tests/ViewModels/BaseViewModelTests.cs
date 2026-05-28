@@ -3,6 +3,7 @@
 // </copyright>
 
 using NUnit.Framework;
+using BoardGames.Desktop.ViewModels;
 
 namespace BoardGames.Tests.ViewModels
 {
@@ -46,7 +47,7 @@ namespace BoardGames.Tests.ViewModels
             var viewModel = new BaseViewModel();
 
             Assert.That(viewModel.IsLoading, Is.False);
-            Assert.That(viewModel.ErrorMessage, Is.Null);
+            Assert.That(viewModel.ErrorMessage, Is.EqualTo(string.Empty));
         }
     }
 }
