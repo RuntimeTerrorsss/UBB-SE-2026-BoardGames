@@ -198,12 +198,48 @@ namespace BoardGames.Tests.UnitTests
             this.mockFailedLoginRepository.Verify(repo => repo.IncrementAsync(account.Id), Times.Once);
         }
 
+        [Fact]
+        public async Task LoginAsync_ValidCredentials_ReturnsProfile()
+        {
+            var request = new LoginDTO { UsernameOrEmail = "user", Password = "ValidPassword123!" };
+
+            string hashedPassword = BoardGames.Api.Security.PasswordHasher.HashPassword(request.Password);
+
+            var account = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "user",
+                IsSuspended = false,
+                PasswordHash = hashedPassword
+            };
+
+            this.mockAccountRepository
+                .Setup(repo => repo.GetByUsernameAsync(request.UsernameOrEmail))
+                .ReturnsAsync(account);
+
+            this.mockFailedLoginRepository
+                .Setup(repo => repo.GetByAccountIdAsync(account.Id))
+                .ReturnsAsync((FailedLoginAttempt)null);
+
+            this.mockFailedLoginRepository
+                .Setup(repo => repo.ResetAsync(account.Id))
+                .Returns(Task.CompletedTask);
+
+            var result = await this.authService.LoginAsync(request);
+
+            Assert.True(result.Success);
+            Assert.Equal("user", result.Data.Username);
+            Assert.False(result.Data.IsLocked);
+
+            this.mockFailedLoginRepository.Verify(repo => repo.ResetAsync(account.Id), Times.Once);
+        }
+
         #endregion
 
         #region LogoutAsync
 
         [Fact]
-        public async Task LogoutAsync_AlwaysReturnsSuccess()
+        public async Task LogoutAsync_WhenCalled_AlwaysReturnsSuccess()
         {
             var result = await this.authService.LogoutAsync();
             Assert.True(result.Success);
@@ -214,7 +250,7 @@ namespace BoardGames.Tests.UnitTests
         #region ForgotPasswordAsync
 
         [Fact]
-        public async Task ForgotPasswordAsync_ReturnsContactAdminMessage()
+        public async Task ForgotPasswordAsync_WhenCalled_ReturnsContactAdminMessage()
         {
             var result = await this.authService.ForgotPasswordAsync();
             Assert.True(result.Success);
@@ -222,5 +258,6 @@ namespace BoardGames.Tests.UnitTests
         }
 
         #endregion
+
     }
 }

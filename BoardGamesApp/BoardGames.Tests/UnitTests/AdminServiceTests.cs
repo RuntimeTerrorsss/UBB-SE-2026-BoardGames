@@ -107,7 +107,7 @@ namespace BoardGames.Tests.UnitTests
         #region UnlockAccountAsync
 
         [Fact]
-        public async Task UnlockAccountAsync_CallsResetOnFailedLoginRepository()
+        public async Task UnlockAccountAsync_WhenCalled_CallsResetOnFailedLoginRepository()
         {
             var accountId = Guid.NewGuid();
 
@@ -160,12 +160,22 @@ namespace BoardGames.Tests.UnitTests
             Assert.NotEqual("oldhash", account.PasswordHash);
         }
 
+        [Fact]
+        public async Task ResetPasswordAsync_InvalidPassword_ReturnsFailure()
+        {
+            var accountId = Guid.NewGuid();
+            var result = await this.adminService.ResetPasswordAsync(accountId, "short");
+
+            Assert.False(result.Success);
+            Assert.Contains("invalid", result.Error.ToLower());
+        }
+
         #endregion
 
         #region GetAllAccountsAsync
 
         [Fact]
-        public async Task GetAllAccountsAsync_ReturnsAccountList()
+        public async Task GetAllAccountsAsync_ValidRequest_ReturnsAccountList()
         {
             var accounts = new List<User>
             {

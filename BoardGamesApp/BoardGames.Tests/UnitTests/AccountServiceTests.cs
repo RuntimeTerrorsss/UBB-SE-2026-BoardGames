@@ -195,6 +195,32 @@ namespace BoardGames.Tests.UnitTests
             Assert.Equal("Current password is incorrect.", result.Error);
         }
 
+        [Fact]
+        public async Task ChangePasswordAsync_ValidPasswords_ReturnsSuccess()
+        {
+            var accountId = Guid.NewGuid();
+            string currentPassword = "OldPassword123!";
+            string newPassword = "NewValidPassword123!";
+
+            string hashedCurrentPassword = BoardGames.Api.Security.PasswordHasher.HashPassword(currentPassword);
+
+            var account = new User { Id = accountId, PasswordHash = hashedCurrentPassword };
+
+            this.mockAccountRepository
+                .Setup(repo => repo.GetByIdAsync(accountId))
+                .ReturnsAsync(account);
+
+            this.mockAccountRepository
+                .Setup(repo => repo.UpdateAsync(account))
+                .Returns(Task.CompletedTask);
+
+            var result = await this.accountService.ChangePasswordAsync(accountId, currentPassword, newPassword);
+
+            Assert.True(result.Success);
+
+            this.mockAccountRepository.Verify(repo => repo.UpdateAsync(It.Is<User>(u => u.Id == accountId)), Times.Once);
+        }
+
         #endregion
 
         #region RemoveAvatarAsync
@@ -232,6 +258,49 @@ namespace BoardGames.Tests.UnitTests
 
             Assert.True(result.Success);
             this.mockAvatarStorageService.Verify(s => s.Delete("avatars/test.png"), Times.Once);
+        }
+
+        #endregion
+
+        #region SetAvatarUrlAsync
+
+        [Fact]
+        public async Task SetAvatarUrlAsync_AccountNotFound_ReturnsFailure()
+        {
+            var accountId = Guid.NewGuid();
+
+            this.mockAccountRepository
+                .Setup(repo => repo.GetByIdAsync(accountId))
+                .ReturnsAsync((User)null);
+
+            var result = await this.accountService.SetAvatarUrlAsync(accountId, "avatars/new.png");
+
+            Assert.False(result.Success);
+            Assert.Equal("Account not found.", result.Error);
+        }
+
+        [Fact]
+        public async Task SetAvatarUrlAsync_ValidData_ReturnsSuccess()
+        {
+            var accountId = Guid.NewGuid();
+            var account = new User { Id = accountId, AvatarUrl = string.Empty };
+            string newAvatarUrl = "avatars/new.png";
+
+            this.mockAccountRepository
+                .Setup(repo => repo.GetByIdAsync(accountId))
+                .ReturnsAsync(account);
+
+            this.mockAccountRepository
+                .Setup(repo => repo.UpdateAsync(account))
+                .Returns(Task.CompletedTask);
+
+            var result = await this.accountService.SetAvatarUrlAsync(accountId, newAvatarUrl);
+
+            Assert.True(result.Success);
+            Assert.Equal(newAvatarUrl, result.Data);
+            Assert.Equal(newAvatarUrl, account.AvatarUrl);
+
+            this.mockAccountRepository.Verify(repo => repo.UpdateAsync(account), Times.Once);
         }
 
         #endregion
