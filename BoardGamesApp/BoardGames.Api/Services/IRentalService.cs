@@ -12,6 +12,7 @@ namespace BoardGames.Api.Services
 
         bool IsSlotAvailable(int gameId, DateTime requestedStartDate, DateTime requestedEndDate);
 
+        ImmutableList<BookedDateRangeDTO> GetBookedDatesForGame(int gameId);
         void CreateConfirmedRental(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate);
     }
 }

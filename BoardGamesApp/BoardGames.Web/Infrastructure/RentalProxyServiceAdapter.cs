@@ -31,5 +31,18 @@ namespace BoardGames.Web.Infrastructure
             using var response = await this.httpClient.GetAsync($"rentals/renter/{renterAccountId}", cancellationToken);
             return await HttpProxyClient.ReadAsync<List<RentalDTO>>(response, cancellationToken);
         }
+
+        public async Task<IReadOnlyList<BookedDateRangeDTO>> GetBookedDatesForGameAsync(int gameId, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.GetAsync($"rentals/games/{gameId}/booked-dates", cancellationToken);
+            return await HttpProxyClient.ReadAsync<List<BookedDateRangeDTO>>(response, cancellationToken);
+        }
+
+        public async Task<bool> CheckAvailabilityAsync(int gameId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+        {
+            var url = $"rentals/games/{gameId}/availability?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
+            using var response = await this.httpClient.GetAsync(url, cancellationToken);
+            return await HttpProxyClient.ReadAsync<bool>(response, cancellationToken);
+        }
     }
 }

@@ -40,7 +40,112 @@
     </div>
 </div>
 
+@if (Model.IsActive)
+{
+	<div class="card mt-4 mb-4">
+		<div class="card-header bg-primary text-white">
+			<h5 class="mb-0">Check Availability & Request Rental</h5>
+		</div>
+		<div class="card-body">
+			<form asp-controller="Requests" asp-action="Create" method="get">
+				<input type="hidden" name="GameId" value="@Model.Id" />
+				<div class="row">
+					<div class="col-md-5">
+						<div class="mb-3">
+							<label for="StartDate" class="form-label">Start Date</label>
+							<input type="date" class="form-control" id="StartDate" name="StartDate" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+						</div>
+					</div>
+					<div class="col-md-5">
+						<div class="mb-3">
+							<label for="EndDate" class="form-label">End Date</label>
+							<input type="date" class="form-control" id="EndDate" name="EndDate" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+						</div>
+					</div>
+					<div class="col-md-2 d-flex align-items-end">
+						<div class="mb-3 w-100">
+							<button type="submit" class="btn btn-success w-100" id="btnRequest">Request</button>
+						</div>
+					</div>
+				</div>
+				<div id="availabilityMessage" class="alert d-none" role="alert"></div>
+			</form>
+		</div>
+	</div>
+}
+
 <div class="page-actions">
     <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
     <a class="btn btn-secondary" asp-action="Index">Back</a>
 </div>
+
+@section Scripts {
+	<script>
+		const bookedDates = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.BookedDates ?? new List<BookedDateRangeDTO>()));
+		const bufferHours = 48; 
+
+		const startDateInput = document.getElementById('StartDate');
+		const endDateInput = document.getElementById('EndDate');
+		const btnRequest = document.getElementById('btnRequest');
+		const msgDiv = document.getElementById('availabilityMessage');
+
+		function checkAvailability() {
+			msgDiv.classList.add('d-none');
+			msgDiv.classList.remove('alert-danger', 'alert-success');
+			btnRequest.disabled = false;
+
+			const startVal = startDateInput.value;
+			const endVal = endDateInput.value;
+
+			if (!startVal || !endVal) return;
+
+			const start = new Date(startVal);
+			const end = new Date(endVal);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+
+			if (start < today) {
+				showError('Start date cannot be in the past.');
+				return;
+			}
+
+			if (start > end) {
+				showError('Start date must be before or equal to end date.');
+				return;
+			}
+
+			
+			for (const range of bookedDates) {
+				const bookedStart = new Date(range.StartDate);
+				const bookedEnd = new Date(range.EndDate);
+                
+				const bufferedStart = new Date(bookedStart.getTime() - bufferHours * 60 * 60 * 1000);
+				const bufferedEnd = new Date(bookedEnd.getTime() + bufferHours * 60 * 60 * 1000);
+
+				if (start <= bufferedEnd && end >= bufferedStart) {
+					showError('These dates are unavailable or fall within the 48-hour buffer of an existing rental.');
+					return;
+				}
+			}
+
+			showSuccess('Dates are available!');
+		}
+
+		function showError(msg) {
+			msgDiv.textContent = msg;
+			msgDiv.classList.remove('d-none', 'alert-success');
+			msgDiv.classList.add('alert-danger');
+			btnRequest.disabled = true;
+		}
+
+		function showSuccess(msg) {
+			msgDiv.textContent = msg;
+			msgDiv.classList.remove('d-none', 'alert-danger');
+			msgDiv.classList.add('alert-success');
+			btnRequest.disabled = false;
+		}
+
+		startDateInput.addEventListener('change', checkAvailability);
+		endDateInput.addEventListener('change', checkAvailability);
+	</script>
+}

@@ -14,10 +14,12 @@ namespace BoardGames.Web.Controllers
     public class GamesController : Controller
     {
         private readonly IGameProxyService gameProxyService;
+        private readonly IRentalProxyService rentalProxyService;
 
-        public GamesController(IGameProxyService gameProxyService)
+        public GamesController(IGameProxyService gameProxyService, IRentalProxyService rentalProxyService)
         {
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
+            this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
         }
 
         public async Task<IActionResult> Index()
@@ -39,6 +41,16 @@ namespace BoardGames.Web.Controllers
             if (game is null)
             {
                 return this.NotFound();
+            }
+
+            try
+            {
+                var bookedDates = await this.rentalProxyService.GetBookedDatesForGameAsync(id);
+                this.ViewBag.BookedDates = bookedDates;
+            }
+            catch (ProxyServiceException)
+            {
+                this.ViewBag.BookedDates = new List<BookedDateRangeDTO>();
             }
 
             return this.View(game);
