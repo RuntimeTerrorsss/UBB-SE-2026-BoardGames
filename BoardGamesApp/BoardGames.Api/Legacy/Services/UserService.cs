@@ -1,11 +1,11 @@
-using BookingBoardGames.Data.Interfaces;
+using BoardGames.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public class UserService : IUserService
     {

@@ -8,7 +8,7 @@
 
 using BoardGames.Shared.DTO;
 
-namespace BoardGames.Api.Mappers
+namespace BoardGames.Api.Legacy.Mappers
 {
     public interface ICashPaymentMapper
     {

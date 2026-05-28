@@ -5,8 +5,7 @@
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
-using BoardGames.Web.Models.Games;
-using BoardGames.Web.Models.Rentals;
+using BoardGames.Web.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

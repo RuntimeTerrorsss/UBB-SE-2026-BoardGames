@@ -1,8 +1,9 @@
+using BoardGames.Shared.Common;
 using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BoardGames.Shared.Common
+namespace BoardGames.Api.Common
 {
     public static class ApiErrorResults
     {

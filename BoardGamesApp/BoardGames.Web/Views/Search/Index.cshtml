@@ -1,4 +1,3 @@
-@using BoardGames.Web.Models.Search
 @model SearchFilterViewModel
 @{
     ViewData["Title"] = "Search Games";
@@ -285,9 +284,9 @@
                     <div class="d-flex flex-column">
                         @foreach (var game in Model.Results)
                         {
-                            <a asp-controller="Games" asp-action="Details" asp-route-id="@game.GameId" class="game-card">
-                                <img class="game-card-img" src="@game.Image" alt="@game.Name"
-                                     onerror="this.src='/images/placeholder-game.png'" />
+                            <a asp-controller="Games" asp-action="Details" asp-route-id="@game.Id" class="game-card">
+                                <img class="game-card-img" src="@GameImageHelper.GetDisplaySource(game)" alt="@game.Name"
+                                     onerror="this.src='@GameImageHelper.PlaceholderImageSource'" />
                                 <div class="game-card-body">
                                     <h6>@game.Name</h6>
                                     <p class="meta"><span>Price:</span> @game.Price RON/day</p>

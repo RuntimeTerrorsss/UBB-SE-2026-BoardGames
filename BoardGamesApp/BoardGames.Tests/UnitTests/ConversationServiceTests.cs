@@ -1,3 +1,9 @@
+using BoardGames.Data.Repositories;
+using Xunit;
+using BoardGames.Data.Enums;
+using Moq;
+using BoardGames.Shared.ProxyRepositories;
+using BoardGames.Api.Legacy.Services;
 // <copyright file="ConversationServiceTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

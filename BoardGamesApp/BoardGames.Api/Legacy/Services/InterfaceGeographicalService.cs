@@ -1,8 +1,8 @@
-﻿// <copyright file="InterfaceGeographicalService.cs" company="BoardRent">
+// <copyright file="InterfaceGeographicalService.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     /// <summary>
     /// Defines methods for loading, retrieving, and searching city data, as well as calculating distances between

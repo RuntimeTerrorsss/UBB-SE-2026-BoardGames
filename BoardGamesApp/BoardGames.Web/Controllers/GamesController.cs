@@ -1,126 +1,189 @@
-﻿// <copyright file="GamesController.cs" company="BoardRent">
+// <copyright file="GamesController.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
     [Authorize]
-    public class GamesController : BaseController
+    public class GamesController : Controller
     {
-        private readonly InterfaceBookingService bookingService;
-        private readonly InterfaceSearchAndFilterService searchService;
+        private readonly IGameProxyService gameProxyService;
 
-        public GamesController(InterfaceBookingService bookingServiceParam, InterfaceSearchAndFilterService searchServiceParam)
+        public GamesController(IGameProxyService gameProxyService)
         {
-            this.bookingService = bookingServiceParam;
-            this.searchService = searchServiceParam;
+            this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
         }
 
         public async Task<IActionResult> Index()
         {
-            var filter = new FilterCriteria();
-            if (IsLoggedIn)
+            if (this.User.IsAdministrator())
             {
-                filter.UserId = CurrentUserId;
+                var allGames = await this.gameProxyService.GetAllGamesAsync();
+                return this.View(allGames);
             }
 
-            var games = await this.searchService.SearchGamesByFilter(filter);
-            return View(games);
+            var ownerId = this.User.GetAccountId();
+            var myGames = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
+            return this.View(myGames);
         }
 
-        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
-            var booking = await this.bookingService.GetBookingInformationForSpecificGame(id);
-            if (booking == null)
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            var unavailableRanges = await this.bookingService.GetUnavailableTimeRanges(id);
-            ViewBag.UnavailableRanges = unavailableRanges;
-            booking = booking with
-            {
-                ImageUrl = GameImageMapper.GetImageUrl(booking.Name),
-                AvatarUrl = MediaUrlHelper.ResolveUserImageUrl(booking.AvatarUrl),
-            };
-            return View(booking);
+            return this.View(game);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ConfirmBooking(int id, DateTime startDate, DateTime endDate)
+        public IActionResult Create()
         {
-            startDate = startDate.Date;
-            endDate = endDate.Date;
-
-            var booking = await this.bookingService.GetBookingInformationForSpecificGame(id);
-            if (booking == null)
-            {
-                return NotFound();
-            }
-
-            var timeRange = new TimeRange(startDate, endDate);
-            bool isAvailable = await this.bookingService.CheckGameAvailability(id, timeRange);
-
-            if (!isAvailable)
-            {
-                TempData["Error"] = "The game is not available for the selected period.";
-                return RedirectToAction("Details", new { id });
-            }
-
-            decimal totalPrice = this.bookingService.CalculateTotalPriceForRentingASpecificGame(booking.Price, timeRange);
-            int totalDays = this.bookingService.CalculateNumberOfDaysInAGivenTimeRange(timeRange);
-
-            ViewBag.StartDate = startDate;
-            ViewBag.EndDate = endDate;
-            ViewBag.TotalPrice = totalPrice;
-            ViewBag.TotalDays = totalDays;
-
-            return View(booking);
+            return this.View(new GameDTO());
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmBooking(int id, DateTime startDate, DateTime endDate, string confirm)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(GameDTO body, IFormFile? imageFile)
         {
-            var redirect = RequireLogin();
-            if (redirect != null)
+            if (!this.ModelState.IsValid)
             {
-                return redirect;
+                return this.View(body);
             }
 
-            int clientId = CurrentUserId ?? -1;
-            if (clientId == -1)
+            if (imageFile != null && imageFile.Length > 0)
             {
-                return Unauthorized();
+                using var memoryStream = new MemoryStream();
+                await imageFile.CopyToAsync(memoryStream);
+                body.Image = memoryStream.ToArray();
             }
 
-            startDate = startDate.Date;
-            endDate = endDate.Date;
-
-            var timeRange = new TimeRange(startDate, endDate);
-            var booking = await this.bookingService.GetBookingInformationForSpecificGame(id);
-            if (booking == null)
+            body.Owner = new UserDTO
             {
-                return NotFound();
+                Id = this.User.GetAccountId(),
+                DisplayName = this.User.GetDisplayNameOrUsername(),
+            };
+
+            try
+            {
+                await this.gameProxyService.CreateGameAsync(body);
+                return this.RedirectToAction(nameof(this.Index));
+            }
+            catch (ProxyServiceException ex)
+            {
+                this.ModelState.AddModelError(string.Empty, ex.Message);
+                return this.View(body);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
+            {
+                return this.NotFound();
+            }
+
+            return this.View(game);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, GameDTO body, IFormFile? imageFile)
+        {
+            if (id != body.Id)
+            {
+                return this.NotFound();
+            }
+
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(body);
+            }
+
+            GameDTO? existing = await this.gameProxyService.GetGameByIdAsync(id);
+            if (existing is null)
+            {
+                return this.NotFound();
+            }
+
+            if (!this.User.IsAdministrator() && existing.Owner?.Id != this.User.GetAccountId())
+            {
+                return this.Forbid();
+            }
+
+            body.Owner = existing.Owner;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                using var memoryStream = new MemoryStream();
+                await imageFile.CopyToAsync(memoryStream);
+                body.Image = memoryStream.ToArray();
+            }
+            else
+            {
+                body.Image = existing.Image;
             }
 
             try
             {
-                await this.bookingService.AddBooking(id, clientId, timeRange);
+                await this.gameProxyService.UpdateGameAsync(id, body);
+                return this.RedirectToAction(nameof(this.Index));
             }
-            catch (Exception)
+            catch (ProxyServiceException ex)
             {
-                TempData["Error"] = "This game is not available for the selected period.";
-                return RedirectToAction("Details", new { id });
+                this.ModelState.AddModelError(string.Empty, ex.Message);
+                return this.View(body);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
+            {
+                return this.NotFound();
             }
 
-            TempData["Success"] = "Rental request sent! The owner can accept it in Messages.";
-            return RedirectToAction("Index", "Chats");
+            return this.View(game);
+        }
+
+        [HttpPost]
+        [ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            GameDTO? existing = await this.gameProxyService.GetGameByIdAsync(id);
+            if (existing is null)
+            {
+                return this.NotFound();
+            }
+
+            if (!this.User.IsAdministrator() && existing.Owner?.Id != this.User.GetAccountId())
+            {
+                return this.Forbid();
+            }
+
+            try
+            {
+                await this.gameProxyService.DeleteGameAsync(id);
+            }
+            catch (ProxyServiceException ex)
+            {
+                this.TempData["DeleteError"] = ex.Message;
+            }
+
+            return this.RedirectToAction(nameof(this.Index));
         }
     }
 }
