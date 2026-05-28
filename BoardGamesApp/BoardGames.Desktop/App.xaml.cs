@@ -1,127 +1,119 @@
-// <copyright file="App.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+using System.Configuration;
+using System.Net;
+using BoardGames.Desktop.Services;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Desktop.Views;
+using BoardGames.Shared.ProxyServices;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace BoardGames.Desktop
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
     public partial class App : Application
     {
-        public static readonly string BaseApiUrl = "http://localhost:5000/api/";
-        public static readonly string RemoteApiUrl = "http://172.30.250.124:5000/api/";
+        private Frame? rootFrame;
 
-        public static readonly System.Net.Http.HttpClient Client = new System.Net.Http.HttpClient { BaseAddress = new Uri(BaseApiUrl) };
-        private Window? window;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="App"/> class.
-        /// </summary>
         public App()
         {
+            ConfigureServices();
             this.InitializeComponent();
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer(DatabaseConfig.ResolveConnectionString())
-                .Options;
-
-            AppDbContext = new AppDbContext(options);
-
-            // Repositories
-            UserRepository = new UserAPIProxy(Client);
-            GameRepository = new GamesAPIProxy(Client);
-            RentalRepository = new RentalAPIProxy(Client);
-            PaymentRepository = new PaymentAPIProxy(Client);
-            HistoryRepository = new RepositoryPaymentAPIProxy(Client);
-            ConversationRepository = new ConversationAPIProxy(Client);
-
-            // Services
-            ConversationNotifier = new ConversationNotifier();
-            GlobalGeographicalService = new GeographicalService();
-            RentalService = new RentalService(RentalRepository, GameRepository);
-            ReceiptService = new ReceiptService(UserRepository, RentalService, GameRepository);
-            CardPaymentService = new CardPaymentService(PaymentRepository, UserRepository, ReceiptService, RentalService);
-            MapService = new MapService();
-            var conversationService = new ConversationService(ConversationRepository, UserRepository, ConversationNotifier);
-            ServicePayment = new ServicePayment(HistoryRepository, ReceiptService, RentalService, conversationService);
-            CashPaymentService = new CashPaymentService(PaymentRepository, new CashPaymentMapper(), ReceiptService);
-            BookingService = new BookingService(GameRepository, RentalRepository, UserRepository);
-            SearchAndFilterService = new SearchAndFilterService(GameRepository, UserRepository, RentalRepository, GlobalGeographicalService);
-            UserService = new UserService(UserRepository);
         }
 
-        // AppDbContext
-        public static AppDbContext? AppDbContext { get; private set; }
+        public static IServiceProvider Services { get; private set; } = default!;
 
-        // Repositories
-        public static IUserRepository? UserRepository { get; private set; }
+        public static MainWindow MainWindow { get; private set; } = default!;
 
-        public static InterfaceGamesRepository? GameRepository { get; private set; }
-
-        public static IRentalRepository? RentalRepository { get; private set; }
-
-        public static IPaymentRepository? PaymentRepository { get; private set; }
-
-        public static IRepositoryPayment? HistoryRepository { get; private set; }
-
-        public static IConversationRepository? ConversationRepository { get; private set; }
-
-        // Services
-        public static SessionService Session { get; private set; } = new SessionService();
-
-        public static IConversationNotifier? ConversationNotifier { get; private set; }
-
-        public static InterfaceGeographicalService? GlobalGeographicalService { get; private set; }
-
-        public static IRentalService? RentalService { get; private set; }
-
-        public static IReceiptService? ReceiptService { get; private set; }
-
-        public static ICardPaymentService? CardPaymentService { get; private set; }
-
-        public static IMapService? MapService { get; private set; }
-
-        public static IServicePayment? ServicePayment { get; private set; }
-
-        public static ICashPaymentService? CashPaymentService { get; private set; }
-
-        public static InterfaceBookingService? BookingService { get; private set; }
-
-        public static InterfaceSearchAndFilterService? SearchAndFilterService { get; private set; }
-
-        public static ConversationService? ActiveConversationService { get; set; }
-        public static IUserService? UserService { get; set; }
-
-        public int DashboardUser { get; set; } = 3;
-
-        public int NoChatsUser { get; set; } = 8;
-
-        public Window? Window => this.window;
-
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            DatabaseBootstrap.Initialize();
+            rootFrame = new Frame();
+            MainWindow = new MainWindow();
+            MainWindow.SetRootContent(rootFrame);
+            MainWindow.Activate();
+            rootFrame.Navigate(typeof(ShellPage));
+        }
 
-            this.window = new MainWindow();
-            this.window.Activate();
-
-            try
+        public static void NavigateTo(AppPage route, object? parameter = null, bool clearBackStack = false)
+        {
+            if (TryGetShellPage(out var shellPage))
             {
-                if (GlobalGeographicalService == null)
-                {
-                    GlobalGeographicalService = new GeographicalService();
-                }
+                shellPage.NavigateTo(route, parameter, clearBackStack);
+            }
+        }
 
-                await GlobalGeographicalService.LoadCitiesFromFileAsync();
-            }
-            catch (Exception ex)
+        public static void NavigateBack()
+        {
+            if (TryGetShellPage(out var shellPage))
             {
-                Debug.WriteLine($"GeographicalService initialization failed: {ex.Message}");
+                shellPage.NavigateBack();
             }
+        }
+
+        public static void OnUserLoggedIn()
+        {
+            if (TryGetShellPage(out var shellPage))
+            {
+                shellPage.RefreshNavigation();
+                shellPage.NavigateTo(AppPage.Filter, clearBackStack: true);
+            }
+        }
+
+        public static void OnUserLoggedOut()
+        {
+            var sessionContext = Services.GetRequiredService<ISessionContext>();
+            sessionContext.Clear();
+
+            if (TryGetShellPage(out var shellPage))
+            {
+                shellPage.RefreshNavigation();
+                shellPage.NavigateTo(AppPage.Filter, clearBackStack: true);
+            }
+        }
+
+        private static bool TryGetShellPage(out ShellPage? shellPage)
+        {
+            shellPage = null;
+
+            if (Current is not App app || app.rootFrame?.Content is not ShellPage currentShell)
+            {
+                return false;
+            }
+
+            shellPage = currentShell;
+            return true;
+        }
+
+        private static void ConfigureServices()
+        {
+            string? apiBaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"]?.Trim();
+            if (string.IsNullOrWhiteSpace(apiBaseUrl) || !Uri.TryCreate(apiBaseUrl, UriKind.Absolute, out var apiBaseAddress))
+            {
+                throw new InvalidOperationException("ApiBaseUrl is not configured correctly in App.config.");
+            }
+
+            var serviceCollection = new ServiceCollection();
+            var cookieContainer = new CookieContainer();
+
+            serviceCollection.AddBoardRentApiClient(options =>
+            {
+                options.BaseAddress = apiBaseAddress;
+                options.Timeout = TimeSpan.FromSeconds(30);
+                options.CookieContainer = cookieContainer;
+            });
+
+            serviceCollection.AddSingleton(cookieContainer);
+            serviceCollection.AddSingleton<ISessionContext, SessionContext>();
+            serviceCollection.AddSingleton<ICurrentUserContext, CurrentUserContext>();
+            serviceCollection.AddSingleton<IDesktopAuthorizationService, DesktopAuthorizationService>();
+
+            serviceCollection.AddSingleton<ShellViewModel>();
+            serviceCollection.AddTransient<SearchGamesViewModel>();
+            serviceCollection.AddTransient<LoginViewModel>();
+            serviceCollection.AddTransient<RegisterViewModel>();
+
+            Services = serviceCollection.BuildServiceProvider();
+            Ioc.Default.ConfigureServices(Services);
         }
     }
 }

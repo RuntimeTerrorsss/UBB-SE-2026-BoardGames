@@ -2,6 +2,7 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BoardGames.Shared.ProxyServices
@@ -21,7 +22,7 @@ namespace BoardGames.Shared.ProxyServices
                 throw new InvalidOperationException("ApiClientOptions.BaseAddress must be set before calling AddBoardRentApiClient.");
             }
 
-            services.AddHttpClient(ApiClientNames.BoardRentApi, client =>
+            var httpClientBuilder = services.AddHttpClient(ApiClientNames.BoardRentApi, client =>
             {
                 client.BaseAddress = options.BaseAddress;
                 if (options.Timeout is { } timeout)
@@ -29,6 +30,15 @@ namespace BoardGames.Shared.ProxyServices
                     client.Timeout = timeout;
                 }
             });
+
+            if (options.CookieContainer is CookieContainer cookieContainer)
+            {
+                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                {
+                    UseCookies = true,
+                    CookieContainer = cookieContainer,
+                });
+            }
 
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IAccountService, AccountService>();

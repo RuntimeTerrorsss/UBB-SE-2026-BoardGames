@@ -10,10 +10,6 @@
       {
         "Path": "BoardGames.Api\\BoardGames.Api.csproj",
         "Action": "Start"
-      },
-      {
-        "Path": "BoardGames.Web\\BoardGames.Web.csproj",
-        "Action": "Start"
       }
     ]
   }
