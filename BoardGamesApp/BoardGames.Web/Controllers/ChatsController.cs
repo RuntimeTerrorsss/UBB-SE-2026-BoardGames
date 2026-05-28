@@ -17,18 +17,15 @@ namespace BoardGames.Web.Controllers
         private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private const long MaxImageBytes = 5 * 1024 * 1024;
 
-        private readonly IConversationProxyService conversationProxyService;
+        private readonly IChatProxyService conversationProxyService;
         private readonly IAccountProxyService accountProxyService;
-        private readonly IWebHostEnvironment environment;
 
         public ChatsController(
-            IConversationProxyService conversationProxyService,
-            IAccountProxyService accountProxyService,
-            IWebHostEnvironment environment)
+            IChatProxyService conversationProxyService,
+            IAccountProxyService accountProxyService)
         {
             this.conversationProxyService = conversationProxyService ?? throw new ArgumentNullException(nameof(conversationProxyService));
             this.accountProxyService = accountProxyService ?? throw new ArgumentNullException(nameof(accountProxyService));
-            this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
         }
 
         [HttpGet]
@@ -139,7 +136,7 @@ namespace BoardGames.Web.Controllers
                 return this.NotFound();
             }
 
-            string imagesDirectory = Path.Combine(this.environment.WebRootPath, "images");
+            string imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
             Directory.CreateDirectory(imagesDirectory);
 
             string storedFileName = $"{Guid.NewGuid()}{extension}";

@@ -6,16 +6,17 @@ namespace BoardGames.Web.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddProxyServices(this IServiceCollection services)
+        public static IServiceCollection AddProxyServices(this IServiceCollection services, Uri apiBaseAddress)
         {
-            services.AddScoped<IAuthProxyService, AuthProxyServiceAdapter>();
-            services.AddScoped<IAccountProxyService, AccountProxyServiceAdapter>();
-            services.AddScoped<IAdminProxyService, AdminProxyServiceAdapter>();
-            services.AddScoped<IGameProxyService, GameProxyServiceAdapter>();
-            services.AddScoped<IRentalProxyService, RentalProxyServiceAdapter>();
-            services.AddScoped<IRequestProxyService, RequestProxyServiceAdapter>();
-            services.AddScoped<INotificationProxyService, NotificationProxyServiceAdapter>();
-            services.AddScoped<IConversationProxyService, ConversationProxyServiceAdapter>();
+            services.AddHttpClient<IAuthProxyService, AuthProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IGameProxyService, GameProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IRentalProxyService, RentalProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IRequestProxyService, RequestProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<INotificationProxyService, NotificationProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IAccountProxyService, AccountProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IAdminProxyService, AdminProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IChatProxyService, ConversationProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
+            services.AddHttpClient<IConversationProxyService, ConversationProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
             return services;
         }
     }

@@ -104,4 +104,8 @@ namespace BoardGames.Web.Infrastructure
 
         Task<MessageDataTransferObject> UpdateMessageAsync(MessageDataTransferObject message, CancellationToken cancellationToken = default);
     }
+
+    public interface IChatProxyService : IConversationProxyService
+    {
+    }
 }

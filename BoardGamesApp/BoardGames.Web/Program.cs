@@ -2,7 +2,6 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using BoardGames.Shared.ProxyServices;
 using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -14,8 +13,7 @@ builder.Services.AddControllersWithViews();
 string apiBaseUrl = builder.Configuration["ApiBaseUrl"]
     ?? throw new InvalidOperationException("Configuration value 'ApiBaseUrl' is required.");
 
-builder.Services.AddBoardRentApiClient(options => options.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddProxyServices();
+builder.Services.AddProxyServices(new Uri(apiBaseUrl));
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
