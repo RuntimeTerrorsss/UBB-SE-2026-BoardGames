@@ -4,7 +4,7 @@
 
 using BoardGames.Data.Repositories;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public abstract class PaymentService : IPaymentService
     {

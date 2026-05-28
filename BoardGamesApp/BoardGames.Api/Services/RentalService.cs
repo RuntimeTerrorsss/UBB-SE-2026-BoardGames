@@ -37,6 +37,16 @@ namespace BoardGames.Api.Services
             return true;
         }
 
+        public ImmutableList<BookedDateRangeDTO> GetBookedDatesForGame(int gameId)
+        {
+            return rentalDataRepository.GetRentalsByGame(gameId)
+                .Select(rental => new BookedDateRangeDTO
+                {
+                    StartDate = rental.StartDate,
+                    EndDate = rental.EndDate,
+                })
+                .ToImmutableList();
+        }
         public void CreateConfirmedRental(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate)
         {
             if (!DateRangeValidationHelper.HasValidFutureDateRange(startDate, endDate))

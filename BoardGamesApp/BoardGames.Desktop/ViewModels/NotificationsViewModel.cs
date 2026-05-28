@@ -88,6 +88,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public void OnCompleted() { }
+
         public void OnError(Exception error) => System.Diagnostics.Debug.WriteLine($"Notification error: {error.Message}");
 
         public void Dispose()

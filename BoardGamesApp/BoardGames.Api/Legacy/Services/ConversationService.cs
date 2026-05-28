@@ -7,7 +7,7 @@ using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 using static BoardGames.Api.Controllers.ConversationController;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public class ConversationService : IConversationService
     {

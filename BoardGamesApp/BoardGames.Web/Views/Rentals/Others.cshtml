@@ -1,0 +1,54 @@
+@model IEnumerable<BoardGames.Shared.DTO.RentalDTO>
+
+@{
+    ViewData["Title"] = "Others' Rentals";
+}
+
+<div class="container mt-4">
+    <div class="page-header mb-4">
+        <h2 class="page-title">@ViewData["Title"]</h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No one is renting your games yet.</div>
+    }
+    else
+    {
+        <div class="rental-card-list">
+            @foreach (var item in Model)
+            {
+                var isExpiredClass = item.IsExpired ? "rental-card-expired opacity-50" : "";
+                <div class="card mb-3 rental-card @isExpiredClass" style="max-width: 600px;">
+                    <div class="row g-0">
+                        <div class="col-md-4 rental-card-image-wrap">
+                            <img src="@GameImageHelper.GetDisplaySource(item.Game)" class="img-fluid rounded-start rental-card-image" alt="@item.Game?.Name" style="object-fit: cover; height: 100%; width: 100%; min-height: 150px;" />
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body rental-card-body">
+                                <h5 class="card-title rental-card-title">@item.Game?.Name</h5>
+                                <p class="card-text rental-card-meta mb-1">
+                                    <strong>Renter:</strong> @item.Renter?.DisplayName
+                                </p>
+                                <p class="card-text rental-card-dates mb-2">
+                                    <small class="text-muted">
+                                        @item.StartDateDisplayLong <br />
+                                        @item.EndDateDisplayLong
+                                    </small>
+                                </p>
+                                @if (item.IsExpired)
+                                {
+                                    <span class="badge bg-secondary status-badge">Expired</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success status-badge">Active</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

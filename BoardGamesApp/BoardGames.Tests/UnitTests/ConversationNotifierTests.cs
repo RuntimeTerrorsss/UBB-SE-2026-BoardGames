@@ -1,3 +1,5 @@
+using BoardGames.Api.Legacy.Services;
+using Xunit;
 // <copyright file="ConversationNotifierTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

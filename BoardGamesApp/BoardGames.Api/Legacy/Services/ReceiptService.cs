@@ -8,7 +8,7 @@ using BoardGames.Data.Repositories;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public class ReceiptService : IReceiptService
     {

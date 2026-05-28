@@ -5,7 +5,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public class MapService : IMapService
     {

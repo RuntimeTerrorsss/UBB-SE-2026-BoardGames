@@ -6,7 +6,7 @@ using System.Diagnostics;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 
-namespace BoardGames.Api.Services;
+namespace BoardGames.Api.Legacy.Services;
 
 /// <summary>
 /// Service responsible for handling booking operations, including retrieving game details,

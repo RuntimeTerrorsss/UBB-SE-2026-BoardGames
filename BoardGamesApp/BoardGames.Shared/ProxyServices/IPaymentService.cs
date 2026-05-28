@@ -11,6 +11,7 @@
     public interface IPaymentService
     {
         Task<ServiceResult<PagedResult<PaymentDTO>>> GetFilteredPaymentsAsync(Guid accountId, FilterType filter, PaymentMethod method, string search, int page);
+
         Task<ServiceResult<string>> GetReceiptPathAsync(int paymentId);
     }
 

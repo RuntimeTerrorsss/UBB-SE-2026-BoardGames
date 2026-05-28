@@ -16,6 +16,7 @@
         private int pendingNotificationsCount;
 
         public int NewMessagesCount { get => newMessagesCount; set => SetProperty(ref newMessagesCount, value); }
+
         public int PendingNotificationsCount { get => pendingNotificationsCount; set => SetProperty(ref pendingNotificationsCount, value); }
 
         public DashboardViewModel(

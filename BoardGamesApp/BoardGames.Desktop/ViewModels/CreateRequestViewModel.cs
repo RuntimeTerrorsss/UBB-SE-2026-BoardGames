@@ -13,6 +13,7 @@ namespace BoardGames.Desktop.ViewModels
         public ObservableCollection<GameDTO> AvailableGamesToRequest { get; set; } = new();
 
         private GameDTO selectedGameToRequest;
+
         public GameDTO SelectedGame
         {
             get => selectedGameToRequest;
@@ -24,6 +25,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private DateTimeOffset? requestedStartDate;
+
         public DateTimeOffset? StartDate
         {
             get => requestedStartDate;
@@ -35,6 +37,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private DateTimeOffset? requestedEndDate;
+
         public DateTimeOffset? EndDate
         {
             get => requestedEndDate;
@@ -134,6 +137,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

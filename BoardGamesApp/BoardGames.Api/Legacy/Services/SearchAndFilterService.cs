@@ -10,7 +10,7 @@ using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     /// <summary>
     /// Service responsible for searching, filtering, and retrieving game feeds.

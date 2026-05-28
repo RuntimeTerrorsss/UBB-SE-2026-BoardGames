@@ -1,3 +1,4 @@
+using BoardGames.Shared.DTO;
 // <copyright file="RentalsToOthersViewModelTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
