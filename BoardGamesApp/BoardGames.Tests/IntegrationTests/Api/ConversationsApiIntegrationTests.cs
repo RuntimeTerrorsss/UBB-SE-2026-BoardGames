@@ -69,7 +69,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
             var message = new MessageDataTransferObject(
                 Id: 0,
-                Id: created!.Id,
+                ConversationId: created!.Id,
                 SenderId: 80,
                 ReceiverId: 81,
                 SentAt: DateTime.UtcNow,

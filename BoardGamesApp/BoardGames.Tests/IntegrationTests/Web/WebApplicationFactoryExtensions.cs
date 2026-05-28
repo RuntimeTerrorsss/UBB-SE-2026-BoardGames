@@ -1,3 +1,5 @@
+extern alias WebProject;
+using WebProgram = WebProject::Program;
 using System;
 using System.Linq;
 using BoardGames.Data.Repositories;
@@ -7,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace BoardGames.Tests.IntegrationTests.Web
 {
-    public sealed class WebAppFactory : WebApplicationFactory<Program>
+    public sealed class WebAppFactory : WebApplicationFactory<WebProgram>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
