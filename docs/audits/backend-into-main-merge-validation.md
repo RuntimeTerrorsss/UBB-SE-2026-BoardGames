@@ -13,6 +13,7 @@ Validation environment: Windows 11, .NET SDK 10.0.201, `maui-windows` workload, 
 - `backend` was merged into `main` on `integration/backend-merge`. The merge was **textually clean (zero conflicts)**.
 - After the merge, the production code (`.Api`, `.Shared`, `.Data`, `.Desktop`, `.Web`) is **byte-identical to the validated `backend`**; the only delta versus `backend` is two task-4 test files preserved from `main`.
 - All production projects build on the merged branch; project-reference architecture is correct.
+- **Mid-integration, `main` advanced to include WEB 7 (PR #47).** It was merged into the integration branch and re-verified — WEB 7's Web code builds clean against `backend`'s Shared contracts (see §12).
 - Remaining gaps (broken test project, seed/identity data, Desktop GUI runtime) are documented as blockers, not worked around.
 
 ## 2. Branch Topology & Merge Mechanics
@@ -123,4 +124,18 @@ Because the merged production binaries are byte-identical to the validated `back
 
 ## 11. Landing Status
 
-The merge and all verification live on the local branch `integration/backend-merge`. Integrating this into the shared `main` (fast-forward/merge + push, or PR) is an outward-facing step left to the team/lead's chosen process.
+The integration branch `integration/backend-merge` is pushed to `origin` and opened as PR #48 into `main` (`MERGEABLE`; `BLOCKED` only by the branch-protection review rule, pending an approver).
+
+## 12. Mid-Integration Update — WEB 7 (PR #47) Landed on `main`
+
+During this work, `origin/main` advanced from `8eb746e` to `4fc1287` because **PR #47 (`CotaAndrei/task`, "WEB 7: Integrate Remaining Features") was merged into `main`** — bringing the Web feature work that had previously been on the unmerged `CotaAndrei/task` branch. (A `git pull` fast-forwarded the local checkout.)
+
+Footprint and re-verification:
+
+- WEB 7 / PR #47 changed **12 `BoardGames.Web/` files + 5 `BoardGames.Tests/Web` files** only. It touched **no `Shared`, `Api`, `Data`, or `Desktop` files**, and had **zero file overlap** with the backend integration changes.
+- `origin/main` (incl. WEB 7) was merged into `integration/backend-merge` — **clean, zero conflicts**.
+- **Re-built the full solution with WEB 7 + backend together:** all production DLLs emitted, including `BoardGames.Web`. **WEB 7's new Web code (`DashboardController`, `Helpers/PaymentStrategy`, `Helpers/ViewModelAdapter`, `Infrastructure/PaymentProxyServiceAdapter`, dashboard views/models) compiles clean against `backend`'s modified Shared contracts** (notably the changed `IPaymentService`). This is the central integration check and it passes.
+- Architecture boundaries re-confirmed post-WEB 7: `BoardGames.Web` still references **`Shared` only** and has **no direct `AppDbContext`/`Data` access** — WEB 7 consumes the backend through Shared API-client adapters.
+- Build error count moved 362 → **392**, still **entirely within `BoardGames.Tests`** (WEB 7 added 5 Web test files to the already-broken test project). **Zero production errors.** Out of scope, as before.
+
+Net effect: the merged result is one application — `backend`'s Api/Desktop/Shared/Data plus both the pre-existing Web work and WEB 7's Web features — all building together against one Shared contract layer and one API.
