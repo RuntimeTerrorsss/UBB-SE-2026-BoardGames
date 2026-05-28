@@ -22,7 +22,7 @@ namespace BoardGames.Desktop.Services
         public bool CanAccessPage(Type pageType)
         {
             return pageType == typeof(ShellPage)
-                || pageType == typeof(FilterLandingPage)
+                || pageType == typeof(SearchGamesPage)
                 || pageType == typeof(LoginPage)
                 || pageType == typeof(RegisterPage)
                 || (pageType == typeof(PlaceholderPage) && IsLoggedIn);

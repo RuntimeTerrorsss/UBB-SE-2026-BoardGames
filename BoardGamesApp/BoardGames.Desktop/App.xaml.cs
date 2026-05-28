@@ -108,6 +108,7 @@ namespace BoardGames.Desktop
             serviceCollection.AddSingleton<IDesktopAuthorizationService, DesktopAuthorizationService>();
 
             serviceCollection.AddSingleton<ShellViewModel>();
+            serviceCollection.AddTransient<SearchGamesViewModel>();
             serviceCollection.AddTransient<LoginViewModel>();
             serviceCollection.AddTransient<RegisterViewModel>();
 

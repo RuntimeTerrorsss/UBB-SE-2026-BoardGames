@@ -49,7 +49,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
-		<ProjectReference Include="..\ServerCommunication\ServerCommunication.csproj" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -90,10 +89,8 @@
     <Compile Include="ViewModels\AppPage.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
+    <Compile Include="ViewModels\SearchGamesViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
-    <Compile Include="Views\FilterLandingPage.xaml.cs">
-      <DependentUpon>FilterLandingPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
@@ -103,16 +100,19 @@
     <Compile Include="Views\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SearchGamesPage.xaml.cs">
+      <DependentUpon>SearchGamesPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ShellPage.xaml.cs">
       <DependentUpon>ShellPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <Page Include="Views\FilterLandingPage.xaml" />
     <Page Include="Views\LoginPage.xaml" />
     <Page Include="Views\PlaceholderPage.xaml" />
     <Page Include="Views\RegisterPage.xaml" />
+    <Page Include="Views\SearchGamesPage.xaml" />
     <Page Include="Views\ShellPage.xaml" />
   </ItemGroup>
 

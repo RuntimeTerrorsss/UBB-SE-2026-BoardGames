@@ -98,7 +98,7 @@ namespace BoardGames.Desktop.Views
         {
             return route switch
             {
-                AppPage.Filter => (typeof(FilterLandingPage), parameter),
+                AppPage.Filter => (typeof(SearchGamesPage), parameter),
                 AppPage.Login => (typeof(LoginPage), parameter),
                 AppPage.Register => (typeof(RegisterPage), parameter),
                 AppPage.Games => (typeof(PlaceholderPage), new PlaceholderPageModel("Games", "Games integration will be connected in Task 10.")),
@@ -107,7 +107,7 @@ namespace BoardGames.Desktop.Views
                 AppPage.Chat => (typeof(PlaceholderPage), new PlaceholderPageModel("Chat", "Chat integration will be connected in Task 10.")),
                 AppPage.Account => (typeof(PlaceholderPage), new PlaceholderPageModel("Account", "Account integration will be connected in Task 10.")),
                 AppPage.Admin => (typeof(PlaceholderPage), new PlaceholderPageModel("Admin", "Admin integration will be connected in Task 10.")),
-                _ => (typeof(FilterLandingPage), parameter),
+                _ => (typeof(SearchGamesPage), parameter),
             };
         }
 
