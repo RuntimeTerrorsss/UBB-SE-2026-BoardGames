@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
 using BoardGames.Desktop.ViewModels;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
 
 namespace BoardGames.Tests.ViewModels
 {

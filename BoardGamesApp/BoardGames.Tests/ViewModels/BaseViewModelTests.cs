@@ -3,6 +3,7 @@
 // </copyright>
 
 using NUnit.Framework;
+using BoardGames.Desktop.ViewModels;
 
 namespace BoardGames.Tests.ViewModels
 {

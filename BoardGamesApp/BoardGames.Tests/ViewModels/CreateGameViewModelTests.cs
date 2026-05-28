@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.Common;
+using BoardGames.Data.Constants;
 
 namespace BoardGames.Tests.ViewModels
 {
@@ -38,7 +42,7 @@ namespace BoardGames.Tests.ViewModels
             };
             this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.testUserId };
 
-            this.viewModel = new CreateGameViewModel(this.gameService, this.currentUserContext);
+            this.viewModel = new Desktop.ViewModels.CreateGameViewModel(this.gameService, this.currentUserContext);
         }
 
         [Test]
@@ -114,7 +118,7 @@ namespace BoardGames.Tests.ViewModels
 
             Assert.That(successResult.IsSuccess, Is.True);
             Assert.That(this.gameService.AddGameCallCount, Is.EqualTo(1));
-            Assert.That(this.gameService.LastAddedGame!.Owner.Id, Is.EqualTo(this.testUserId));
+            Assert.That(this.gameService.LastAddedGame!.OwnerId, Is.EqualTo(this.testUserId));
             Assert.That(this.gameService.LastAddedGame.Name, Is.EqualTo("Settlers of Catan"));
             Assert.That(this.gameService.LastAddedGame.Price, Is.EqualTo(15.99m));
 
@@ -147,7 +151,7 @@ namespace BoardGames.Tests.ViewModels
             Assert.Multiple(() =>
             {
                 Assert.That(savedGame, Is.Not.Null);
-                Assert.That(nonNullSavedGame.Owner.Id, Is.EqualTo(this.testUserId));
+                Assert.That(nonNullSavedGame.OwnerId, Is.EqualTo(this.testUserId));
                 Assert.That(nonNullSavedGame.Name, Is.EqualTo("Settlers of Catan"));
                 Assert.That(nonNullSavedGame.Price, Is.EqualTo(15.99m));
                 Assert.That(nonNullSavedGame.MinimumPlayerNumber, Is.EqualTo(2));

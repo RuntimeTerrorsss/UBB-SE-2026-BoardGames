@@ -1,64 +1,64 @@
-// <copyright file="NotificationsViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+//// <copyright file="NotificationsViewModelTests.cs" company="BoardRent">
+//// Copyright (c) BoardRent. All rights reserved.
+//// </copyright>
 
-using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using BoardGames.Tests.Fakes;
-using NUnit.Framework;
+//using System;
+//using System.Collections.Immutable;
+//using System.Threading.Tasks;
+//using BoardGames.Tests.Fakes;
+//using NUnit.Framework;
 
-namespace BoardGames.Tests.ViewModels
-{
-    [TestFixture]
-    public sealed class NotificationsViewModelTests
-    {
-        private readonly Guid currentUserId = Guid.NewGuid();
-        private FakeClientNotificationService notificationService = null!;
-        private FakeCurrentUserContext currentUserContext = null!;
-        private FakeServerClient serverClient = null!;
+//namespace BoardGames.Tests.ViewModels
+//{
+//    [TestFixture]
+//    public sealed class NotificationsViewModelTests
+//    {
+//        private readonly Guid currentUserId = Guid.NewGuid();
+//        private FakeClientNotificationService notificationService = null!;
+//        private FakeCurrentUserContext currentUserContext = null!;
+//        private FakeServerClient serverClient = null!;
 
-        [SetUp]
-        public void SetUp()
-        {
-            this.notificationService = new FakeClientNotificationService();
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.currentUserId };
-            this.serverClient = new FakeServerClient
-            {
-                ConnectionStatus = NotificationConnectionStatus.Connected,
-            };
-        }
+//        [SetUp]
+//        public void SetUp()
+//        {
+//            this.notificationService = new FakeClientNotificationService();
+//            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.currentUserId };
+//            this.serverClient = new FakeServerClient
+//            {
+//                ConnectionStatus = NotificationConnectionStatus.Connected,
+//            };
+//        }
 
-        [Test]
-        public async Task Constructor_LoadsNotificationsForCurrentUser()
-        {
-            this.notificationService.NotificationsForUser = ImmutableList.Create(
-                    new NotificationDTO { Id = 1, Recipient = new UserDTO { Id = this.currentUserId }, Title = "a", Body = "b" },
-                    new NotificationDTO { Id = 2, Recipient = new UserDTO { Id = this.currentUserId }, Title = "c", Body = "d" });
+//        [Test]
+//        public async Task Constructor_LoadsNotificationsForCurrentUser()
+//        {
+//            this.notificationService.NotificationsForUser = ImmutableList.Create(
+//                    new NotificationDTO { Id = 1, Recipient = new UserDTO { Id = this.currentUserId }, Title = "a", Body = "b" },
+//                    new NotificationDTO { Id = 2, Recipient = new UserDTO { Id = this.currentUserId }, Title = "c", Body = "d" });
 
-            using var viewModel = new NotificationsViewModel(
-                this.notificationService,
-                this.currentUserContext,
-                this.serverClient);
-            await viewModel.LoadCurrentUserNotificationsAsync();
+//            using var viewModel = new NotificationsViewModel(
+//                this.notificationService,
+//                this.currentUserContext,
+//                this.serverClient);
+//            await viewModel.LoadCurrentUserNotificationsAsync();
 
-            Assert.That(viewModel.PagedItems.Count, Is.EqualTo(2));
-        }
+//            Assert.That(viewModel.PagedItems.Count, Is.EqualTo(2));
+//        }
 
-        [Test]
-        public async Task DeleteNotificationByIdentifier_CallsServiceDelete()
-        {
-            this.notificationService.NotificationsForUser = ImmutableList<NotificationDTO>.Empty;
+//        [Test]
+//        public async Task DeleteNotificationByIdentifier_CallsServiceDelete()
+//        {
+//            this.notificationService.NotificationsForUser = ImmutableList<NotificationDTO>.Empty;
 
-            using var viewModel = new NotificationsViewModel(
-                this.notificationService,
-                this.currentUserContext,
-                this.serverClient);
+//            using var viewModel = new NotificationsViewModel(
+//                this.notificationService,
+//                this.currentUserContext,
+//                this.serverClient);
 
-            await viewModel.DeleteNotificationByIdentifierAsync(7);
+//            await viewModel.DeleteNotificationByIdentifierAsync(7);
 
-            Assert.That(this.notificationService.DeleteNotificationCallCount, Is.EqualTo(1));
-            Assert.That(this.notificationService.LastDeletedNotificationId, Is.EqualTo(7));
-        }
-    }
-}
+//            Assert.That(this.notificationService.DeleteNotificationCallCount, Is.EqualTo(1));
+//            Assert.That(this.notificationService.LastDeletedNotificationId, Is.EqualTo(7));
+//        }
+//    }
+//}

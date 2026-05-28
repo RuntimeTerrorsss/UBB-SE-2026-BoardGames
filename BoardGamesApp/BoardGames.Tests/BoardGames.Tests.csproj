@@ -56,9 +56,11 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\BoardGames.Desktop\BoardGames.Desktop.csproj" />
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
 		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
         <ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
+        <ProjectReference Include="..\BoardGames.Web\BoardGames.Web.csproj" />
 	</ItemGroup>
   <!-- 
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 

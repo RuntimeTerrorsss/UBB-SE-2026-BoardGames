@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.Shared", "BoardG
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.Tests", "BoardGames.Tests\BoardGames.Tests.csproj", "{89267549-12A2-43A4-8325-5E1B8779CE0D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{50315D58-127D-4A8A-8555-03D16E2DFEAF} = {50315D58-127D-4A8A-8555-03D16E2DFEAF}
+		{AB6D935E-BBED-4A9F-AD08-B6BEA03B6448} = {AB6D935E-BBED-4A9F-AD08-B6BEA03B6448}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.Web", "BoardGames.Web\BoardGames.Web.csproj", "{AB6D935E-BBED-4A9F-AD08-B6BEA03B6448}"
 EndProject
