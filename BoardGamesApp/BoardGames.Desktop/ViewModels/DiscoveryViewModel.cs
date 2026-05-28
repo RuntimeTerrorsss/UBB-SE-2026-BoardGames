@@ -1,427 +1,185 @@
-// <copyright file="DiscoveryViewModel.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
-
 using BoardGames.Desktop.Commands;
 using BoardGames.Desktop.Helpers;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+using System;
 
 namespace BoardGames.Desktop.ViewModels
 {
-    /// <summary>
-    /// Provides the logic for discovering and filtering games, including pagination and search capabilities.
-    /// </summary>
     public class DiscoveryViewModel : INotifyPropertyChanged
     {
-        private const int MinimumCitySearchLength = 2;
         private const int ItemsPerPage = 10;
-        private const int FirstDayOfMonth = 1;
-        private const int MidnightHour = 0;
-        private const int MidnightMinute = 0;
-        private const int MidnightSecond = 0;
-        private const int NoPagesAvailable = 0;
-        private const int NoGamesAvailable = 0;
-        private const int InitialPage = 1;
-        private readonly InterfaceSearchAndFilterService searchAndFilterService;
-        private readonly InterfaceGeographicalService geographicalService;
-        private DateTimeOffset? selectedEndDate;
-        private int currentPage = 1;
-        private int totalAvailableGamesCount;
-        private string citySearchText = string.Empty;
-        private bool showOthersHeader;
-        private DateTimeOffset? selectedStartDate;
+        private readonly IGameService _gameService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DiscoveryViewModel"/> class.
-        /// </summary>
-        /// <param name="searchService">The service used for searching and filtering games.</param>
-        /// <param name="geographicalService">The service used for geographical location suggestions.</param>
-        public DiscoveryViewModel(InterfaceSearchAndFilterService searchService, InterfaceGeographicalService geographicalService)
+        // Use the new DTO from Shared
+        private ObservableCollection<GameSummaryDTO> _allFetchedGames = new();
+        private ObservableCollection<GameSummaryDTO> _visibleGames = new();
+
+        private int _currentPage = 1;
+        private int _totalAvailableGamesCount;
+        private string _citySearchText = string.Empty;
+
+        // Filter properties (replacing the old FilterCriteria object)
+        private string _searchName;
+        private int _selectedMinimumPlayers = 1;
+        private int _selectedMaximumPrice = 100;
+
+        public DiscoveryViewModel(IGameService gameService)
         {
-            this.searchAndFilterService = searchService;
-            this.geographicalService = geographicalService;
+            _gameService = gameService;
 
-            var today = DateTimeOffset.Now.Date;
-            this.selectedStartDate = today;
-            this.selectedEndDate = today;
+            NextPageCommand = new RelayCommand(_ => GoToNextPage());
+            PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
+            SearchCommand = new RelayCommand(_ => ExecuteSearch());
+            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
-            this.NextPageCommand = new RelayCommand(_ => this.GoToNextPage());
-            this.PreviousPageCommand = new RelayCommand(_ => this.GoToPreviousPage());
-            this.SearchCommand = new RelayCommand(_ => this.SearchGamesByFilter(this.Filter));
-
-            SessionContext.GetInstance().OnUserChanged += this.LoadPaginatedDiscoveryFeed;
-
-            try
-            {
-                this.LoadPaginatedDiscoveryFeed();
-            }
-            catch (Exception exception)
-            {
-                this.OnErrorOccurred?.Invoke($"Could not load discovery feed. {exception.Message}");
-            }
+            // Load initial data
+            LoadInitialGamesAsync();
         }
 
-        /// <summary>
-        /// Occurs when the current page of the discovery feed changes.
-        /// </summary>
-        public event Action? OnPageChanged;
-
-        /// <summary>
-        /// Occurs when a request is made to view the details of a specific game.
-        /// </summary>
         public event Action<int>? OnGameSelectedRequest;
-
-        /// <summary>
-        /// Occurs when a search request is initiated with specific filter criteria.
-        /// </summary>
-        public event Action<FilterCriteria>? OnSearchRequest;
-
-        /// <summary>
-        /// Occurs when an error is encountered during discovery operations.
-        /// </summary>
         public event Action<string>? OnErrorOccurred;
-
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        /// <summary>
-        /// Gets or sets the list of games available for rent tonight.
-        /// </summary>
-        public List<GameDTO> AvailableTonightGames { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the list of other available games that do not match the "tonight" criteria.
-        /// </summary>
-        public List<GameDTO> OtherAvailableGames { get; set; } = new();
-
-        /// <summary>
-        /// Gets a value indicating whether the end date selection is enabled based on the start date.
-        /// </summary>
-        public bool IsEndDateEnabled => this.SelectedStartDate.HasValue;
-
-        private int TotalGamesCount => this.totalAvailableGamesCount;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the header for "Other games" should be visible.
-        /// </summary>
-        public bool ShowOthersHeader
+        public ObservableCollection<GameSummaryDTO> VisibleGames
         {
-            get => this.showOthersHeader;
-            set
-            {
-                this.showOthersHeader = value;
-                this.OnPropertyChanged(nameof(this.ShowOthersHeader));
-            }
+            get => _visibleGames;
+            set { _visibleGames = value; OnPropertyChanged(nameof(VisibleGames)); }
         }
 
-        /// <summary>
-        /// Gets or sets the filter criteria used for searching games.
-        /// </summary>
-        public FilterCriteria Filter { get; set; } = new();
-
-        /// <summary>
-        /// Gets the minimum allowed start date for a search, typically the current date.
-        /// </summary>
-        public DateTimeOffset MinStartDate => DateTimeOffset.Now.Date;
-
-        /// <summary>
-        /// Gets the minimum allowed end date based on the currently selected start date.
-        /// </summary>
-        public DateTimeOffset MinEndDate =>
-        this.SelectedStartDate.HasValue
-        ? new DateTimeOffset(
-            this.SelectedStartDate.Value.Year,
-            this.SelectedStartDate.Value.Month,
-            FirstDayOfMonth,
-            MidnightHour,
-            MidnightMinute,
-            MidnightSecond,
-            TimeSpan.Zero)
-        : DateTimeOffset.Now.Date;
-
-        /// <summary>
-        /// Gets or sets the selected start date for the game search.
-        /// </summary>
-        public DateTimeOffset? SelectedStartDate
-        {
-            get => this.selectedStartDate;
-            set
-            {
-                var newValue = value?.Date;
-
-                if (!newValue.HasValue)
-                {
-                    newValue = DateTimeOffset.Now.Date;
-                }
-
-                if (this.selectedStartDate != newValue)
-                {
-                    this.selectedStartDate = newValue;
-                    this.OnPropertyChanged(nameof(this.SelectedStartDate));
-                    this.OnPropertyChanged(nameof(this.MinEndDate));
-                    this.OnPropertyChanged(nameof(this.IsEndDateEnabled));
-
-                    this.selectedEndDate = this.selectedStartDate;
-
-                    this.OnPropertyChanged(nameof(this.SelectedEndDate));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the selected end date for the game search.
-        /// </summary>
-        public DateTimeOffset? SelectedEndDate
-        {
-            get => this.selectedEndDate;
-            set
-            {
-                var newValue = value?.Date;
-
-                if (!newValue.HasValue)
-                {
-                    newValue = this.SelectedStartDate?.Date ?? DateTimeOffset.Now.Date;
-                }
-
-                if (this.SelectedStartDate.HasValue && newValue.HasValue &&
-                    newValue.Value < this.SelectedStartDate.Value)
-                {
-                    newValue = this.SelectedStartDate.Value.Date;
-                }
-
-                this.selectedEndDate = newValue;
-                this.OnPropertyChanged(nameof(this.SelectedEndDate));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the current page number in the discovery feed.
-        /// </summary>
         public int CurrentPage
         {
-            get => this.currentPage;
-            set
-            {
-                this.currentPage = value;
-                this.OnPropertyChanged(nameof(this.CurrentPage));
-            }
+            get => _currentPage;
+            set { _currentPage = value; OnPropertyChanged(nameof(CurrentPage)); }
         }
 
-        /// <summary>
-        /// Gets the total number of pages available based on the total games count.
-        /// </summary>
-        public int TotalPages
-        {
-            get
-            {
-                if (this.TotalGamesCount == 0)
-                {
-                    return NoPagesAvailable;
-                }
+        public int TotalPages => _totalAvailableGamesCount == 0 ? 0 : (int)Math.Ceiling((double)_totalAvailableGamesCount / ItemsPerPage);
 
-                return (int)Math.Ceiling((double)this.TotalGamesCount / ItemsPerPage);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the text used to search for games in a specific city.
-        /// </summary>
         public string CitySearchText
         {
-            get => this.citySearchText;
-            set
-            {
-                if (this.citySearchText != value)
-                {
-                    this.citySearchText = value;
-                    this.OnPropertyChanged(nameof(this.CitySearchText));
-                    this.Filter.City = value;
-                    this.UpdateCitySuggestions(value);
-                }
-            }
+            get => _citySearchText;
+            set { _citySearchText = value; OnPropertyChanged(nameof(CitySearchText)); }
         }
 
-        /// <summary>
-        /// Gets the collection of city suggestions based on the current search text.
-        /// </summary>
-        public ObservableCollection<string> CitySuggestions { get; } = new();
+        public string SearchName
+        {
+            get => _searchName;
+            set { _searchName = value; OnPropertyChanged(nameof(SearchName)); }
+        }
 
-        /// <summary>
-        /// Gets the command to navigate to the next page.
-        /// </summary>
+        public int SelectedMinimumPlayers
+        {
+            get => _selectedMinimumPlayers;
+            set { _selectedMinimumPlayers = value; OnPropertyChanged(nameof(SelectedMinimumPlayers)); }
+        }
+
+        public int SelectedMaximumPrice
+        {
+            get => _selectedMaximumPrice;
+            set { _selectedMaximumPrice = value; OnPropertyChanged(nameof(SelectedMaximumPrice)); }
+        }
+
+        public string NoResultsMessage => _totalAvailableGamesCount == 0 ? "No games available." : string.Empty;
+
         public ICommand NextPageCommand { get; }
-
-        /// <summary>
-        /// Gets the command to navigate to the previous page.
-        /// </summary>
         public ICommand PreviousPageCommand { get; }
-
-        /// <summary>
-        /// Gets the command to perform a search based on current filters.
-        /// </summary>
         public ICommand SearchCommand { get; }
+        public ICommand ClearFiltersCommand { get; }
 
-        /// <summary>
-        /// Gets the message to be displayed when no games match the discovery or search criteria.
-        /// </summary>
-        public string NoResultsMessage => this.TotalGamesCount == NoGamesAvailable ? "No games available." : string.Empty;
-
-        /// <summary>
-        /// Loads paginated discovery feed and updates UI properties.
-        /// </summary>
-        public async void LoadPaginatedDiscoveryFeed()
+        private async void LoadInitialGamesAsync()
         {
             try
             {
-                int currentUserId = AuthSession.IsLoggedIn
-                    ? SessionContext.GetInstance().UserId
-                    : -1;
+                // Task 9 rule: Load active games from the unified API
+                var result = await _gameService.GetAllGamesAsync();
 
-                var discoveryFeedResult = await this.searchAndFilterService.GetDiscoveryFeedPaged(currentUserId, this.CurrentPage, ItemsPerPage);
-
-                this.AvailableTonightGames = discoveryFeedResult.AvailableTonight;
-                this.OtherAvailableGames = discoveryFeedResult.Others;
-                this.ShowOthersHeader = this.OtherAvailableGames.Any();
-                this.totalAvailableGamesCount = discoveryFeedResult.TotalAvailableGamesCount;
-
-                this.OnPropertyChanged(nameof(this.TotalPages));
-                this.OnPropertyChanged(nameof(this.AvailableTonightGames));
-                this.OnPropertyChanged(nameof(this.OtherAvailableGames));
-                this.OnPropertyChanged(nameof(this.NoResultsMessage));
-            }
-            catch (Exception exception)
-            {
-                this.OnErrorOccurred?.Invoke($"Could not load discovery feed. {exception.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Navigates to the next page in the discovery feed.
-        /// </summary>
-        public void GoToNextPage()
-        {
-            try
-            {
-                if (this.CurrentPage * ItemsPerPage < this.TotalGamesCount)
+                if (result.IsSuccess)
                 {
-                    this.CurrentPage++;
-                    this.LoadPaginatedDiscoveryFeed();
-                    this.OnPageChanged?.Invoke();
-                }
-            }
-            catch (Exception ex)
-            {
-                this.OnErrorOccurred?.Invoke($"Could not go to next page. {ex.Message}");
-            }
-        }
+                    _allFetchedGames.Clear();
+                    foreach (var game in result.Data)
+                    {
+                        _allFetchedGames.Add(game);
+                    }
 
-        /// <summary>
-        /// Navigates to the previous page in the discovery feed.
-        /// </summary>
-        public void GoToPreviousPage()
-        {
-            try
-            {
-                if (this.CurrentPage > 1)
-                {
-                    this.CurrentPage--;
-                    this.LoadPaginatedDiscoveryFeed();
-                    this.OnPageChanged?.Invoke();
-                }
-            }
-            catch (Exception ex)
-            {
-                this.OnErrorOccurred?.Invoke($"Could not go to previous page. {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Searches for games based on the provided filter criteria and updates the discovery feed.
-        /// </summary>
-        /// <param name="criteria">The filter criteria containing search parameters like name, city, and price.</param>
-        public void SearchGamesByFilter(FilterCriteria criteria)
-        {
-            try
-            {
-                if (!this.searchAndFilterService.IsValidDateRange(
-                    this.SelectedStartDate?.DateTime,
-                    this.SelectedEndDate?.DateTime))
-                {
-                    return;
-                }
-
-                this.Filter.Name = criteria.Name;
-                this.Filter.City = criteria.City;
-                this.Filter.SortOption = criteria.SortOption;
-                this.Filter.MaximumPrice = criteria.MaximumPrice;
-                this.Filter.PlayerCount = criteria.PlayerCount;
-                this.Filter.UserId = AuthSession.IsLoggedIn
-                    ? SessionContext.GetInstance().UserId
-                    : null;
-
-                this.UpdateAvailabilityRange();
-
-                this.CurrentPage = InitialPage;
-                this.OnSearchRequest?.Invoke(this.Filter);
-            }
-            catch (Exception ex)
-            {
-                this.OnErrorOccurred?.Invoke($"Could not perform search. {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that changed. This is optional because of CallerMemberName.</param>
-        protected void OnPropertyChanged(string? propertyName = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void UpdateAvailabilityRange()
-        {
-            try
-            {
-                if (this.SelectedStartDate.HasValue &&
-                    this.SelectedEndDate.HasValue &&
-                    this.SelectedStartDate.Value <= this.SelectedEndDate.Value)
-                {
-                    this.Filter.AvailabilityRange = new TimeRange(
-                        this.SelectedStartDate.Value.Date,
-                        this.SelectedEndDate.Value.Date);
+                    ExecuteSearch(); // Apply default filters and pagination
                 }
                 else
                 {
-                    this.Filter.AvailabilityRange = null;
+                    OnErrorOccurred?.Invoke(result.ErrorMessage ?? "Failed to load games from API.");
                 }
             }
             catch (Exception ex)
             {
-                this.OnErrorOccurred?.Invoke($"Could not update availability range. {ex.Message}");
+                OnErrorOccurred?.Invoke($"Error connecting to API: {ex.Message}");
             }
         }
 
-        private void UpdateCitySuggestions(string input)
+        private void ExecuteSearch()
         {
-            try
-            {
-                this.CitySuggestions.Clear();
+            // Note for Task 10/Shared Owner: 
+            // We are filtering locally because POST api/games/search is missing from IGameService.
 
-                if (!string.IsNullOrWhiteSpace(input) && input.Length >= MinimumCitySearchLength)
-                {
-                    var matches = this.geographicalService.GetCitySuggestions(input);
-                    foreach (var match in matches)
-                    {
-                        this.CitySuggestions.Add(match);
-                    }
-                }
-            }
-            catch (Exception ex)
+            var filteredList = _allFetchedGames.Where(g =>
+                (string.IsNullOrEmpty(SearchName) || g.Name.Contains(SearchName, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(CitySearchText) || g.City.Contains(CitySearchText, StringComparison.OrdinalIgnoreCase)) &&
+                g.Price <= SelectedMaximumPrice &&
+                g.MinimumPlayerNumber >= SelectedMinimumPlayers
+            ).ToList();
+
+            _totalAvailableGamesCount = filteredList.Count;
+
+            // Client-side pagination logic
+            var paginatedList = filteredList
+                .Skip((CurrentPage - 1) * ItemsPerPage)
+                .Take(ItemsPerPage)
+                .ToList();
+
+            VisibleGames.Clear();
+            foreach (var game in paginatedList)
             {
-                this.OnErrorOccurred?.Invoke($"Could not load city suggestions. {ex.Message}");
+                VisibleGames.Add(game);
             }
+
+            OnPropertyChanged(nameof(TotalPages));
+            OnPropertyChanged(nameof(NoResultsMessage));
+        }
+
+        private void ClearFilters()
+        {
+            SearchName = string.Empty;
+            CitySearchText = string.Empty;
+            SelectedMaximumPrice = 100;
+            SelectedMinimumPlayers = 1;
+            CurrentPage = 1;
+
+            ExecuteSearch();
+        }
+
+        public void GoToNextPage()
+        {
+            if (CurrentPage < TotalPages)
+            {
+                CurrentPage++;
+                ExecuteSearch();
+            }
+        }
+
+        public void GoToPreviousPage()
+        {
+            if (CurrentPage > 1)
+            {
+                CurrentPage--;
+                ExecuteSearch();
+            }
+        }
+
+        protected void OnPropertyChanged(string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
