@@ -1,8 +1,8 @@
-﻿// <copyright file="IReceiptService.cs" company="BoardRent">
+// <copyright file="IReceiptService.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public interface IReceiptService
     {

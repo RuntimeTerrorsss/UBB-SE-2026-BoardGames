@@ -73,6 +73,23 @@ namespace BoardGames.Shared.ProxyServices
         public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> GetActiveGamesForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
             => FetchListAsync($"api/games/owner/{ownerAccountId}/active", cancellationToken);
 
+        public Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> SearchGamesAsync(
+            GameSearchCriteriaDTO criteria,
+            CancellationToken cancellationToken = default)
+        {
+            var client = CreateClient();
+            return ApiResponseReader.SendAsync<IReadOnlyList<GameSummaryDTO>>(
+                token => client.PostAsJsonAsync("api/games/search", criteria, token),
+                async (response, token) =>
+                {
+                    var parsed = await ApiResponseReader.ReadJsonAsync<List<GameSummaryDTO>>(response, token);
+                    return parsed.Success
+                        ? ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data ?? new List<GameSummaryDTO>())
+                        : ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
+                },
+                cancellationToken);
+        }
+
         private Task<ServiceResult<IReadOnlyList<GameSummaryDTO>>> FetchListAsync(string requestPath, CancellationToken cancellationToken)
         {
             var client = CreateClient();

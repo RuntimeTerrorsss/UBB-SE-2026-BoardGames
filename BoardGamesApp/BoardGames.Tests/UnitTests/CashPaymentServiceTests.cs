@@ -1,3 +1,8 @@
+using BoardGames.Data.Repositories;
+using Xunit;
+using BoardGames.Api.Legacy.Services;
+using BoardGames.Api.Legacy.Mappers;
+using Moq;
 // <copyright file="CashPaymentServiceTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

@@ -5,10 +5,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="Root"
-    xmlns:viewModels="using:BookingBoardGames.Src.ViewModels"
-    xmlns:shared="using:BookingBoardGames.Sharing.DTO"
-    xmlns:converters="using:BookingBoardGames.Src.Converters"
-    xmlns:DTO="using:BookingBoardGames.Sharing.DTO"
+    xmlns:viewModels="using:BoardGames.Desktop.ViewModels"
+    xmlns:shared="using:BoardGames.Sharing.DTO"
+    xmlns:converters="using:BoardGames.Desktop.Converters"
+    xmlns:DTO="using:BoardGames.Sharing.DTO"
     mc:Ignorable="d">
 
     <Page.Resources>

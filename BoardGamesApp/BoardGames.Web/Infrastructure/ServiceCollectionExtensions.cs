@@ -15,6 +15,7 @@ namespace BoardGames.Web.Infrastructure
             services.AddScoped<IRentalProxyService, RentalProxyServiceAdapter>();
             services.AddScoped<IRequestProxyService, RequestProxyServiceAdapter>();
             services.AddScoped<INotificationProxyService, NotificationProxyServiceAdapter>();
+            services.AddScoped<IConversationProxyService, ConversationProxyServiceAdapter>();
             return services;
         }
     }
