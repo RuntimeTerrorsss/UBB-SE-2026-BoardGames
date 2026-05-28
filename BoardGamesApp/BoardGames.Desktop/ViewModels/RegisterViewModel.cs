@@ -1,260 +1,152 @@
-using BoardGames.Desktop.Helpers;
+using System.Collections.ObjectModel;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace BoardGames.Desktop.ViewModels
 {
-    public class RegisterViewModel : INotifyPropertyChanged
+    public partial class RegisterViewModel : BaseViewModel
     {
-        private readonly IUserService userService;
-        private readonly SessionService sessionService;
+        private readonly IAuthService authService;
 
-        private string username = string.Empty;
+        [ObservableProperty]
         private string displayName = string.Empty;
+
+        [ObservableProperty]
+        private string username = string.Empty;
+
+        [ObservableProperty]
         private string email = string.Empty;
+
+        [ObservableProperty]
         private string password = string.Empty;
+
+        [ObservableProperty]
         private string confirmPassword = string.Empty;
-        private string city = string.Empty;
+
+        [ObservableProperty]
+        private string phoneNumber = string.Empty;
+
+        [ObservableProperty]
         private string country = string.Empty;
-        private bool isLoading;
 
-        private string usernameError = string.Empty;
+        [ObservableProperty]
+        private string city = string.Empty;
+
+        [ObservableProperty]
+        private string streetName = string.Empty;
+
+        [ObservableProperty]
+        private string streetNumber = string.Empty;
+
+        [ObservableProperty]
         private string displayNameError = string.Empty;
+
+        [ObservableProperty]
+        private string usernameError = string.Empty;
+
+        [ObservableProperty]
         private string emailError = string.Empty;
+
+        [ObservableProperty]
         private string passwordError = string.Empty;
+
+        [ObservableProperty]
         private string confirmPasswordError = string.Empty;
-        private string cityError = string.Empty;
-        private string countryError = string.Empty;
-        private string errorMessage = string.Empty;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        [ObservableProperty]
+        private string phoneNumberError = string.Empty;
 
-        public event Action? NavigateToLogin;
+        [ObservableProperty]
+        private string successMessage = string.Empty;
 
-        public event Action? NavigateToHome;
-
-        public ICommand RegisterCommand { get; }
-
-        public ICommand GoToLoginCommand { get; }
-        public ICommand GoToHomeCommand { get; }
-
-        public string Username
+        public RegisterViewModel(IAuthService authService)
         {
-            get => username;
-            set { username = value; OnPropertyChanged(); }
-        }
-
-        public string DisplayName
-        {
-            get => displayName;
-            set { displayName = value; OnPropertyChanged(); }
-        }
-
-        public string Email
-        {
-            get => email;
-            set { email = value; OnPropertyChanged(); }
-        }
-
-        public string Password
-        {
-            get => password;
-            set { password = value; OnPropertyChanged(); }
-        }
-
-        public string ConfirmPassword
-        {
-            get => confirmPassword;
-            set { confirmPassword = value; OnPropertyChanged(); }
-        }
-
-        public string City
-        {
-            get => city;
-            set { city = value; OnPropertyChanged(); }
-        }
-
-        public string Country
-        {
-            get => country;
-            set { country = value; OnPropertyChanged(); }
-        }
-
-        public bool IsLoading
-        {
-            get => isLoading;
-            set
+            this.authService = authService;
+            AvailableCountries = new ObservableCollection<string>
             {
-                isLoading = value;
-                OnPropertyChanged();
-                (RegisterCommand as RelayCommandNoParam)?.RaiseCanExecuteChanged();
-            }
+                string.Empty,
+                "Romania",
+                "Hungary",
+                "Germany",
+                "France",
+                "Italy",
+            };
         }
 
-        public string UsernameError
-        {
-            get => usernameError;
-            set { usernameError = value; OnPropertyChanged(); }
-        }
+        public ObservableCollection<string> AvailableCountries { get; }
 
-        public string DisplayNameError
-        {
-            get => displayNameError;
-            set { displayNameError = value; OnPropertyChanged(); }
-        }
+        public Action<string>? OnRegistrationSuccess { get; set; }
 
-        public string EmailError
-        {
-            get => emailError;
-            set { emailError = value; OnPropertyChanged(); }
-        }
+        public Action? OnNavigateToLogin { get; set; }
 
-        public string PasswordError
-        {
-            get => passwordError;
-            set { passwordError = value; OnPropertyChanged(); }
-        }
-
-        public string ConfirmPasswordError
-        {
-            get => confirmPasswordError;
-            set { confirmPasswordError = value; OnPropertyChanged(); }
-        }
-
-        public string CityError
-        {
-            get => cityError;
-            set { cityError = value; OnPropertyChanged(); }
-        }
-
-        public string CountryError
-        {
-            get => countryError;
-            set { countryError = value; OnPropertyChanged(); }
-        }
-
-        public string ErrorMessage
-        {
-            get => errorMessage;
-            set { errorMessage = value; OnPropertyChanged(); }
-        }
-
-        public RegisterViewModel(IUserService userService, SessionService sessionService)
-        {
-            this.userService = userService;
-            this.sessionService = sessionService;
-            RegisterCommand = new RelayCommandNoParam(RegisterAsync, () => !IsLoading);
-            GoToLoginCommand = new RelayCommandNoParam(() => NavigateToLogin?.Invoke());
-            GoToHomeCommand = new RelayCommandNoParam(() => NavigateToHome?.Invoke());
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
+        [RelayCommand]
         private async Task RegisterAsync()
         {
-            if (!ValidateUser())
+            SuccessMessage = string.Empty;
+            ErrorMessage = string.Empty;
+
+            if (!Validate())
             {
                 return;
             }
 
-            RunOnUiThread(() =>
-            {
-                IsLoading = true;
-                ErrorMessage = string.Empty;
-            });
+            IsLoading = true;
 
             try
             {
-                var username = Username.Trim();
-                var password = Password;
-
-                var newUser = new User
+                var request = new RegisterDTO
                 {
-                    Username = username,
                     DisplayName = DisplayName.Trim(),
+                    Username = Username.Trim(),
                     Email = Email.Trim(),
-                    PasswordHash = password,
-                    City = City.Trim(),
+                    Password = Password,
+                    ConfirmPassword = ConfirmPassword,
+                    PhoneNumber = PhoneNumber.Trim(),
                     Country = Country.Trim(),
+                    City = City.Trim(),
+                    StreetName = StreetName.Trim(),
+                    StreetNumber = StreetNumber.Trim(),
                 };
 
-                var result = await userService.RegisterUserAsync(newUser);
-
-                if (!result)
+                var result = await authService.RegisterAsync(request);
+                if (!result.Success)
                 {
-                    RunOnUiThread(() =>
-                        ErrorMessage = "Registration failed. The username or email may already be taken.");
+                    ErrorMessage = result.Error ?? "Registration failed.";
                     return;
                 }
 
-                var loggedInUser = await userService.LoginAsync(username, password);
-                if (loggedInUser == null)
-                {
-                    RunOnUiThread(() =>
-                        ErrorMessage = "Account created, but automatic sign-in failed. Please sign in manually.");
-                    return;
-                }
-
-                RunOnUiThread(() =>
-                {
-                    AuthSession.SetAuthenticatedUser(loggedInUser, sessionService);
-                    NavigateToHome?.Invoke();
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Registration failed: {ex}");
-                RunOnUiThread(() =>
-                    ErrorMessage = "Registration failed. Please check your connection and try again.");
+                SuccessMessage = "Account created successfully.";
+                OnRegistrationSuccess?.Invoke("Account created successfully. Please sign in.");
             }
             finally
             {
-                RunOnUiThread(() => IsLoading = false);
+                IsLoading = false;
             }
         }
 
-        private static void RunOnUiThread(Action action)
+        [RelayCommand]
+        private void GoToLogin()
         {
-            var dispatcher = ((App)Microsoft.UI.Xaml.Application.Current).Window?.DispatcherQueue;
-            if (dispatcher != null)
-            {
-                dispatcher.TryEnqueue(() => action());
-            }
-            else
-            {
-                action();
-            }
+            OnNavigateToLogin?.Invoke();
         }
 
-        private bool ValidateUser()
+        private bool Validate()
         {
-            UsernameError = Username.Trim().Length < 3 ? "Username must be at least 3 characters." : string.Empty;
             DisplayNameError = string.IsNullOrWhiteSpace(DisplayName) ? "Display name is required." : string.Empty;
-            EmailError = string.IsNullOrWhiteSpace(Email) || !Email.Contains('@')
-                ? "Invalid email address."
-                : string.Empty;
+            UsernameError = string.IsNullOrWhiteSpace(Username) ? "Username is required." : string.Empty;
+            EmailError = string.IsNullOrWhiteSpace(Email) || !Email.Contains('@') ? "A valid email is required." : string.Empty;
             PasswordError = Password.Length < 6 ? "Password must be at least 6 characters." : string.Empty;
             ConfirmPasswordError = Password != ConfirmPassword ? "Passwords do not match." : string.Empty;
-            CityError = string.IsNullOrWhiteSpace(City) ? "City is required." : string.Empty;
-            CountryError = string.IsNullOrWhiteSpace(Country) ? "Country is required." : string.Empty;
+            PhoneNumberError = string.Empty;
 
-            System.Diagnostics.Debug.WriteLine("validation");
-            System.Diagnostics.Debug.WriteLine($"{UsernameError}");
-            System.Diagnostics.Debug.WriteLine($"{DisplayNameError}");
-            System.Diagnostics.Debug.WriteLine($"{EmailError}");
-            System.Diagnostics.Debug.WriteLine($"{PasswordError}");
-            System.Diagnostics.Debug.WriteLine($"{ConfirmPasswordError}");
-            System.Diagnostics.Debug.WriteLine($"{CityError}");
-            System.Diagnostics.Debug.WriteLine($"{CountryError}");
-
-            return string.IsNullOrEmpty(UsernameError)
-                && string.IsNullOrEmpty(DisplayNameError)
+            return string.IsNullOrEmpty(DisplayNameError)
+                && string.IsNullOrEmpty(UsernameError)
                 && string.IsNullOrEmpty(EmailError)
                 && string.IsNullOrEmpty(PasswordError)
                 && string.IsNullOrEmpty(ConfirmPasswordError)
-                && string.IsNullOrEmpty(CityError)
-                && string.IsNullOrEmpty(CountryError);
+                && string.IsNullOrEmpty(PhoneNumberError);
         }
     }
 }

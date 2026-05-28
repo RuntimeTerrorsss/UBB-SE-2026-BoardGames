@@ -12,6 +12,6 @@ namespace BoardGames.Desktop.Services
 
         bool CanAccessPage(Type pageType);
 
-        bool CanAccessMenuPage(AppPage page);
+        bool CanAccessRoute(AppPage page);
     }
 }

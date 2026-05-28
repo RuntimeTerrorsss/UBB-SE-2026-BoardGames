@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace BoardGames.Desktop.ViewModels
 {
     public partial class BaseViewModel : ObservableObject
@@ -6,6 +8,6 @@ namespace BoardGames.Desktop.ViewModels
         private bool isLoading;
 
         [ObservableProperty]
-        private string errorMessage;
+        private string errorMessage = string.Empty;
     }
 }
