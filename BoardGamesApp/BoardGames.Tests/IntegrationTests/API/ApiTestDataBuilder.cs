@@ -33,7 +33,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
             dbContext.Users.Add(user);
 
-            var role = await dbContext.Roles.FirstOrDefaultAsync(r => r.Name == (isAdmin ? "Administrator" : "Standard User"));
+            var role = await dbContext.Roles.FirstOrDefaultAsync(role => role.Name == (isAdmin ? "Administrator" : "Standard User"));
             if (role != null)
             {
                 dbContext.AccountRoles.Add(new AccountRole { AccountId = accountId, RoleId = role.Id });
