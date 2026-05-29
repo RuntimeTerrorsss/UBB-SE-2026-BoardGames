@@ -14,6 +14,8 @@ namespace BoardGames.Shared.ProxyServices
 
         Task<ServiceResult<bool>> IsSlotAvailableAsync(int gameId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 
+        Task<ServiceResult<IReadOnlyList<BookedDateRangeDTO>>> GetBookedDatesForGameAsync(int gameId, CancellationToken cancellationToken = default);
+
         Task<ServiceResult> CreateConfirmedRentalAsync(CreateRentalDTO rental, CancellationToken cancellationToken = default);
     }
 }

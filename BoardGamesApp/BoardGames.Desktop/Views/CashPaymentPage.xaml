@@ -89,6 +89,10 @@
 			</Paragraph>
 			
 		</RichTextBlock>
+		<Button Content="Confirm cash payment"
+				Click="ConfirmCashPayment_Click"
+				Style="{StaticResource AccentButtonStyle}"
+				Margin="0,20,0,0"/>
 		<Button x:Name="NavigateToChatButton"
 				Content="Back to Chat"
 				Click="NavigateToChatButton_Click"

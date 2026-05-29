@@ -104,6 +104,7 @@ namespace BoardGames.Desktop.Views
             {
                 AppPage.Filter => (typeof(SearchGamesPage), parameter),
                 AppPage.GameDetails => (typeof(GameDetailsPage), parameter),
+                AppPage.ConfirmRental => (typeof(ConfirmBookingView), parameter),
                 AppPage.Login => (typeof(LoginPage), parameter),
                 AppPage.Register => (typeof(RegisterPage), parameter),
                 AppPage.Games => (typeof(ListingsPage), parameter),

@@ -23,7 +23,7 @@ namespace BoardGames.Api.Services
 
         Task<Result<int, DenyRequestError>> DenyRequest(int requestId, Guid ownerAccountId, string declineReason);
 
-        Result<int, CancelRequestError> CancelRequest(int requestId, Guid cancellingAccountId);
+        Task<Result<int, CancelRequestError>> CancelRequest(int requestId, Guid cancellingAccountId);
 
         void OnGameDeactivated(int gameId);
 

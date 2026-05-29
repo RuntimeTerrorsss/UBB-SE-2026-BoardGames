@@ -70,6 +70,30 @@ namespace BoardGames.Web.Controllers
                 this.ViewBag.BookedDates = new List<BookedDateRangeDTO>();
             }
 
+            var pendingRequestDates = new List<BookedDateRangeDTO>();
+            try
+            {
+                Guid renterAccountId = this.User.GetAccountId();
+                var renterRequests = await this.requestProxyService.GetRequestsForRenterAsync(renterAccountId);
+                foreach (var request in renterRequests)
+                {
+                    if (request.Game?.Id == id && request.Status == RequestStatus.Open)
+                    {
+                        pendingRequestDates.Add(new BookedDateRangeDTO
+                        {
+                            StartDate = request.StartDate,
+                            EndDate = request.EndDate,
+                        });
+                    }
+                }
+            }
+            catch (ProxyServiceException)
+            {
+                pendingRequestDates = new List<BookedDateRangeDTO>();
+            }
+
+            this.ViewBag.PendingRequestDates = pendingRequestDates;
+
             return this.View(game);
         }
 

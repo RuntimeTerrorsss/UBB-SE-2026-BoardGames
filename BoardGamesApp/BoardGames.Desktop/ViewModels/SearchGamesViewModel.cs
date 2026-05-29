@@ -118,9 +118,9 @@ namespace BoardGames.Desktop.ViewModels
 
             try
             {
-                ServiceResult<IReadOnlyList<GameSummaryDTO>> result = useSearch
+                ServiceResult<IReadOnlyList<GameSummaryDTO>> result = useSearch || !sessionContext.IsLoggedIn
                     ? await gameService.SearchGamesAsync(BuildSearchCriteria())
-                    : await gameService.GetAllGamesAsync();
+                    : await gameService.GetAvailableGamesForRenterAsync(sessionContext.AccountId);
 
                 if (!result.Success)
                 {
@@ -171,6 +171,7 @@ namespace BoardGames.Desktop.ViewModels
                 AvailableFrom = AvailableFrom?.Date,
                 AvailableTo = AvailableTo?.Date,
                 SortBy = SelectedSortOption == "None" ? null : SelectedSortOption,
+                ExcludeOwnerAccountId = sessionContext.IsLoggedIn ? sessionContext.AccountId : null,
             };
         }
 

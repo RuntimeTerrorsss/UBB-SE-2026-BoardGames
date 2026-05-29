@@ -7,6 +7,7 @@ using System.Text.Json;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
+using BoardGames.Shared.Helpers;
 
 namespace BoardGames.Shared.ProxyRepositories
 {
@@ -204,7 +205,9 @@ namespace BoardGames.Shared.ProxyRepositories
                 IsAccepted: message is RentalRequestMessage rentalAcceptedMessage ? rentalAcceptedMessage.IsRequestAccepted : false,
                 IsAcceptedByBuyer: message is CashAgreementMessage cashBuyerMessage ? cashBuyerMessage.IsCashAgreementAcceptedByBuyer : false,
                 IsAcceptedBySeller: message is CashAgreementMessage cashSellerMessage ? cashSellerMessage.IsCashAgreementAcceptedBySeller : false,
-                RequestId: message is RentalRequestMessage rentalRequestMessage ? rentalRequestMessage.RentalRequestId : defaultMissingIdentifier,
+                RequestId: message is RentalRequestMessage rentalRequestMessage
+                    ? ResolveRentalRequestIdFromMessage(rentalRequestMessage, defaultMissingIdentifier)
+                    : defaultMissingIdentifier,
                 PaymentId: message is CashAgreementMessage cashPaymentMessage ? cashPaymentMessage.CashPaymentId : defaultMissingIdentifier);
         }
 
@@ -302,5 +305,12 @@ namespace BoardGames.Shared.ProxyRepositories
             bool IsAcceptedBySeller,
             int RequestId,
             int PaymentId);
+
+        private static int ResolveRentalRequestIdFromMessage(RentalRequestMessage rentalMessage, int missingId)
+        {
+            string content = rentalMessage.RequestContent ?? rentalMessage.MessageContentAsString ?? string.Empty;
+            int requestId = RentalRequestMessageHelper.TryParseRequestIdFromContent(content);
+            return requestId > 0 ? requestId : missingId;
+        }
     }
 }

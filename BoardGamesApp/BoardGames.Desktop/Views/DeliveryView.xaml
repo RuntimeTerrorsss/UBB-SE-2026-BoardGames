@@ -105,7 +105,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <WebView2 x:Name="MapWebView" Grid.Row="0"/>
+                    <TextBlock Grid.Row="0" Text="Map picker is not available in this build." HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Row="1"
                                 Orientation="Horizontal"

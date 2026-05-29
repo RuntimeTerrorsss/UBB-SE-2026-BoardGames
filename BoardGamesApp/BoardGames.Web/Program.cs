@@ -8,6 +8,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = "BoardGames.Session";
+    options.Cookie.HttpOnly = true;
+    options.IdleTimeout = TimeSpan.FromHours(8);
+});
 
 string apiBaseUrl = builder.Configuration["ApiBaseUrl"]
     ?? throw new InvalidOperationException("Configuration value 'ApiBaseUrl' is required.");
@@ -39,7 +46,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
+app.UseMiddleware<EnsureApiAuthMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(

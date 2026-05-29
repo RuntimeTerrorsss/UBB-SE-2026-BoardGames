@@ -74,17 +74,24 @@
                                     <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Opacity="0.85" />
                                     <TextBlock Text="{Binding SentAtDisplay}" FontSize="11" Foreground="Gray" />
 
-                                    <!-- Awaiting badge -->
+                                    <!-- Awaiting badge (renter) -->
                                     <Border Background="#CA8A04" CornerRadius="4" Padding="8,4"
                                             Visibility="{Binding ShowAwaitingBadge, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="Awaiting owner response" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
-                                    <!-- Accepted badge -->
+                                    <!-- Pending payment (owner) -->
+                                    <Border Background="#2563EB" CornerRadius="4" Padding="8,4"
+                                            Visibility="{Binding ShowPendingPaymentBadge, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="Pending payment" Foreground="White"
+                                                   FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
+                                    </Border>
+
+                                    <!-- Completed -->
                                     <Border Background="#16A34A" CornerRadius="4" Padding="8,4"
-                                            Visibility="{Binding ShowAcceptedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="Request accepted ✓" Foreground="White"
+                                            Visibility="{Binding ShowCompletedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="Rental completed ✓" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
@@ -107,7 +114,13 @@
                                     <!-- Renter: Cancel -->
                                     <Button Tag="{Binding}" Click="CancelRequest_Click"
                                             Content="Cancel request"
-                                            Visibility="{Binding ShowRenterActions, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                            Visibility="{Binding ShowRenterCancel, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                    <!-- Renter: Proceed to payment -->
+                                    <Button Tag="{Binding}" Click="ProceedToPayment_Click"
+                                            Content="Proceed to payment"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Visibility="{Binding ShowProceedToPayment, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 </StackPanel>
                             </Border>
 

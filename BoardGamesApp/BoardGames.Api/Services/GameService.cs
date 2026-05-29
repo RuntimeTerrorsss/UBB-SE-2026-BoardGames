@@ -185,7 +185,16 @@ namespace BoardGames.Api.Services
             }
 
             var games = await this.gameListingRepository.GetGamesByFilter(filter);
-            return games.Select(g => this.gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
+            var summaries = games.Select(g => this.gameDtoMapper.ToSummaryDTO(g)).ToList();
+
+            if (criteria.ExcludeOwnerAccountId.HasValue)
+            {
+                summaries = summaries
+                    .Where(g => g.OwnerAccountId != criteria.ExcludeOwnerAccountId.Value)
+                    .ToList();
+            }
+
+            return summaries.AsReadOnly();
         }
     }
 }

@@ -75,7 +75,7 @@ namespace BoardGames.Tests.Api.Services
         }
 
         [Test]
-        public void CancelRequest_AsRenter_DeletesRequestAndNotifications()
+        public async Task CancelRequest_AsRenter_DeletesRequestAndNotifications()
         {
             var renterId = Guid.NewGuid();
             var ownerId = Guid.NewGuid();
@@ -92,7 +92,7 @@ namespace BoardGames.Tests.Api.Services
 
             this.requestRepository.RequestsById[100] = existingRequest;
 
-            var result = this.service.CancelRequest(100, renterId);
+            var result = await this.service.CancelRequest(100, renterId);
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Value, Is.EqualTo(100));
@@ -293,16 +293,16 @@ namespace BoardGames.Tests.Api.Services
         }
 
         [Test]
-        public void CancelRequest_WhenRequestNotFound_ReturnsNotFound()
+        public async Task CancelRequest_WhenRequestNotFound_ReturnsNotFound()
         {
-            var result = this.service.CancelRequest(999, Guid.NewGuid());
+            var result = await this.service.CancelRequest(999, Guid.NewGuid());
 
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Error, Is.EqualTo(CancelRequestError.NotFound));
         }
 
         [Test]
-        public void CancelRequest_WhenCallerIsNotRenter_ReturnsUnauthorized()
+        public async Task CancelRequest_WhenCallerIsNotRenter_ReturnsUnauthorized()
         {
             var renterAccountId = Guid.NewGuid();
             var differentAccountId = Guid.NewGuid();
@@ -316,7 +316,7 @@ namespace BoardGames.Tests.Api.Services
                 Status = RequestStatus.Open,
             };
 
-            var result = this.service.CancelRequest(1, differentAccountId);
+            var result = await this.service.CancelRequest(1, differentAccountId);
 
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Error, Is.EqualTo(CancelRequestError.Unauthorized));

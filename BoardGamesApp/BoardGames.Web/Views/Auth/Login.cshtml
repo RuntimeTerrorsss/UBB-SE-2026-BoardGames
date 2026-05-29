@@ -14,6 +14,10 @@
 </div>
 
 <div class="form-section">
+    @if (ViewData["InfoMessage"] is string infoMessage)
+    {
+        <div class="alert alert-info py-2 small" role="alert">@infoMessage</div>
+    }
     <form asp-action="Login" method="post">
         <div asp-validation-summary="All" class="text-danger mb-3"></div>
         <input type="hidden" asp-for="ReturnUrl" />

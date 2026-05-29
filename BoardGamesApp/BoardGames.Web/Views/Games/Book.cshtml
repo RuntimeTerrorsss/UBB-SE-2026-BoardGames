@@ -2,7 +2,7 @@
 @using BoardGames.Web.Helpers
 
 @{
-    ViewData["Title"] = "Confirm your booking";
+    ViewData["Title"] = "Review rental request";
     DateTime startDate = ViewBag.StartDate;
     DateTime endDate = ViewBag.EndDate;
     int days = Math.Max(1, (int)(endDate.Date - startDate.Date).TotalDays + 1);
@@ -14,7 +14,7 @@
         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">&larr; Back</a>
     </div>
 
-    <h2 class="fw-bold mb-4">Confirm your booking</h2>
+    <h2 class="fw-bold mb-4">Review rental request</h2>
 
     @if (ViewBag.ErrorMessage is string errorMsg && !string.IsNullOrWhiteSpace(errorMsg))
     {
@@ -78,7 +78,7 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="startDate" value="@startDate.ToString("yyyy-MM-dd")" />
                 <input type="hidden" name="endDate" value="@endDate.ToString("yyyy-MM-dd")" />
-                <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold">Confirm &amp; Pay</button>
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold">Send rental request</button>
             </form>
         </div>
     </div>

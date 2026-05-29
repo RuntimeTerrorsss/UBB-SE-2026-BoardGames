@@ -8,7 +8,7 @@ namespace BoardGames.Api.Services
     {
         public static bool HasValidFutureDateRange(DateTime startDate, DateTime endDate)
         {
-            if (startDate.Date >= endDate.Date)
+            if (startDate.Date > endDate.Date)
             {
                 return false;
             }

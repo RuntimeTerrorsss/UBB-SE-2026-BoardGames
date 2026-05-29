@@ -53,8 +53,8 @@ namespace BoardGames.Tests.Fakes
         public Task<ApiResultDeny> DenyRequest(int requestId, Guid ownerAccountId, string declineReason) =>
             Task.FromResult(ApiResultDeny.Failure(DenyRequestError.NotFound));
 
-        public ApiResultCancel CancelRequest(int requestId, Guid cancellingAccountId) =>
-            ApiResultCancel.Failure(CancelRequestError.NotFound);
+        public Task<ApiResultCancel> CancelRequest(int requestId, Guid cancellingAccountId) =>
+            Task.FromResult(ApiResultCancel.Failure(CancelRequestError.NotFound));
 
         public void OnGameDeactivated(int gameId)
         {
@@ -101,6 +101,8 @@ namespace BoardGames.Tests.Fakes
             this.AttachRentalRequestMessageCallCount++;
             return Task.CompletedTask;
         }
+
+        public Task AcceptRentalRequestMessage(int requestId, int rentalId) => Task.CompletedTask;
 
         public Task FinalizeRentalRequestMessage(int requestId, bool accepted)
         {
