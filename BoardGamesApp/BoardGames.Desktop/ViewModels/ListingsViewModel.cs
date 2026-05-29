@@ -1,3 +1,7 @@
+// <copyright file="ListingsViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.ViewModels
 {
     using System;
@@ -57,11 +61,15 @@ namespace BoardGames.Desktop.ViewModels
         public async Task DeleteGameAsync(GameSummaryDTO gameToDelete)
         {
             if (!CanManageGame(gameToDelete))
+            {
                 throw new UnauthorizedAccessException("You are not authorized to delete this game.");
+            }
 
             var deleteResult = await gameListingService.DeleteGameAsync(gameToDelete.Id);
             if (!deleteResult.Success)
+            {
                 throw new InvalidOperationException(deleteResult.Error ?? "Unexpected error occurred.");
+            }
 
             await ReloadAsync();
         }

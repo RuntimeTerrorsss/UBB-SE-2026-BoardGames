@@ -1,3 +1,7 @@
+// <copyright file="EditGameViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
@@ -99,7 +103,7 @@ namespace BoardGames.Desktop.ViewModels
                 Price = GamePrice,
                 MinimumPlayerNumber = MinimumPlayersRequired,
                 MaximumPlayerNumber = MaximumPlayersAllowed,
-                IsActive = IsGameActive
+                IsActive = IsGameActive,
             };
         }
 
@@ -115,7 +119,7 @@ namespace BoardGames.Desktop.ViewModels
                 MaximumPlayerNumber = MaximumPlayersAllowed,
                 Description = GameDescription,
                 Image = GameImage,
-                IsActive = IsGameActive
+                IsActive = IsGameActive,
             };
         }
     }

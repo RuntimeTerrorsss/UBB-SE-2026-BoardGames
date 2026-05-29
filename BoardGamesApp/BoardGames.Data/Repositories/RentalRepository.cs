@@ -17,10 +17,6 @@ namespace BoardGames.Data.Repositories
             this.context = appContext;
         }
 
-        // ==========================================
-        // Project 1 methods (original)
-        // ==========================================
-
         public async Task<Rental?> GetById(int rentalId)
         {
             return await this.context.Rentals
@@ -83,10 +79,6 @@ namespace BoardGames.Data.Repositories
         {
             throw new NotSupportedException("Use POST api/rentals/book; this repository only persists rentals.");
         }
-
-        // ==========================================
-        // Project 2 methods (merged from RentalRepository2)
-        // ==========================================
 
         private IQueryable<Rental> RentalsWithNavigations() =>
             this.context.Rentals
@@ -190,10 +182,6 @@ namespace BoardGames.Data.Repositories
 
             return rental;
         }
-
-        // ==========================================
-        // Helpers
-        // ==========================================
 
         private User? ResolveUser(User? user)
         {

@@ -38,7 +38,10 @@ namespace BoardGames.Desktop.ViewModels
 
         private async Task LoadDashboardDataAsync()
         {
-            if (!sessionContext.IsLoggedIn) return;
+            if (!sessionContext.IsLoggedIn)
+            {
+                return;
+            }
 
             var convResult = await conversationService.GetConversationsForUserAsync(sessionContext.AccountId);
             var notifResult = await notificationService.GetNotificationsForUserAsync(sessionContext.AccountId);

@@ -1,3 +1,7 @@
+// <copyright file="HttpProxyClient.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;

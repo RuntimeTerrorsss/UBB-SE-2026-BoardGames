@@ -20,9 +20,9 @@ namespace BoardGames.Data
 
         public AppDbContext() { }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options) { }
 
-        // DbSets from project 1
         public DbSet<User> Users { get; set; }
 
         public DbSet<Game> Games { get; set; }
@@ -38,8 +38,6 @@ namespace BoardGames.Data
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
 
         public DbSet<City> Cities { get; set; }
-
-        // DbSets from project 2
         public DbSet<Role> Roles { get; set; }
 
         public DbSet<AccountRole> AccountRoles { get; set; }
@@ -218,11 +216,9 @@ namespace BoardGames.Data
                       .IsRequired(false);
             });
 
-            // Composite key for ConversationParticipant
             modelBuilder.Entity<ConversationParticipant>()
                 .HasKey(participant => new { participant.ConversationId, participant.UserId });
 
-            // Message TPH hierarchy
             modelBuilder.Entity<Message>()
                 .HasDiscriminator<string>("MessageCategory")
                 .HasValue<TextMessage>("Text")
@@ -231,7 +227,6 @@ namespace BoardGames.Data
                 .HasValue<RentalRequestMessage>("RentalRequest")
                 .HasValue<CashAgreementMessage>("CashAgreement");
 
-            // Message → User relationships
             modelBuilder.Entity<Message>()
                 .HasOne(message => message.Sender)
                 .WithMany()
@@ -246,7 +241,6 @@ namespace BoardGames.Data
                 .HasPrincipalKey(user => user.PamUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Derived Message relationships
             modelBuilder.Entity<RentalRequestMessage>()
                 .HasOne(message => message.RentalRequest)
                 .WithMany(rental => rental.Messages)
@@ -259,7 +253,6 @@ namespace BoardGames.Data
                 .HasForeignKey(message => message.CashPaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Conversation Participants → User
             modelBuilder.Entity<ConversationParticipant>()
                 .HasOne(participant => participant.User)
                 .WithMany(user => user.Conversations)

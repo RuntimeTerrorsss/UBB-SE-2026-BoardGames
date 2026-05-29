@@ -9,7 +9,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 [Owned]
 public class TimeRange
 {
-    public TimeRange() { }
+    public TimeRange()
+    {
+    }
 
     public TimeRange(DateTime startTime, DateTime endTime)
     {

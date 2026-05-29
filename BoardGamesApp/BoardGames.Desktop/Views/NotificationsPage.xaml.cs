@@ -1,3 +1,7 @@
+// <copyright file="NotificationsPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Shared.DTO;
 using Microsoft.Extensions.DependencyInjection;

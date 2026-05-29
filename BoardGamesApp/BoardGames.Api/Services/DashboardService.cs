@@ -1,3 +1,7 @@
+// <copyright file="DashboardService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +24,14 @@ namespace BoardGames.Api.Services
 
         public async Task<List<PaymentDTO>> GetPaymentHistoryForUser(Guid accountId)
         {
-            var user = await accountRepository.GetByIdAsync(accountId);
+            var user = await this.accountRepository.GetByIdAsync(accountId);
             if (user is null)
             {
                 return new List<PaymentDTO>();
             }
 
             int pamUserId = user.PamUserId;
-            var allPayments = await historyRepository.GetAllPayments();
+            var allPayments = await this.historyRepository.GetAllPayments();
 
             return allPayments
                 .Where(payment => payment.ClientId == pamUserId || payment.OwnerId == pamUserId)

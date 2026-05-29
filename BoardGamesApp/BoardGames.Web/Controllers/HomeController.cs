@@ -9,12 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            return this.RedirectToAction("Index", "Games");
+            return this.RedirectToAction("Index", "Search");
         }
 
         public IActionResult Privacy()

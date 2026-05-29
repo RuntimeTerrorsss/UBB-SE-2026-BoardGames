@@ -2,8 +2,12 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Controllers;
 using BoardGames.Web.Infrastructure;
@@ -29,7 +33,8 @@ namespace BoardGames.Tests.Web
         {
             var controller = new NotificationsController(this.notificationProxy.Object);
 
-            var identity = new ClaimsIdentity(new[]
+            var identity = new ClaimsIdentity(
+                new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, this.accountId.ToString()),
             }, "Test");

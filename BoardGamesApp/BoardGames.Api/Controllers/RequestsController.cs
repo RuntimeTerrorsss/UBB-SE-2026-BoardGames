@@ -1,3 +1,7 @@
+// <copyright file="RequestsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,79 +30,79 @@ namespace BoardGames.Api.Controllers
         [HttpGet("owner/{ownerAccountId:guid}")]
         public ActionResult<IReadOnlyList<RequestDTO>> GetForOwner(Guid ownerAccountId)
         {
-            return Ok(requestService.GetRequestsForOwner(ownerAccountId));
+            return this.Ok(this.requestService.GetRequestsForOwner(ownerAccountId));
         }
 
         [HttpGet("renter/{renterAccountId:guid}")]
         public ActionResult<IReadOnlyList<RequestDTO>> GetForRenter(Guid renterAccountId)
         {
-            return Ok(requestService.GetRequestsForRenter(renterAccountId));
+            return this.Ok(this.requestService.GetRequestsForRenter(renterAccountId));
         }
 
         [HttpGet("owner/{ownerAccountId:guid}/open")]
         public ActionResult<IReadOnlyList<RequestDTO>> GetOpenForOwner(Guid ownerAccountId)
         {
-            return Ok(requestService.GetOpenRequestsForOwner(ownerAccountId));
+            return this.Ok(this.requestService.GetOpenRequestsForOwner(ownerAccountId));
         }
 
         [HttpPost]
         public async Task<ActionResult<int>> Create([FromBody] CreateRequestDTO body)
         {
-            var result = await requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
+            var result = await this.requestService.CreateRequest(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
             if (!result.IsSuccess)
             {
-                return MapCreateError(result.Error);
+                return this.MapCreateError(result.Error);
             }
 
-            return Ok(new { Id = result.Value });
+            return this.Ok(new { Id = result.Value });
         }
 
         [HttpPut("{requestId:int}/approve")]
         public async Task<ActionResult<int>> Approve(int requestId, [FromBody] RequestActionDTO body)
         {
-            var result = await requestService.ApproveRequest(requestId, body.AccountId);
+            var result = await this.requestService.ApproveRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
-                return MapApproveError(result.Error);
+                return this.MapApproveError(result.Error);
             }
 
-            return Ok(new { RentalId = result.Value });
+            return this.Ok(new { RentalId = result.Value });
         }
 
         [HttpPut("{requestId:int}/deny")]
         public async Task<IActionResult> Deny(int requestId, [FromBody] RequestActionDTO body)
         {
-            var result = await requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
+            var result = await this.requestService.DenyRequest(requestId, body.AccountId, body.Reason ?? string.Empty);
             if (!result.IsSuccess)
             {
-                return MapDenyError(result.Error);
+                return this.MapDenyError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPut("{requestId:int}/cancel")]
         public IActionResult Cancel(int requestId, [FromBody] RequestActionDTO body)
         {
-            var result = requestService.CancelRequest(requestId, body.AccountId);
+            var result = this.requestService.CancelRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
-                return MapCancelError(result.Error);
+                return this.MapCancelError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPut("{requestId:int}/offer")]
         public async Task<ActionResult<int>> Offer(int requestId, [FromBody] RequestActionDTO body)
         {
-            var result = await requestService.OfferGame(requestId, body.AccountId);
+            var result = await this.requestService.OfferGame(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
-                return MapOfferError(result.Error);
+                return this.MapOfferError(result.Error);
             }
 
-            return Ok(new { RentalId = result.Value });
+            return this.Ok(new { RentalId = result.Value });
         }
 
         [HttpGet("games/{gameId:int}/booked-dates")]
@@ -107,20 +111,20 @@ namespace BoardGames.Api.Controllers
             [FromQuery] int month = UnspecifiedMonth,
             [FromQuery] int year = UnspecifiedYear)
         {
-            var ranges = requestService.GetBookedDates(gameId, month, year)
+            var ranges = this.requestService.GetBookedDates(gameId, month, year)
                 .Select(range => new BookedDateRangeDTO
                 {
                     StartDate = range.StartDate,
                     EndDate = range.EndDate,
                 })
                 .ToList();
-            return Ok(ranges);
+            return this.Ok(ranges);
         }
 
         [HttpGet("games/{gameId:int}/availability")]
         public ActionResult<bool> CheckAvailability(int gameId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            return Ok(requestService.CheckAvailability(gameId, startDate, endDate));
+            return this.Ok(this.requestService.CheckAvailability(gameId, startDate, endDate));
         }
 
         private ActionResult MapApproveError(ApproveRequestError error) =>

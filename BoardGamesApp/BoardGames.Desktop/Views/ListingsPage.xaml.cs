@@ -1,3 +1,7 @@
+// <copyright file="ListingsPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -35,7 +39,10 @@ namespace BoardGames.Desktop.Views
             var clickedButton = sender as Button;
             var gameToDelete = clickedButton?.Tag as GameSummaryDTO;
 
-            if (gameToDelete == null) return;
+            if (gameToDelete == null)
+            {
+                return;
+            }
 
             var confirmDialog = new ContentDialog
             {
@@ -44,7 +51,7 @@ namespace BoardGames.Desktop.Views
                 PrimaryButtonText = "Delete",
                 CloseButtonText = "Cancel",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
             };
 
             var deleteConfirmationResult = await confirmDialog.ShowAsync();
@@ -59,7 +66,7 @@ namespace BoardGames.Desktop.Views
                         Title = gameDeletionResult.DialogTitle ?? "Notice",
                         Content = gameDeletionResult.DialogMessage,
                         CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
+                        XamlRoot = this.XamlRoot,
                     };
                     await msgDialog.ShowAsync();
                 }

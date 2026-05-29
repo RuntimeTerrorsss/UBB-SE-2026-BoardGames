@@ -1,3 +1,7 @@
+// <copyright file="GameMapper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
@@ -19,6 +23,7 @@ namespace BoardGames.Api.Mappers
             {
                 return $"/api/games/{game.Id}/image";
             }
+
             return GameImageMapper.GetImageUrl(game.Name);
         }
 
@@ -32,10 +37,10 @@ namespace BoardGames.Api.Mappers
                 City = game.Owner?.City ?? string.Empty,
                 MinimumPlayerNumber = game.MinimumPlayerNumber,
                 MaximumPlayerNumber = game.MaximumPlayerNumber,
-                ImageUrl = GetImageUrl(game),
+                ImageUrl = this.GetImageUrl(game),
                 OwnerDisplayName = game.Owner?.DisplayName ?? string.Empty,
                 OwnerAccountId = game.Owner?.Id ?? Guid.Empty,
-                IsActive = game.IsActive
+                IsActive = game.IsActive,
             };
         }
 
@@ -49,12 +54,12 @@ namespace BoardGames.Api.Mappers
                 City = game.Owner?.City ?? string.Empty,
                 MinimumPlayerNumber = game.MinimumPlayerNumber,
                 MaximumPlayerNumber = game.MaximumPlayerNumber,
-                ImageUrl = GetImageUrl(game),
+                ImageUrl = this.GetImageUrl(game),
                 OwnerDisplayName = game.Owner?.DisplayName ?? string.Empty,
                 OwnerAccountId = game.Owner?.Id ?? Guid.Empty,
                 IsActive = game.IsActive,
                 Description = game.Description,
-                Owner = ownerMapper.ToDTO(game.Owner)
+                Owner = this.ownerMapper.ToDTO(game.Owner),
             };
         }
 
@@ -68,8 +73,8 @@ namespace BoardGames.Api.Mappers
                 MaximumPlayerNumber = dto.MaximumPlayerNumber,
                 Description = dto.Description,
                 Image = dto.Image,
-                IsActive = true, // By default games are active when created
-                Owner = new User { Id = ownerAccountId } // Repository resolves this via ResolveUser
+                IsActive = true,
+                Owner = new User { Id = ownerAccountId },
             };
         }
 

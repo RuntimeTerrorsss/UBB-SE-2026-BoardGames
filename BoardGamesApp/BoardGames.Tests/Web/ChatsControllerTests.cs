@@ -33,7 +33,8 @@ namespace BoardGames.Tests.Web
                 this.accountProxy.Object,
                 this.requestProxy.Object);
 
-            var identity = new ClaimsIdentity(new[]
+            var identity = new ClaimsIdentity(
+                new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, accountId.ToString()),
                 new Claim("PamUserId", pamUserId.ToString()),

@@ -7,6 +7,7 @@ using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BoardGames.Web.Controllers
 {
@@ -24,14 +25,16 @@ namespace BoardGames.Web.Controllers
             this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
+            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
+            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
+            base.OnActionExecuting(context);
+        }
+
         public async Task<IActionResult> Index()
         {
-            if (this.User.IsAdministrator())
-            {
-                var allGames = await this.gameProxyService.GetAllGamesAsync();
-                return this.View(allGames);
-            }
-
             var ownerId = this.User.GetAccountId();
             var myGames = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
             return this.View(myGames);
@@ -168,11 +171,6 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, GameDTO body, IFormFile? imageFile)
         {
-            if (id != body.Id)
-            {
-                return this.NotFound();
-            }
-
             if (!this.ModelState.IsValid)
             {
                 return this.View(body);
@@ -189,8 +187,6 @@ namespace BoardGames.Web.Controllers
                 return this.Forbid();
             }
 
-            body.Owner = existing.Owner;
-
             if (imageFile != null && imageFile.Length > 0)
             {
                 using var memoryStream = new MemoryStream();
@@ -201,6 +197,8 @@ namespace BoardGames.Web.Controllers
             {
                 body.Image = existing.Image;
             }
+
+            body.Owner = existing.Owner;
 
             try
             {

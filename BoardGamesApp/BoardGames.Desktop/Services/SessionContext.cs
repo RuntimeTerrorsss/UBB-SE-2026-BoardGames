@@ -1,8 +1,12 @@
+// <copyright file="SessionContext.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
+using BoardGames.Shared.DTO;
+
 namespace BoardGames.Desktop.Services
 {
-    using System;
-    using BoardGames.Shared.DTO;
-
     public sealed class SessionContext : ISessionContext
     {
         public Guid AccountId { get; private set; }
@@ -33,44 +37,44 @@ namespace BoardGames.Desktop.Services
 
         public string StreetNumber { get; private set; } = string.Empty;
 
-        public bool IsLoggedIn => AccountId != Guid.Empty;
+        public bool IsLoggedIn => this.AccountId != Guid.Empty;
 
         public void Populate(AccountProfileDTO accountProfile)
         {
             ArgumentNullException.ThrowIfNull(accountProfile);
 
-            AccountId = accountProfile.Id;
-            PamUserId = accountProfile.PamUserId;
-            Username = accountProfile.Username ?? string.Empty;
-            DisplayName = accountProfile.DisplayName ?? string.Empty;
-            Email = accountProfile.Email ?? string.Empty;
-            Role = accountProfile.Role?.Name ?? AppRoles.StandardUser;
-            AvatarUrl = accountProfile.AvatarUrl ?? string.Empty;
-            IsSuspended = accountProfile.IsSuspended;
-            IsLocked = accountProfile.IsLocked;
-            PhoneNumber = accountProfile.PhoneNumber ?? string.Empty;
-            Country = accountProfile.Country ?? string.Empty;
-            City = accountProfile.City ?? string.Empty;
-            StreetName = accountProfile.StreetName ?? string.Empty;
-            StreetNumber = accountProfile.StreetNumber ?? string.Empty;
+            this.AccountId = accountProfile.Id;
+            this.PamUserId = accountProfile.PamUserId;
+            this.Username = accountProfile.Username ?? string.Empty;
+            this.DisplayName = accountProfile.DisplayName ?? string.Empty;
+            this.Email = accountProfile.Email ?? string.Empty;
+            this.Role = accountProfile.Role?.Name ?? AppRoles.StandardUser;
+            this.AvatarUrl = accountProfile.AvatarUrl ?? string.Empty;
+            this.IsSuspended = accountProfile.IsSuspended;
+            this.IsLocked = accountProfile.IsLocked;
+            this.PhoneNumber = accountProfile.PhoneNumber ?? string.Empty;
+            this.Country = accountProfile.Country ?? string.Empty;
+            this.City = accountProfile.City ?? string.Empty;
+            this.StreetName = accountProfile.StreetName ?? string.Empty;
+            this.StreetNumber = accountProfile.StreetNumber ?? string.Empty;
         }
 
         public void Clear()
         {
-            AccountId = Guid.Empty;
-            PamUserId = null;
-            Username = string.Empty;
-            DisplayName = string.Empty;
-            Email = string.Empty;
-            Role = AppRoles.StandardUser;
-            AvatarUrl = string.Empty;
-            IsSuspended = false;
-            IsLocked = false;
-            PhoneNumber = string.Empty;
-            Country = string.Empty;
-            City = string.Empty;
-            StreetName = string.Empty;
-            StreetNumber = string.Empty;
+            this.AccountId = Guid.Empty;
+            this.PamUserId = null;
+            this.Username = string.Empty;
+            this.DisplayName = string.Empty;
+            this.Email = string.Empty;
+            this.Role = AppRoles.StandardUser;
+            this.AvatarUrl = string.Empty;
+            this.IsSuspended = false;
+            this.IsLocked = false;
+            this.PhoneNumber = string.Empty;
+            this.Country = string.Empty;
+            this.City = string.Empty;
+            this.StreetName = string.Empty;
+            this.StreetNumber = string.Empty;
         }
     }
 }

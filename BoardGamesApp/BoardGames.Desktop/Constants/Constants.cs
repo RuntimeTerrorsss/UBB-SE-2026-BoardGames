@@ -1,3 +1,7 @@
+// <copyright file="Constants.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Constants
 {
     public static class Constants

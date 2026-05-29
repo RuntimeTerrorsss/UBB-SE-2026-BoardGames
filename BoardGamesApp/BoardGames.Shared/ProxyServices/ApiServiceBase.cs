@@ -1,3 +1,7 @@
+// <copyright file="ApiServiceBase.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Shared.ProxyServices
 {
     using System;
@@ -47,7 +51,10 @@ namespace BoardGames.Shared.ProxyServices
             {
                 var response = await CreateClient().PostAsJsonAsync(url, data);
                 if (!response.IsSuccessStatusCode)
+                {
                     return ServiceResult.Fail(response.ReasonPhrase ?? "Post Error", response.StatusCode);
+                }
+
                 return ServiceResult.Ok();
             }
             catch (Exception ex)

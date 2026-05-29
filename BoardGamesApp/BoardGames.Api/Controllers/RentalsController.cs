@@ -1,3 +1,7 @@
+// <copyright file="RentalsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using BoardGames.Api.Services;
@@ -21,21 +25,21 @@ namespace BoardGames.Api.Controllers
         [HttpGet("owner/{ownerAccountId:guid}")]
         public ActionResult<IReadOnlyList<RentalDTO>> GetForOwner(Guid ownerAccountId)
         {
-            return Ok(rentalService.GetRentalsForOwner(ownerAccountId));
+            return this.Ok(this.rentalService.GetRentalsForOwner(ownerAccountId));
         }
 
         [HttpGet("renter/{renterAccountId:guid}")]
         public ActionResult<IReadOnlyList<RentalDTO>> GetForRenter(Guid renterAccountId)
         {
-            return Ok(rentalService.GetRentalsForRenter(renterAccountId));
+            return this.Ok(this.rentalService.GetRentalsForRenter(renterAccountId));
         }
         [HttpPost]
         public IActionResult Create([FromBody] CreateRentalDTO body)
         {
             try
             {
-                rentalService.CreateConfirmedRental(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
-                return Ok();
+                this.rentalService.CreateConfirmedRental(body.GameId, body.RenterAccountId, body.OwnerAccountId, body.StartDate, body.EndDate);
+                return this.Ok();
             }
             catch (ArgumentException exception)
             {
@@ -54,13 +58,13 @@ namespace BoardGames.Api.Controllers
         [HttpGet("games/{gameId:int}/booked-dates")]
         public ActionResult<IReadOnlyList<BookedDateRangeDTO>> GetBookedDates(int gameId)
         {
-            return Ok(rentalService.GetBookedDatesForGame(gameId));
+            return this.Ok(this.rentalService.GetBookedDatesForGame(gameId));
         }
 
         [HttpGet("games/{gameId:int}/availability")]
         public ActionResult<bool> CheckSlot(int gameId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            return Ok(rentalService.IsSlotAvailable(gameId, startDate, endDate));
+            return this.Ok(this.rentalService.IsSlotAvailable(gameId, startDate, endDate));
         }
     }
 }

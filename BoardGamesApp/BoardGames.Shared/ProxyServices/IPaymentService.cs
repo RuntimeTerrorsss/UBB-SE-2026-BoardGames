@@ -1,4 +1,8 @@
-﻿namespace BoardGames.Shared.ProxyServices
+﻿// <copyright file="IPaymentService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Shared.ProxyServices
 {
     using System;
     using System.Collections.Generic;
@@ -16,14 +20,20 @@
 
     public class PaymentService : ApiServiceBase, IPaymentService
     {
-        public PaymentService(IHttpClientFactory httpClientFactory) : base(httpClientFactory) { }
+        public PaymentService(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory)
+        {
+        }
 
         public async Task<ServiceResult<PagedResult<PaymentDTO>>> GetFilteredPaymentsAsync(Guid accountId, FilterType filter, PaymentMethod method, string search, int page)
         {
             var url = $"api/Payments/user/{accountId}/history?filter={filter}&method={method}&search={search}&page={page}";
             var response = await CreateClient().GetAsync(url);
 
-            if (!response.IsSuccessStatusCode) return ServiceResult<PagedResult<PaymentDTO>>.Fail("Eroare API");
+            if (!response.IsSuccessStatusCode)
+            {
+                return ServiceResult<PagedResult<PaymentDTO>>.Fail("Eroare API");
+            }
 
             var data = await response.Content.ReadFromJsonAsync<List<PaymentDTO>>() ?? new List<PaymentDTO>();
             IEnumerable<PaymentDTO> filteredPayments = data;

@@ -1,14 +1,18 @@
+// <copyright file="GameService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using BoardGames.Api.Mappers;
 using BoardGames.Data.Constants;
 using BoardGames.Data.Enums;
-using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
-using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Services
 {
@@ -24,10 +28,10 @@ namespace BoardGames.Api.Services
 
         public GameService(InterfaceGamesRepository gameRepository, IRentalRepository rentalRepository, GameMapper gameMapper, IRequestService requestService)
         {
-            gameListingRepository = gameRepository;
-            gameRentalRepository = rentalRepository;
-            gameDtoMapper = gameMapper;
-            rentalRequestService = requestService;
+            this.gameListingRepository = gameRepository;
+            this.gameRentalRepository = rentalRepository;
+            this.gameDtoMapper = gameMapper;
+            this.rentalRequestService = requestService;
         }
 
         private List<string> ValidateGameInput(string name, decimal price, int minPlayers, int maxPlayers, string description) =>
@@ -77,67 +81,69 @@ namespace BoardGames.Api.Services
 
         public async Task<GameDetailDTO> GetGameById(int gameId)
         {
-            var game = await gameListingRepository.GetGameById(gameId);
+            var game = await this.gameListingRepository.GetGameById(gameId);
             if (game == null)
             {
                 throw new KeyNotFoundException($"Game with ID {gameId} not found.");
             }
-            return gameDtoMapper.ToDetailDTO(game);
+
+            return this.gameDtoMapper.ToDetailDTO(game);
         }
 
         public async Task<byte[]?> GetGameImage(int gameId)
         {
-            var game = await gameListingRepository.GetGameById(gameId);
+            var game = await this.gameListingRepository.GetGameById(gameId);
             if (game == null)
             {
                 throw new KeyNotFoundException($"Game with ID {gameId} not found.");
             }
+
             return game.Image;
         }
 
         public GameDetailDTO CreateGame(GameCreateDTO dto, Guid ownerAccountId)
         {
-            var errors = ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
+            var errors = this.ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
             if (errors.Any())
             {
                 throw new ArgumentException(string.Join(Environment.NewLine, errors));
             }
 
             dto.Image = GameInputHelper.EnsureImageOrDefault(dto.Image, AppDomain.CurrentDomain.BaseDirectory);
-            var model = gameDtoMapper.ToModel(dto, ownerAccountId);
-            gameListingRepository.AddGame(model);
+            var model = this.gameDtoMapper.ToModel(dto, ownerAccountId);
+            this.gameListingRepository.AddGame(model);
 
-            return gameDtoMapper.ToDetailDTO(model);
+            return this.gameDtoMapper.ToDetailDTO(model);
         }
 
         public void UpdateGame(int gameId, GameUpdateDTO dto, Guid requestingAccountId, bool isAdmin)
         {
-            var game = gameListingRepository.GetGame(gameId);
+            var game = this.gameListingRepository.GetGame(gameId);
             if (game.Owner?.Id != requestingAccountId && !isAdmin)
             {
                 throw new UnauthorizedAccessException("You are not authorized to update this game.");
             }
 
-            var errors = ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
+            var errors = this.ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
             if (errors.Any())
             {
                 throw new ArgumentException(string.Join(Environment.NewLine, errors));
             }
 
             dto.Image = GameInputHelper.EnsureImageOrDefault(dto.Image, AppDomain.CurrentDomain.BaseDirectory);
-            gameDtoMapper.ApplyUpdate(game, dto);
-            gameListingRepository.UpdateGame(gameId, game);
+            this.gameDtoMapper.ApplyUpdate(game, dto);
+            this.gameListingRepository.UpdateGame(gameId, game);
         }
 
         public GameDetailDTO DeleteGame(int gameId, Guid requestingAccountId, bool isAdmin)
         {
-            var game = gameListingRepository.GetGame(gameId);
+            var game = this.gameListingRepository.GetGame(gameId);
             if (game.Owner?.Id != requestingAccountId && !isAdmin)
             {
                 throw new UnauthorizedAccessException("You are not authorized to delete this game.");
             }
 
-            var gameRentals = gameRentalRepository.GetRentalsByGame(gameId);
+            var gameRentals = this.gameRentalRepository.GetRentalsByGame(gameId);
             var now = DateTime.Now;
             var activeCount = gameRentals.Count(rental => rental.EndDate >= now);
             if (activeCount > NoActiveOrUpcomingRentals)
@@ -148,13 +154,13 @@ namespace BoardGames.Api.Services
 
             foreach (var rental in gameRentals)
             {
-                gameRentalRepository.Delete(rental.Id);
+                this.gameRentalRepository.Delete(rental.Id);
             }
 
-            rentalRequestService.OnGameDeactivated(gameId);
-            gameListingRepository.DeleteGame(gameId);
+            this.rentalRequestService.OnGameDeactivated(gameId);
+            this.gameListingRepository.DeleteGame(gameId);
 
-            return gameDtoMapper.ToDetailDTO(game);
+            return this.gameDtoMapper.ToDetailDTO(game);
         }
 
         public async Task<IReadOnlyList<GameSummaryDTO>> SearchGames(GameSearchCriteriaDTO criteria)

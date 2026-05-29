@@ -1,3 +1,7 @@
+// <copyright file="ChatPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Text.RegularExpressions;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
@@ -37,7 +41,9 @@ namespace BoardGames.Desktop.Views
     internal sealed class ConversationListItem
     {
         public ConversationDTO Conversation { get; init; } = null!;
+
         public string OtherUserName { get; init; } = string.Empty;
+
         public string LastMessagePreview { get; init; } = string.Empty;
     }
 
@@ -57,17 +63,27 @@ namespace BoardGames.Desktop.Views
     internal sealed class MessageDisplayItem
     {
         public string SenderLabel { get; init; } = string.Empty;
+
         public string Content { get; init; } = string.Empty;
+
         public string SentAtDisplay { get; init; } = string.Empty;
+
         public bool IsCurrentUser { get; init; }
         public bool IsRentalRequest { get; init; }
+
         public int RequestId { get; init; }
+
         public bool IsResolved { get; init; }
+
         public bool IsAccepted { get; init; }
         public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsCurrentUser;
+
         public bool ShowRenterActions => IsRentalRequest && !IsResolved && IsCurrentUser;
+
         public bool ShowAwaitingBadge => IsRentalRequest && !IsResolved;
+
         public bool ShowAcceptedBadge => IsRentalRequest && IsResolved && IsAccepted;
+
         public bool ShowDeclinedBadge => IsRentalRequest && IsResolved && !IsAccepted;
     }
 
@@ -135,7 +151,11 @@ namespace BoardGames.Desktop.Views
 
         private List<MessageDisplayItem> BuildMessageItems(ConversationDTO? conversation)
         {
-            if (conversation == null) return new List<MessageDisplayItem>();
+            if (conversation == null)
+            {
+                return new List<MessageDisplayItem>();
+            }
+
             int currentPamUserId = this.sessionContext.PamUserId ?? 0;
             return conversation.MessageList
                 .OrderBy(message => message.SentAt)

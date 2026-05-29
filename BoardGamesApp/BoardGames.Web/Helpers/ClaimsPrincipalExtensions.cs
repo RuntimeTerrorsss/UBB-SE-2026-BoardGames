@@ -31,7 +31,30 @@ namespace BoardGames.Web.Helpers
             return !string.IsNullOrWhiteSpace(raw) && Guid.TryParse(raw, out accountId);
         }
 
-        public static string GetDisplayNameOrUsername(this ClaimsPrincipal user)
+        public static int? GetPamUserId(this ClaimsPrincipal user)
+        {
+            if (user is null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            string? raw = user.FindFirstValue("PamUserId");
+            if (!string.IsNullOrWhiteSpace(raw) && int.TryParse(raw, out int id))
+            {
+                return id;
+            }
+
+            return null;
+        }
+
+        public static bool TryGetPamUserId(this ClaimsPrincipal user, out int id)
+        {
+            id = -1;
+            string? raw = user?.FindFirstValue("PamUserId");
+            return !string.IsNullOrWhiteSpace(raw) && int.TryParse(raw, out id);
+        }
+
+        public static string GetDisplayName(this ClaimsPrincipal user)
         {
             if (user is null)
             {
@@ -58,11 +81,10 @@ namespace BoardGames.Web.Helpers
             return string.Equals(user.GetRoleName(), AppRoles.Administrator, StringComparison.Ordinal);
         }
 
-        public static bool TryGetPamUserId(this ClaimsPrincipal user, out int pamUserId)
+        public static string GetDisplayNameOrUsername(this ClaimsPrincipal user)
         {
-            pamUserId = 0;
-            string? raw = user?.FindFirstValue("PamUserId");
-            return !string.IsNullOrWhiteSpace(raw) && int.TryParse(raw, out pamUserId);
+            string displayName = user.GetDisplayName();
+            return string.IsNullOrWhiteSpace(displayName) ? user.Identity?.Name ?? string.Empty : displayName;
         }
     }
 }

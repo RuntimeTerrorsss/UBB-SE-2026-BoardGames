@@ -1,3 +1,7 @@
+// <copyright file="DesktopNotificationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -165,7 +169,10 @@ namespace BoardGames.Desktop.Services
 
         public void Dispose()
         {
-            if (isDisposed) return;
+            if (isDisposed)
+            {
+                return;
+            }
 
             isDisposed = true;
             StopListening();

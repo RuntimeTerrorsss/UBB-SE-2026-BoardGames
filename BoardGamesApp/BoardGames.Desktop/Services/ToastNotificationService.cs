@@ -1,3 +1,7 @@
+// <copyright file="ToastNotificationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Services
 {
     public class ToastNotificationService : IToastNotificationService

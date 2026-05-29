@@ -13,15 +13,15 @@ namespace BoardGames.Desktop.Commands
 
         public bool CanExecute(object? parameter)
         {
-            return canExecuteFunction?.Invoke() ?? true;
+            return this.canExecuteFunction?.Invoke() ?? true;
         }
 
         public void Execute(object? parameter)
         {
-            executeAction(parameter);
+            this.executeAction(parameter);
         }
 
         public void NotifyCanExecuteChanged() =>
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

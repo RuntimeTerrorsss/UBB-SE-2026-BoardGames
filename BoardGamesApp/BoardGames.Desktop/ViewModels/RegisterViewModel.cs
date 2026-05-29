@@ -1,3 +1,7 @@
+// <copyright file="RegisterViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.ObjectModel;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
