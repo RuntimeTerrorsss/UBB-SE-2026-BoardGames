@@ -67,5 +67,89 @@ namespace BoardGames.Tests.Web
                 service => service.SearchGamesAsync(It.IsAny<GameSearchCriteriaDTO>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
+
+        [Fact]
+        public async Task Filter_NoResults_ReturnsEmptyList()
+        {
+            var gameProxy = new Mock<IGameProxyService>();
+            gameProxy
+                .Setup(service => service.SearchGamesAsync(It.IsAny<GameSearchCriteriaDTO>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<GameDTO>());
+
+            var controller = new SearchController(gameProxy.Object);
+            var model = new SearchFilterViewModel { Page = 1, PageSize = 5 };
+
+            var result = await controller.Filter(model) as ViewResult;
+
+            Assert.NotNull(result);
+            var viewModel = Assert.IsType<SearchFilterViewModel>(result!.Model);
+            Assert.Empty(viewModel.Results);
+            Assert.Equal(0, viewModel.TotalPages);
+        }
+
+        [Fact]
+        public async Task Filter_WithNameFilter_PassesNameToProxy()
+        {
+            var gameProxy = new Mock<IGameProxyService>();
+            gameProxy
+                .Setup(service => service.SearchGamesAsync(It.IsAny<GameSearchCriteriaDTO>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<GameDTO>());
+
+            var controller = new SearchController(gameProxy.Object);
+            var model = new SearchFilterViewModel { Name = "Chess", Page = 1, PageSize = 5 };
+
+            await controller.Filter(model);
+
+            gameProxy.Verify(
+                service => service.SearchGamesAsync(
+                    It.Is<GameSearchCriteriaDTO>(criteria => criteria.Name == "Chess"),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Filter_WithMaxPrice_PassesMaxPriceToProxy()
+        {
+            var gameProxy = new Mock<IGameProxyService>();
+            gameProxy
+                .Setup(service => service.SearchGamesAsync(It.IsAny<GameSearchCriteriaDTO>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<GameDTO>());
+
+            var controller = new SearchController(gameProxy.Object);
+            var model = new SearchFilterViewModel { MaximumPrice = 50m, Page = 1, PageSize = 5 };
+
+            await controller.Filter(model);
+
+            gameProxy.Verify(
+                service => service.SearchGamesAsync(
+                    It.Is<GameSearchCriteriaDTO>(criteria => criteria.MaximumPrice == 50m),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Filter_SecondPage_ReturnsCorrectSlice()
+        {
+            var games = Enumerable.Range(1, 9).Select(index => new GameDTO
+            {
+                Id = index,
+                Name = $"Game {index}",
+            }).ToList();
+
+            var gameProxy = new Mock<IGameProxyService>();
+            gameProxy
+                .Setup(service => service.SearchGamesAsync(It.IsAny<GameSearchCriteriaDTO>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(games);
+
+            var controller = new SearchController(gameProxy.Object);
+            var model = new SearchFilterViewModel { Page = 2, PageSize = 3 };
+
+            var result = await controller.Filter(model) as ViewResult;
+
+            Assert.NotNull(result);
+            var viewModel = Assert.IsType<SearchFilterViewModel>(result!.Model);
+            Assert.Equal(3, viewModel.Results.Count);
+            Assert.Equal(4, viewModel.Results[0].Id);
+        }
     }
 }

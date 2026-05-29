@@ -17,25 +17,15 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeAccountRepository : IAccountRepository
     {
         public Dictionary<Guid, User?> AccountsById { get; } = new Dictionary<Guid, User?>();
-
         public Dictionary<string, User?> AccountsByUsername { get; } = new Dictionary<string, User?>();
-
         public Dictionary<string, User?> AccountsByEmail { get; } = new Dictionary<string, User?>();
-
         public List<User> Accounts { get; set; } = new List<User>();
-
         public int AddCallCount { get; private set; }
-
         public int UpdateCallCount { get; private set; }
-
         public int AddRoleCallCount { get; private set; }
-
         public User? LastAddedAccount { get; private set; }
-
         public User? LastUpdatedAccount { get; private set; }
-
         public Guid LastRoleAccountId { get; private set; }
-
         public string LastRoleName { get; private set; } = string.Empty;
 
         public Task<User?> GetByIdAsync(Guid id) =>
@@ -57,15 +47,9 @@ namespace BoardGames.Tests.Fakes
             this.Accounts.Add(account);
             this.AccountsById[account.Id] = account;
             if (!string.IsNullOrEmpty(account.Username))
-            {
                 this.AccountsByUsername[account.Username] = account;
-            }
-
             if (!string.IsNullOrEmpty(account.Email))
-            {
                 this.AccountsByEmail[account.Email] = account;
-            }
-
             return Task.CompletedTask;
         }
 
@@ -90,11 +74,8 @@ namespace BoardGames.Tests.Fakes
     {
         public Dictionary<Guid, FailedLoginAttempt?> FailedLoginAttempts { get; } =
             new Dictionary<Guid, FailedLoginAttempt?>();
-
         public int IncrementCallCount { get; private set; }
-
         public int ResetCallCount { get; private set; }
-
         public Guid LastAccountId { get; private set; }
 
         public Task<FailedLoginAttempt?> GetByAccountIdAsync(Guid accountId) =>
@@ -117,49 +98,36 @@ namespace BoardGames.Tests.Fakes
 
     internal sealed class FakeGameRepository : IGameRepository
     {
-        public ImmutableList<Game> Games { get; set; } = ImmutableList<Game>.Empty;
-
-        public Dictionary<int, Game> GamesById { get; } = new Dictionary<int, Game>();
-
         public ImmutableList<Game> GamesByOwner { get; set; } = ImmutableList<Game>.Empty;
-
+        public Dictionary<int, Game> GamesById { get; } = new Dictionary<int, Game>();
         public int AddCallCount { get; private set; }
-
         public int UpdateCallCount { get; private set; }
-
         public int DeleteCallCount { get; private set; }
-
         public Game? LastAddedGame { get; private set; }
 
-        public Game? LastUpdatedGame { get; private set; }
-
-        public int LastUpdatedGameId { get; private set; }
-
-        public int LastDeletedGameId { get; private set; }
-
-        public ImmutableList<Game> GetAll() => this.Games;
-
-        public void Add(Game game)
+        public void AddGame(Game game)
         {
             this.AddCallCount++;
             this.LastAddedGame = game;
         }
 
-        public Game Delete(int id)
+        public Game DeleteGame(int id)
         {
             this.DeleteCallCount++;
-            this.LastDeletedGameId = id;
             return this.GamesById.TryGetValue(id, out var game) ? game : new Game { Id = id };
         }
 
-        public void Update(int id, Game updated)
+        public void UpdateGame(int id, Game updated)
         {
             this.UpdateCallCount++;
-            this.LastUpdatedGameId = id;
-            this.LastUpdatedGame = updated;
         }
 
-        public Game Get(int id) => this.GamesById.TryGetValue(id, out var game) ? game : new Game { Id = id };
+        public Game GetGame(int id)
+        {
+            if (this.GamesById.TryGetValue(id, out var game))
+                return game;
+            throw new KeyNotFoundException();
+        }
 
         public ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId) => this.GamesByOwner;
     }
@@ -167,32 +135,20 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeRentalRepository : IRentalRepository
     {
         public ImmutableList<Rental> Rentals { get; set; } = ImmutableList<Rental>.Empty;
-
         public ImmutableList<Rental> RentalsByOwner { get; set; } = ImmutableList<Rental>.Empty;
-
         public ImmutableList<Rental> RentalsByRenter { get; set; } = ImmutableList<Rental>.Empty;
-
         public ImmutableList<Rental> RentalsByGame { get; set; } = ImmutableList<Rental>.Empty;
-
         public Dictionary<int, ImmutableList<Rental>> RentalsByGameId { get; } =
             new Dictionary<int, ImmutableList<Rental>>();
-
         public Dictionary<int, Rental> RentalsById { get; } = new Dictionary<int, Rental>();
-
         public int AddConfirmedCallCount { get; private set; }
-
         public int AddCallCount { get; private set; }
-
         public int DeleteCallCount { get; private set; }
-
         public Rental? LastConfirmedRental { get; private set; }
 
         public ImmutableList<Rental> GetAll() => this.Rentals;
 
-        public void Add(Rental rental)
-        {
-            this.AddCallCount++;
-        }
+        public void Add(Rental rental) { this.AddCallCount++; }
 
         public Rental Delete(int id)
         {
@@ -200,11 +156,10 @@ namespace BoardGames.Tests.Fakes
             return this.RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
         }
 
-        public void Update(int id, Rental updated)
-        {
-        }
+        public void Update(int id, Rental updated) { }
 
-        public Rental Get(int id) => this.RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
+        public Rental Get(int id) =>
+            this.RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
 
         public void AddConfirmed(Rental confirmedRental)
         {
@@ -213,9 +168,7 @@ namespace BoardGames.Tests.Fakes
         }
 
         public ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId) => this.RentalsByOwner;
-
         public ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId) => this.RentalsByRenter;
-
         public ImmutableList<Rental> GetRentalsByGame(int gameId) =>
             this.RentalsByGameId.TryGetValue(gameId, out var rentals) ? rentals : this.RentalsByGame;
     }
@@ -223,29 +176,17 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeRequestRepository : IRequestRepository
     {
         public ImmutableList<Request> Requests { get; set; } = ImmutableList<Request>.Empty;
-
         public ImmutableList<Request> RequestsByOwner { get; set; } = ImmutableList<Request>.Empty;
-
         public ImmutableList<Request> RequestsByRenter { get; set; } = ImmutableList<Request>.Empty;
-
         public ImmutableList<Request> RequestsByGame { get; set; } = ImmutableList<Request>.Empty;
-
         public ImmutableList<Request> OverlappingRequests { get; set; } = ImmutableList<Request>.Empty;
-
         public Dictionary<int, Request> RequestsById { get; } = new Dictionary<int, Request>();
-
         public int AddCallCount { get; private set; }
-
         public int DeleteCallCount { get; private set; }
-
         public int UpdateCallCount { get; private set; }
-
         public int UpdateStatusCallCount { get; private set; }
-
         public int ApproveAtomicallyResult { get; set; } = 1;
-
         public Request? LastAddedRequest { get; private set; }
-
         public int LastDeletedRequestId { get; private set; }
 
         public ImmutableList<Request> GetAll() => this.Requests;
@@ -264,18 +205,12 @@ namespace BoardGames.Tests.Fakes
             return this.RequestsById.TryGetValue(id, out var request) ? request : new Request { Id = id };
         }
 
-        public void Update(int id, Request updated)
-        {
-            this.UpdateCallCount++;
-        }
+        public void Update(int id, Request updated) { this.UpdateCallCount++; }
 
         public Request Get(int id)
         {
             if (this.RequestsById.TryGetValue(id, out var request))
-            {
                 return request;
-            }
-
             throw new KeyNotFoundException();
         }
 
@@ -285,16 +220,12 @@ namespace BoardGames.Tests.Fakes
         }
 
         public ImmutableList<Request> GetRequestsByOwner(Guid ownerAccountId) => this.RequestsByOwner;
-
         public ImmutableList<Request> GetRequestsByRenter(Guid renterAccountId) => this.RequestsByRenter;
-
         public ImmutableList<Request> GetRequestsByGame(int gameId) => this.RequestsByGame;
 
         public ImmutableList<Request> GetOverlappingRequests(
-            int gameId,
-            int excludeRequestId,
-            DateTime bufferedStartDate,
-            DateTime bufferedEndDate) => this.OverlappingRequests;
+            int gameId, int excludeRequestId, DateTime bufferedStartDate, DateTime bufferedEndDate) =>
+            this.OverlappingRequests;
 
         public int ApproveAtomically(Request approvedRequest, ImmutableList<Request> overlappingRequests) =>
             this.ApproveAtomicallyResult;
@@ -303,17 +234,11 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeNotificationRepository : INotificationRepository
     {
         public ImmutableList<Notification> Notifications { get; set; } = ImmutableList<Notification>.Empty;
-
         public ImmutableList<Notification> NotificationsByUser { get; set; } = ImmutableList<Notification>.Empty;
-
         public Dictionary<int, Notification> NotificationsById { get; } = new Dictionary<int, Notification>();
-
         public int AddCallCount { get; private set; }
-
         public int DeleteLinkedCallCount { get; private set; }
-
         public int LastLinkedRequestId { get; private set; }
-
         public Notification? LastAddedNotification { get; private set; }
 
         public ImmutableList<Notification> GetAll() => this.Notifications;
@@ -327,9 +252,7 @@ namespace BoardGames.Tests.Fakes
         public Notification Delete(int id) =>
             this.NotificationsById.TryGetValue(id, out var notification) ? notification : new Notification { Id = id };
 
-        public void Update(int id, Notification updated)
-        {
-        }
+        public void Update(int id, Notification updated) { }
 
         public Notification Get(int id) =>
             this.NotificationsById.TryGetValue(id, out var notification) ? notification : new Notification { Id = id };
@@ -346,9 +269,7 @@ namespace BoardGames.Tests.Fakes
     internal sealed class FakeAvatarStorageService : IAvatarStorageService
     {
         public string SavedPath { get; set; } = string.Empty;
-
         public int DeleteCallCount { get; private set; }
-
         public string LastDeletedPath { get; private set; } = string.Empty;
 
         public Task<string> SaveAsync(Guid accountId, Stream content, string fileExtension) =>
