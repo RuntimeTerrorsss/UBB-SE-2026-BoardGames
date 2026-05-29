@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BoardGames.Api.Security;
 using BoardGames.Api.Mappers;
+using BoardGames.Api.Security;
 using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
 using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

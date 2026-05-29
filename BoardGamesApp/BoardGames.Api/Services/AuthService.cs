@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using BoardGames.Api.Security;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
 using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {

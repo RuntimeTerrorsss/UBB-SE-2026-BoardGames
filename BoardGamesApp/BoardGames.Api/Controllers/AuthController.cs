@@ -46,7 +46,6 @@ namespace BoardGames.Api.Controllers
             var profile = result.Data;
             string roleName = profile.Role?.Name ?? "Standard User";
 
-            // Map "Administrator" → "Admin" so [Authorize(Roles = "Admin")] on AdminController matches.
             string authorizationRole = string.Equals(roleName, "Administrator", System.StringComparison.OrdinalIgnoreCase)
                 ? "Admin"
                 : roleName;

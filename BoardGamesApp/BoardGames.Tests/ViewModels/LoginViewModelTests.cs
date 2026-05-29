@@ -1,4 +1,3 @@
-using BoardGames.Desktop.ViewModels;
 // <copyright file="LoginViewModelTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
@@ -6,6 +5,7 @@ using BoardGames.Desktop.ViewModels;
 using System;
 using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
+using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
