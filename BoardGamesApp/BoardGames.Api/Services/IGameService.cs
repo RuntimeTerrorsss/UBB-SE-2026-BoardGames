@@ -10,6 +10,8 @@ namespace BoardGames.Api.Services
     {
         Task<IReadOnlyList<GameSummaryDTO>> GetAllActiveGames();
 
+        Task<IReadOnlyList<GameSummaryDTO>> GetAvailableGamesForRenter(Guid renterAccountId);
+
         IReadOnlyList<GameSummaryDTO> GetGamesForOwner(Guid ownerAccountId);
 
         IReadOnlyList<GameSummaryDTO> GetActiveGamesForOwner(Guid ownerAccountId);

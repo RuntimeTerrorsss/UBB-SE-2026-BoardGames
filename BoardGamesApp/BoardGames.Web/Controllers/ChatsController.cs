@@ -310,7 +310,13 @@ namespace BoardGames.Web.Controllers
         private string ResolveOtherUserName(ConversationDTO conversation, int currentPamUserId)
         {
             int? otherPamUserId = this.GetOtherParticipantPamUserId(conversation, currentPamUserId);
-            return otherPamUserId.HasValue ? $"User {otherPamUserId.Value}" : "Unknown user";
+            if (!otherPamUserId.HasValue)
+            {
+                return "Unknown user";
+            }
+
+            conversation.ParticipantDisplayNames.TryGetValue(otherPamUserId.Value, out string? displayName);
+            return displayName ?? $"User {otherPamUserId.Value}";
         }
 
         private int? GetOtherParticipantPamUserId(ConversationDTO conversation, int currentPamUserId)

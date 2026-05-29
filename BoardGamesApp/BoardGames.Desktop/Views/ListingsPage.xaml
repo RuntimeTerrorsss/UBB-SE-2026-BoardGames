@@ -7,7 +7,6 @@
 
     <Page.Resources>
         <converters:ByteArrayToImageConverter x:Key="ImageConverter" />
-
         <BitmapImage x:Key="DefaultGameImage" UriSource="ms-appx:///Assets/default-game-placeholder.jpg"/>
     </Page.Resources>
 
@@ -33,15 +32,9 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Image Grid.Column="0" Source="{Binding Image, Converter={StaticResource ImageConverter}}" 
-           Width="80" Height="80" Stretch="UniformToFill" HorizontalAlignment="Left"
-           ImageFailed="Image_ImageFailed">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Setter Property="Source" Value="{StaticResource DefaultGameImage}"/>
-                                </Style>
-                            </Image.Style>
-                        </Image>
+                        <Image Grid.Column="0" Source="{Binding ImageUrl, Converter={StaticResource ImageConverter}}"
+                               Width="80" Height="80" Stretch="UniformToFill" HorizontalAlignment="Left"
+                               ImageFailed="Image_ImageFailed" />
 
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Name}" FontSize="20" FontWeight="SemiBold" Foreground="white"/>

@@ -1,16 +1,84 @@
+using System.Text.RegularExpressions;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
+using Windows.UI;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace BoardGames.Desktop.Views
 {
+    public sealed class BoolToAlignmentConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+            => value is true ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+            => throw new NotImplementedException();
+    }
+
+    public sealed class BoolToBubbleColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush SentBrush = new(new Color { A = 255, R = 0, G = 102, B = 204 });
+        private static readonly SolidColorBrush ReceivedBrush = new(new Color { A = 255, R = 60, G = 60, B = 60 });
+
+        public object Convert(object value, Type targetType, object parameter, string language)
+            => value is true ? SentBrush : ReceivedBrush;
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+            => throw new NotImplementedException();
+    }
+
+    internal sealed class ConversationListItem
+    {
+        public ConversationDTO Conversation { get; init; } = null!;
+        public string OtherUserName { get; init; } = string.Empty;
+        public string LastMessagePreview { get; init; } = string.Empty;
+    }
+
+    public sealed class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            bool show = value is true;
+            if (parameter is string p && p == "Inverse") show = !show;
+            return show ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+            => throw new NotImplementedException();
+    }
+
+    internal sealed class MessageDisplayItem
+    {
+        public string SenderLabel { get; init; } = string.Empty;
+        public string Content { get; init; } = string.Empty;
+        public string SentAtDisplay { get; init; } = string.Empty;
+        public bool IsCurrentUser { get; init; }
+
+        // Rental request fields
+        public bool IsRentalRequest { get; init; }
+        public int RequestId { get; init; }
+        public bool IsResolved { get; init; }
+        public bool IsAccepted { get; init; }
+
+        // Derived visibility helpers
+        public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsCurrentUser;
+        public bool ShowRenterActions => IsRentalRequest && !IsResolved && IsCurrentUser;
+        public bool ShowAwaitingBadge => IsRentalRequest && !IsResolved;
+        public bool ShowAcceptedBadge => IsRentalRequest && IsResolved && IsAccepted;
+        public bool ShowDeclinedBadge => IsRentalRequest && IsResolved && !IsAccepted;
+    }
+
     public sealed partial class ChatPage : Page
     {
         private readonly IConversationService conversationService;
+        private readonly IRequestService requestService;
         private readonly ISessionContext sessionContext;
         private ConversationDTO? selectedConversation;
 
@@ -18,6 +86,7 @@ namespace BoardGames.Desktop.Views
         {
             this.InitializeComponent();
             this.conversationService = App.Services.GetRequiredService<IConversationService>();
+            this.requestService = App.Services.GetRequiredService<IRequestService>();
             this.sessionContext = App.Services.GetRequiredService<ISessionContext>();
         }
 
@@ -43,13 +112,107 @@ namespace BoardGames.Desktop.Views
             }
 
             this.StatusText.Text = result.Data.Count == 0 ? "No conversations yet." : string.Empty;
-            this.ConversationsList.ItemsSource = result.Data;
+
+            int currentPamUserId = this.sessionContext.PamUserId ?? 0;
+            var items = result.Data.Select(conv =>
+            {
+                int otherId = conv.ParticipantUserIds.FirstOrDefault(id => id != currentPamUserId);
+                conv.ParticipantDisplayNames.TryGetValue(otherId, out string? otherName);
+                var lastMsg = conv.MessageList.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                return new ConversationListItem
+                {
+                    Conversation = conv,
+                    OtherUserName = otherName ?? (otherId > 0 ? $"User {otherId}" : "Unknown"),
+                    LastMessagePreview = lastMsg?.GetChatMessagePreview() ?? "No messages yet",
+                };
+            }).ToList();
+
+            this.ConversationsList.ItemsSource = items;
         }
 
         private void ConversationsList_SelectionChanged(object sender, SelectionChangedEventArgs eventArgs)
         {
-            this.selectedConversation = this.ConversationsList.SelectedItem as ConversationDTO;
-            this.MessagesList.ItemsSource = this.selectedConversation?.MessageList.OrderBy(message => message.SentAt).ToList();
+            var item = this.ConversationsList.SelectedItem as ConversationListItem;
+            this.selectedConversation = item?.Conversation;
+            this.MessagesList.ItemsSource = this.BuildMessageItems(this.selectedConversation);
+        }
+
+        private List<MessageDisplayItem> BuildMessageItems(ConversationDTO? conversation)
+        {
+            if (conversation == null) return new List<MessageDisplayItem>();
+            int currentPamUserId = this.sessionContext.PamUserId ?? 0;
+            return conversation.MessageList
+                .OrderBy(m => m.SentAt)
+                .Select(m =>
+                {
+                    bool isMe = m.SenderId == currentPamUserId;
+                    conversation.ParticipantDisplayNames.TryGetValue(m.SenderId, out string? name);
+                    bool isRentalRequest = m.Type == MessageType.MessageRentalRequest;
+                    return new MessageDisplayItem
+                    {
+                        SenderLabel = isMe ? "You" : (name ?? $"User {m.SenderId}"),
+                        Content = m.Content,
+                        SentAtDisplay = m.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
+                        IsCurrentUser = isMe,
+                        IsRentalRequest = isRentalRequest,
+                        RequestId = isRentalRequest ? ExtractRequestId(m.Content) : -1,
+                        IsResolved = m.IsResolved,
+                        IsAccepted = m.IsAccepted,
+                    };
+                })
+                .ToList();
+        }
+
+        private static int ExtractRequestId(string content)
+        {
+            var match = Regex.Match(content, @"^\[req:(\d+)\]");
+            return match.Success && int.TryParse(match.Groups[1].Value, out int id) ? id : -1;
+        }
+
+        private async void AcceptRequest_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is Button btn && btn.Tag is MessageDisplayItem item && item.RequestId > 0)
+            {
+                var result = await this.requestService.OfferGameAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
+                await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not accept the request."));
+            }
+        }
+
+        private async void DeclineRequest_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is Button btn && btn.Tag is MessageDisplayItem item && item.RequestId > 0)
+            {
+                var result = await this.requestService.DenyRequestAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
+                await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not decline the request."));
+            }
+        }
+
+        private async void CancelRequest_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is Button btn && btn.Tag is MessageDisplayItem item && item.RequestId > 0)
+            {
+                var result = await this.requestService.CancelRequestAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
+                await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not cancel the request."));
+            }
+        }
+
+        private async Task RefreshSelectedConversationAsync(string? errorMessage)
+        {
+            if (errorMessage != null)
+            {
+                this.StatusText.Text = errorMessage;
+                return;
+            }
+
+            if (this.selectedConversation != null)
+            {
+                var refreshed = await this.conversationService.GetConversationByIdAsync(this.selectedConversation.Id);
+                if (refreshed.Success && refreshed.Data != null)
+                {
+                    this.selectedConversation = refreshed.Data;
+                    this.MessagesList.ItemsSource = this.BuildMessageItems(refreshed.Data);
+                }
+            }
         }
 
         private async void SendButton_Click(object sender, RoutedEventArgs eventArgs)
@@ -101,7 +264,7 @@ namespace BoardGames.Desktop.Views
             if (refreshed.Success && refreshed.Data != null)
             {
                 this.selectedConversation = refreshed.Data;
-                this.MessagesList.ItemsSource = refreshed.Data.MessageList.OrderBy(item => item.SentAt).ToList();
+                this.MessagesList.ItemsSource = this.BuildMessageItems(refreshed.Data);
             }
         }
     }

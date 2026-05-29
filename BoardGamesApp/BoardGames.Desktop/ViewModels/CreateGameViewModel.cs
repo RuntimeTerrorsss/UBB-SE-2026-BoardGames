@@ -62,12 +62,8 @@ namespace BoardGames.Desktop.ViewModels
                     string.Join(Environment.NewLine, gameValidationErrors));
             }
 
-            var savedGame = await SaveGameAsync();
-            return savedGame != null
-                ? ViewOperationResult.Success()
-                : ViewOperationResult.Failure(
-                    AppConstants.DialogTitles.ValidationError,
-                    AppConstants.DialogMessages.UnexpectedErrorOccurred);
+            var saveResult = await SaveGameAsync();
+            return saveResult;
         }
 
         public void SetGamePriceFromText(string rawPriceText)
@@ -81,17 +77,23 @@ namespace BoardGames.Desktop.ViewModels
             GamePrice = ZeroPriceForEmptyOrInvalidInput;
         }
 
-        public async Task<GameSummaryDTO?> SaveGameAsync()
+        public async Task<ViewOperationResult> SaveGameAsync()
         {
-            var newGameDTO = BuildGameSummaryDTO();
-
             if (GameInputValidator.Validate(BuildValidationGameDTO()).Count > NoValidationErrors)
             {
-                return null;
+                return ViewOperationResult.Failure(
+                    AppConstants.DialogTitles.ValidationError,
+                    AppConstants.DialogMessages.UnexpectedErrorOccurred);
             }
 
-            var createGameResult = await gameListingService.CreateGameAsync(newGameDTO);
-            return createGameResult.Success ? newGameDTO : null;
+            var createDto = BuildGameCreateDTO();
+            var createGameResult = await gameListingService.CreateGameAsync(createDto);
+
+            return createGameResult.Success
+                ? ViewOperationResult.Success()
+                : ViewOperationResult.Failure(
+                    AppConstants.DialogTitles.ValidationError,
+                    createGameResult.Error ?? AppConstants.DialogMessages.UnexpectedErrorOccurred);
         }
 
         private GameSummaryDTO BuildGameSummaryDTO()
@@ -105,6 +107,20 @@ namespace BoardGames.Desktop.ViewModels
                 MinimumPlayerNumber = MinimumPlayersRequired,
                 MaximumPlayerNumber = MaximumPlayersAllowed,
                 IsActive = IsGameActive
+            };
+        }
+
+        private GameCreateDTO BuildGameCreateDTO()
+        {
+            return new GameCreateDTO
+            {
+                OwnerAccountId = CurrentUserId,
+                Name = GameName,
+                Price = GamePrice,
+                MinimumPlayerNumber = MinimumPlayersRequired,
+                MaximumPlayerNumber = MaximumPlayersAllowed,
+                Description = GameDescription,
+                Image = GameImage ?? Array.Empty<byte>(),
             };
         }
 

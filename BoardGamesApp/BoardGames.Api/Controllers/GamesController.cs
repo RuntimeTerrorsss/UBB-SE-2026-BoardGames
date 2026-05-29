@@ -57,6 +57,13 @@ namespace BoardGames.Api.Controllers
             }
         }
 
+        [HttpGet("renter/{renterAccountId:guid}/available")]
+        public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAvailableForRenter(Guid renterAccountId)
+        {
+            var games = await gameService.GetAvailableGamesForRenter(renterAccountId);
+            return Ok(games);
+        }
+
         [HttpGet("owner/{ownerAccountId:guid}")]
         public ActionResult<IReadOnlyList<GameSummaryDTO>> GetByOwner(Guid ownerAccountId)
         {

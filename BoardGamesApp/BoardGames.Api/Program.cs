@@ -90,9 +90,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    await DevDataSeeder.SeedAsync(app.Services);
 }
 
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(app.Environment.ContentRootPath, "Uploads", "Avatars")),
+    RequestPath = "/avatars",
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

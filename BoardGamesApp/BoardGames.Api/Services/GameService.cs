@@ -50,6 +50,12 @@ namespace BoardGames.Api.Services
             return games.Select(g => gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
         }
 
+        public async Task<IReadOnlyList<GameSummaryDTO>> GetAvailableGamesForRenter(Guid renterAccountId)
+        {
+            var allActive = await GetAllActiveGames();
+            return allActive.Where(g => g.OwnerAccountId != renterAccountId).ToList().AsReadOnly();
+        }
+
         public IReadOnlyList<GameSummaryDTO> GetGamesForOwner(Guid ownerAccountId)
         {
             return gameListingRepository.GetGamesByOwner(ownerAccountId)

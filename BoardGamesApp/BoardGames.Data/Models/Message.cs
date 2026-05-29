@@ -118,7 +118,7 @@ public class RentalRequestMessage : Message
     public RentalRequestMessage() : base() { }
 
     [Column("rental_request_id")]
-    public int RentalRequestId { get; set; }
+    public int? RentalRequestId { get; set; }
 
     [Column("is_request_resolved")]
     public bool IsRequestResolved { get; set; }

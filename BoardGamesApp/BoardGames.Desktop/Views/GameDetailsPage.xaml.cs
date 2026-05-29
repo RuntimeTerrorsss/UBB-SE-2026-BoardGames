@@ -48,6 +48,8 @@ namespace BoardGames.Desktop.Views
 
             ViewModel.OnLoginRequested = message => App.NavigateTo(AppPage.Login, message);
 
+            ViewModel.OnRequestSuccess = () => App.NavigateTo(AppPage.Chat, clearBackStack: true);
+
             DataContext = ViewModel;
             await ViewModel.LoadAsync(gameId);
         }

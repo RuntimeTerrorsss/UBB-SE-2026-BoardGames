@@ -61,12 +61,16 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPost("{accountId:guid}/avatar")]
-        [RequestSizeLimit(MaximumAvatarUploadBytes)]
         public async Task<ActionResult<AvatarUploadResponseDTO>> UploadAvatar(Guid accountId, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
                 return this.ApiValidation("File is required.", "avatar_file_required");
+            }
+
+            if (file.Length > MaximumAvatarUploadBytes)
+            {
+                return this.ApiValidation("File is too large. Maximum allowed size is 5 MB.", "avatar_file_too_large");
             }
 
             string extension = Path.GetExtension(file.FileName);

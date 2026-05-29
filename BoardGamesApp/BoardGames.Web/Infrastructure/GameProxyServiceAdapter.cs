@@ -33,6 +33,7 @@ namespace BoardGames.Web.Infrastructure
             }
 
             var summary = await HttpProxyClient.ReadAsync<GameSummaryDTO>(response, cancellationToken);
+            this.RebaseImageUrls(new List<GameSummaryDTO> { summary });
             return GameDtoMapper.FromSummary(summary);
         }
 
@@ -46,6 +47,7 @@ namespace BoardGames.Web.Infrastructure
         {
             using var response = await this.httpClient.PostAsJsonAsync("games/search", criteria, cancellationToken);
             var summaries = await HttpProxyClient.ReadAsync<List<GameSummaryDTO>>(response, cancellationToken);
+            this.RebaseImageUrls(summaries);
             return summaries.Select(GameDtoMapper.FromSummary).ToList();
         }
 
@@ -71,7 +73,20 @@ namespace BoardGames.Web.Infrastructure
         {
             using var response = await this.httpClient.GetAsync(requestPath, cancellationToken);
             var summaries = await HttpProxyClient.ReadAsync<List<GameSummaryDTO>>(response, cancellationToken);
+            this.RebaseImageUrls(summaries);
             return summaries.Select(GameDtoMapper.FromSummary).ToList();
+        }
+
+        private void RebaseImageUrls(List<GameSummaryDTO> summaries)
+        {
+            string apiOrigin = this.httpClient.BaseAddress!.GetLeftPart(UriPartial.Authority);
+            foreach (var summary in summaries)
+            {
+                if (!string.IsNullOrEmpty(summary.ImageUrl) && summary.ImageUrl.StartsWith("/"))
+                {
+                    summary.ImageUrl = apiOrigin + summary.ImageUrl;
+                }
+            }
         }
     }
 }
