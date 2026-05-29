@@ -1,6 +1,3 @@
-// <copyright file="DiscoveryView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.Helpers;
 using BoardGames.Desktop.ViewModels;
@@ -8,28 +5,13 @@ using BoardGames.Desktop.Views.ChatViews;
 
 namespace BoardGames.Desktop.Views
 {
-    /// <summary>
-    /// Provides the main discovery interface for browsing and filtering available games.
-    /// </summary>
     public sealed partial class DiscoveryView : Page
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DiscoveryView"/> class.
-        /// </summary>
         public DiscoveryView()
         {
             this.InitializeComponent();
         }
-
-        /// <summary>
-        /// Gets the view model associated with the discovery logic.
-        /// </summary>
         public FilteredSearchViewModel ViewModel { get; private set; } = null!;
-
-        /// <summary>
-        /// Invoked when the Page is loaded and becomes the current source of a parent Frame.
-        /// </summary>
-        /// <param name="navigationArgs">Event data that can be examined by overriding code.</param>
         protected async override void OnNavigatedTo(NavigationEventArgs navigationArgs)
         {
             base.OnNavigatedTo(navigationArgs);
@@ -126,13 +108,6 @@ namespace BoardGames.Desktop.Views
         {
             this.Frame.Navigate(typeof(LoginPage));
         }
-
-        //private void LogoutButton_Click(object sender, RoutedEventArgs routedArgs)
-        //{
-        //    AuthSession.Clear(App.Session);
-        //    this.UpdateAuthUi();
-        //    this.Frame.Navigate(typeof(LoginView));
-        //}
 
         private void ChatButton_Click(object sender, RoutedEventArgs routedArgs)
         {

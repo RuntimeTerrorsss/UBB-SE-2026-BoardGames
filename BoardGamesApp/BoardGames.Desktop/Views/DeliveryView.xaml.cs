@@ -1,6 +1,3 @@
-// <copyright file="DeliveryView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.Navigation;

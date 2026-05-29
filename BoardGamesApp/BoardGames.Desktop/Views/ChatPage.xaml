@@ -46,7 +46,7 @@
                     <DataTemplate>
                         <Grid Margin="0,0,0,8">
 
-                            <!-- Normal text bubble (hidden for rental requests) -->
+                            
                             <StackPanel HorizontalAlignment="{Binding IsCurrentUser, Converter={StaticResource BoolToAlignmentConverter}}"
                                         MaxWidth="360" Spacing="2"
                                         Visibility="{Binding IsRentalRequest, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
@@ -60,42 +60,42 @@
                                 </Border>
                             </StackPanel>
 
-                            <!-- Rental request card -->
+                            
                             <Border Padding="16" CornerRadius="8" Background="#1A2840"
                                     BorderBrush="#2A3F60" BorderThickness="1" MaxWidth="420"
                                     HorizontalAlignment="Center"
                                     Visibility="{Binding IsRentalRequest, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel Spacing="10">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="🗓" FontSize="16" VerticalAlignment="Center" />
+                                        <TextBlock Text="ðŸ—“" FontSize="16" VerticalAlignment="Center" />
                                         <TextBlock Text="Rental Request" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center" />
                                     </StackPanel>
 
                                     <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Opacity="0.85" />
                                     <TextBlock Text="{Binding SentAtDisplay}" FontSize="11" Foreground="Gray" />
 
-                                    <!-- Awaiting badge -->
+                                    
                                     <Border Background="#CA8A04" CornerRadius="4" Padding="8,4"
                                             Visibility="{Binding ShowAwaitingBadge, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="Awaiting owner response" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
-                                    <!-- Accepted badge -->
+                                    
                                     <Border Background="#16A34A" CornerRadius="4" Padding="8,4"
                                             Visibility="{Binding ShowAcceptedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="Request accepted ✓" Foreground="White"
+                                        <TextBlock Text="Request accepted âœ“" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
-                                    <!-- Declined badge -->
+                                    
                                     <Border Background="#DC2626" CornerRadius="4" Padding="8,4"
                                             Visibility="{Binding ShowDeclinedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="Request declined" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
-                                    <!-- Owner: Accept / Decline -->
+                                    
                                     <StackPanel Orientation="Horizontal" Spacing="8"
                                                 Visibility="{Binding ShowOwnerActions, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <Button Tag="{Binding}" Click="AcceptRequest_Click"
@@ -104,7 +104,7 @@
                                                 Content="Decline" />
                                     </StackPanel>
 
-                                    <!-- Renter: Cancel -->
+                                    
                                     <Button Tag="{Binding}" Click="CancelRequest_Click"
                                             Content="Cancel request"
                                             Visibility="{Binding ShowRenterActions, Converter={StaticResource BoolToVisibilityConverter}}" />

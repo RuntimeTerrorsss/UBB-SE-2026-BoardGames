@@ -87,7 +87,6 @@ namespace BoardGames.Desktop.Services.Listeners
         {
             int currentRetryCount = InitialRetryCount;
             var currentRetryDelay = InitialRetryDelay;
-            // entering listen loop - attempt to connect
             UpdateConnectionStatus(NotificationConnectionStatus.Reconnecting);
 
             while (!ListenCancellationToken.IsCancellationRequested)
@@ -95,7 +94,6 @@ namespace BoardGames.Desktop.Services.Listeners
                 try
                 {
                     var receivedResult = await udpSocketClient.ReceiveAsync(ListenCancellationToken);
-                    // successfully received data - consider connected
                     UpdateConnectionStatus(NotificationConnectionStatus.Connected);
                     currentRetryCount = InitialRetryCount;
                     currentRetryDelay = InitialRetryDelay;
@@ -113,7 +111,6 @@ namespace BoardGames.Desktop.Services.Listeners
                 catch (SocketException socketException)
                 {
                     currentRetryCount++;
-                    // indicate reconnecting while retrying
                     UpdateConnectionStatus(NotificationConnectionStatus.Reconnecting);
 
                     if (currentRetryCount > MaxRetries)
@@ -144,8 +141,6 @@ namespace BoardGames.Desktop.Services.Listeners
                     break;
                 }
             }
-
-            // loop finished - ensure stopped if not already offline
             if (ConnectionStatus != NotificationConnectionStatus.Offline)
             {
                 UpdateConnectionStatus(NotificationConnectionStatus.Stopped);

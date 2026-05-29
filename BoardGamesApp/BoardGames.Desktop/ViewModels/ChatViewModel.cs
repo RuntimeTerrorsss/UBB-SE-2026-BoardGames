@@ -36,7 +36,7 @@ namespace BoardGames.Desktop.ViewModels
             {
                 currentConversation = result.Data;
                 Messages.Clear();
-                foreach (var msg in currentConversation.MessageList.OrderBy(m => m.SentAt))
+                foreach (var msg in currentConversation.MessageList.OrderBy(message => message.SentAt))
                 {
                     Messages.Add(msg);
                 }
@@ -84,7 +84,7 @@ namespace BoardGames.Desktop.ViewModels
             var result = await conversationService.UpdateMessageAsync(updatedMessage);
             if (result.Success)
             {
-                var index = Messages.ToList().FindIndex(m => m.Id == updatedMessage.Id);
+                var index = Messages.ToList().FindIndex(message => message.Id == updatedMessage.Id);
                 if (index != -1) Messages[index] = result.Data!;
             }
         }

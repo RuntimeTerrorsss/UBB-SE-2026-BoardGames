@@ -1,4 +1,4 @@
-﻿namespace BoardGames.Desktop.ViewModels
+namespace BoardGames.Desktop.ViewModels
 {
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -47,7 +47,7 @@
 
             if (convResult.Success && convResult.Data != null)
             {
-                NewMessagesCount = convResult.Data.Count(c => c.UnreadCount.Values.Sum() > 0);
+                NewMessagesCount = convResult.Data.Count(conversation => conversation.UnreadCount.Values.Sum() > 0);
             }
 
             if (notifResult.Success && notifResult.Data != null)

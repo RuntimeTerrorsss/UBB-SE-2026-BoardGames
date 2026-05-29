@@ -67,7 +67,7 @@ namespace BoardGames.Desktop.ViewModels
             var notificationsResult = await notificationLookupService.GetNotificationsForUserAsync(this.sessionContext.AccountId);
 
             this.SetAllItems(notificationsResult.Success && notificationsResult.Data != null
-                ? notificationsResult.Data.OrderByDescending(n => n.Id).ToImmutableList()
+                ? notificationsResult.Data.OrderByDescending(notification => notification.Id).ToImmutableList()
                 : ImmutableList<NotificationDTO>.Empty);
         }
 

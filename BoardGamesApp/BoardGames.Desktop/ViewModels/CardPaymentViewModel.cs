@@ -1,6 +1,3 @@
-// <copyright file="CardPaymentViewModel.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.Commands;
 
