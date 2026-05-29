@@ -4,19 +4,15 @@ using System.Threading.Tasks;
 using BoardGames.Api.Services;
 using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Api.Controllers
 {
     [ApiController]
     [Route("api/admin")]
     [Authorize(Roles = "Admin")]
-    /* Task 7 must register IAuthService, IAccountService, IAdminService, 
-     * IAvatarStorageService, IAccountRepository, 
-     * and IFailedLoginRepository in the DI container.
-     
-     Also, middleware so the "Admin" role is extracted correctly*/
+
     public class AdminController : ControllerBase
     {
         private const int DefaultPageNumber = 1;

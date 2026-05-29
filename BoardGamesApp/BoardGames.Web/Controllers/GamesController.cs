@@ -4,14 +4,14 @@
 
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
-using Microsoft.AspNetCore.Mvc.Filters;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BoardGames.Web.Controllers
 {
     [Authorize]
-    public class GamesController : Controller
     public class GamesController : Controller
     {
         private readonly IGameProxyService gameProxyService;

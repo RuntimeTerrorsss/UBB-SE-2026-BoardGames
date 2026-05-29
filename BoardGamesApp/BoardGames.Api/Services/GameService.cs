@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using BoardGames.Api.Mappers;
 using BoardGames.Data.Constants;
 using BoardGames.Data.Enums;
-using BoardGames.Api.Mappers;
+using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
-using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Services
 {

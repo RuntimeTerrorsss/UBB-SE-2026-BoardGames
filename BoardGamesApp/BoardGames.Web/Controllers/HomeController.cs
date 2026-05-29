@@ -3,9 +3,9 @@
 // </copyright>
 
 using System.Diagnostics;
+using BoardGames.Web.Helpers;
 using BoardGames.Web.Models;
 using BoardGames.Web.Models.Search;
-using BoardGames.Web.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

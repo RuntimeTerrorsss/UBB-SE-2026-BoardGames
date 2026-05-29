@@ -2,10 +2,9 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using BoardGames.Web.Infrastructure;
-
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.ProxyRepositories;
+using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 
