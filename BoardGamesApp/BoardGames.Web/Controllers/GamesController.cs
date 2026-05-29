@@ -4,13 +4,14 @@
 
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
-using BoardGames.Web.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
     [Authorize]
+    public class GamesController : Controller
     public class GamesController : Controller
     {
         private readonly IGameProxyService gameProxyService;
@@ -22,12 +23,20 @@ namespace BoardGames.Web.Controllers
             this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
+            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
+            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
+            base.OnActionExecuting(context);
+        }
+
         public async Task<IActionResult> Index()
         {
-            if (this.User.IsAdministrator())
+            var filter = new FilterCriteria();
+            if (this.User?.Identity?.IsAuthenticated == true)
             {
-                var allGames = await this.gameProxyService.GetAllGamesAsync();
-                return this.View(allGames);
+                filter.UserId = this.User.GetPamUserId();
             }
 
             var ownerId = this.User.GetAccountId();
@@ -109,33 +118,15 @@ namespace BoardGames.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, GameDTO body, IFormFile? imageFile)
+        public async Task<IActionResult> ConfirmBooking(int id, DateTime startDate, DateTime endDate, string confirm)
         {
-            if (id != body.Id)
+            if (this.User?.Identity?.IsAuthenticated != true)
             {
-                return this.NotFound();
+                return this.RedirectToAction("Login", "Auth");
             }
 
-            if (!this.ModelState.IsValid)
-            {
-                return this.View(body);
-            }
-
-            GameDTO? existing = await this.gameProxyService.GetGameByIdAsync(id);
-            if (existing is null)
-            {
-                return this.NotFound();
-            }
-
-            if (!this.User.IsAdministrator() && existing.Owner?.Id != this.User.GetAccountId())
-            {
-                return this.Forbid();
-            }
-
-            body.Owner = existing.Owner;
-
-            if (imageFile != null && imageFile.Length > 0)
+            int clientId = this.User.GetPamUserId() ?? -1;
+            if (clientId == -1)
             {
                 using var memoryStream = new MemoryStream();
                 await imageFile.CopyToAsync(memoryStream);

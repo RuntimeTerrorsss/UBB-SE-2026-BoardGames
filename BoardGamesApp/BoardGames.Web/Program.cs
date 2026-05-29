@@ -3,6 +3,9 @@
 // </copyright>
 
 using BoardGames.Web.Infrastructure;
+
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.ProxyRepositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 
@@ -22,20 +25,59 @@ builder.Services
         options.LoginPath = "/Auth/Login";
         options.LogoutPath = "/Auth/Logout";
         options.AccessDeniedPath = "/Auth/AccessDenied";
+        options.Cookie.Name = "BoardGames.Auth";
+        options.Cookie.HttpOnly = true;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
     });
 
-builder.Services.AddAuthorization(options =>
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+// DEPENDENCY INJECTION
+builder.Services.AddHttpClient<IConversationRepository, ConversationAPIProxy>(client =>
 {
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+builder.Services.AddHttpClient<InterfaceGamesRepository, GamesAPIProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+builder.Services.AddHttpClient<IPaymentRepository, PaymentAPIProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+builder.Services.AddHttpClient<IRentalRepository, RentalAPIProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+builder.Services.AddHttpClient<IRepositoryPayment, RepositoryPaymentAPIProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+builder.Services.AddHttpClient<IUserRepository, UserAPIProxy>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
-builder.WebHost.UseUrls("http://localhost:5175", "https://localhost:5176");
+// Register your Business Logic Services
+builder.Services.AddScoped<InterfaceBookingService, BookingService>();
+builder.Services.AddScoped<ICardPaymentService, CardPaymentService>();
+builder.Services.AddScoped<ICashPaymentService, CashPaymentService>();
+builder.Services.AddScoped<IConversationNotifier, ConversationNotifier>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddSingleton<InterfaceGeographicalService>(provider =>
+{
+    return GeographicalService.LoadFromFileAsync().GetAwaiter().GetResult();
+}); builder.Services.AddScoped<IMapService, MapService>();
+builder.Services.AddScoped<IReceiptService, ReceiptService>();
+builder.Services.AddScoped<IRentalService, RentalService>();
+builder.Services.AddScoped<InterfaceSearchAndFilterService, SearchAndFilterService>();
+builder.Services.AddScoped<IServicePayment, ServicePayment>();
+builder.Services.AddScoped<ICashPaymentMapper, CashPaymentMapper>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPaymentService, CardPaymentService>();
 
 var app = builder.Build();
 
@@ -49,6 +91,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
