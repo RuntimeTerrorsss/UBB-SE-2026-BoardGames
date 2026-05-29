@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
@@ -40,17 +41,44 @@ namespace BoardGames.Desktop.Views
         public string LastMessagePreview { get; init; } = string.Empty;
     }
 
+    public sealed class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            bool show = value is true;
+            if (parameter is string p && p == "Inverse") show = !show;
+            return show ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+            => throw new NotImplementedException();
+    }
+
     internal sealed class MessageDisplayItem
     {
         public string SenderLabel { get; init; } = string.Empty;
         public string Content { get; init; } = string.Empty;
         public string SentAtDisplay { get; init; } = string.Empty;
         public bool IsCurrentUser { get; init; }
+
+        // Rental request fields
+        public bool IsRentalRequest { get; init; }
+        public int RequestId { get; init; }
+        public bool IsResolved { get; init; }
+        public bool IsAccepted { get; init; }
+
+        // Derived visibility helpers
+        public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsCurrentUser;
+        public bool ShowRenterActions => IsRentalRequest && !IsResolved && IsCurrentUser;
+        public bool ShowAwaitingBadge => IsRentalRequest && !IsResolved;
+        public bool ShowAcceptedBadge => IsRentalRequest && IsResolved && IsAccepted;
+        public bool ShowDeclinedBadge => IsRentalRequest && IsResolved && !IsAccepted;
     }
 
     public sealed partial class ChatPage : Page
     {
         private readonly IConversationService conversationService;
+        private readonly IRequestService requestService;
         private readonly ISessionContext sessionContext;
         private ConversationDTO? selectedConversation;
 
@@ -58,6 +86,7 @@ namespace BoardGames.Desktop.Views
         {
             this.InitializeComponent();
             this.conversationService = App.Services.GetRequiredService<IConversationService>();
+            this.requestService = App.Services.GetRequiredService<IRequestService>();
             this.sessionContext = App.Services.GetRequiredService<ISessionContext>();
         }
 
@@ -118,15 +147,72 @@ namespace BoardGames.Desktop.Views
                 {
                     bool isMe = m.SenderId == currentPamUserId;
                     conversation.ParticipantDisplayNames.TryGetValue(m.SenderId, out string? name);
+                    bool isRentalRequest = m.Type == MessageType.MessageRentalRequest;
                     return new MessageDisplayItem
                     {
                         SenderLabel = isMe ? "You" : (name ?? $"User {m.SenderId}"),
                         Content = m.Content,
                         SentAtDisplay = m.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
                         IsCurrentUser = isMe,
+                        IsRentalRequest = isRentalRequest,
+                        RequestId = isRentalRequest ? ExtractRequestId(m.Content) : -1,
+                        IsResolved = m.IsResolved,
+                        IsAccepted = m.IsAccepted,
                     };
                 })
                 .ToList();
+        }
+
+        private static int ExtractRequestId(string content)
+        {
+            var match = Regex.Match(content, @"^\[req:(\d+)\]");
+            return match.Success && int.TryParse(match.Groups[1].Value, out int id) ? id : -1;
+        }
+
+        private async void AcceptRequest_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is Button btn && btn.Tag is MessageDisplayItem item && item.RequestId > 0)
+            {
+                var result = await this.requestService.OfferGameAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
+                await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not accept the request."));
+            }
+        }
+
+        private async void DeclineRequest_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is Button btn && btn.Tag is MessageDisplayItem item && item.RequestId > 0)
+            {
+                var result = await this.requestService.DenyRequestAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
+                await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not decline the request."));
+            }
+        }
+
+        private async void CancelRequest_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is Button btn && btn.Tag is MessageDisplayItem item && item.RequestId > 0)
+            {
+                var result = await this.requestService.CancelRequestAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
+                await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not cancel the request."));
+            }
+        }
+
+        private async Task RefreshSelectedConversationAsync(string? errorMessage)
+        {
+            if (errorMessage != null)
+            {
+                this.StatusText.Text = errorMessage;
+                return;
+            }
+
+            if (this.selectedConversation != null)
+            {
+                var refreshed = await this.conversationService.GetConversationByIdAsync(this.selectedConversation.Id);
+                if (refreshed.Success && refreshed.Data != null)
+                {
+                    this.selectedConversation = refreshed.Data;
+                    this.MessagesList.ItemsSource = this.BuildMessageItems(refreshed.Data);
+                }
+            }
         }
 
         private async void SendButton_Click(object sender, RoutedEventArgs eventArgs)

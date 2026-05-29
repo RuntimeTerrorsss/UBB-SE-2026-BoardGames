@@ -101,9 +101,13 @@ namespace BoardGames.Shared.ProxyServices
                 async (response, token) =>
                 {
                     var parsed = await ApiResponseReader.ReadJsonAsync<List<GameSummaryDTO>>(response, token);
-                    return parsed.Success
-                        ? ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data ?? new List<GameSummaryDTO>())
-                        : ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
+                    if (parsed.Success && parsed.Data != null)
+                    {
+                        RebaseImageUrls(parsed.Data, client.BaseAddress);
+                        return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data);
+                    }
+
+                    return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
                 },
                 cancellationToken);
         }
@@ -116,11 +120,28 @@ namespace BoardGames.Shared.ProxyServices
                 async (response, token) =>
                 {
                     var parsed = await ApiResponseReader.ReadJsonAsync<List<GameSummaryDTO>>(response, token);
-                    return parsed.Success
-                        ? ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data ?? new List<GameSummaryDTO>())
-                        : ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
+                    if (parsed.Success && parsed.Data != null)
+                    {
+                        RebaseImageUrls(parsed.Data, client.BaseAddress);
+                        return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data);
+                    }
+
+                    return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
                 },
                 cancellationToken);
+        }
+
+        private static void RebaseImageUrls(List<GameSummaryDTO> games, Uri? baseAddress)
+        {
+            if (baseAddress == null) return;
+            string origin = baseAddress.GetLeftPart(UriPartial.Authority);
+            foreach (var game in games)
+            {
+                if (!string.IsNullOrEmpty(game.ImageUrl) && game.ImageUrl.StartsWith("/"))
+                {
+                    game.ImageUrl = origin + game.ImageUrl;
+                }
+            }
         }
     }
 }

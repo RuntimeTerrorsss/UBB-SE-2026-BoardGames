@@ -52,6 +52,8 @@ namespace BoardGames.Desktop.ViewModels
 
         public Action<string>? OnLoginRequested { get; set; }
 
+        public Action? OnRequestSuccess { get; set; }
+
         public string PriceText => Game is null ? string.Empty : $"{Game.Price:0.##} RON / day";
 
         public string PlayerRangeText => Game is null ? string.Empty : $"{Game.MinimumPlayerNumber} - {Game.MaximumPlayerNumber} players";
@@ -190,8 +192,9 @@ namespace BoardGames.Desktop.ViewModels
                     return;
                 }
 
-                SuccessMessage = "Rental request sent. The owner will see it in chat and notifications.";
+                SuccessMessage = "Rental request sent. Redirecting to chat...";
                 await LoadBookedDatesAsync(Game.Id);
+                OnRequestSuccess?.Invoke();
             }
             finally
             {

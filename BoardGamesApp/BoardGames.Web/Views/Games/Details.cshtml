@@ -47,8 +47,8 @@
 			<h5 class="mb-0">Check Availability & Request Rental</h5>
 		</div>
 		<div class="card-body">
-			<form asp-controller="Requests" asp-action="Create" method="get">
-				<input type="hidden" name="GameId" value="@Model.Id" />
+			<form asp-controller="Games" asp-action="Book" asp-route-id="@Model.Id" method="get">
+
 				<div class="row">
 					<div class="col-md-5">
 						<div class="mb-3">

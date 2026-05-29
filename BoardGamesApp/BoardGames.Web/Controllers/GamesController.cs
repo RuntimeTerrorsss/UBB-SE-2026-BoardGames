@@ -15,11 +15,13 @@ namespace BoardGames.Web.Controllers
     {
         private readonly IGameProxyService gameProxyService;
         private readonly IRentalProxyService rentalProxyService;
+        private readonly IRequestProxyService requestProxyService;
 
-        public GamesController(IGameProxyService gameProxyService, IRentalProxyService rentalProxyService)
+        public GamesController(IGameProxyService gameProxyService, IRentalProxyService rentalProxyService, IRequestProxyService requestProxyService)
         {
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
             this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
+            this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
         }
 
         public async Task<IActionResult> Index()
@@ -54,6 +56,60 @@ namespace BoardGames.Web.Controllers
             }
 
             return this.View(game);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Book(int id, DateTime startDate, DateTime endDate)
+        {
+            if (startDate == default || endDate == default || endDate < startDate)
+            {
+                return this.RedirectToAction(nameof(this.Details), new { id });
+            }
+
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
+            {
+                return this.NotFound();
+            }
+
+            this.ViewBag.StartDate = startDate;
+            this.ViewBag.EndDate = endDate;
+            return this.View(game);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Book(int id, DateTime startDate, DateTime endDate, string unused = "")
+        {
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
+            {
+                return this.NotFound();
+            }
+
+            Guid renterAccountId = this.User.GetAccountId();
+            var body = new CreateRequestDTO
+            {
+                GameId = game.Id,
+                RenterAccountId = renterAccountId,
+                OwnerAccountId = game.Owner?.Id ?? Guid.Empty,
+                StartDate = startDate,
+                EndDate = endDate,
+            };
+
+            try
+            {
+                await this.requestProxyService.CreateRequestAsync(body);
+                this.TempData["SuccessMessage"] = "Your rental request has been submitted!";
+                return this.RedirectToAction("Index", "Chats");
+            }
+            catch (ProxyServiceException ex)
+            {
+                this.ViewBag.StartDate = startDate;
+                this.ViewBag.EndDate = endDate;
+                this.ViewBag.ErrorMessage = ex.Message;
+                return this.View(game);
+            }
         }
 
         [HttpGet]
