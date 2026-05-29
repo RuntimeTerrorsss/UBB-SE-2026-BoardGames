@@ -17,10 +17,15 @@ namespace BoardGames.Desktop.ViewModels
         private readonly Uri apiBaseUri;
 
         public SearchGamesViewModel(IGameService gameService, ISessionContext sessionContext)
+            : this(gameService, sessionContext, null)
+        {
+        }
+
+        public SearchGamesViewModel(IGameService gameService, ISessionContext sessionContext, Uri? apiBaseUriOverride)
         {
             this.gameService = gameService;
             this.sessionContext = sessionContext;
-            apiBaseUri = ResolveApiBaseUri();
+            apiBaseUri = apiBaseUriOverride ?? ResolveApiBaseUri();
         }
 
         public ObservableCollection<SearchGameCardViewModel> Games { get; } = new();
