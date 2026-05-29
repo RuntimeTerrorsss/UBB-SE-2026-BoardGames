@@ -1,3 +1,7 @@
+// <copyright file="DialogHelper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Views
 {
     using Microsoft.UI.Xaml;
@@ -13,7 +17,7 @@ namespace BoardGames.Desktop.Views
                 Title = title,
                 Content = content,
                 CloseButtonText = AppConstants.DialogButtons.Ok,
-                XamlRoot = xamlRoot
+                XamlRoot = xamlRoot,
             };
 
             await dialog.ShowAsync();
@@ -34,7 +38,7 @@ namespace BoardGames.Desktop.Views
                 PrimaryButtonText = primaryButtonText,
                 CloseButtonText = closeButtonText,
                 DefaultButton = defaultButton,
-                XamlRoot = xamlRoot
+                XamlRoot = xamlRoot,
             };
 
             return await dialog.ShowAsync();

@@ -1,3 +1,7 @@
+// <copyright file="ProfileViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -127,14 +131,24 @@ namespace BoardGames.Desktop.ViewModels
         public string AvatarUrl
         {
             get => avatarUrl;
-            set { if (this.SetProperty(ref avatarUrl, value)) this.OnPropertyChanged(nameof(ProfileImage)); }
+            set
+            {
+                if (this.SetProperty(ref avatarUrl, value))
+                {
+                    this.OnPropertyChanged(nameof(ProfileImage));
+                }
+            }
         }
 
         public ImageSource ProfileImage
         {
             get
             {
-                if (string.IsNullOrEmpty(AvatarUrl)) return null;
+                if (string.IsNullOrEmpty(AvatarUrl))
+                {
+                    return null;
+                }
+
                 try { return new BitmapImage(new Uri(AvatarUrl)); }
                 catch (UriFormatException) { return null; }
             }
@@ -159,6 +173,7 @@ namespace BoardGames.Desktop.ViewModels
             {
                 this.ApplyProfile(profileResult.Data);
             }
+
             this.IsLoading = false;
         }
 
@@ -175,7 +190,7 @@ namespace BoardGames.Desktop.ViewModels
                 Country = Country,
                 City = City,
                 StreetName = StreetName,
-                StreetNumber = StreetNumber
+                StreetNumber = StreetNumber,
             };
 
             var updateResult = await accountService.UpdateProfileAsync(sessionContext.AccountId, updateInformation);
@@ -190,6 +205,7 @@ namespace BoardGames.Desktop.ViewModels
                         this.IsLoading = false;
                         return;
                     }
+
                     AvatarUrl = avatarUploadResult.Data ?? string.Empty;
                     pendingAvatarPath = string.Empty;
                 }
@@ -200,12 +216,14 @@ namespace BoardGames.Desktop.ViewModels
                     sessionContext.Populate(refreshedProfileResult.Data);
                     this.ApplyProfile(refreshedProfileResult.Data);
                 }
+
                 this.ErrorMessage = "Profile saved successfully.";
             }
             else
             {
                 this.ProcessValidationErrors(updateResult.Error);
             }
+
             this.IsLoading = false;
         }
 
@@ -281,11 +299,19 @@ namespace BoardGames.Desktop.ViewModels
 
         private void ProcessValidationErrors(string errorString)
         {
-            if (string.IsNullOrWhiteSpace(errorString)) return;
+            if (string.IsNullOrWhiteSpace(errorString))
+            {
+                return;
+            }
+
             foreach (string error in errorString.Split(';'))
             {
                 string[] parts = error.Split('|');
-                if (parts.Length < 2) continue;
+                if (parts.Length < 2)
+                {
+                    continue;
+                }
+
                 switch (parts[0])
                 {
                     case "Email": EmailError = parts[1]; break;

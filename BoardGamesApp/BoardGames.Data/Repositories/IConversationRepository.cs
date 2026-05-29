@@ -22,7 +22,6 @@ namespace BoardGames.Data.Repositories
 
         Task<int> CreateConversation(int senderId, int receiverId);
 
-        /// <summary>Returns the conversation id shared by the two users, creating one if none exists.</summary>
         Task<int> FindOrCreateConversationBetweenUsers(int userIdA, int userIdB);
 
         Task<Message?> HandleRentalRequestFinalization(int messageId);

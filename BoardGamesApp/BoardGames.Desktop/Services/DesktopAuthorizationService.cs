@@ -1,3 +1,7 @@
+// <copyright file="DesktopAuthorizationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.Views;
 
@@ -12,12 +16,12 @@ namespace BoardGames.Desktop.Services
             this.sessionContext = sessionContext;
         }
 
-        public Guid CurrentAccountId => sessionContext.AccountId;
+        public Guid CurrentAccountId => this.sessionContext.AccountId;
 
-        public bool IsLoggedIn => sessionContext.IsLoggedIn;
+        public bool IsLoggedIn => this.sessionContext.IsLoggedIn;
 
         public bool IsAdministrator =>
-            string.Equals(sessionContext.Role, AppRoles.Administrator, StringComparison.Ordinal);
+            string.Equals(this.sessionContext.Role, AppRoles.Administrator, StringComparison.Ordinal);
 
         public bool CanAccessPage(Type pageType)
         {
@@ -26,7 +30,7 @@ namespace BoardGames.Desktop.Services
                 || pageType == typeof(GameDetailsPage)
                 || pageType == typeof(LoginPage)
                 || pageType == typeof(RegisterPage)
-                || (pageType == typeof(PlaceholderPage) && IsLoggedIn);
+                || (pageType == typeof(PlaceholderPage) && this.IsLoggedIn);
         }
 
         public bool CanAccessRoute(AppPage page)
@@ -36,12 +40,12 @@ namespace BoardGames.Desktop.Services
                 return true;
             }
 
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
                 return false;
             }
 
-            return page != AppPage.Admin || IsAdministrator;
+            return page != AppPage.Admin || this.IsAdministrator;
         }
     }
 }

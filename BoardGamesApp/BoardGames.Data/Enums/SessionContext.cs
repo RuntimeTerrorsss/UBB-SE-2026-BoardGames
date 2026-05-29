@@ -57,9 +57,6 @@ namespace BoardGames.Data.Enums
         /// <summary>
         /// Retrieves the singleton instance of the SessionContext class.
         /// </summary>
-        /// <remarks>This method implements the singleton pattern to ensure that only one instance of
-        /// SessionContext exists throughout the application's lifetime. Subsequent calls return the same
-        /// instance.</remarks>
         /// <returns>The single, shared instance of SessionContext.</returns>
         public static SessionContext GetInstance()
         {
@@ -87,8 +84,6 @@ namespace BoardGames.Data.Enums
         /// <summary>
         /// Resets the user state to indicate that no user is currently logged in.
         /// </summary>
-        /// <remarks>Call this method to clear all authentication information and revert the user to an
-        /// unregistered state. After calling this method, the user will be considered logged out.</remarks>
         public void Clear()
         {
             this.UserId = UnregisteredUserID;

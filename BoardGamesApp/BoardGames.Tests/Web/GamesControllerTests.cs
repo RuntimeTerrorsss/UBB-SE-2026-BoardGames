@@ -34,7 +34,8 @@ namespace BoardGames.Tests.Web
         {
             var controller = new GamesController(this.gameProxy.Object, this.rentalProxy.Object);
 
-            var identity = new ClaimsIdentity(new[]
+            var identity = new ClaimsIdentity(
+                new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, this.accountId.ToString()),
             }, "Test");

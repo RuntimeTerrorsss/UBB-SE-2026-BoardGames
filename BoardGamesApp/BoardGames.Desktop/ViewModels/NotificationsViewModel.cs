@@ -1,3 +1,7 @@
+// <copyright file="NotificationsViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -52,6 +56,7 @@ namespace BoardGames.Desktop.ViewModels
             {
                 _ = ReloadAsync();
             }
+
             notificationLookupService.SubscribeToServer(sessionContext.AccountId);
             notificationLookupService.StartListening();
         }
@@ -62,7 +67,10 @@ namespace BoardGames.Desktop.ViewModels
 
         private async Task ReloadAsync()
         {
-            if (!sessionContext.IsLoggedIn) return;
+            if (!sessionContext.IsLoggedIn)
+            {
+                return;
+            }
 
             var notificationsResult = await notificationLookupService.GetNotificationsForUserAsync(this.sessionContext.AccountId);
 
@@ -79,13 +87,17 @@ namespace BoardGames.Desktop.ViewModels
 
         public void OnNext(NotificationDTO incomingNotification)
         {
-            if (!sessionContext.IsLoggedIn) return;
+            if (!sessionContext.IsLoggedIn)
+            {
+                return;
+            }
 
             if (uiDispatcherQueue != null && !uiDispatcherQueue.HasThreadAccess)
             {
                 uiDispatcherQueue.TryEnqueue(() => _ = ReloadAsync());
                 return;
             }
+
             _ = ReloadAsync();
         }
 
@@ -109,9 +121,13 @@ namespace BoardGames.Desktop.ViewModels
             }
 
             if (uiDispatcherQueue != null && !uiDispatcherQueue.HasThreadAccess)
+            {
                 uiDispatcherQueue.TryEnqueue(ApplyStatus);
+            }
             else
+            {
                 ApplyStatus();
+            }
         }
     }
 }

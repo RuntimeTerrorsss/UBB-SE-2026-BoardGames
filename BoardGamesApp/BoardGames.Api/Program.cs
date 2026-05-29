@@ -1,3 +1,7 @@
+// <copyright file="Program.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Api.Mappers;
 using BoardGames.Api.Services;
 using BoardGames.Data;
@@ -10,8 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
-// EF Core — two patterns coexist: AppDbContext (scoped) for repos taking AppDbContext,
-// IDbContextFactory<AppDbContext> for repos that open a context per call.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
 
@@ -25,9 +27,6 @@ builder.Services.AddScoped<IRentalRepository, RentalRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IRepositoryPayment, RepositoryPayment>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-// GamesRepository implements both IGameRepository and InterfaceGamesRepository.
-// Register the concrete once and forward both interfaces to it, so one instance per scope serves both.
 builder.Services.AddScoped<GamesRepository>();
 builder.Services.AddScoped<IGameRepository>(sp => sp.GetRequiredService<GamesRepository>());
 builder.Services.AddScoped<InterfaceGamesRepository>(sp => sp.GetRequiredService<GamesRepository>());
@@ -55,8 +54,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddHttpContextAccessor();
 
-// Cookie auth — AuthController issues the cookie on successful login.
-// [Authorize(Roles = "Admin")] on AdminController relies on this scheme.
+// Cookie auth
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

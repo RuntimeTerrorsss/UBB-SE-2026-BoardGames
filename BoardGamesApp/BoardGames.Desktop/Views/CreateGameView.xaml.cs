@@ -1,3 +1,7 @@
+// <copyright file="CreateGameView.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -27,6 +31,7 @@ namespace BoardGames.Desktop.Views
                 {
                     Frame.GoBack();
                 }
+
                 return;
             }
 
@@ -70,6 +75,7 @@ namespace BoardGames.Desktop.Views
             {
                 await previewBitmapImage.SetSourceAsync(imageRandomAccessStream);
             }
+
             ImagePreview.Source = previewBitmapImage;
         }
     }

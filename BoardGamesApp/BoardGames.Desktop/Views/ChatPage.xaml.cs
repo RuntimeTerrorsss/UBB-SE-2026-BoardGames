@@ -1,3 +1,7 @@
+// <copyright file="ChatPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Text.RegularExpressions;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
@@ -37,7 +41,9 @@ namespace BoardGames.Desktop.Views
     internal sealed class ConversationListItem
     {
         public ConversationDTO Conversation { get; init; } = null!;
+
         public string OtherUserName { get; init; } = string.Empty;
+
         public string LastMessagePreview { get; init; } = string.Empty;
     }
 
@@ -46,7 +52,11 @@ namespace BoardGames.Desktop.Views
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             bool show = value is true;
-            if (parameter is string p && p == "Inverse") show = !show;
+            if (parameter is string p && p == "Inverse")
+            {
+                show = !show;
+            }
+
             return show ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -57,21 +67,31 @@ namespace BoardGames.Desktop.Views
     internal sealed class MessageDisplayItem
     {
         public string SenderLabel { get; init; } = string.Empty;
+
         public string Content { get; init; } = string.Empty;
+
         public string SentAtDisplay { get; init; } = string.Empty;
+
         public bool IsCurrentUser { get; init; }
 
         // Rental request fields
         public bool IsRentalRequest { get; init; }
+
         public int RequestId { get; init; }
+
         public bool IsResolved { get; init; }
+
         public bool IsAccepted { get; init; }
 
         // Derived visibility helpers
         public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsCurrentUser;
+
         public bool ShowRenterActions => IsRentalRequest && !IsResolved && IsCurrentUser;
+
         public bool ShowAwaitingBadge => IsRentalRequest && !IsResolved;
+
         public bool ShowAcceptedBadge => IsRentalRequest && IsResolved && IsAccepted;
+
         public bool ShowDeclinedBadge => IsRentalRequest && IsResolved && !IsAccepted;
     }
 
@@ -139,7 +159,11 @@ namespace BoardGames.Desktop.Views
 
         private List<MessageDisplayItem> BuildMessageItems(ConversationDTO? conversation)
         {
-            if (conversation == null) return new List<MessageDisplayItem>();
+            if (conversation == null)
+            {
+                return new List<MessageDisplayItem>();
+            }
+
             int currentPamUserId = this.sessionContext.PamUserId ?? 0;
             return conversation.MessageList
                 .OrderBy(m => m.SentAt)

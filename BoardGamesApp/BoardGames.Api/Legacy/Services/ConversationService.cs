@@ -163,10 +163,8 @@ namespace BoardGames.Api.Legacy.Services
         {
             Message persisted = await this.ConversationRepository.HandleNewMessage(this.MessageDTOToMessage(message));
 
-            // Track the sent ID so the poller won't fire a duplicate notification for it.
             this.recentlySentMessageIds.Add(persisted.MessageId);
 
-            // Immediately update the local cache so the poller sees the message as known.
             var cachedConv = this.cachedConversations.FirstOrDefault(c => c.ConversationId == persisted.ConversationId);
             if (cachedConv != null)
             {
@@ -281,7 +279,6 @@ namespace BoardGames.Api.Legacy.Services
                                 var cachedMsg = cachedConv.Messages.FirstOrDefault(message => message.MessageId == fetchedMsg.MessageId);
                                 if (cachedMsg == null)
                                 {
-                                    // Only notify if we didn't just send this message ourselves.
                                     if (!this.recentlySentMessageIds.Remove(fetchedMsg.MessageId))
                                     {
                                         await this.NotifySubscribersAboutMessage(fetchedMsg);

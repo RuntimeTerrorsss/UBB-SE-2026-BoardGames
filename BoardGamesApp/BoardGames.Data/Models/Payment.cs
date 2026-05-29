@@ -18,7 +18,9 @@ public class Payment
         this.PaymentState = 0;
     }
 
-    public Payment() { }
+    public Payment()
+    {
+    }
 
     [Key]
     [Column("id")]
@@ -73,7 +75,10 @@ public class HistoryPayment : Payment
         this.OwnerName = ownerName;
     }
 
-    public HistoryPayment() : base() { }
+    public HistoryPayment()
+        : base()
+    {
+    }
 
     [Column("game_name")]
     public string? GameName { get; set; }

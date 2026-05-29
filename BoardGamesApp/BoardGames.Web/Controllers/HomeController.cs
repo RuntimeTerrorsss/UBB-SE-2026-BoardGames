@@ -76,11 +76,11 @@ namespace BoardGames.Web.Controllers
                     "price_asc" => SortOption.PriceAscending,
                     "price_desc" => SortOption.PriceDescending,
                     "location" => SortOption.Location,
-                    _ => SortOption.None
+                    _ => SortOption.None,
                 },
                 AvailabilityRange = (model.StartDate.HasValue && model.EndDate.HasValue)
                     ? new TimeRange(model.StartDate.Value, model.EndDate.Value)
-                    : null
+                    : null,
             };
 
             var results = await _searchService.SearchGamesByFilter(filter);

@@ -47,7 +47,8 @@ namespace BoardGames.Tests.Web
                 this.gameProxy.Object,
                 this.chatProxy.Object);
 
-            var identity = new ClaimsIdentity(new[]
+            var identity = new ClaimsIdentity(
+                new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, this.accountId.ToString()),
             }, "Test");

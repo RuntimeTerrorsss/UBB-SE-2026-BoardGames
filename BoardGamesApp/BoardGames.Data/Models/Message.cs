@@ -66,7 +66,8 @@ public class TextMessage : Message
         this.MessageContentAsString = textMessageContent;
     }
 
-    public TextMessage() : base() { }
+    public TextMessage()
+        : base() { }
 
     [Column("text_message_content")]
     public string? TextMessageContent { get; set; }
@@ -81,7 +82,8 @@ public class ImageMessage : Message
         this.MessageImageUrl = messageImageUrl;
     }
 
-    public ImageMessage() : base() { }
+    public ImageMessage()
+        : base() { }
 
     [Column("message_image_url")]
     public string? MessageImageUrl { get; set; }
@@ -97,7 +99,8 @@ public class SystemMessage : Message
         this.MessageContentAsString = messageContent;
     }
 
-    public SystemMessage() : base() { }
+    public SystemMessage()
+        : base() { }
 
     [Column("message_content")]
     public string? MessageContent { get; set; }
@@ -115,7 +118,8 @@ public class RentalRequestMessage : Message
         this.IsRequestAccepted = false;
     }
 
-    public RentalRequestMessage() : base() { }
+    public RentalRequestMessage()
+        : base() { }
 
     [Column("rental_request_id")]
     public int? RentalRequestId { get; set; }
@@ -145,7 +149,8 @@ public class CashAgreementMessage : Message
         this.IsCashAgreementAcceptedBySeller = false;
     }
 
-    public CashAgreementMessage() : base() { }
+    public CashAgreementMessage()
+        : base() { }
 
     [Column("cash_payment_id")]
     public int CashPaymentId { get; set; }

@@ -1,3 +1,7 @@
+// <copyright file="PagedViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.ViewModels
 {
     using System;
@@ -64,9 +68,21 @@ namespace BoardGames.Desktop.ViewModels
 
         public virtual string ShowingText => $"Showing {DisplayedCount} of {TotalCount}";
 
-        public virtual void NextPage() { if (CurrentPage < PageCount) CurrentPage += PageStep; }
+        public virtual void NextPage()
+        {
+            if (CurrentPage < PageCount)
+            {
+                CurrentPage += PageStep;
+            }
+        }
 
-        public virtual void PrevPage() { if (CurrentPage > FirstPageNumber) CurrentPage -= PageStep; }
+        public virtual void PrevPage()
+        {
+            if (CurrentPage > FirstPageNumber)
+            {
+                CurrentPage -= PageStep;
+            }
+        }
 
         protected abstract void Reload();
 

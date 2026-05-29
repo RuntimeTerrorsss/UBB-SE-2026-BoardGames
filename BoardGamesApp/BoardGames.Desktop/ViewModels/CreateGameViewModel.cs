@@ -106,7 +106,7 @@ namespace BoardGames.Desktop.ViewModels
                 Price = GamePrice,
                 MinimumPlayerNumber = MinimumPlayersRequired,
                 MaximumPlayerNumber = MaximumPlayersAllowed,
-                IsActive = IsGameActive
+                IsActive = IsGameActive,
             };
         }
 
@@ -136,7 +136,7 @@ namespace BoardGames.Desktop.ViewModels
                 MaximumPlayerNumber = MaximumPlayersAllowed,
                 Description = GameDescription,
                 Image = GameImage,
-                IsActive = IsGameActive
+                IsActive = IsGameActive,
             };
         }
     }
