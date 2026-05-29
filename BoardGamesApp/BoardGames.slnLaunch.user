@@ -11,6 +11,11 @@
         "Path": "BoardGames.Web\\BoardGames.Web.csproj",
         "Action": "Start",
         "DebugTarget": "https"
+      },
+      {
+        "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
+        "Action": "Start",
+        "DebugTarget": "BoardGames.Desktop (Unpackaged)"
       }
     ]
   },
