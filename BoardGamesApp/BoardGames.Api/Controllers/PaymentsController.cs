@@ -1,6 +1,3 @@
-// <copyright file="PaymentsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
 
 using System;
 using System.Collections.Generic;
@@ -16,6 +13,8 @@ namespace BoardGames.Api.Controllers
     [Route("api/[controller]")]
     public class PaymentsController : ControllerBase
     {
+        private const int InternalServerErrorStatusCode = StatusCodes.Status500InternalServerError;
+
         private readonly IPaymentRepository _repo;
         private readonly IRepositoryPayment _historyRepo;
         private readonly IDashboardService _dashboardService;
@@ -85,7 +84,7 @@ namespace BoardGames.Api.Controllers
             }
             catch (Exception ex)
             {
-                return this.Problem(detail: ex.InnerException?.Message ?? ex.Message, statusCode: 500);
+                return Problem(detail: ex.InnerException?.Message ?? ex.Message, statusCode: InternalServerErrorStatusCode);
             }
         }
 

@@ -1,7 +1,3 @@
-﻿// <copyright file="DashboardViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Desktop.ViewModels
 {
     using System.Collections.ObjectModel;
@@ -54,7 +50,7 @@ namespace BoardGames.Desktop.ViewModels
 
             if (convResult.Success && convResult.Data != null)
             {
-                NewMessagesCount = convResult.Data.Count(c => c.UnreadCount.Values.Sum() > 0);
+                NewMessagesCount = convResult.Data.Count(conversation => conversation.UnreadCount.Values.Sum() > 0);
             }
 
             if (notifResult.Success && notifResult.Data != null)

@@ -1,6 +1,4 @@
-// <copyright file="AuthController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+
 
 using System.Security.Claims;
 using BoardGames.Api.Services;
@@ -49,7 +47,6 @@ namespace BoardGames.Api.Controllers
 
             var profile = result.Data;
             string roleName = profile.Role?.Name ?? "Standard User";
-
             string authorizationRole = string.Equals(roleName, "Administrator", System.StringComparison.OrdinalIgnoreCase)
                 ? "Admin"
                 : roleName;

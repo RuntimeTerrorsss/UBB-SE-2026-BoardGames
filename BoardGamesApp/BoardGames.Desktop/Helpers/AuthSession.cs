@@ -1,8 +1,5 @@
 namespace BoardGames.Desktop.Helpers
 {
-    /// <summary>
-    /// Keeps <see cref="SessionContext"/> and <see cref="SessionService"/> in sync for the desktop app.
-    /// </summary>
     public static class AuthSession
     {
         public static bool IsLoggedIn =>

@@ -1,7 +1,3 @@
-// <copyright file="RequestServiceErrors.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Api.Services
 {
     internal static class CancelRequestErrorCodes

@@ -1,7 +1,3 @@
-// <copyright file="SearchAndFilterService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System.Globalization;
 using System.Text;
 using BoardGames.Api.Mappers;
@@ -12,9 +8,6 @@ using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Legacy.Services
 {
-    /// <summary>
-    /// Service responsible for searching, filtering, and retrieving game feeds.
-    /// </summary>
     public class SearchAndFilterService : InterfaceSearchAndFilterService
     {
         private const int MinimumAllowedPlayers = 0;
@@ -23,15 +16,6 @@ namespace BoardGames.Api.Legacy.Services
         private readonly IUserRepository usersRepository;
         private readonly IRentalRepository rentalsRepository;
         private readonly InterfaceGeographicalService geographicalService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SearchAndFilterService"/> class.
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="gamesRepository">The repository for game data operations.</param>
-        /// <param name="usersRepository">The repository for user data operations.</param>
-        /// <param name="rentalsRepository">The repository for rental data operations.</param>
-        /// <param name="geographicalService">The service for geographical and location-based calculations.</param>
         public SearchAndFilterService(InterfaceGamesRepository gamesRepository, IUserRepository usersRepository, IRentalRepository rentalsRepository, InterfaceGeographicalService geographicalService)
         {
             this.gamesRepository = gamesRepository;
@@ -39,12 +23,6 @@ namespace BoardGames.Api.Legacy.Services
             this.rentalsRepository = rentalsRepository;
             this.geographicalService = geographicalService;
         }
-
-        /// <summary>
-        /// Searches for games based on the provided filter criteria.
-        /// </summary>
-        /// <param name="filter">The criteria to filter games.</param>
-        /// <returns>An array of <see cref="GameDTO"/> matching the criteria.</returns>
         public async Task<GameDTO[]> SearchGamesByFilter(FilterCriteria filter)
         {
             try
@@ -95,12 +73,6 @@ namespace BoardGames.Api.Legacy.Services
                 throw new InvalidOperationException("Failed to search for games.", thrownException);
             }
         }
-
-        /// <summary>
-        /// Retrieves a feed of games available tonight for the specified user.
-        /// </summary>
-        /// <param name="userId">The ID of the user requesting the feed or null.</param>
-        /// <returns>An array of <see cref="GameDTO"/> available tonight.</returns>
         public async Task<GameDTO[]> GetGamesFeedAvailableTonightByUser(int userId)
         {
             try
@@ -126,12 +98,6 @@ namespace BoardGames.Api.Legacy.Services
                 throw new InvalidOperationException("Failed to retrieve <<Available tonight>> feed.", thrownException);
             }
         }
-
-        /// <summary>
-        /// Retrieves a feed of other relevant games for the specified user.
-        /// </summary>
-        /// <param name="userId">The ID of the user requesting the feed or null.</param>
-        /// <returns>An array of <see cref="GameDTO"/> representing other games.</returns>
         public async Task<GameDTO[]> GetOtherGamesFeedByUser(int userId)
         {
             try
@@ -158,14 +124,6 @@ namespace BoardGames.Api.Legacy.Services
                 throw new InvalidOperationException("Failed to retrieve <<Others>> feed.", thrownException);
             }
         }
-
-        /// <summary>
-        /// Filters and sorts an array of games based on the provided criteria, including name, price, player count, and location.
-        /// </summary>
-        /// <param name="initialGamesCollection">The initial collection of games to be filtered.</param>
-        /// <param name="activeFilter">The criteria used for filtering and sorting the games.</param>
-        /// <returns>An array of <see cref="GameDTO"/> objects that match the filter criteria.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when an error occurs during the filtering process.</exception>
         public async Task<GameDTO[]> ApplyFilters(GameDTO[] initialGamesCollection, FilterCriteria activeFilter)
         {
             try
@@ -275,14 +233,6 @@ namespace BoardGames.Api.Legacy.Services
                 throw new InvalidOperationException("Failed to apply filters.", thrownException);
             }
         }
-
-        /// <summary>
-        /// Retrieves a paginated discovery feed, splitting games into those available tonight and others.
-        /// </summary>
-        /// <param name="userId">The ID of the user for whom the feed is generated.</param>
-        /// <param name="page">The current page number (1-based).</param>
-        /// <param name="pageSize">The number of items to include per page.</param>
-        /// <returns>A tuple containing available games for tonight, other available games, and the total count of games.</returns>
         public async Task<(List<GameDTO> AvailableTonight, List<GameDTO> Others, int TotalAvailableGamesCount)>
             GetDiscoveryFeedPaged(int userId, int page, int pageSize)
         {
@@ -307,13 +257,6 @@ namespace BoardGames.Api.Legacy.Services
 
             return (pagedAvailableTonightGames, pagedOtherGames, totalAvailableGamesCount);
         }
-
-        /// <summary>
-        /// Validates if a given date range is logical (start date is before or equal to end date).
-        /// </summary>
-        /// <param name="requestedStartDate">The start date of the range.</param>
-        /// <param name="requestedEndDate">The end date of the range.</param>
-        /// <returns>True if the range is valid or both dates are null; false if only one date is provided or start is after end.</returns>
         public bool IsValidDateRange(DateTime? requestedStartDate, DateTime? requestedEndDate)
         {
             if (!requestedStartDate.HasValue && !requestedEndDate.HasValue)
@@ -328,12 +271,6 @@ namespace BoardGames.Api.Legacy.Services
 
             return requestedStartDate.Value <= requestedEndDate.Value;
         }
-
-        /// <summary>
-        /// checks if the number of players if valid.
-        /// </summary>
-        /// <param name="playersNumber">number of players.</param>
-        /// <returns>true if the value is valid, false otherwise.</returns>
         public bool IsValidPlayersCount(int? playersNumber)
         {
             if (!playersNumber.HasValue)
@@ -343,15 +280,6 @@ namespace BoardGames.Api.Legacy.Services
 
             return playersNumber.Value >= MinimumAllowedPlayers;
         }
-
-        /// <summary>
-        /// Updates the filter criteria object with values provided from the user interface.
-        /// </summary>
-        /// <param name="targetFilter">The filter object to be updated.</param>
-        /// <param name="selectedMaximumPrice">The maximum price selected by the user.</param>
-        /// <param name="selectedMinimumPlayerCount">The minimum number of players selected by the user.</param>
-        /// <param name="selectedStartDate">The start date for availability.</param>
-        /// <param name="selectedEndDate">The end date for availability.</param>
         public void UpdateFilterFromUI(FilterCriteria targetFilter, double selectedMaximumPrice, double selectedMinimumPlayerCount, DateTime? selectedStartDate, DateTime? selectedEndDate)
         {
             targetFilter.MaximumPrice = selectedMaximumPrice > MinimumFilterValue
@@ -380,13 +308,6 @@ namespace BoardGames.Api.Legacy.Services
                 targetFilter.AvailabilityRange = null;
             }
         }
-
-        /// <summary>
-        /// Maps a <see cref="Game""")/>> entity and its owner's information to a <see cref="GameDTO""")/>>.
-        /// </summary>
-        /// <param name="gameEntity">The game entity to map.</param>
-        /// <param name="gameOwnerEntity">The user who owns the game.</param>
-        /// <returns>A data transfer object representing the game.</returns>
         private GameDTO MapToGameDTO(Game gameEntity, User? gameOwnerEntity)
         {
             return new GameDTO

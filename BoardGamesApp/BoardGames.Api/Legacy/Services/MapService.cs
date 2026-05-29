@@ -1,7 +1,3 @@
-// <copyright file="MapService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System.Diagnostics;
 using System.Text.Json;
 

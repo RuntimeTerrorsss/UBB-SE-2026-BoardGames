@@ -9,19 +9,17 @@
 	mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
-            <!--  Banner  -->
+            
             <RowDefinition Height="Auto" />
-            <!--  Message scroll area  -->
+            
             <RowDefinition Height="*" />
-            <!--  Image preview (hidden until an image is pasted)  -->
+            
             <RowDefinition Height="Auto" />
-            <!--  Input bar  -->
+            
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!--
-			Chat banner
-		-->
+        
         <Border
 			Grid.Row="0"
 			Padding="16,12"
@@ -32,12 +30,12 @@
 				VerticalAlignment="Center"
 				Orientation="Horizontal"
 				Spacing="12">
-                <!--  Avatar placeholder  -->
+                
                 <PersonPicture
 					x:Name="AvatarPicture"
 					Width="40"
 					Height="40" />
-                <!--  Display name  -->
+                
                 <TextBlock
 					x:Name="BannerDisplayName"
 					VerticalAlignment="Center"
@@ -47,9 +45,7 @@
             </StackPanel>
         </Border>
 
-        <!--
-			Scrollable message list
-		-->
+        
         <ScrollViewer
 			x:Name="ScrollContainer"
 			Grid.Row="1"
@@ -58,10 +54,7 @@
             <StackPanel x:Name="MessagesPanel" Spacing="4" />
         </ScrollViewer>
 
-        <!--
-			Staged image preview — visible only after a paste, hidden otherwise.
-			The user reviews the image here before hitting Send.
-		-->
+        
         <Border
 			x:Name="ImagePreviewPanel"
 			Grid.Row="2"
@@ -72,15 +65,15 @@
 			Visibility="Collapsed">
             <Grid ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
-                    <!--  Thumbnail  -->
+                    
                     <ColumnDefinition Width="Auto" />
-                    <!--  Label  -->
+                    
                     <ColumnDefinition Width="*" />
-                    <!--  Discard button  -->
+                    
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!--  Thumbnail of the pasted image  -->
+                
                 <Border
 					Grid.Column="0"
 					CornerRadius="6">
@@ -91,7 +84,7 @@
 						Stretch="Uniform" />
                 </Border>
 
-                <!--  Label  -->
+                
                 <TextBlock
 					Grid.Column="1"
 					VerticalAlignment="Center"
@@ -99,7 +92,7 @@
 					Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 					Text="Image ready to send" />
 
-                <!--  Discard the staged image  -->
+                
                 <Button
 					x:Name="RemoveImageButton"
 					Grid.Column="2"
@@ -114,9 +107,7 @@
             </Grid>
         </Border>
 
-        <!--
-			Input bar
-		-->
+        
         <Border
 			Grid.Row="3"
 			Padding="12,10"
@@ -125,15 +116,15 @@
 			BorderThickness="0,1,0,0">
             <Grid ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
-                    <!--  Attach image button  -->
+                    
                     <ColumnDefinition Width="Auto" />
-                    <!--  Text input  -->
+                    
                     <ColumnDefinition Width="*" />
-                    <!--  Send button  -->
+                    
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!--  Attach image button  -->
+                
                 <Button
 					x:Name="AttachImageButton"
 					Grid.Column="0"
@@ -146,7 +137,7 @@
                     <FontIcon FontSize="18" Glyph="&#xE723;" />
                 </Button>
 
-                <!--  Text input: max 512 chars  -->
+                
                 <TextBox
 					x:Name="MessageInput"
 					Grid.Column="1"
@@ -155,12 +146,12 @@
 					CornerRadius="8"
 					MaxLength="512"
 					Paste="MessageInput_Paste"
-					PlaceholderText="Type a message…"
+					PlaceholderText="Type a messageâ€¦"
 					Text="{x:Bind ViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 					TextWrapping="Wrap" />
-                <!--  TextChanged="MessageInput_TextChanged"  -->
+                
 
-                <!--  Send button  -->
+                
                 <Button
 					x:Name="SendButton"
 					Grid.Column="2"
