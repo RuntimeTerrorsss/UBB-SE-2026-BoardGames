@@ -23,7 +23,13 @@ namespace BoardGames.Api.Services
         {
             int pamUserId = await GetPamUserIdAsync(accountId);
             var conversations = await conversationRepository.GetConversationsForUser(pamUserId);
-            return conversations.Select(MapConversationToDTO).ToList();
+            var dtos = new List<ConversationDTO>();
+            foreach (var conversation in conversations)
+            {
+                dtos.Add(await MapConversationToDTOAsync(conversation));
+            }
+
+            return dtos;
         }
 
         public async Task<ConversationDTO?> GetConversationById(int conversationId)
@@ -31,7 +37,7 @@ namespace BoardGames.Api.Services
             try
             {
                 var conversation = await conversationRepository.GetConversationById(conversationId);
-                return MapConversationToDTO(conversation);
+                return await MapConversationToDTOAsync(conversation);
             }
             catch (InvalidOperationException)
             {
@@ -78,7 +84,7 @@ namespace BoardGames.Api.Services
                 ConversationId = conversationId,
                 MessageSenderId = renterPamId,
                 MessageReceiverId = ownerPamId,
-                RentalRequestId = requestId,
+                RentalRequestId = null,
                 RequestContent = content,
                 MessageContentAsString = content,
                 MessageSentTime = DateTime.UtcNow,
@@ -117,7 +123,7 @@ namespace BoardGames.Api.Services
             return user?.PamUserId ?? throw new KeyNotFoundException($"User with account id {accountId} not found.");
         }
 
-        private static ConversationDTO MapConversationToDTO(Conversation conversation)
+        private async Task<ConversationDTO> MapConversationToDTOAsync(Conversation conversation)
         {
             var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDataTransferObject>();
             var participantUserIds = conversation.Participants?.Select(p => p.UserId).ToList() ?? new List<int>();
@@ -125,11 +131,19 @@ namespace BoardGames.Api.Services
                 .Where(p => p.LastMessageReadTime.HasValue)
                 .ToDictionary(p => p.UserId, p => p.LastMessageReadTime!.Value)
                 ?? new Dictionary<int, DateTime>();
-            return new ConversationDTO(
-                conversation.ConversationId,
-                participantUserIds,
-                messages,
-                lastRead);
+
+            var dto = new ConversationDTO(conversation.ConversationId, participantUserIds, messages, lastRead);
+
+            foreach (var pamUserId in participantUserIds)
+            {
+                var user = await accountRepository.GetByPamUserIdAsync(pamUserId);
+                if (user != null)
+                {
+                    dto.ParticipantDisplayNames[pamUserId] = user.DisplayName;
+                }
+            }
+
+            return dto;
         }
 
         private static MessageDataTransferObject MapEntityToDto(Message message)
@@ -169,7 +183,7 @@ namespace BoardGames.Api.Services
                 IsAccepted: message is RentalRequestMessage ram ? ram.IsRequestAccepted : false,
                 IsAcceptedByBuyer: message is CashAgreementMessage camb ? camb.IsCashAgreementAcceptedByBuyer : false,
                 IsAcceptedBySeller: message is CashAgreementMessage cams ? cams.IsCashAgreementAcceptedBySeller : false,
-                RequestId: message is RentalRequestMessage rrm2 ? rrm2.RentalRequestId : defaultMissingIdentifier,
+                RequestId: message is RentalRequestMessage rrm2 ? (rrm2.RentalRequestId ?? defaultMissingIdentifier) : defaultMissingIdentifier,
                 PaymentId: message is CashAgreementMessage cam2 ? cam2.CashPaymentId : defaultMissingIdentifier);
         }
 

@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="40">
+    <ScrollViewer Padding="40">
         <StackPanel Spacing="30">
             <TextBlock Text="Dashboard" FontSize="32" FontWeight="SemiBold" />
 
@@ -26,6 +26,29 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+
+            <Border Background="#2A2A2A" Padding="20" CornerRadius="8" MaxWidth="600" HorizontalAlignment="Left">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Recent Payments" FontSize="16" FontWeight="SemiBold" />
+                    <ListView ItemsSource="{Binding RecentPayments}" SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0,6" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ProductName}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding DateText}" FontSize="12" Foreground="Gray" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding AmountText}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>

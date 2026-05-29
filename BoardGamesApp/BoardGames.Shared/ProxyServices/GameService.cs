@@ -25,6 +25,15 @@ namespace BoardGames.Shared.ProxyServices
                 cancellationToken);
         }
 
+        public Task<ServiceResult> CreateGameAsync(GameCreateDTO game, CancellationToken cancellationToken = default)
+        {
+            var client = CreateClient();
+            return ApiResponseReader.SendAsync(
+                token => client.PostAsJsonAsync("api/games", game, token),
+                (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
+                cancellationToken);
+        }
+
         public Task<ServiceResult> UpdateGameAsync(int gameId, GameSummaryDTO game, CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
