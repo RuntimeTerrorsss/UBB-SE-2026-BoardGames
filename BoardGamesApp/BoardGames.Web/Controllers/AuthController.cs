@@ -72,12 +72,7 @@ namespace BoardGames.Web.Controllers
                 return this.Redirect(model.ReturnUrl);
             }
 
-            if (profile.Role?.Name?.Equals("admin", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return RedirectToAction("Index", "Admin");
-            }
-
-            return RedirectToAction("Index", "Games");
+            return RedirectToAction("Index", "Search");
         }
 
         [HttpGet]
@@ -139,7 +134,7 @@ namespace BoardGames.Web.Controllers
                 new ClaimsPrincipal(identity),
                 new AuthenticationProperties { IsPersistent = false, AllowRefresh = true });
 
-            return this.RedirectToAction("Index", "Games");
+            return this.RedirectToAction("Index", "Search");
         }
 
         [HttpGet]

@@ -24,7 +24,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Search Games" FontSize="42" FontWeight="Bold" />
+                    <TextBlock Text="Homepage" FontSize="42" FontWeight="Bold" />
                     <TextBlock
                         Text="Browse available games anonymously, then sign in when you want to unlock protected features."
                         FontSize="18"

@@ -22,6 +22,18 @@ namespace BoardGames.Desktop.Views
             ViewModel = App.Services.GetRequiredService<EditGameViewModel>();
         }
 
+        private void BackButton_Click(object sender, RoutedEventArgs routedEventArgs)
+        {
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
+            else
+            {
+                App.NavigateTo(AppPage.Games, clearBackStack: true);
+            }
+        }
+
         protected override async void OnNavigatedTo(NavigationEventArgs navigationEventArgs)
         {
             base.OnNavigatedTo(navigationEventArgs);

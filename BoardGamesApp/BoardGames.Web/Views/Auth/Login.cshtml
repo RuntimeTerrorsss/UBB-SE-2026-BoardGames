@@ -4,7 +4,10 @@
 @{
     ViewData["Title"] = "Sign in";
     Layout = "_Layout";
+    ViewData["BackUrl"] = Url.Action("Index", "Search");
 }
+
+<partial name="_PageBack" />
 
 <div class="page-header">
     <h1 class="page-title">Sign in</h1>
