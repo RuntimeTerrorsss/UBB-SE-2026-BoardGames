@@ -35,12 +35,6 @@ namespace BoardGames.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var filter = new FilterCriteria();
-            if (this.User?.Identity?.IsAuthenticated == true)
-            {
-                filter.UserId = this.User.GetPamUserId();
-            }
-
             var ownerId = this.User.GetAccountId();
             var myGames = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
             return this.View(myGames);
@@ -174,15 +168,26 @@ namespace BoardGames.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmBooking(int id, DateTime startDate, DateTime endDate, string confirm)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, GameDTO body, IFormFile? imageFile)
         {
-            if (this.User?.Identity?.IsAuthenticated != true)
+            if (!this.ModelState.IsValid)
             {
-                return this.RedirectToAction("Login", "Auth");
+                return this.View(body);
             }
 
-            int clientId = this.User.GetPamUserId() ?? -1;
-            if (clientId == -1)
+            GameDTO? existing = await this.gameProxyService.GetGameByIdAsync(id);
+            if (existing is null)
+            {
+                return this.NotFound();
+            }
+
+            if (!this.User.IsAdministrator() && existing.Owner?.Id != this.User.GetAccountId())
+            {
+                return this.Forbid();
+            }
+
+            if (imageFile != null && imageFile.Length > 0)
             {
                 using var memoryStream = new MemoryStream();
                 await imageFile.CopyToAsync(memoryStream);
@@ -192,6 +197,8 @@ namespace BoardGames.Web.Controllers
             {
                 body.Image = existing.Image;
             }
+
+            body.Owner = existing.Owner;
 
             try
             {

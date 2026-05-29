@@ -1,17 +1,34 @@
 [
   {
-    "Name": "New Profile",
+    "Name": "Api + Web",
     "Projects": [
       {
         "Path": "BoardGames.Api\\BoardGames.Api.csproj",
-        "Action": "Start"
-      },
-      {
-        "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "https"
       },
       {
         "Path": "BoardGames.Web\\BoardGames.Web.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      }
+    ]
+  },
+  {
+    "Name": "Api + Web + Desktop",
+    "Projects": [
+      {
+        "Path": "BoardGames.Api\\BoardGames.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "BoardGames.Web\\BoardGames.Web.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
         "Action": "Start"
       }
     ]
