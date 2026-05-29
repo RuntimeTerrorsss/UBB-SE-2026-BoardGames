@@ -1,3 +1,7 @@
+// <copyright file="ConversationController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,25 +28,25 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                var conversations = await conversationService.GetConversationsForUser(accountId);
-                return Ok(conversations);
+                var conversations = await this.conversationService.GetConversationsForUser(accountId);
+                return this.Ok(conversations);
             }
             catch (KeyNotFoundException)
             {
-                return NotFound();
+                return this.NotFound();
             }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ConversationDTO>> GetConversationById(int id)
         {
-            var conversation = await conversationService.GetConversationById(id);
+            var conversation = await this.conversationService.GetConversationById(id);
             if (conversation is null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            return Ok(conversation);
+            return this.Ok(conversation);
         }
 
         public record CreateConversationRequest(Guid SenderAccountId, Guid ReceiverAccountId);
@@ -52,33 +56,33 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                int conversationId = await conversationService.FindOrCreateConversation(request.SenderAccountId, request.ReceiverAccountId);
-                var created = await conversationService.GetConversationById(conversationId);
-                return CreatedAtAction(nameof(GetConversationById), new { id = conversationId }, created);
+                int conversationId = await this.conversationService.FindOrCreateConversation(request.SenderAccountId, request.ReceiverAccountId);
+                var created = await this.conversationService.GetConversationById(conversationId);
+                return this.CreatedAtAction(nameof(this.GetConversationById), new { id = conversationId }, created);
             }
             catch (KeyNotFoundException)
             {
-                return NotFound();
+                return this.NotFound();
             }
         }
 
         [HttpPost("messages")]
         public async Task<ActionResult<MessageDataTransferObject>> SendMessage([FromBody] MessageDataTransferObject messageDto)
         {
-            var persisted = await conversationService.SendMessage(messageDto);
-            return Ok(persisted);
+            var persisted = await this.conversationService.SendMessage(messageDto);
+            return this.Ok(persisted);
         }
 
         [HttpPut("messages")]
         public async Task<ActionResult<MessageDataTransferObject>> UpdateMessage([FromBody] MessageDataTransferObject messageDto)
         {
-            var updated = await conversationService.UpdateMessage(messageDto);
+            var updated = await this.conversationService.UpdateMessage(messageDto);
             if (updated is null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            return Ok(updated);
+            return this.Ok(updated);
         }
 
         public record ReadReceiptRequest(int ConversationId, int ReaderId, int ReceiverId, DateTime ReceiptTimeStamp);
@@ -91,27 +95,27 @@ namespace BoardGames.Api.Controllers
                 request.ReaderId,
                 request.ReceiverId,
                 request.ReceiptTimeStamp);
-            await conversationService.HandleReadReceipt(dto);
-            return NoContent();
+            await this.conversationService.HandleReadReceipt(dto);
+            return this.NoContent();
         }
 
         [HttpPost("rental/finalize/{requestId}")]
         public async Task<ActionResult> FinalizeRentalRequest(int requestId, [FromQuery] bool accepted = true)
         {
-            await conversationService.FinalizeRentalRequestMessage(requestId, accepted);
-            return NoContent();
+            await this.conversationService.FinalizeRentalRequestMessage(requestId, accepted);
+            return this.NoContent();
         }
 
         [HttpPost("cash/{parentMessageId}/{paymentId}")]
         public async Task<ActionResult<MessageDataTransferObject>> CreateCashAgreementMessage(int parentMessageId, int paymentId)
         {
-            var created = await conversationService.CreateCashAgreementMessage(parentMessageId, paymentId);
+            var created = await this.conversationService.CreateCashAgreementMessage(parentMessageId, paymentId);
             if (created is null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            return Ok(created);
+            return this.Ok(created);
         }
     }
 }

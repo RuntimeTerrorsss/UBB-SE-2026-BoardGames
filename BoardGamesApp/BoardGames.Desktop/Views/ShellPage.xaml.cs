@@ -1,3 +1,7 @@
+// <copyright file="ShellPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Shared.ProxyServices;

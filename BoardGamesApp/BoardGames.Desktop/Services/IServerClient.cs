@@ -1,3 +1,7 @@
+// <copyright file="IServerClient.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Services
 {
     using BoardGames.Shared.DTO;

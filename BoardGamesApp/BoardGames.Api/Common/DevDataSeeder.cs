@@ -1,3 +1,7 @@
+// <copyright file="DevDataSeeder.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Threading.Tasks;
 using BoardGames.Api.Security;

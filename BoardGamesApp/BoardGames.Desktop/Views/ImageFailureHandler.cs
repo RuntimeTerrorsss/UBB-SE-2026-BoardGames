@@ -1,3 +1,7 @@
+// <copyright file="ImageFailureHandler.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Views
 {
     using Microsoft.UI.Xaml;

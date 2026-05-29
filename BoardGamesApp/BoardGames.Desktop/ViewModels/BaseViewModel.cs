@@ -1,3 +1,7 @@
+// <copyright file="BaseViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BoardGames.Desktop.ViewModels

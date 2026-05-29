@@ -1,4 +1,8 @@
-﻿namespace BoardGames.Desktop.ViewModels
+﻿// <copyright file="DashboardViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Desktop.ViewModels
 {
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -38,7 +42,10 @@
 
         private async Task LoadDashboardDataAsync()
         {
-            if (!sessionContext.IsLoggedIn) return;
+            if (!sessionContext.IsLoggedIn)
+            {
+                return;
+            }
 
             var convResult = await conversationService.GetConversationsForUserAsync(sessionContext.AccountId);
             var notifResult = await notificationService.GetNotificationsForUserAsync(sessionContext.AccountId);

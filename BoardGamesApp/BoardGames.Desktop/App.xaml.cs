@@ -1,3 +1,7 @@
+// <copyright file="App.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Configuration;
 using System.Net;
 using BoardGames.Desktop.Services;

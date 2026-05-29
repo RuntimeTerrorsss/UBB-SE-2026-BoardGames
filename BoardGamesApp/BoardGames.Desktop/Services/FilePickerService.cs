@@ -1,3 +1,7 @@
+// <copyright file="FilePickerService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Services
 {
     using Windows.Storage;

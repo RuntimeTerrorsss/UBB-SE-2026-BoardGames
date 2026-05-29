@@ -1,3 +1,7 @@
+// <copyright file="GameUpdateDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 
 namespace BoardGames.Shared.DTO

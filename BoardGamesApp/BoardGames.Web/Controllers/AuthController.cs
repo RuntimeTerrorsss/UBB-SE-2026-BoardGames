@@ -192,6 +192,7 @@ namespace BoardGames.Web.Controllers
             {
                 identity.AddClaim(new Claim("PamUserId", profile.PamUserId.Value.ToString()));
             }
+
             identity.AddClaim(new Claim(ClaimTypes.Name, profile.Username ?? string.Empty));
             identity.AddClaim(new Claim("DisplayName", profile.DisplayName ?? string.Empty));
 

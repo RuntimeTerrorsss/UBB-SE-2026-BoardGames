@@ -88,11 +88,6 @@ namespace BoardGames.Api.Legacy.Services
 
                 GameDTO[] filteredGamesArray = filteredGamesResult.ToArray();
 
-                //// sorting by distance
-
-                //// this is if we decide to only use this methode and remove the ApplyFilters method
-                //// only runs this code if SortOption is set, so never from feed
-
                 return await this.ApplyFilters(filteredGamesArray, filter);
             }
             catch (Exception thrownException)

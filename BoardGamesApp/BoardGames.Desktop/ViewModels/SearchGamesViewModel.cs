@@ -1,3 +1,7 @@
+// <copyright file="SearchGamesViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.ObjectModel;
 using System.Configuration;
 using BoardGames.Desktop.Services;

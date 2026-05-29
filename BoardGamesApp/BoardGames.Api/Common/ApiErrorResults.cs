@@ -1,3 +1,7 @@
+// <copyright file="ApiErrorResults.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.Common;
 using System;
 using Microsoft.AspNetCore.Http;

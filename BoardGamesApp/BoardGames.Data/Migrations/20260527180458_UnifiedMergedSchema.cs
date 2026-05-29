@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="20260527180458_UnifiedMergedSchema.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -150,7 +154,7 @@ namespace BoardGames.Api.Migrations
                     main_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     names = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     latitude = table.Column<double>(type: "float", nullable: false),
-                    longitude = table.Column<double>(type: "float", nullable: false)
+                    longitude = table.Column<double>(type: "float", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -162,7 +166,7 @@ namespace BoardGames.Api.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
+                        .Annotation("SqlServer:Identity", "1, 1"),
                 },
                 constraints: table =>
                 {
@@ -188,7 +192,7 @@ namespace BoardGames.Api.Migrations
                     country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     city = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     street_name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    street_number = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    street_number = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -203,7 +207,7 @@ namespace BoardGames.Api.Migrations
                     conversation_id = table.Column<int>(type: "int", nullable: false),
                     user_id = table.Column<int>(type: "int", nullable: false),
                     last_message_read_time = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    unread_messages_count = table.Column<int>(type: "int", nullable: false)
+                    unread_messages_count = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -240,7 +244,7 @@ namespace BoardGames.Api.Migrations
                     owner_id = table.Column<int>(type: "int", nullable: false),
                     PaymentCategory = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     game_name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    owner_name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    owner_name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -287,7 +291,7 @@ namespace BoardGames.Api.Migrations
                     is_request_accepted = table.Column<bool>(type: "bit", nullable: true),
                     request_content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     message_content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    text_message_content = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    text_message_content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -331,7 +335,7 @@ namespace BoardGames.Api.Migrations
                 {
                     { new Guid("00000000-0000-0000-0000-000000000010"), "", 0m, "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Administrator", "admin@boardrent.com", false, 4, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin" },
                     { new Guid("00000000-0000-0000-0000-000000000011"), "", 0m, "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Darius Turcu", "darius@boardrent.com", false, 1, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "darius" },
-                    { new Guid("00000000-0000-0000-0000-000000000012"), "", 0m, "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Mihai Tira", "mihai@boardrent.com", false, 2, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "mihai" }
+                    { new Guid("00000000-0000-0000-0000-000000000012"), "", 0m, "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Mihai Tira", "mihai@boardrent.com", false, 2, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "mihai" },
                 });
 
             migrationBuilder.CreateIndex(
@@ -645,7 +649,7 @@ namespace BoardGames.Api.Migrations
                     StreetName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     StreetNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Username = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -660,7 +664,7 @@ namespace BoardGames.Api.Migrations
                 {
                     { new Guid("00000000-0000-0000-0000-000000000010"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Administrator", "admin@boardrent.com", false, 4, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin" },
                     { new Guid("00000000-0000-0000-0000-000000000011"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Darius Turcu", "darius@boardrent.com", false, 1, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "darius" },
-                    { new Guid("00000000-0000-0000-0000-000000000012"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Mihai Tira", "mihai@boardrent.com", false, 2, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "mihai" }
+                    { new Guid("00000000-0000-0000-0000-000000000012"), "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Mihai Tira", "mihai@boardrent.com", false, 2, "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=", "", "", "", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "mihai" },
                 });
 
             migrationBuilder.CreateIndex(

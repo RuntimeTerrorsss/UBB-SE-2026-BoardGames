@@ -1,4 +1,8 @@
-﻿namespace BoardGames.Shared.ProxyServices
+﻿// <copyright file="ConversationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Shared.ProxyServices
 {
     using System;
     using System.Collections.Generic;

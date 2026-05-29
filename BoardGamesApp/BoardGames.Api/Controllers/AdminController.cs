@@ -1,3 +1,7 @@
+// <copyright file="AdminController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,61 +34,61 @@ namespace BoardGames.Api.Controllers
             [FromQuery] int page = DefaultPageNumber,
             [FromQuery] int pageSize = DefaultPageSize)
         {
-            var result = await adminService.GetAllAccountsAsync(page, pageSize);
+            var result = await this.adminService.GetAllAccountsAsync(page, pageSize);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(result.Data);
+            return this.Ok(result.Data);
         }
 
         [HttpPut("accounts/{accountId:guid}/suspend")]
         public async Task<IActionResult> Suspend(Guid accountId)
         {
-            var result = await adminService.SuspendAccountAsync(accountId);
+            var result = await this.adminService.SuspendAccountAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPut("accounts/{accountId:guid}/unsuspend")]
         public async Task<IActionResult> Unsuspend(Guid accountId)
         {
-            var result = await adminService.UnsuspendAccountAsync(accountId);
+            var result = await this.adminService.UnsuspendAccountAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPut("accounts/{accountId:guid}/reset-password")]
         public async Task<IActionResult> ResetPassword(Guid accountId, [FromBody] ResetPasswordDTO body)
         {
-            var result = await adminService.ResetPasswordAsync(accountId, body.NewPassword);
+            var result = await this.adminService.ResetPasswordAsync(accountId, body.NewPassword);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpPut("accounts/{accountId:guid}/unlock")]
         public async Task<IActionResult> Unlock(Guid accountId)
         {
-            var result = await adminService.UnlockAccountAsync(accountId);
+            var result = await this.adminService.UnlockAccountAsync(accountId);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
     }
 }

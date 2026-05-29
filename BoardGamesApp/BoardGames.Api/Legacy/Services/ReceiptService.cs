@@ -43,8 +43,6 @@ namespace BoardGames.Api.Legacy.Services
 
         /// <summary>
         /// Get the full path to the receipt pdf.
-        /// Source: D:\Downloads\BoardGames\receipts
-        ///
         /// If pdf for receipt does not exist at source, it is created and full path to it returned.
         /// Otherwise, full path to existing pdf is returned.
         /// </summary>
@@ -210,7 +208,6 @@ namespace BoardGames.Api.Legacy.Services
 
         /// <summary>
         /// Get full path from a relative path in base folder.
-        /// Base folder: D:\Downloads\BoardGames\
         /// </summary>
         /// <param name="relativePath">string.</param>
         /// <returns>full path.</returns>
