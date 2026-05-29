@@ -1,6 +1,3 @@
-// <copyright file="CardPaymentPage.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.Navigation;
 using BoardGames.Desktop.ViewModels;

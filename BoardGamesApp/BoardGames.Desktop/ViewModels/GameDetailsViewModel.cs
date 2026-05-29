@@ -9,14 +9,9 @@ using System.Threading.Tasks;
 
 namespace BoardGames.Desktop.ViewModels
 {
-    /// <summary>
-    /// Provides details for a specific game, including pricing, availability, and booking commands.
-    /// </summary>
     public class GameDetailsViewModel : INotifyPropertyChanged
     {
         private const decimal DefaultTotalPrice = 0;
-
-        // Final Unified API Services
         private readonly IGameService _gameService;
         private readonly IRequestService _requestService;
 
@@ -24,18 +19,12 @@ namespace BoardGames.Desktop.ViewModels
 
         private bool _hasError;
         private decimal _totalPrice;
-
-        // Task 9 notes this should be GameDetailDTO, but IGameService currently returns GameSummaryDTO
         private GameSummaryDTO _gameDetails;
-
-        // Task 5 API availability (replaces old TimeRange[])
         private BookedDateRangeDTO[] _unavailableTimeRanges = Array.Empty<BookedDateRangeDTO>();
 
         public event Action<int, Guid>? OnChatWithOwnerRequested;
         public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? OnGoBackRequested;
-
-        // Changed to pass the standard DateTime boundaries instead of the old TimeRange object
         public event Action<GameSummaryDTO, DateTime, DateTime>? OnStartBookingRequested;
         public event Action<string>? OnMessageRequested;
 
@@ -55,12 +44,9 @@ namespace BoardGames.Desktop.ViewModels
                 if (result.IsSuccess && result.Data != null)
                 {
                     GameDetails = result.Data;
-
-                    // Fetch real booked dates from the new Task 5 API
                     var datesResult = await _requestService.GetBookedDatesAsync(_gameId);
                     if (datesResult.IsSuccess && datesResult.Data != null)
                     {
-                        // Assuming the API returns a List or IEnumerable of BookedDateRangeDTO
                         UnavailableTimeRanges = datesResult.Data.ToArray();
                     }
 
@@ -125,20 +111,15 @@ namespace BoardGames.Desktop.ViewModels
 
         public ICommand ChatWithOwnerCommand => new RelayCommand(_ =>
         {
-            // Task 9: Note for Task 10 owner - UI should map Chat navigation to the new OwnerAccountId GUID
             if (GameDetails != null)
             {
-                // Using dummy ID 0 for the renter since session isn't fully active here yet, Task 10 handles this
                 OnChatWithOwnerRequested?.Invoke(0, GameDetails.OwnerAccountId);
             }
         });
-
-        // Replaces old timeRange parameter with direct DateTime values
         public async Task<bool> CheckGameAvailability(DateTime startDate, DateTime endDate)
         {
             try
             {
-                // Call the new unified Task 5 endpoint
                 var result = await _requestService.CheckAvailabilityAsync(_gameId, startDate, endDate);
                 return result.IsSuccess && result.Data;
             }
@@ -154,8 +135,6 @@ namespace BoardGames.Desktop.ViewModels
             try
             {
                 if (startDate > endDate) throw new ArgumentException("Start date cannot be after end date.");
-
-                // Pure UI calculation, final calculation happens on backend
                 int days = (endDate - startDate).Days + 1;
                 TotalPrice = days * GameDetails.Price;
                 return TotalPrice;
@@ -177,8 +156,6 @@ namespace BoardGames.Desktop.ViewModels
                     OnMessageRequested?.Invoke("Please select a valid booking date range.");
                     return;
                 }
-
-                // Pass the real API DTO and the selected dates to the ConfirmBooking view
                 OnStartBookingRequested?.Invoke(GameDetails, startDate, endDate);
             }
             catch (Exception exception)

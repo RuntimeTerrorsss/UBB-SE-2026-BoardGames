@@ -1,7 +1,3 @@
-// <copyright file="PaymentService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Data.Repositories;
 
 namespace BoardGames.Api.Legacy.Services
@@ -16,11 +12,6 @@ namespace BoardGames.Api.Legacy.Services
             this.receiptService = receiptService;
             this.paymentRepository = paymentRepository;
         }
-
-        /// <summary>
-        /// Set the receipt file path of a payment (when everything is confirmed).
-        /// </summary>
-        /// <param name="paymentId">of payment to set file path to.</param>
         public async Task GenerateReceiptAsync(int paymentId)
         {
             Payment? paymentToUpdate =
@@ -36,12 +27,6 @@ namespace BoardGames.Api.Legacy.Services
 
             await this.paymentRepository.UpdatePaymentAsync(paymentToUpdate);
         }
-
-        /// <summary>
-        /// Get the full path to the saved receipt pdf.
-        /// </summary>
-        /// <param name="paymentId">of payment to get pdf path.</param>
-        /// <returns>full path to pdf.</returns>
         public async Task<string> GetReceiptAsync(int paymentId)
         {
             Payment? paymentToRead =

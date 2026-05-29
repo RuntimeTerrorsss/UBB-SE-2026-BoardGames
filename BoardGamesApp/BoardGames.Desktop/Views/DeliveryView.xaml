@@ -21,12 +21,12 @@
                     <Setter Property="Margin" Value="4,0,0,0"/>
                 </Style>
             </StackPanel.Resources>
-            <!-- Title -->
+            
             <TextBlock Text="Delivery Address"
                        Style="{ThemeResource TitleTextBlockStyle}"
                        Margin="0,0,0,8"/>
             
-            <!-- Country -->
+            
             <StackPanel Spacing="4">
                 <TextBox x:Name="CountryInput"
                          PlaceholderText="Country"
@@ -37,7 +37,7 @@
                            Visibility="Collapsed"/>
             </StackPanel>
 
-            <!-- City -->
+            
             <StackPanel Spacing="4">
                 <TextBox x:Name="CityInput"
                          PlaceholderText="City"
@@ -48,7 +48,7 @@
                            Visibility="Collapsed"/>
             </StackPanel>
 
-            <!-- Street -->
+            
             <StackPanel Spacing="4">
                 <TextBox x:Name="StreetInput"
                          PlaceholderText="Street"
@@ -59,7 +59,7 @@
                            Visibility="Collapsed"/>
             </StackPanel>
 
-            <!-- Street Number -->
+            
             <StackPanel Spacing="4">
                 <TextBox x:Name="StreetNumberInput"
                          PlaceholderText="Street Number"
@@ -70,12 +70,12 @@
                            Visibility="Collapsed"/>
             </StackPanel>
 
-            <!-- Map button -->
-            <Button Content="📍 Set location on map"
+            
+            <Button Content="ðŸ“ Set location on map"
                     Click="OnOpenMapClicked"
                     HorizontalAlignment="Stretch"/>
 
-            <!-- Save checkbox -->
+            
             <CheckBox Content="Save address for future orders"
                       Checked="OnSaveAddressChecked"
                       Unchecked="OnSaveAddressUnchecked"/>
@@ -87,13 +87,13 @@
                 </StackPanel>
             </StackPanel>
             
-            <!-- Submit -->
+            
             <Button Content="Submit Address &amp; Continue to Payment"
                     Click="OnSubmitClicked"
                     Style="{ThemeResource AccentButtonStyle}"
                     HorizontalAlignment="Stretch"/>
 
-            <!-- Map overlay — Visibility set in code-behind via RefreshUi() -->
+            
             <Border x:Name="MapOverlay"
                     Visibility="Collapsed"
                     BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"

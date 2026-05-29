@@ -1,31 +1,16 @@
-// <copyright file="ConfirmBookingView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.ViewModels;
 
 namespace BoardGames.Desktop.Views;
-/// <summary>
-/// Provides the user interface for confirming a booking, allowing date modification and final submission.
-/// </summary>
 public sealed partial class ConfirmBookingView : Page
 {
     private const int MinimumSelectedDates = 1;
     private DateTime? modifySelectedStart;
     private DateTime? modifySelectedEnd;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ConfirmBookingView"/> class.
-    /// </summary>
     public ConfirmBookingView()
     {
         this.InitializeComponent();
     }
-
-    /// <summary>
-    /// Invoked when the Page is loaded and becomes the current source of a parent Frame.
-    /// </summary>
-    /// <param name="eventArgs">Event data that can be examined by overriding code.</param>
     protected override async void OnNavigatedTo(NavigationEventArgs eventArgs)
     {
         base.OnNavigatedTo(eventArgs);

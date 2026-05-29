@@ -1,7 +1,3 @@
-﻿// <copyright file="GameImageMapper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Api.Mappers
 {
     public static class GameImageMapper
