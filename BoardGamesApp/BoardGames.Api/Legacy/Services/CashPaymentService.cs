@@ -1,7 +1,3 @@
-// <copyright file="CashPaymentService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Api.Mappers;
 using BoardGames.Data.Constants;
 using BoardGames.Data.Repositories;

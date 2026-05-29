@@ -13,6 +13,9 @@ namespace BoardGames.Api.Controllers
     [Route("api/requests")]
     public class RequestsController : ControllerBase
     {
+        private const int UnspecifiedMonth = 0;
+        private const int UnspecifiedYear = 0;
+
         private readonly IRequestService requestService;
 
         public RequestsController(IRequestService requestService)
@@ -99,7 +102,10 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpGet("games/{gameId:int}/booked-dates")]
-        public ActionResult<IReadOnlyList<BookedDateRangeDTO>> GetBookedDates(int gameId, [FromQuery] int month = 0, [FromQuery] int year = 0)
+        public ActionResult<IReadOnlyList<BookedDateRangeDTO>> GetBookedDates(
+            int gameId,
+            [FromQuery] int month = UnspecifiedMonth,
+            [FromQuery] int year = UnspecifiedYear)
         {
             var ranges = requestService.GetBookedDates(gameId, month, year)
                 .Select(range => new BookedDateRangeDTO

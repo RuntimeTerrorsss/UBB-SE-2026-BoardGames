@@ -1,7 +1,3 @@
-// <copyright file="ServicePayment.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Data.Constants;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
@@ -10,11 +6,15 @@ using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Legacy.Services
 {
-    /// <summary>
-    /// Service responsible for business logic, mapping, computing totals, and filtering transactions for the Payment History view.
-    /// </summary>
     public class ServicePayment : IServicePayment
     {
+        private const int DefaultPageNumber = 1;
+        private const int DefaultPageSize = 10;
+        private const int NewPaymentIdentifier = 0;
+        private const int ThreeMonthHistoryWindow = 3;
+        private const int SixMonthHistoryWindow = 6;
+        private const int NineMonthHistoryWindow = 9;
+
         private readonly IRepositoryPayment paymentRepository;
         private readonly IReceiptService receiptService;
         private readonly IRentalService rentalService;
@@ -43,8 +43,8 @@ namespace BoardGames.Api.Legacy.Services
             FilterType filter,
             PaymentMethod paymentMethod = PaymentMethod.ALL,
             string searchQuery = "",
-            int pageNumber = 1,
-            int pageSize = 10)
+            int pageNumber = DefaultPageNumber,
+            int pageSize = DefaultPageSize)
         {
             int currentUserId = SessionContext.GetInstance().UserId;
             IEnumerable<PaymentDTO> items = await this.BuildMergedHistoryAsync(currentUserId);
@@ -86,7 +86,7 @@ namespace BoardGames.Api.Legacy.Services
             int currentUserId = SessionContext.GetInstance().UserId;
             IEnumerable<HistoryPayment> payments = await this.paymentRepository.GetAllPayments();
             payments = this.FilterPaymentsByCurrentUser(payments);
-            HistoryPayment? existing = payments.FirstOrDefault(p => p.RequestId == rentalId);
+            HistoryPayment? existing = payments.FirstOrDefault(payment => payment.RequestId == rentalId);
 
             if (existing != null)
             {
@@ -198,7 +198,7 @@ namespace BoardGames.Api.Legacy.Services
 
             return new PaymentDTO
             {
-                PaymentId = 0,
+                PaymentId = NewPaymentIdentifier,
                 RentalId = rental.Id,
                 HasPayment = false,
                 SortDate = rental.StartDate,
@@ -210,7 +210,7 @@ namespace BoardGames.Api.Legacy.Services
                 Period = FormatPeriod(rental.StartDate, rental.EndDate),
                 Status = GetRentalRequestStatus(requestMessage, userId),
                 Amount = rental.Price,
-                PaymentMethod = "—",
+                PaymentMethod = "Ã¢â‚¬â€",
                 FilePath = null,
             };
         }
@@ -219,10 +219,10 @@ namespace BoardGames.Api.Legacy.Services
         {
             if (!start.HasValue || !end.HasValue)
             {
-                return "—";
+                return "Ã¢â‚¬â€";
             }
 
-            return $"{start.Value:dd MMM yyyy} – {end.Value:dd MMM yyyy}";
+            return $"{start.Value:dd MMM yyyy} Ã¢â‚¬â€œ {end.Value:dd MMM yyyy}";
         }
 
         private static string FormatPaymentMethod(string? method)
@@ -333,9 +333,9 @@ namespace BoardGames.Api.Legacy.Services
 
             return filter switch
             {
-                FilterType.Last3Months => items.Where(item => item.SortDate >= currentDateTime.AddMonths(-3)),
-                FilterType.Last6Months => items.Where(item => item.SortDate >= currentDateTime.AddMonths(-6)),
-                FilterType.Last9Months => items.Where(item => item.SortDate >= currentDateTime.AddMonths(-9)),
+                FilterType.Last3Months => items.Where(item => item.SortDate >= currentDateTime.AddMonths(-ThreeMonthHistoryWindow)),
+                FilterType.Last6Months => items.Where(item => item.SortDate >= currentDateTime.AddMonths(-SixMonthHistoryWindow)),
+                FilterType.Last9Months => items.Where(item => item.SortDate >= currentDateTime.AddMonths(-NineMonthHistoryWindow)),
                 _ => items,
             };
         }

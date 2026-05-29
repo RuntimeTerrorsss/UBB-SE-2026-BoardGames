@@ -153,7 +153,7 @@ namespace BoardGames.Api.Services
                 profileData.DisplayName.Length < MinimumDisplayNameLength ||
                 profileData.DisplayName.Length > MaximumDisplayNameLength)
             {
-                errors.Add("DisplayName|Display name must be between 2 and 50 characters long.");
+                errors.Add($"DisplayName|Display name must be between {MinimumDisplayNameLength} and {MaximumDisplayNameLength} characters long.");
             }
 
             if (!string.IsNullOrWhiteSpace(profileData.PhoneNumber))

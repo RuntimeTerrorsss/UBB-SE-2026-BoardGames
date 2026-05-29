@@ -12,12 +12,7 @@ namespace BoardGames.Api.Controllers
     [ApiController]
     [Route("api/admin")]
     [Authorize(Roles = "Admin")]
-    /* Task 7 must register IAuthService, IAccountService, IAdminService, 
-     * IAvatarStorageService, IAccountRepository, 
-     * and IFailedLoginRepository in the DI container.
-     
-     Also, middleware so the "Admin" role is extracted correctly*/
-    public class AdminController : ControllerBase
+public class AdminController : ControllerBase
     {
         private const int DefaultPageNumber = 1;
         private const int DefaultPageSize = 100;

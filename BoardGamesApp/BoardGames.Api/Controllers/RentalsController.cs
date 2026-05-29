@@ -29,10 +29,6 @@ namespace BoardGames.Api.Controllers
         {
             return Ok(rentalService.GetRentalsForRenter(renterAccountId));
         }
-
-        /// <summary>
-        /// Internal/admin route only. Normal user flow must go through POST api/requests instead.
-        /// </summary>
         [HttpPost]
         public IActionResult Create([FromBody] CreateRentalDTO body)
         {

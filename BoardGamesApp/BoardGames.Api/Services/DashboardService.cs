@@ -30,9 +30,9 @@ namespace BoardGames.Api.Services
             var allPayments = await historyRepository.GetAllPayments();
 
             return allPayments
-                .Where(p => p.ClientId == pamUserId || p.OwnerId == pamUserId)
-                .Select(p => MapToDTO(p, pamUserId))
-                .OrderByDescending(p => p.SortDate)
+                .Where(payment => payment.ClientId == pamUserId || payment.OwnerId == pamUserId)
+                .Select(payment => MapToDTO(payment, pamUserId))
+                .OrderByDescending(payment => payment.SortDate)
                 .ToList();
         }
 
@@ -46,7 +46,7 @@ namespace BoardGames.Api.Services
             DateTime sortDate = payment.DateOfTransaction ?? DateTime.MinValue;
             if (payment.RentalStartDate.HasValue && payment.RentalEndDate.HasValue)
             {
-                period = $"{payment.RentalStartDate.Value:d} – {payment.RentalEndDate.Value:d}";
+                period = $"{payment.RentalStartDate.Value:d} â€“ {payment.RentalEndDate.Value:d}";
                 sortDate = payment.RentalStartDate.Value;
             }
 

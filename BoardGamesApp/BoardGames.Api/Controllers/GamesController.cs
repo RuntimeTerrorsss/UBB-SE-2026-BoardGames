@@ -81,7 +81,6 @@ namespace BoardGames.Api.Controllers
         [HttpGet("admin")]
         public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAllGamesAdmin()
         {
-            // Note: Authorization is enforced by the caller/middleware (Admin role required)
             var games = await gameService.GetAllGamesAdmin();
             return Ok(games);
         }
@@ -91,7 +90,6 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                // OwnerAccountId is temporarily sourced from the body until Task 7 wires up session identity.
                 var game = gameService.CreateGame(body, body.OwnerAccountId);
                 return CreatedAtAction(nameof(GetById), new { gameId = game.Id }, game);
             }
@@ -106,7 +104,6 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                // requestingAccountId & isAdmin are temporarily sourced from query params until Task 7 wires up session identity.
                 gameService.UpdateGame(gameId, body, requestingAccountId, isAdmin);
                 return NoContent();
             }
@@ -129,7 +126,6 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                // requestingAccountId & isAdmin are temporarily sourced from query params until Task 7 wires up session identity.
                 var deletedGame = gameService.DeleteGame(gameId, requestingAccountId, isAdmin);
                 return Ok(deletedGame);
             }

@@ -1,7 +1,3 @@
-// <copyright file="AvatarStorageService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Api.Services
 {
     public class AvatarStorageService : IAvatarStorageService

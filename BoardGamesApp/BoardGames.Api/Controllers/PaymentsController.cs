@@ -12,6 +12,8 @@ namespace BoardGames.Api.Controllers
     [Route("api/[controller]")]
     public class PaymentsController : ControllerBase
     {
+        private const int InternalServerErrorStatusCode = StatusCodes.Status500InternalServerError;
+
         private readonly IPaymentRepository _repo;
         private readonly IRepositoryPayment _historyRepo;
         private readonly IDashboardService _dashboardService;
@@ -73,7 +75,7 @@ namespace BoardGames.Api.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.InnerException?.Message ?? ex.Message, statusCode: 500);
+                return Problem(detail: ex.InnerException?.Message ?? ex.Message, statusCode: InternalServerErrorStatusCode);
             }
         }
 
@@ -92,7 +94,7 @@ namespace BoardGames.Api.Controllers
             var existing = await _repo.GetPaymentByIdentifierAsync(id);
             if (existing == null) return NotFound();
             bool deleted = await _repo.DeletePaymentAsync(existing);
-            return deleted ? NoContent() : StatusCode(500);
+            return deleted ? NoContent() : StatusCode(InternalServerErrorStatusCode);
         }
     }
 }
