@@ -17,6 +17,10 @@ namespace BoardGames.Tests.IntegrationTests.Api
     [Category("Integration")]
     public sealed class ResultAndErrorEnumsIntegrationTests
     {
+        private sealed class CreatedRequestResponse
+        {
+            public int Id { get; set; }
+        }
         private ApiWebApplicationFactory factory = null!;
         private HttpClient client = null!;
 
@@ -99,8 +103,8 @@ namespace BoardGames.Tests.IntegrationTests.Api
         public async Task Enum_ApproveUnauthorized_ReturnsForbidden()
         {
             var create = await this.client.PostAsJsonAsync("api/requests", this.Valid());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            var created = await create.Content.ReadFromJsonAsync<CreatedRequestResponse>();
+            int id = created!.Id;
 
             var res = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/approve",

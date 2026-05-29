@@ -89,7 +89,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    await DevDataSeeder.SeedAsync(app.Services);
+    if (!app.Environment.IsEnvironment("Testing"))
+    {
+        await DevDataSeeder.SeedAsync(app.Services);
+    }
 }
 
 app.UseStaticFiles();

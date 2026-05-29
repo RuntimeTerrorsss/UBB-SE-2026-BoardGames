@@ -19,23 +19,39 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Testing");
             builder.ConfigureServices(services =>
             {
-                var optionsDescriptor = services.SingleOrDefault(descriptor => descriptor.ServiceType == typeof(DbContextOptions<AppDbContext>));
-                if (optionsDescriptor != null)
+                var descriptors = services
+                    .Where(descriptor =>
+                        descriptor.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                        descriptor.ServiceType == typeof(AppDbContext) ||
+                        descriptor.ServiceType == typeof(IDbContextFactory<AppDbContext>))
+                    .ToList();
+
+                foreach (var descriptor in descriptors)
                 {
-                    services.Remove(optionsDescriptor);
+                    services.Remove(descriptor);
                 }
 
-                var factoryDescriptor = services.SingleOrDefault(descriptor => descriptor.ServiceType == typeof(IDbContextFactory<AppDbContext>));
-                if (factoryDescriptor != null)
+                services.AddDbContext<AppDbContext>(options =>
                 {
-                    services.Remove(factoryDescriptor);
-                }
+                    options.UseInMemoryDatabase(databaseName);
+                });
 
-                services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(databaseName));
-                services.AddDbContextFactory<AppDbContext>(options => options.UseInMemoryDatabase(databaseName));
-                services.AddSingleton<IConversationApiService, StubConversationApiService>();
+                services.AddDbContextFactory<AppDbContext>(
+                    options =>
+                    {
+                        options.UseInMemoryDatabase(databaseName);
+                    },
+                    ServiceLifetime.Scoped);
+
+                services.AddScoped<IConversationApiService, StubConversationApiService>();
+
+                services.ConfigureHttpJsonOptions(options =>
+                {
+                    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+                });
             });
         }
 
@@ -52,7 +68,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             public Task<ConversationDTO?> GetConversationById(int conversationId) => Task.FromResult<ConversationDTO?>(null);
             public Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto) => Task.FromResult(dto);
             public Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto) => Task.FromResult<MessageDataTransferObject?>(dto);
-            public Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto) => Task.CompletedTask; 
+            public Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto) => Task.CompletedTask;
             public Task<int> FindOrCreateConversation(Guid accountIdA, Guid accountIdB) => Task.FromResult(1);
             public Task AttachRentalRequestMessage(int requestId, Guid renterAccountId, Guid ownerAccountId, string gameName, DateTime start, DateTime end) => Task.CompletedTask;
             public Task FinalizeRentalRequestMessage(int requestId, bool accepted) => Task.CompletedTask;

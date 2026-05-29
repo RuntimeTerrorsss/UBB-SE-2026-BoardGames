@@ -1,10 +1,8 @@
-﻿// <copyright file="RequestServiceErrorsApiIntegrationTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BoardGames.Data;
 using BoardGames.Shared.DTO;
@@ -17,6 +15,17 @@ namespace BoardGames.Tests.IntegrationTests.Api
     [Category("Integration")]
     public sealed class RequestServiceErrorsApiIntegrationTests
     {
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        private sealed class CreatedRequestResponse
+        {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
+        }
+
         private ApiWebApplicationFactory factory = null!;
         private HttpClient client = null!;
 
@@ -58,6 +67,15 @@ namespace BoardGames.Tests.IntegrationTests.Api
             EndDate = DateTime.UtcNow.AddDays(5),
         };
 
+        private async Task<int> CreateRequestAndGetId()
+        {
+            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
+            create.EnsureSuccessStatusCode();
+            var json = await create.Content.ReadAsStringAsync();
+            var created = JsonSerializer.Deserialize<CreatedRequestResponse>(json, JsonOptions);
+            return created!.Id;
+        }
+
         [Test]
         public async Task CreateRequest_ValidData_ReturnsSuccess()
         {
@@ -98,9 +116,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task ApproveRequest_ValidOwner_ReturnsSuccess()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/approve",
@@ -112,9 +128,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task ApproveRequest_Unauthorized_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/approve",
@@ -135,9 +149,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task DenyRequest_ValidOwner_ReturnsNoContent()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/deny",
@@ -149,9 +161,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task DenyRequest_Unauthorized_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/deny",
@@ -163,9 +173,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task CancelRequest_ValidRenter_ReturnsNoContent()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/cancel",
@@ -177,9 +185,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task CancelRequest_Unauthorized_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/cancel",
@@ -191,9 +197,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task OfferRequest_ValidOwner_ReturnsSuccess()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/offer",
@@ -205,9 +209,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task OfferRequest_NotOwner_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.ValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int id = (int)created.id;
+            int id = await this.CreateRequestAndGetId();
 
             var response = await this.client.PutAsJsonAsync(
                 $"api/requests/{id}/offer",

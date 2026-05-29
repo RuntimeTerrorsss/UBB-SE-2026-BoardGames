@@ -5,6 +5,8 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BoardGames.Data;
 using BoardGames.Shared.DTO;
@@ -17,6 +19,17 @@ namespace BoardGames.Tests.IntegrationTests.Api
     [Category("Integration")]
     public sealed class RequestsApiIntegrationTests
     {
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        private sealed class CreatedResponseDTO
+        {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
+        }
+
         private ApiWebApplicationFactory factory = null!;
         private HttpClient client = null!;
 
@@ -50,23 +63,29 @@ namespace BoardGames.Tests.IntegrationTests.Api
             this.factory.Dispose();
         }
 
-        private CreateRequestDTO CreateValidRequest()
+        private CreateRequestDTO CreateValidRequest() => new()
         {
-            return new CreateRequestDTO
-            {
-                GameId = this.gameId,
-                OwnerAccountId = this.ownerId,
-                RenterAccountId = this.renterId,
-                StartDate = DateTime.UtcNow.AddDays(2),
-                EndDate = DateTime.UtcNow.AddDays(5),
-            };
+            GameId = this.gameId,
+            OwnerAccountId = this.ownerId,
+            RenterAccountId = this.renterId,
+            StartDate = DateTime.UtcNow.AddDays(2),
+            EndDate = DateTime.UtcNow.AddDays(5),
+        };
+
+        private async Task<int> CreateRequestAndGetId()
+        {
+            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
+            Assert.That((int)create.StatusCode, Is.EqualTo(201));
+            var json = await create.Content.ReadAsStringAsync();
+            var created = JsonSerializer.Deserialize<CreatedResponseDTO>(json, JsonOptions);
+            return created!.Id;
         }
 
         [Test]
         public async Task CreateRequest_ValidData_ReturnsCreatedId()
         {
             var response = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            response.EnsureSuccessStatusCode();
+            Assert.That((int)response.StatusCode, Is.EqualTo(201));
         }
 
         [Test]
@@ -102,118 +121,106 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task ApproveRequest_ValidOwner_ReturnsSuccess()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var approve = new RequestActionDTO { AccountId = this.ownerId };
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/approve", approve);
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/approve",
+                new RequestActionDTO { AccountId = this.ownerId });
+
             response.EnsureSuccessStatusCode();
         }
 
         [Test]
         public async Task ApproveRequest_UnauthorizedUser_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var approve = new RequestActionDTO { AccountId = Guid.NewGuid() };
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/approve",
+                new RequestActionDTO { AccountId = Guid.NewGuid() });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/approve", approve);
             Assert.That((int)response.StatusCode, Is.EqualTo(403));
         }
 
         [Test]
         public async Task ApproveRequest_RequestMissing_ReturnsNotFound()
         {
-            var approve = new RequestActionDTO { AccountId = this.ownerId };
+            var response = await this.client.PutAsJsonAsync(
+                "api/requests/999999/approve",
+                new RequestActionDTO { AccountId = this.ownerId });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/999999/approve", approve);
             Assert.That((int)response.StatusCode, Is.EqualTo(404));
         }
 
         [Test]
         public async Task DenyRequest_ValidOwner_ReturnsNoContent()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var deny = new RequestActionDTO
-            {
-                AccountId = this.ownerId,
-                Reason = "Not available",
-            };
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/deny",
+                new RequestActionDTO { AccountId = this.ownerId, Reason = "Not available" });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/deny", deny);
             Assert.That((int)response.StatusCode, Is.EqualTo(204));
         }
 
         [Test]
         public async Task DenyRequest_UnauthorizedUser_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var deny = new RequestActionDTO
-            {
-                AccountId = Guid.NewGuid(),
-            };
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/deny",
+                new RequestActionDTO { AccountId = Guid.NewGuid() });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/deny", deny);
             Assert.That((int)response.StatusCode, Is.EqualTo(403));
         }
 
         [Test]
         public async Task CancelRequest_ValidRenter_ReturnsNoContent()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var cancel = new RequestActionDTO { AccountId = this.renterId };
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/cancel", cancel);
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/cancel",
+                new RequestActionDTO { AccountId = this.renterId });
+
             Assert.That((int)response.StatusCode, Is.EqualTo(204));
         }
 
         [Test]
         public async Task CancelRequest_UnauthorizedUser_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var cancel = new RequestActionDTO { AccountId = Guid.NewGuid() };
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/cancel",
+                new RequestActionDTO { AccountId = Guid.NewGuid() });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/cancel", cancel);
             Assert.That((int)response.StatusCode, Is.EqualTo(403));
         }
 
         [Test]
         public async Task OfferRequest_ValidOwner_ReturnsSuccess()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var offer = new RequestActionDTO { AccountId = this.ownerId };
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/offer",
+                new RequestActionDTO { AccountId = this.ownerId });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/offer", offer);
             response.EnsureSuccessStatusCode();
         }
 
         [Test]
         public async Task OfferRequest_NotOwner_ReturnsForbidden()
         {
-            var create = await this.client.PostAsJsonAsync("api/requests", this.CreateValidRequest());
-            var created = await create.Content.ReadFromJsonAsync<dynamic>();
-            int requestId = (int)created.id;
+            int requestId = await this.CreateRequestAndGetId();
 
-            var offer = new RequestActionDTO { AccountId = this.renterId };
+            var response = await this.client.PutAsJsonAsync(
+                $"api/requests/{requestId}/offer",
+                new RequestActionDTO { AccountId = this.renterId });
 
-            var response = await this.client.PutAsJsonAsync($"api/requests/{requestId}/offer", offer);
             Assert.That((int)response.StatusCode, Is.EqualTo(403));
         }
 
