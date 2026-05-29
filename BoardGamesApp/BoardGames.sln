@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11801.241 oobstable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.Api", "BoardGames.Api\BoardGames.Api.csproj", "{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -43,8 +43,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|x64.Build.0 = Debug|Any CPU
+		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|x64.ActiveCfg = Debug|x64
+		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|x64.Build.0 = Debug|x64
 		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Debug|x86.Build.0 = Debug|Any CPU
 		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,8 +55,8 @@ Global
 		{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}.Release|x86.Build.0 = Release|Any CPU
 		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|x64.Build.0 = Debug|Any CPU
+		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|x64.ActiveCfg = Debug|x64
+		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|x64.Build.0 = Debug|x64
 		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Debug|x86.Build.0 = Debug|Any CPU
 		{69F7EFDE-1DA3-4782-8EA5-313036CF96A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -79,8 +79,8 @@ Global
 		{50315D58-127D-4A8A-8555-03D16E2DFEAF}.Release|x86.Build.0 = Release|x86
 		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|x64.Build.0 = Debug|Any CPU
+		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|x64.ActiveCfg = Debug|x64
+		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|x64.Build.0 = Debug|x64
 		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Debug|x86.Build.0 = Debug|Any CPU
 		{51D767DA-F61E-48B8-A68C-B1AF4684EEC8}.Release|Any CPU.ActiveCfg = Release|Any CPU

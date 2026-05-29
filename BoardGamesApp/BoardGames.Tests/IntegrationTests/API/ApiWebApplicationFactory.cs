@@ -7,10 +7,9 @@ using BoardGames.Data;
 using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BoardGames.Tests.IntegrationTests.Api
 {
@@ -53,7 +52,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             public Task<ConversationDTO?> GetConversationById(int conversationId) => Task.FromResult<ConversationDTO?>(null);
             public Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto) => Task.FromResult(dto);
             public Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto) => Task.FromResult<MessageDataTransferObject?>(dto);
-            public Task HandleReadReceipt(ReadReceiptDTO dto) => Task.CompletedTask;
+            public Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto) => Task.CompletedTask; 
             public Task<int> FindOrCreateConversation(Guid accountIdA, Guid accountIdB) => Task.FromResult(1);
             public Task AttachRentalRequestMessage(int requestId, Guid renterAccountId, Guid ownerAccountId, string gameName, DateTime start, DateTime end) => Task.CompletedTask;
             public Task FinalizeRentalRequestMessage(int requestId, bool accepted) => Task.CompletedTask;

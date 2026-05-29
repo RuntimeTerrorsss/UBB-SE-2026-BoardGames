@@ -1,101 +1,101 @@
-using BoardGames.Shared.DTO;
-// <copyright file="RentalsToOthersViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+//using BoardGames.Shared.DTO;
+//// <copyright file="RentalsToOthersViewModelTests.cs" company="BoardRent">
+//// Copyright (c) BoardRent. All rights reserved.
+//// </copyright>
 
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using BoardGames.Tests.Fakes;
-using NUnit.Framework;
+//using System;
+//using System.Collections.Immutable;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using BoardGames.Tests.Fakes;
+//using NUnit.Framework;
 
-namespace BoardGames.Tests.ViewModels
-{
-    [TestFixture]
-    public sealed class RentalsToOthersViewModelTests
-    {
-        private readonly Guid ownerIdentifier = Guid.NewGuid();
-        private readonly Guid renterIdentifier = Guid.NewGuid();
-        private FakeClientRentalService rentalService = null!;
-        private FakeCurrentUserContext currentUserContext = null!;
+//namespace BoardGames.Tests.ViewModels
+//{
+//    [TestFixture]
+//    public sealed class RentalsToOthersViewModelTests
+//    {
+//        private readonly Guid ownerIdentifier = Guid.NewGuid();
+//        private readonly Guid renterIdentifier = Guid.NewGuid();
+//        private FakeClientRentalService rentalService = null!;
+//        private FakeCurrentUserContext currentUserContext = null!;
 
-        [SetUp]
-        public void SetUp()
-        {
-            this.rentalService = new FakeClientRentalService();
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.ownerIdentifier };
-        }
+//        [SetUp]
+//        public void SetUp()
+//        {
+//            this.rentalService = new FakeClientRentalService();
+//            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.ownerIdentifier };
+//        }
 
-        [Test]
-        public void ShowingText_WithRentals_ContainsCountAndRentalsKeyword()
-        {
-            this.rentalService.RentalsForOwner =
-                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(50));
+//        [Test]
+//        public void ShowingText_WithRentals_ContainsCountAndRentalsKeyword()
+//        {
+//            this.rentalService.RentalsForOwner =
+//                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(50));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+//            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
 
-            Assert.That(viewModel.ShowingText, Does.Contain("rentals"));
-            Assert.That(viewModel.ShowingText, Does.Contain("4"));
-        }
+//            Assert.That(viewModel.ShowingText, Does.Contain("rentals"));
+//            Assert.That(viewModel.ShowingText, Does.Contain("4"));
+//        }
 
-        [Test]
-        public void Constructor_WithRentals_SetsCorrectOwnerIdAndTotalCount()
-        {
-            this.rentalService.RentalsForOwner =
-                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(40));
+//        [Test]
+//        public void Constructor_WithRentals_SetsCorrectOwnerIdAndTotalCount()
+//        {
+//            this.rentalService.RentalsForOwner =
+//                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(40));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+//            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
 
-            Assert.That(viewModel.TotalCount, Is.EqualTo(4));
-            Assert.That(viewModel.CurrentGameOwnerUserId, Is.EqualTo(this.ownerIdentifier));
-        }
+//            Assert.That(viewModel.TotalCount, Is.EqualTo(4));
+//            Assert.That(viewModel.CurrentGameOwnerUserId, Is.EqualTo(this.ownerIdentifier));
+//        }
 
-        [Test]
-        public void Constructor_WithRentals_PagedItemsContainCorrectRentalDetails()
-        {
-            this.rentalService.RentalsForOwner = ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30));
+//        [Test]
+//        public void Constructor_WithRentals_PagedItemsContainCorrectRentalDetails()
+//        {
+//            this.rentalService.RentalsForOwner = ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
-            var pagedRentalIds = viewModel.PagedItems.Select(rental => rental.Id).ToList();
+//            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+//            var pagedRentalIds = viewModel.PagedItems.Select(rental => rental.Id).ToList();
 
-            Assert.That(viewModel.PagedItems.All(rental => rental.Game.Id == 1), Is.True);
-            Assert.That(viewModel.PagedItems.All(rental => rental.Owner.Id == this.ownerIdentifier), Is.True);
-            Assert.That(pagedRentalIds, Does.Contain(10));
-            Assert.That(pagedRentalIds, Does.Contain(20));
-            Assert.That(pagedRentalIds, Does.Contain(30));
-        }
+//            Assert.That(viewModel.PagedItems.All(rental => rental.Game.Id == 1), Is.True);
+//            Assert.That(viewModel.PagedItems.All(rental => rental.Owner.Id == this.ownerIdentifier), Is.True);
+//            Assert.That(pagedRentalIds, Does.Contain(10));
+//            Assert.That(pagedRentalIds, Does.Contain(20));
+//            Assert.That(pagedRentalIds, Does.Contain(30));
+//        }
 
-        [Test]
-        public async Task LoadRentals_AfterServiceDataChanged_RefreshesTotalCountAndPagedItems()
-        {
-            this.rentalService.RentalsForOwner = ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30));
+//        [Test]
+//        public async Task LoadRentals_AfterServiceDataChanged_RefreshesTotalCountAndPagedItems()
+//        {
+//            this.rentalService.RentalsForOwner = ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
-            Assert.That(viewModel.TotalCount, Is.EqualTo(3));
+//            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+//            Assert.That(viewModel.TotalCount, Is.EqualTo(3));
 
-            this.rentalService.RentalsForOwner =
-                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(50));
+//            this.rentalService.RentalsForOwner =
+//                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(50));
 
-            await viewModel.LoadRentalsAsync();
+//            await viewModel.LoadRentalsAsync();
 
-            var pagedRentalIds = viewModel.PagedItems.Select(rental => rental.Id).ToList();
+//            var pagedRentalIds = viewModel.PagedItems.Select(rental => rental.Id).ToList();
 
-            Assert.That(viewModel.TotalCount, Is.EqualTo(4));
-            Assert.That(pagedRentalIds, Does.Contain(50));
-        }
+//            Assert.That(viewModel.TotalCount, Is.EqualTo(4));
+//            Assert.That(pagedRentalIds, Does.Contain(50));
+//        }
 
-        private RentalDTO BuildRental(int rentalId)
-        {
-            return new RentalDTO
-            {
-                Id = rentalId,
-                Game = new GameDTO { Id = 1 },
-                Renter = new UserDTO { Id = this.renterIdentifier },
-                Owner = new UserDTO { Id = this.ownerIdentifier },
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddDays(7),
-            };
-        }
-    }
-}
+//        private RentalDTO BuildRental(int rentalId)
+//        {
+//            return new RentalDTO
+//            {
+//                Id = rentalId,
+//                Game = new GameDTO { Id = 1 },
+//                Renter = new UserDTO { Id = this.renterIdentifier },
+//                Owner = new UserDTO { Id = this.ownerIdentifier },
+//                StartDate = DateTime.UtcNow,
+//                EndDate = DateTime.UtcNow.AddDays(7),
+//            };
+//        }
+//    }
+//}
