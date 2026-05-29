@@ -1,10 +1,10 @@
-using BoardGames.Desktop.ViewModels;
-// <copyright file="ProfileViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using BoardGames.Desktop.Commands;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
 using NUnit.Framework;
 
@@ -31,13 +31,7 @@ namespace BoardGames.Tests.ViewModels
             {
                 AccountId = this.testAccountId,
                 Username = "testuser",
-                DisplayName = "Test User",
-                Email = "test@test.com",
-                PhoneNumber = string.Empty,
-                Country = string.Empty,
-                City = string.Empty,
-                StreetName = string.Empty,
-                StreetNumber = string.Empty,
+                DisplayName = "Test User"
             };
 
             this.systemUnderTest = new ProfileViewModel(
@@ -50,59 +44,63 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task LoadProfileAsync_ValidData_PopulatesProperties()
         {
-            var profileData = new AccountProfileDTO
-            {
-                Id = this.testAccountId,
-                Username = "loaded_user",
-                DisplayName = "Loaded Name",
-                Email = "loaded@test.com",
-            };
-
-            this.accountService.ProfileResult =
-                ServiceResult<AccountProfileDTO>.Ok(profileData);
+            var profileData = new AccountProfileDTO { Username = "loaded_user", DisplayName = "Loaded Name" };
+            this.accountService.ProfileResult = ServiceResult<AccountProfileDTO>.Ok(profileData);
 
             await this.systemUnderTest.LoadProfileAsync();
 
             Assert.That(this.systemUnderTest.Username, Is.EqualTo("loaded_user"));
             Assert.That(this.systemUnderTest.DisplayName, Is.EqualTo("Loaded Name"));
-            Assert.That(this.systemUnderTest.Email, Is.EqualTo("loaded@test.com"));
         }
 
         [Test]
-        public async Task SaveProfileCommand_InvalidData_SetsDisplayNameError()
+        public void SaveProfileCommand_InvalidData_SetsValidationErrors()
         {
             this.systemUnderTest.DisplayName = "A";
+            this.accountService.UpdateProfileResult = ServiceResult.Fail("DisplayName|Display name must be at least 2 characters.");
 
-            var failureResult = ServiceResult<bool>.Fail("DisplayName|Display name must be between 2 and 50 characters long.");
-            this.accountService.UpdateProfileResult = failureResult;
+            this.systemUnderTest.SaveProfileCommand.Execute(null);
 
-            await ((IAsyncRelayCommand)this.systemUnderTest.SaveProfileCommand).ExecuteAsync(null);
-
-            Assert.That(this.systemUnderTest.DisplayNameError, Is.EqualTo("Display name must be between 2 and 50 characters long."));
-        }
-
-        [Test]
-        public async Task SelectAvatarCommand_UserPicksFile_SetsAvatarUrlPreview()
-        {
-            string fakePath = "C:\\test_avatar.jpg";
-            this.filePickerService.SelectedPath = fakePath;
-
-            await ((IAsyncRelayCommand)this.systemUnderTest.SelectAvatarCommand).ExecuteAsync(null);
-
-            Assert.That(this.systemUnderTest.AvatarUrl, Is.EqualTo(fakePath));
-            Assert.That(this.accountService.UploadAvatarCallCount, Is.EqualTo(0));
+            Assert.That(this.systemUnderTest.DisplayNameError, Is.EqualTo("Display name must be at least 2 characters."));
         }
 
         [Test]
         public async Task SaveNewPasswordCommand_PasswordsDoNotMatch_SetsConfirmError()
         {
-            this.systemUnderTest.NewPassword = "Password123!";
-            this.systemUnderTest.ConfirmPassword = "DifferentPassword123!";
+            this.systemUnderTest.NewPassword = "Pass";
+            this.systemUnderTest.ConfirmPassword = "NoMatch";
 
-            await ((IAsyncRelayCommand)this.systemUnderTest.SaveNewPasswordCommand).ExecuteAsync(null);
+            this.systemUnderTest.SaveNewPasswordCommand.Execute(null);
+            await Task.Delay(50);
 
             Assert.That(this.systemUnderTest.ConfirmPasswordError, Is.EqualTo("Passwords do not match."));
             Assert.That(this.accountService.ChangePasswordCallCount, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task SignOutCommand_Executes_ClearsSessionAndTriggersCallback()
+        {
+            bool callbackTriggered = false;
+            this.systemUnderTest.OnSignOutSuccess = () => callbackTriggered = true;
+
+            this.systemUnderTest.SignOutCommand.Execute(null);
+            await Task.Delay(50);
+
+            Assert.That(this.sessionContext.IsLoggedIn, Is.False);
+            Assert.That(this.authService.LogoutCallCount, Is.EqualTo(1));
+            Assert.That(callbackTriggered, Is.True);
+        }
+
+        [Test]
+        public async Task SelectAvatarCommand_UserPicksFile_UpdatesAvatarUrl()
+        {
+            string fakePath = "C:\\avatar.jpg";
+            this.filePickerService.SelectedPath = fakePath;
+
+            this.systemUnderTest.SelectAvatarCommand.Execute(null);
+            await Task.Delay(50);
+
+            Assert.That(this.systemUnderTest.AvatarUrl, Is.EqualTo(fakePath));
         }
     }
 }

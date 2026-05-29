@@ -20,23 +20,16 @@ namespace BoardGames.Web.Controllers
 
         private readonly IChatProxyService conversationProxyService;
         private readonly IAccountProxyService accountProxyService;
+        private readonly IRequestProxyService requestProxyService;
 
         public ChatsController(
-            IConversationService conversationService,
-            IUserRepository userRepository,
-            IWebHostEnvironment environment)
+            IChatProxyService conversationProxyService,
+            IAccountProxyService accountProxyService,
+            IRequestProxyService requestProxyService)
         {
-            this.conversationService = conversationService;
-            this.userRepository = userRepository;
-            this.environment = environment;
-        }
-
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
-            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
-            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
-            base.OnActionExecuting(context);
+            this.conversationProxyService = conversationProxyService ?? throw new ArgumentNullException(nameof(conversationProxyService));
+            this.accountProxyService = accountProxyService ?? throw new ArgumentNullException(nameof(accountProxyService));
+            this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
         }
 
         [HttpGet]
@@ -233,6 +226,18 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest("Only the game owner can accept or decline this request.");
             }
 
+            Guid ownerAccountId = this.User.GetAccountId();
+            var actionBody = new RequestActionDTO { AccountId = ownerAccountId };
+
+            if (accepted)
+            {
+                await this.requestProxyService.OfferGameAsync(message.RequestId, actionBody);
+            }
+            else
+            {
+                await this.requestProxyService.DenyRequestAsync(message.RequestId, actionBody);
+            }
+
             var updated = message with
             {
                 IsAccepted = accepted,
@@ -268,6 +273,12 @@ namespace BoardGames.Web.Controllers
             {
                 return this.BadRequest("Only the person who sent the request can cancel it.");
             }
+
+            Guid renterAccountId = this.User.GetAccountId();
+            await this.requestProxyService.CancelRequestAsync(message.RequestId, new RequestActionDTO
+            {
+                AccountId = renterAccountId,
+            });
 
             var updated = message with
             {

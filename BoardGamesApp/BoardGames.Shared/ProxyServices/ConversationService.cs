@@ -4,13 +4,14 @@
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using BoardGames.Data.Models;
     using BoardGames.Shared.DTO;
 
     public class ConversationService : ApiServiceBase, IConversationService
     {
-        public ConversationService(HttpClient httpClient)
-            : base((IHttpClientFactory)httpClient) { }
+        public ConversationService(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory)
+        {
+        }
 
         public async Task<ServiceResult<List<ConversationDTO>>> GetConversationsForUserAsync(Guid accountId)
             => await GetAsync<List<ConversationDTO>>($"api/Conversation/user/{accountId}");

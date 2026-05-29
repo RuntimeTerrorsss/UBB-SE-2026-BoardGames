@@ -2,6 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Windows.Input;
+
 namespace BoardGames.Desktop.Commands
 {
     public class RelayCommand(Action<object?> executeAction, Func<bool>? canExecuteFunction = null) : ICommand

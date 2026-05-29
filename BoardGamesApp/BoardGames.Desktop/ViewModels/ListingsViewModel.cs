@@ -7,7 +7,7 @@ namespace BoardGames.Desktop.ViewModels
     using BoardGames.Shared.DTO;
     using BoardGames.Shared.ProxyServices;
     using BoardGames.Desktop.Commands;
-    using BoardGames.Desktop.Constants;
+    using AppConstants = BoardGames.Desktop.Constants.Constants;
 
     public class ListingsViewModel : PagedViewModel<GameSummaryDTO>
     {
@@ -72,13 +72,13 @@ namespace BoardGames.Desktop.ViewModels
             {
                 await DeleteGameAsync(gameToDelete);
                 return ViewOperationResult.Success(
-                    Constants.DialogTitles.GameRemoved,
+                    AppConstants.DialogTitles.GameRemoved,
                     string.Format(DeleteSuccessMessageTemplate, NoActiveRentalsCount));
             }
             catch (Exception ex)
             {
                 return ViewOperationResult.Failure(
-                    Constants.DialogTitles.CannotDeleteGame,
+                    AppConstants.DialogTitles.CannotDeleteGame,
                     ex.Message);
             }
         }
@@ -106,7 +106,7 @@ namespace BoardGames.Desktop.ViewModels
 
             public bool CanAccessPage(Type pageType) => true;
 
-            public bool CanAccessMenuPage(AppPage page) => true;
+            public bool CanAccessRoute(AppPage page) => true;
         }
     }
 }

@@ -2,6 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Diagnostics;
+
 namespace BoardGames.Desktop.ViewModels
 {
     public class RelayCommand<T> : ICommand

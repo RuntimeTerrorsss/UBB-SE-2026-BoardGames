@@ -5,105 +5,169 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>BoardGames.Desktop</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <WindowsPackageType>None</WindowsPackageType>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
     <UseWinUI>true</UseWinUI>
-    <EnableMsixTooling>true</EnableMsixTooling>
-	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableMsixTooling>false</EnableMsixTooling>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-    <ItemGroup>
-        <Content Include="Assets\SplashScreen.scale-200.png" />
-        <Content Include="Assets\LockScreenLogo.scale-200.png" />
-        <Content Include="Assets\Square150x150Logo.scale-200.png" />
-        <Content Include="Assets\Square44x44Logo.scale-200.png" />
-        <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-        <Content Include="Assets\StoreLogo.png" />
-        <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Manifest Include="$(ApplicationManifest)" />
-    </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
 
-    <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-        <ProjectCapability Include="Msix" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240404000" />
-        <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.1.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
-        <ProjectReference Include="..\ServerCommunication\ServerCommunication.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
+    <ProjectReference Include="..\ServerCommunication\ServerCommunication.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="App.xaml2.cs" />
-        <Compile Remove="MainWindow.xaml2.cs" />
-        <Compile Remove="DatabaseBootstrap.cs" />
-        <Compile Remove="DatabaseConfig.cs" />
-        <Compile Remove="Navigation\BookingNavigationArguments.cs" />
-        <Compile Remove="ViewModels\CardPaymentViewModel.cs" />
-        <Compile Remove="ViewModels\CashPaymentViewModel.cs" />
-        <!--<Compile Remove="ViewModels\ChatPageViewModel.cs" />
-        <Compile Remove="ViewModels\ChatViewModel.cs" />-->
-        <Compile Remove="ViewModels\ConfirmBookingViewModel.cs" />
-        <Compile Remove="ViewModels\DeliveryViewModel.cs" />
-        <Compile Remove="ViewModels\DiscoveryViewModel.cs" />
-        <Compile Remove="ViewModels\FilteredSearchViewModel.cs" />
-        <Compile Remove="ViewModels\GameDetailsViewModel.cs" />
-        <Compile Remove="ViewModels\LeftPanelViewModel.cs" />
-        <Compile Remove="ViewModels\LoginViewModel.cs" />
-        <Compile Remove="ViewModels\MessageViewModel.cs" />
-        <!--<Compile Remove="ViewModels\PaymentHistoryViewModel.cs" />-->
-        <Compile Remove="Views\CardPaymentPage.xaml.cs" />
-        <Compile Remove="Views\CashPaymentPage.xaml.cs" />
-        <Compile Remove="Views\ConfirmBookingView.xaml.cs" />
-        <!-- <Compile Remove="Views\DashboardView.xaml.cs" />-->
-        <Compile Remove="Views\DeliveryView.xaml.cs" />
-        <Compile Remove="Views\DiscoveryView.xaml.cs" />
-        <Compile Remove="Views\FilteredSearchView.xaml.cs" />
-        <Compile Remove="Views\GameDetailsView.xaml.cs" />
-        <Compile Remove="Views\LoginView.xaml.cs" />
-        <Compile Remove="Views\PaymentHistoryView.xaml.cs" />
-        <Compile Remove="Views\PaymentHistoryView.xaml.g.cs" />
-        <Compile Remove="Views\RegisterView.xaml.cs" />
-        <!--<Compile Remove="Views\ChatViews\**\*.cs" />-->
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Page Remove="App2.xaml" />
-        <Page Remove="MainWindow2.xaml" />
-        <Page Remove="Views\CardPaymentPage.xaml" />
-        <Page Remove="Views\CashPaymentPage.xaml" />
-        <Page Remove="Views\ConfirmBookingView.xaml" />
-        <Page Remove="Views\DashboardView.xaml" />
-        <Page Remove="Views\DeliveryView.xaml" />
-        <Page Remove="Views\DiscoveryView.xaml" />
-        <Page Remove="Views\FilteredSearchView.xaml" />
-        <Page Remove="Views\GameDetailsView.xaml" />
-        <Page Remove="Views\LoginView.xaml" />
-        <Page Remove="Views\PaymentHistoryView.xaml" />
-        <Page Remove="Views\RegisterView.xaml" />
-        <Page Remove="Views\ChatViews\**\*.xaml" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="DatabaseBootstrap.cs" />
+    <Compile Remove="DatabaseConfig.cs" />
+    <Compile Remove="Commands\**\*.cs" />
+    <Compile Remove="Constants\**\*.cs" />
+    <Compile Remove="Converters\**\*.cs" />
+    <Compile Remove="Helpers\**\*.cs" />
+    <Compile Remove="Navigation\**\*.cs" />
+    <Compile Remove="Services\**\*.cs" />
+    <Compile Remove="ViewModels\**\*.cs" />
+    <Compile Remove="Views\**\*.cs" />
+  </ItemGroup>
 
-    <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-        <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-    </PropertyGroup>
+  <ItemGroup>
+    <Page Remove="Views\**\*.xaml" />
+  </ItemGroup>
 
-    <PropertyGroup>
-        <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-        <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-        <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-        <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Commands\AsyncRelayCommand.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Constants\Constants.cs" />
+    <Compile Include="Constants\DomainConstants.cs" />
+    <Compile Include="Converters\ByteArrayToImageConverter.cs" />
+    <Compile Include="Services\**\*.cs" />
+    <Compile Include="ViewModels\AppPage.cs" />
+    <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="ViewModels\PagedViewModel.cs" />
+    <Compile Include="ViewModels\ShellViewModel.cs" />
+    <Compile Include="ViewModels\SearchGamesViewModel.cs" />
+    <Compile Include="ViewModels\GameDetailsPageViewModel.cs" />
+    <Compile Include="ViewModels\LoginViewModel.cs" />
+    <Compile Include="ViewModels\RegisterViewModel.cs" />
+    <Compile Include="ViewModels\DashboardViewModel.cs" />
+    <Compile Include="ViewModels\ChatViewModel.cs" />
+    <Compile Include="ViewModels\ListingsViewModel.cs" />
+    <Compile Include="ViewModels\CreateGameViewModel.cs" />
+    <Compile Include="ViewModels\EditGameViewModel.cs" />
+    <Compile Include="ViewModels\NotificationsViewModel.cs" />
+    <Compile Include="ViewModels\ProfileViewModel.cs" />
+    <Compile Include="ViewModels\AdminViewModel.cs" />
+    <Compile Include="ViewModels\PriceInputParser.cs" />
+    <Compile Include="ViewModels\ViewOperationResult.cs" />
+    <Compile Include="Views\DialogHelper.cs" />
+    <Compile Include="Views\ImageFailureHandler.cs" />
+    <Compile Include="Views\LoginPage.xaml.cs">
+      <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RegisterPage.xaml.cs">
+      <DependentUpon>RegisterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchGamesPage.xaml.cs">
+      <DependentUpon>SearchGamesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GameDetailsPage.xaml.cs">
+      <DependentUpon>GameDetailsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ShellPage.xaml.cs">
+      <DependentUpon>ShellPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaceholderPage.xaml.cs">
+      <DependentUpon>PlaceholderPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DashboardView.xaml.cs">
+      <DependentUpon>DashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChatPage.xaml.cs">
+      <DependentUpon>ChatPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ListingsPage.xaml.cs">
+      <DependentUpon>ListingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CreateGameView.xaml.cs">
+      <DependentUpon>CreateGameView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EditGameView.xaml.cs">
+      <DependentUpon>EditGameView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NotificationsPage.xaml.cs">
+      <DependentUpon>NotificationsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfilePage.xaml.cs">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AdminPage.xaml.cs">
+      <DependentUpon>AdminPage.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="Views\LoginPage.xaml" />
+    <Page Include="Views\RegisterPage.xaml" />
+    <Page Include="Views\SearchGamesPage.xaml" />
+    <Page Include="Views\GameDetailsPage.xaml" />
+    <Page Include="Views\ShellPage.xaml" />
+    <Page Include="Views\PlaceholderPage.xaml" />
+    <Page Include="Views\DashboardView.xaml" />
+    <Page Include="Views\ChatPage.xaml" />
+    <Page Include="Views\ListingsPage.xaml" />
+    <Page Include="Views\CreateGameView.xaml" />
+    <Page Include="Views\EditGameView.xaml" />
+    <Page Include="Views\NotificationsPage.xaml" />
+    <Page Include="Views\ProfilePage.xaml" />
+    <Page Include="Views\AdminPage.xaml" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+  </PropertyGroup>
 </Project>

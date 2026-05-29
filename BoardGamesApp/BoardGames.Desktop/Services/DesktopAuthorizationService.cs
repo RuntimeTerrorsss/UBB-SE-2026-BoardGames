@@ -21,7 +21,17 @@ namespace BoardGames.Desktop.Services
 
         public bool CanAccessPage(Type pageType)
         {
-            if (IsPublicPage(pageType))
+            return pageType == typeof(ShellPage)
+                || pageType == typeof(SearchGamesPage)
+                || pageType == typeof(GameDetailsPage)
+                || pageType == typeof(LoginPage)
+                || pageType == typeof(RegisterPage)
+                || (pageType == typeof(PlaceholderPage) && IsLoggedIn);
+        }
+
+        public bool CanAccessRoute(AppPage page)
+        {
+            if (page is AppPage.Filter or AppPage.GameDetails or AppPage.Login or AppPage.Register)
             {
                 return true;
             }
@@ -31,20 +41,7 @@ namespace BoardGames.Desktop.Services
                 return false;
             }
 
-            return pageType != typeof(AdminPage) || IsAdministrator;
-        }
-
-        public bool CanAccessMenuPage(AppPage page)
-        {
-            if (!IsLoggedIn)
-            {
-                return false;
-            }
-
             return page != AppPage.Admin || IsAdministrator;
         }
-
-        private bool IsPublicPage(Type pageType) =>
-            pageType == typeof(LoginPage) || pageType == typeof(RegisterPage);
     }
 }

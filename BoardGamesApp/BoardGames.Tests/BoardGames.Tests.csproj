@@ -55,6 +55,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
 		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
+        <ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
 		<ProjectReference Include="..\BoardGames.Web\BoardGames.Web.csproj" />
 	</ItemGroup>
   <!-- 

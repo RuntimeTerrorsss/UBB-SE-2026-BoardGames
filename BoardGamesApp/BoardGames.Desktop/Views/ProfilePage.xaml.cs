@@ -16,10 +16,7 @@ namespace BoardGames.Desktop.Views
 
             this.ViewModel.OnSignOutSuccess = () =>
             {
-                if (this.Frame != null)
-                {
-                    this.Frame.Navigate(typeof(LoginPage));
-                }
+                App.OnUserLoggedOut();
             };
 
             this.Loaded += async (object sender, RoutedEventArgs eventArguments) =>

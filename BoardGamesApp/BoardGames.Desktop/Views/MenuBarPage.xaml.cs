@@ -1,13 +1,15 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Extensions.DependencyInjection;
+using BoardGames.Desktop.Services;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Desktop.Views.ChatViews;
+
 namespace BoardGames.Desktop.Views
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Desktop.ViewModels;
-
     public sealed partial class MenuBarPage : Page
     {
         private static readonly Dictionary<AppPage, Type> PageTypeMap = new()
@@ -35,13 +37,18 @@ namespace BoardGames.Desktop.Views
 
         public MenuBarViewModel ViewModel { get; }
 
+        private void PerformLogout()
+        {
+            this.Frame?.Navigate(typeof(LoginPage));
+        }
+
         public void NavigateToNotifications()
         {
             if (!this.authorizationService.CanAccessPage(typeof(NotificationsPage)))
             {
                 if (!this.authorizationService.IsLoggedIn)
                 {
-                    App.OnUserLoggedOut();
+                    PerformLogout();
                 }
 
                 return;
@@ -58,7 +65,7 @@ namespace BoardGames.Desktop.Views
 
             if (!this.authorizationService.IsLoggedIn)
             {
-                App.OnUserLoggedOut();
+                PerformLogout();
                 return;
             }
 
@@ -72,7 +79,7 @@ namespace BoardGames.Desktop.Views
         {
             if (page == AppPage.Logout)
             {
-                App.OnUserLoggedOut();
+                PerformLogout();
                 return;
             }
 
@@ -80,7 +87,7 @@ namespace BoardGames.Desktop.Views
             {
                 if (!this.authorizationService.IsLoggedIn)
                 {
-                    App.OnUserLoggedOut();
+                    PerformLogout();
                 }
 
                 return;
@@ -106,7 +113,7 @@ namespace BoardGames.Desktop.Views
 
             if (!this.authorizationService.IsLoggedIn)
             {
-                App.OnUserLoggedOut();
+                PerformLogout();
                 return;
             }
 
