@@ -2,8 +2,12 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Controllers;
 using BoardGames.Web.Infrastructure;
@@ -31,10 +35,6 @@ namespace BoardGames.Tests.Web
             this.gameProxy = new Mock<IGameProxyService>();
             this.chatProxy = new Mock<IChatProxyService>();
         }
-
-        // ───────────────────────────────────────────────
-        // Success path
-        // ───────────────────────────────────────────────
 
         [Fact]
         public async Task Create_Post_Success_RedirectsToChatsIndex()
@@ -79,10 +79,6 @@ namespace BoardGames.Tests.Web
                 service => service.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
-
-        // ───────────────────────────────────────────────
-        // API error code mapping
-        // ───────────────────────────────────────────────
 
         [Theory]
         [InlineData("owner_cannot_rent", "You cannot rent your own game.")]
@@ -241,10 +237,6 @@ namespace BoardGames.Tests.Web
                 service => service.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
-
-        // ───────────────────────────────────────────────
-        // Helpers
-        // ───────────────────────────────────────────────
 
         private RequestsController BuildController()
         {
