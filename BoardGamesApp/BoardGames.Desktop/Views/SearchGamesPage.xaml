@@ -112,6 +112,8 @@
             <ListView
                 Grid.Row="3"
                 ItemsSource="{Binding Games}"
+                IsItemClickEnabled="True"
+                ItemClick="Games_ItemClick"
                 SelectionMode="None"
                 Margin="0,4,0,0">
                 <ListView.ItemTemplate>

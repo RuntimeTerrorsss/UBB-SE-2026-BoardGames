@@ -4,7 +4,7 @@
 
 using BoardGames.Data.Models;
 
-namespace BoardGames.Api.Services
+namespace BoardGames.Api.Legacy.Services
 {
     public interface IConversationNotifier
     {

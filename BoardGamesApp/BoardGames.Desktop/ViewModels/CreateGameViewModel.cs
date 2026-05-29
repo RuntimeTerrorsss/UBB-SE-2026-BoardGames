@@ -1,4 +1,12 @@
+// <copyright file="CreateGameViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using AppConstants = BoardGames.Desktop.Constants.Constants;
+using DomainValues = BoardGames.Desktop.Constants.DomainConstants;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -12,17 +20,24 @@ namespace BoardGames.Desktop.ViewModels
         private readonly ICurrentUserContext currentUserContext;
 
         public string GameName { get; set; } = string.Empty;
+
         public decimal GamePrice { get; set; }
+
         public double GamePriceAsDouble
         {
             get => (double)GamePrice;
             set => GamePrice = (decimal)value;
         }
-        public int MinimumPlayersRequired { get; set; } = DomainConstants.GameDefaultMinimumPlayers;
-        public int MaximumPlayersAllowed { get; set; } = DomainConstants.GameDefaultMaximumPlayers;
+
+        public int MinimumPlayersRequired { get; set; } = DomainValues.GameDefaultMinimumPlayers;
+
+        public int MaximumPlayersAllowed { get; set; } = DomainValues.GameDefaultMaximumPlayers;
+
         public string GameDescription { get; set; } = string.Empty;
+
         public bool IsGameActive { get; set; } = true;
-        public byte[] GameImage { get; set; } = null;
+
+        public byte[]? GameImage { get; set; }
 
         public Guid CurrentUserId => currentUserContext.CurrentUserId;
 
@@ -34,7 +49,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public List<string> ValidateGameInputs()
         {
-            return GameInputValidator.Validate(BuildGameDTO());
+            return GameInputValidator.Validate(BuildValidationGameDTO());
         }
 
         public async Task<ViewOperationResult> SubmitCreateGameAsync()
@@ -43,7 +58,7 @@ namespace BoardGames.Desktop.ViewModels
             if (gameValidationErrors.Count > NoValidationErrors)
             {
                 return ViewOperationResult.Failure(
-                    Constants.DialogTitles.ValidationError,
+                    AppConstants.DialogTitles.ValidationError,
                     string.Join(Environment.NewLine, gameValidationErrors));
             }
 
@@ -51,8 +66,8 @@ namespace BoardGames.Desktop.ViewModels
             return savedGame != null
                 ? ViewOperationResult.Success()
                 : ViewOperationResult.Failure(
-                    Constants.DialogTitles.ValidationError,
-                    Constants.DialogMessages.UnexpectedErrorOccurred);
+                    AppConstants.DialogTitles.ValidationError,
+                    AppConstants.DialogMessages.UnexpectedErrorOccurred);
         }
 
         public void SetGamePriceFromText(string rawPriceText)
@@ -66,11 +81,11 @@ namespace BoardGames.Desktop.ViewModels
             GamePrice = ZeroPriceForEmptyOrInvalidInput;
         }
 
-        public async Task<GameDTO?> SaveGameAsync()
+        public async Task<GameSummaryDTO?> SaveGameAsync()
         {
-            var newGameDTO = BuildGameDTO();
+            var newGameDTO = BuildGameSummaryDTO();
 
-            if (GameInputValidator.Validate(newGameDTO).Count > NoValidationErrors)
+            if (GameInputValidator.Validate(BuildValidationGameDTO()).Count > NoValidationErrors)
             {
                 return null;
             }
@@ -79,7 +94,21 @@ namespace BoardGames.Desktop.ViewModels
             return createGameResult.Success ? newGameDTO : null;
         }
 
-        private GameDTO BuildGameDTO()
+        private GameSummaryDTO BuildGameSummaryDTO()
+        {
+            return new GameSummaryDTO
+            {
+                Id = NewGameId,
+                OwnerAccountId = CurrentUserId,
+                Name = GameName,
+                Price = GamePrice,
+                MinimumPlayerNumber = MinimumPlayersRequired,
+                MaximumPlayerNumber = MaximumPlayersAllowed,
+                IsActive = IsGameActive
+            };
+        }
+
+        private GameDTO BuildValidationGameDTO()
         {
             return new GameDTO
             {

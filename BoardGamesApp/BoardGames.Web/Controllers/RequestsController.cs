@@ -2,11 +2,11 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System.Net;
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
-using BoardGames.Web.Models.Games;
-using BoardGames.Web.Models.Rentals;
+using BoardGames.Web.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +17,13 @@ namespace BoardGames.Web.Controllers
     {
         private readonly IRequestProxyService requestProxyService;
         private readonly IGameProxyService gameProxyService;
+        private readonly IChatProxyService chatProxyService;
 
-        public RequestsController(IRequestProxyService requestProxyService, IGameProxyService gameProxyService)
+        public RequestsController(IRequestProxyService requestProxyService, IGameProxyService gameProxyService, IChatProxyService chatProxyService)
         {
             this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
+            this.chatProxyService = chatProxyService ?? throw new ArgumentNullException(nameof(chatProxyService));
         }
 
         [HttpGet]
@@ -87,6 +89,16 @@ namespace BoardGames.Web.Controllers
 
             var availableGames = await this.LoadAvailableGamesOrEmptyAsync(renterAccountId);
 
+            if (form.StartDate.Date < DateTime.Today)
+            {
+                this.ModelState.AddModelError(nameof(form.StartDate), "Start date cannot be in the past.");
+            }
+
+            if (form.StartDate.Date > form.EndDate.Date)
+            {
+                this.ModelState.AddModelError(nameof(form.StartDate), "Start date must be before or equal to end date.");
+            }
+
             if (!this.ModelState.IsValid)
             {
                 return this.View(new CreateRequestViewModel
@@ -123,17 +135,22 @@ namespace BoardGames.Web.Controllers
             try
             {
                 await this.requestProxyService.CreateRequestAsync(body);
-                return this.RedirectToAction(nameof(this.My));
+
+                this.TempData["SuccessMessage"] = "Your rental request has been submitted successfully!";
+
+                return this.RedirectToAction("Index", "Chats");
             }
             catch (ProxyServiceException ex)
             {
+                string friendlyMessage = MapCreateRequestError(ex);
+
                 return this.View(new CreateRequestViewModel
                 {
                     GameId = form.GameId,
                     StartDate = form.StartDate,
                     EndDate = form.EndDate,
                     AvailableGames = availableGames,
-                    ErrorMessage = ex.Message,
+                    ErrorMessage = friendlyMessage,
                 });
             }
         }
@@ -216,6 +233,24 @@ namespace BoardGames.Web.Controllers
             {
                 return new List<GameDTO>();
             }
+        }
+
+        private static string MapCreateRequestError(ProxyServiceException ex)
+        {
+            return ex.ApiErrorCode switch
+            {
+                "owner_cannot_rent" => "You cannot rent your own game.",
+                "dates_unavailable" => "The selected dates are no longer available.",
+                "game_not_found" => "Game not found.",
+                "invalid_date_range" => "Invalid date range.",
+                _ => ex.StatusCode switch
+                {
+                    HttpStatusCode.NotFound => "The requested resource was not found.",
+                    HttpStatusCode.Forbidden => "You do not have permission to perform this action.",
+                    HttpStatusCode.Conflict => "The request could not be completed due to a conflict. Please try again.",
+                    _ => !string.IsNullOrWhiteSpace(ex.Message) ? ex.Message : "An unexpected error occurred. Please try again.",
+                },
+            };
         }
     }
 }

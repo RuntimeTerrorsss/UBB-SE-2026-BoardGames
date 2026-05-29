@@ -10,7 +10,9 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public bool IsSuccess { get; }
+
         public string DialogTitle { get; }
+
         public string DialogMessage { get; }
 
         public static ViewOperationResult Success(string dialogTitle = "", string dialogMessage = "")

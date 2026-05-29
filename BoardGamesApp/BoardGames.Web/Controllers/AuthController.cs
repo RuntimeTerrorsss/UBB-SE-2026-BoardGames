@@ -188,8 +188,17 @@ namespace BoardGames.Web.Controllers
         {
             ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, profile.Id.ToString()));
+            if (profile.PamUserId.HasValue)
+            {
+                identity.AddClaim(new Claim("PamUserId", profile.PamUserId.Value.ToString()));
+            }
             identity.AddClaim(new Claim(ClaimTypes.Name, profile.Username ?? string.Empty));
             identity.AddClaim(new Claim("DisplayName", profile.DisplayName ?? string.Empty));
+
+            if (profile.PamUserId is > 0)
+            {
+                identity.AddClaim(new Claim("PamUserId", profile.PamUserId.Value.ToString()));
+            }
 
             string? roleName = profile.Role?.Name;
             if (!string.IsNullOrWhiteSpace(roleName))

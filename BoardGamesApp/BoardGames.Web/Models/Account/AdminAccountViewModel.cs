@@ -9,16 +9,16 @@ namespace BoardGames.Web.Models.Account
     public class AdminAccountViewModel
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [JsonPropertyName("username")]
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [JsonPropertyName("role")]
-        public RoleViewModel Role { get; set; }
+        public RoleViewModel Role { get; set; } = new RoleViewModel();
 
         [JsonPropertyName("isSuspended")]
         public bool IsSuspended { get; set; }

@@ -3,14 +3,15 @@
 // </copyright>
 
 using System.Diagnostics;
-using BoardGames.Data.Enums;
 using BoardGames.Web.Models;
 using BoardGames.Web.Models.Search;
+using BoardGames.Web.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BoardGames.Web.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
         private readonly ILogger<HomeController> logger;
         private readonly InterfaceSearchAndFilterService searchService;
@@ -21,12 +22,20 @@ namespace BoardGames.Web.Controllers
             this.searchService = searchServiceParam;
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
+            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
+            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
+            base.OnActionExecuting(context);
+        }
+
         public async Task<IActionResult> Index()
         {
             var filter = new FilterCriteria();
-            if (IsLoggedIn)
+            if (this.User?.Identity?.IsAuthenticated == true)
             {
-                filter.UserId = CurrentUserId;
+                filter.UserId = this.User.GetPamUserId();
             }
 
             var results = await _searchService.SearchGamesByFilter(filter);
@@ -61,7 +70,7 @@ namespace BoardGames.Web.Controllers
                 City = model.City,
                 MaximumPrice = model.MaximumPrice,
                 PlayerCount = model.MinimumPlayers,
-                UserId = IsLoggedIn ? CurrentUserId : null,
+                UserId = this.User?.Identity?.IsAuthenticated == true ? this.User.GetPamUserId() : null,
                 SortOption = model.SortOption switch
                 {
                     "price_asc" => SortOption.PriceAscending,
@@ -91,13 +100,14 @@ namespace BoardGames.Web.Controllers
 
         public IActionResult Privacy()
         {
-            return View();
+            return this.View();
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return this.View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier });
         }
     }
 }

@@ -1,3 +1,4 @@
+using Xunit;
 // <copyright file="GeographicalServiceTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>

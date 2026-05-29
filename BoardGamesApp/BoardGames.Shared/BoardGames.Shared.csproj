@@ -14,5 +14,4 @@
 	  <Compile Remove="ProxyRepositories\**\*.cs" />
 	  <Compile Remove="DTO\GameDTO2.cs" />
 	</ItemGroup>
-
 </Project>

@@ -3,6 +3,7 @@ namespace BoardGames.Desktop.ViewModels
     public enum AppPage
     {
         Filter,
+        GameDetails,
         Login,
         Register,
         Games,
@@ -11,6 +12,6 @@ namespace BoardGames.Desktop.ViewModels
         Chat,
         Account,
         Admin,
-        Logout,
+        Logout
     }
 }

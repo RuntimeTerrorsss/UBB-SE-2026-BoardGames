@@ -2,19 +2,16 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using BoardGames.Web.Models.Games;
-using BoardGames.Web.Models.Rentals;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Web.Models.Dashboard
 {
     public class DashboardViewModel
     {
-        public List<GameViewModel> MyGames { get; set; } = new List<GameViewModel>();
+        public List<RentalDTO> UpcomingRentals { get; set; } = new();
 
-        public List<RentalViewModel> ActiveRentals { get; set; } = new List<RentalViewModel>();
+        public List<RequestDTO> OpenRequests { get; set; } = new();
 
-        public int TotalGamesOwned => this.MyGames.Count;
-
-        public int TotalActiveRentals => this.ActiveRentals.Count;
+        public List<PaymentDTO> RecentPayments { get; set; } = new();
     }
 }

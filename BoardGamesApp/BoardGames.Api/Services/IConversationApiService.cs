@@ -16,7 +16,7 @@ namespace BoardGames.Api.Services
 
         Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto);
 
-        Task HandleReadReceipt(ReadReceiptDTO dto);
+        Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto);
 
         Task<int> FindOrCreateConversation(Guid accountIdA, Guid accountIdB);
 
