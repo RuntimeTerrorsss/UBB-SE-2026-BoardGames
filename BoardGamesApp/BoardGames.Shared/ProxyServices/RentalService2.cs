@@ -30,6 +30,21 @@ namespace BoardGames.Shared.ProxyServices
                 cancellationToken);
         }
 
+        public Task<ServiceResult<IReadOnlyList<BookedDateRangeDTO>>> GetBookedDatesForGameAsync(int gameId, CancellationToken cancellationToken = default)
+        {
+            var client = this.CreateClient();
+            return ApiResponseReader.SendAsync<IReadOnlyList<BookedDateRangeDTO>>(
+                token => client.GetAsync($"api/rentals/games/{gameId}/booked-dates", token),
+                async (response, token) =>
+                {
+                    var parsed = await ApiResponseReader.ReadJsonAsync<List<BookedDateRangeDTO>>(response, token);
+                    return parsed.Success
+                        ? ServiceResult<IReadOnlyList<BookedDateRangeDTO>>.Ok(parsed.Data ?? new List<BookedDateRangeDTO>())
+                        : ServiceResult<IReadOnlyList<BookedDateRangeDTO>>.Fail(parsed);
+                },
+                cancellationToken);
+        }
+
         public Task<ServiceResult> CreateConfirmedRentalAsync(CreateRentalDTO rental, CancellationToken cancellationToken = default)
         {
             var client = this.CreateClient();

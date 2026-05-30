@@ -42,6 +42,7 @@ builder.Services.AddScoped<IRentalService, RentalService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IConversationApiService, ConversationApiService>();
+builder.Services.AddScoped<IRentalPaymentService, RentalPaymentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddHttpContextAccessor();

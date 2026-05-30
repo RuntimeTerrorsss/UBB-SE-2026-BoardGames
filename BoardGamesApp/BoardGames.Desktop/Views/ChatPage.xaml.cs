@@ -2,9 +2,10 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Text.RegularExpressions;
+using BoardGames.Desktop.Navigation;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
+using BoardGames.Shared.Helpers;
 using BoardGames.Shared.ProxyServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI;
@@ -71,18 +72,27 @@ namespace BoardGames.Desktop.Views
         public bool IsCurrentUser { get; init; }
         public bool IsRentalRequest { get; init; }
 
+        public int MessageId { get; init; }
+
         public int RequestId { get; init; }
+
+        public int RentalId { get; init; }
 
         public bool IsResolved { get; init; }
 
         public bool IsAccepted { get; init; }
-        public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsCurrentUser;
 
-        public bool ShowRenterActions => IsRentalRequest && !IsResolved && IsCurrentUser;
+        public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsAccepted && !IsCurrentUser;
 
-        public bool ShowAwaitingBadge => IsRentalRequest && !IsResolved;
+        public bool ShowRenterCancel => IsRentalRequest && !IsResolved && !IsAccepted && IsCurrentUser;
 
-        public bool ShowAcceptedBadge => IsRentalRequest && IsResolved && IsAccepted;
+        public bool ShowAwaitingBadge => IsRentalRequest && !IsResolved && !IsAccepted && IsCurrentUser;
+
+        public bool ShowPendingPaymentBadge => IsRentalRequest && IsAccepted && !IsResolved && !IsCurrentUser;
+
+        public bool ShowProceedToPayment => IsRentalRequest && IsAccepted && !IsResolved && IsCurrentUser;
+
+        public bool ShowCompletedBadge => IsRentalRequest && IsResolved && IsAccepted;
 
         public bool ShowDeclinedBadge => IsRentalRequest && IsResolved && !IsAccepted;
     }
@@ -91,6 +101,7 @@ namespace BoardGames.Desktop.Views
     {
         private readonly IConversationService conversationService;
         private readonly IRequestService requestService;
+        private readonly IRentalPaymentService rentalPaymentService;
         private readonly ISessionContext sessionContext;
         private ConversationDTO? selectedConversation;
 
@@ -99,6 +110,7 @@ namespace BoardGames.Desktop.Views
             this.InitializeComponent();
             this.conversationService = App.Services.GetRequiredService<IConversationService>();
             this.requestService = App.Services.GetRequiredService<IRequestService>();
+            this.rentalPaymentService = App.Services.GetRequiredService<IRentalPaymentService>();
             this.sessionContext = App.Services.GetRequiredService<ISessionContext>();
         }
 
@@ -142,11 +154,11 @@ namespace BoardGames.Desktop.Views
             this.ConversationsList.ItemsSource = items;
         }
 
-        private void ConversationsList_SelectionChanged(object sender, SelectionChangedEventArgs eventArgs)
+        private async void ConversationsList_SelectionChanged(object sender, SelectionChangedEventArgs eventArgs)
         {
             var item = this.ConversationsList.SelectedItem as ConversationListItem;
             this.selectedConversation = item?.Conversation;
-            this.MessagesList.ItemsSource = this.BuildMessageItems(this.selectedConversation);
+            await this.BindMessagesAsync(this.selectedConversation);
         }
 
         private List<MessageDisplayItem> BuildMessageItems(ConversationDTO? conversation)
@@ -171,18 +183,16 @@ namespace BoardGames.Desktop.Views
                         SentAtDisplay = message.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
                         IsCurrentUser = isCurrentUser,
                         IsRentalRequest = isRentalRequest,
-                        RequestId = isRentalRequest ? ExtractRequestId(message.Content) : -1,
-                        IsResolved = message.IsResolved,
-                        IsAccepted = message.IsAccepted,
+                        MessageId = m.Id,
+                        RequestId = isRentalRequest
+                            ? RentalRequestMessageHelper.ResolveRequestId(m.RequestId, m.Content)
+                            : -1,
+                        RentalId = RentalRequestMessageHelper.ResolveRentalId(m.RentalId, m.Content),
+                        IsResolved = m.IsResolved,
+                        IsAccepted = m.IsAccepted,
                     };
                 })
                 .ToList();
-        }
-
-        private static int ExtractRequestId(string content)
-        {
-            var match = Regex.Match(content, @"^\[req:(\d+)\]");
-            return match.Success && int.TryParse(match.Groups[1].Value, out int id) ? id : -1;
         }
 
         private async void AcceptRequest_Click(object sender, RoutedEventArgs eventArgs)
@@ -192,6 +202,45 @@ namespace BoardGames.Desktop.Views
                 var result = await this.requestService.OfferGameAsync(item.RequestId, new RequestActionDTO { AccountId = this.sessionContext.AccountId });
                 await this.RefreshSelectedConversationAsync(result.Success ? null : (result.Error ?? "Could not accept the request."));
             }
+        }
+
+        private async void ProceedToPayment_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (sender is not Button { Tag: MessageDisplayItem item } || this.selectedConversation is null)
+            {
+                return;
+            }
+
+            int rentalId = item.RentalId;
+            if (rentalId <= 0)
+            {
+                this.StatusText.Text = "Rental details are not ready yet. Refresh the conversation after the owner accepts.";
+                await this.RefreshSelectedConversationAsync(null);
+                return;
+            }
+
+            var checkoutResult = await this.rentalPaymentService.GetCheckoutSummaryAsync(rentalId, this.sessionContext.AccountId);
+            if (!checkoutResult.Success || checkoutResult.Data is null)
+            {
+                this.StatusText.Text = checkoutResult.Error ?? "Could not load checkout details.";
+                return;
+            }
+
+            var paymentWindow = new Window();
+            var frame = new Frame();
+            paymentWindow.Content = frame;
+            paymentWindow.Title = "Complete rental payment";
+            paymentWindow.Activate();
+
+            frame.Navigate(typeof(DeliveryView), new DeliveryNavigationArgs
+            {
+                Checkout = checkoutResult.Data,
+                ChatRequestId = item.RequestId,
+                MessageId = item.MessageId,
+                HostWindow = paymentWindow,
+            });
+
+            paymentWindow.Closed += async (_, _) => await this.RefreshSelectedConversationAsync(null);
         }
 
         private async void DeclineRequest_Click(object sender, RoutedEventArgs eventArgs)
@@ -226,8 +275,24 @@ namespace BoardGames.Desktop.Views
                 if (refreshed.Success && refreshed.Data != null)
                 {
                     this.selectedConversation = refreshed.Data;
-                    this.MessagesList.ItemsSource = this.BuildMessageItems(refreshed.Data);
+                    await this.BindMessagesAsync(refreshed.Data);
                 }
+            }
+        }
+
+        private async Task BindMessagesAsync(ConversationDTO? conversation)
+        {
+            this.MessagesList.ItemsSource = this.BuildMessageItems(conversation);
+            await this.ScrollMessagesToBottomAsync();
+        }
+
+        private async Task ScrollMessagesToBottomAsync()
+        {
+            await Task.Delay(50);
+            if (this.MessagesList.Items.Count > 0)
+            {
+                var last = this.MessagesList.Items[this.MessagesList.Items.Count - 1];
+                this.MessagesList.ScrollIntoView(last);
             }
         }
 
@@ -280,7 +345,7 @@ namespace BoardGames.Desktop.Views
             if (refreshed.Success && refreshed.Data != null)
             {
                 this.selectedConversation = refreshed.Data;
-                this.MessagesList.ItemsSource = this.BuildMessageItems(refreshed.Data);
+                await this.BindMessagesAsync(refreshed.Data);
             }
         }
     }

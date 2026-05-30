@@ -29,7 +29,7 @@ namespace BoardGames.Desktop.ViewModels
         public void Refresh()
         {
             NavigationItems.Clear();
-            AddItem(AppPage.Filter, "Search Games");
+            AddItem(AppPage.Filter, "Homepage");
 
             if (!authorizationService.IsLoggedIn)
             {
@@ -38,7 +38,9 @@ namespace BoardGames.Desktop.ViewModels
             }
             else
             {
-                AddItem(AppPage.Games, "Games");
+                AddItem(
+                    AppPage.Games,
+                    authorizationService.IsAdministrator ? "Games" : "My Games");
                 AddItem(AppPage.Notifications, "Notifications");
                 AddItem(AppPage.Dashboard, "Dashboard");
                 AddItem(AppPage.Chat, "Chat");

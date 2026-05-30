@@ -1,12 +1,24 @@
+// <copyright file="CardPaymentViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using BoardGames.Desktop.Commands;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 
 namespace BoardGames.Desktop.ViewModels
 {
     public class CardPaymentViewModel : INotifyPropertyChanged
     {
-        private readonly ICardPaymentService cardPaymentService;
-        private readonly IUserRepository userService;
+        private const double TimerBeforeClosingPayment = 30_000;
+        private const double TimerForRefreshingBalance = 4000;
+        private const int LoadingTime = 50;
+
+        private readonly IRentalPaymentService rentalPaymentService;
+        private readonly RentalCheckoutDTO checkout;
+        private readonly CompleteRentalCardPaymentDTO paymentInfo;
         private readonly System.Timers.Timer inactivityTimer;
         private readonly System.Timers.Timer balanceRefreshTimer;
         private readonly SynchronizationContext? synchronizationContext;
@@ -23,26 +35,22 @@ namespace BoardGames.Desktop.ViewModels
         private bool isPageCurrentlyActive;
 
         public CardPaymentViewModel(
-            ICardPaymentService cardPaymentService,
-            IUserRepository userService,
-            int requestId,
-            string deliveryAddress,
-            int bookingMessageIdentifier,
-            IConversationService conversationService)
+            IRentalPaymentService rentalPaymentService,
+            RentalCheckoutDTO checkout,
+            CompleteRentalCardPaymentDTO paymentInfo,
+            string deliveryAddress)
         {
-            this.cardPaymentService = cardPaymentService;
-            this.userService = userService;
-            RequestIdentifier = requestId;
+            this.rentalPaymentService = rentalPaymentService;
+            this.checkout = checkout;
+            this.paymentInfo = paymentInfo;
             DeliveryAddress = deliveryAddress;
-            BookingMessageIdentifier = bookingMessageIdentifier;
-            ConversationService = conversationService;
             FinishPaymentCommand = new RelayCommand(_ => { _ = FinishPaymentAsync(); }, () => IsPaymentButtonEnabled);
             ExitCommand = new RelayCommand(_ => NavigateBackwardsAction?.Invoke());
             ResetInactivityCommand = new RelayCommand(_ => ResetInactivityTimer());
-            balanceRefreshTimer = new System.Timers.Timer(CardPaymentConstants.TimerForRefreshingBalance);
+            balanceRefreshTimer = new System.Timers.Timer(TimerForRefreshingBalance);
             balanceRefreshTimer.Elapsed += (timerSender, timerEventArguments) => RefreshBalance();
             balanceRefreshTimer.AutoReset = true;
-            inactivityTimer = new System.Timers.Timer(CardPaymentConstants.TimerBeforeClosingPayment);
+            inactivityTimer = new System.Timers.Timer(TimerBeforeClosingPayment);
             inactivityTimer.Elapsed += OnSessionExpired;
             inactivityTimer.AutoReset = false;
             synchronizationContext = SynchronizationContext.Current;
@@ -53,19 +61,12 @@ namespace BoardGames.Desktop.ViewModels
             IsCurrentlyLoading = true;
             try
             {
-                RentalDTO requestDTO = await cardPaymentService.GetRequestDTO(RequestIdentifier);
-
-                ClientIdentifier = requestDTO.ClientId;
-                OwnerIdentifier = requestDTO.OwnerId;
-                GameName = requestDTO.GameName;
-                OwnerName = requestDTO.OwnerName;
-                ClientName = requestDTO.ClientName;
-                Price = requestDTO.Price;
-
-                RequestDates = requestDTO.StartDate.ToShortDateString() + " to " + requestDTO.EndDate.ToShortDateString();
-                DeliveryDate = requestDTO.StartDate.ToShortDateString();
-
-                RefreshBalance();
+                GameName = checkout.GameName;
+                OwnerName = checkout.OwnerName;
+                Price = checkout.Price;
+                BalanceAmount = checkout.Balance;
+                RequestDates = checkout.DateRange;
+                DeliveryDate = checkout.DateRange;
             }
             finally
             {
@@ -76,7 +77,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public int RequestIdentifier { get; }
+        public int RequestIdentifier => this.paymentInfo.RentalId;
 
         public int ClientIdentifier { get; private set; }
 
@@ -96,9 +97,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public decimal Price { get; private set; }
 
-        public int BookingMessageIdentifier { get; }
-
-        public IConversationService ConversationService { get; }
+        public int BookingMessageIdentifier => this.paymentInfo.MessageId;
 
         public decimal BalanceAmount
         {
@@ -145,8 +144,11 @@ namespace BoardGames.Desktop.ViewModels
             {
                 currentStatusMessage = value ?? string.Empty;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(HasStatusMessage));
             }
         }
+
+        public bool HasStatusMessage => !string.IsNullOrWhiteSpace(CurrentStatusMessage);
 
         public bool IsPaymentSuccessful
         {
@@ -211,7 +213,6 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public bool IsPaymentButtonEnabled =>
-            BalanceAmount >= Price &&
             AreTermsAccepted &&
             !IsCurrentlyLoading &&
             !string.IsNullOrWhiteSpace(CardNumber) &&
@@ -219,7 +220,7 @@ namespace BoardGames.Desktop.ViewModels
             !string.IsNullOrWhiteSpace(ExpiryDate) &&
             !string.IsNullOrWhiteSpace(CardVerificationValue);
 
-        public bool IsWarningMessageVisible => BalanceAmount < Price;
+        public bool IsWarningMessageVisible => false;
 
         public RelayCommand FinishPaymentCommand { get; }
 
@@ -253,16 +254,21 @@ namespace BoardGames.Desktop.ViewModels
 
         private async void RefreshBalance()
         {
-            if (!isPageCurrentlyActive || ClientIdentifier == 0)
+            if (!isPageCurrentlyActive)
             {
                 return;
             }
 
-            decimal newBalance = await userService.GetUserBalance(ClientIdentifier);
+            var refreshed = await this.rentalPaymentService.GetCheckoutSummaryAsync(this.paymentInfo.RentalId, this.paymentInfo.RenterAccountId);
+            if (!refreshed.Success || refreshed.Data is null)
+            {
+                return;
+            }
+
             synchronizationContext?.Post(
                 _ =>
                 {
-                    BalanceAmount = newBalance;
+                    BalanceAmount = refreshed.Data.Balance;
                     FinishPaymentCommand.NotifyCanExecuteChanged();
                 }, null);
         }
@@ -273,20 +279,30 @@ namespace BoardGames.Desktop.ViewModels
             CurrentStatusMessage = string.Empty;
             FinishPaymentCommand.NotifyCanExecuteChanged();
 
-            await Task.Delay(CardPaymentConstants.LoadingTime);
+            await Task.Delay(LoadingTime);
 
             try
             {
-                await Task.Run(() =>
-                    cardPaymentService.AddCardPayment(RequestIdentifier, ClientIdentifier, OwnerIdentifier, Price));
+                this.paymentInfo.CardNumber = this.CardNumber;
+                this.paymentInfo.CardholderName = this.CardholderName;
+                this.paymentInfo.ExpiryDate = this.ExpiryDate;
+                this.paymentInfo.CardVerificationValue = this.CardVerificationValue;
+                this.paymentInfo.PaymentMethod = "CARD";
 
-                await ((ConversationService)ConversationService).OnCardPaymentSelected(BookingMessageIdentifier);
+                var result = await this.rentalPaymentService.CompleteCardPaymentAsync(this.paymentInfo);
+                if (!result.Success)
+                {
+                    throw new InvalidOperationException(result.Error ?? "Payment failed.");
+                }
 
                 IsPaymentSuccessful = true;
                 CurrentStatusMessage = "Payment successful!";
-                RefreshBalance();
                 balanceRefreshTimer.Stop();
                 inactivityTimer.Stop();
+                OnPropertyChanged(nameof(IsPaymentSuccessful));
+
+                await Task.Delay(1500);
+                synchronizationContext?.Post(_ => NavigateToExitAction?.Invoke(), null);
             }
             catch (Exception paymentException)
             {

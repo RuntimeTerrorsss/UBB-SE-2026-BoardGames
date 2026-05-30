@@ -73,7 +73,6 @@
 
                                     <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Opacity="0.85" />
                                     <TextBlock Text="{Binding SentAtDisplay}" FontSize="11" Foreground="Gray" />
-
                                     
                                     <Border Background="#CA8A04" CornerRadius="4" Padding="8,4"
                                             Visibility="{Binding ShowAwaitingBadge, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -81,20 +80,23 @@
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
-                                    
-                                    <Border Background="#16A34A" CornerRadius="4" Padding="8,4"
-                                            Visibility="{Binding ShowAcceptedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="Request accepted âœ“" Foreground="White"
+                                    <Border Background="#2563EB" CornerRadius="4" Padding="8,4"
+                                            Visibility="{Binding ShowPendingPaymentBadge, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="Pending payment" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
 
-                                    
+                                    <Border Background="#16A34A" CornerRadius="4" Padding="8,4"
+                                            Visibility="{Binding ShowCompletedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="Rental completed ✓" Foreground="White"
+                                                   FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
+                                    </Border>
+                               
                                     <Border Background="#DC2626" CornerRadius="4" Padding="8,4"
                                             Visibility="{Binding ShowDeclinedBadge, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="Request declined" Foreground="White"
                                                    FontWeight="SemiBold" HorizontalAlignment="Center" FontSize="12" />
                                     </Border>
-
                                     
                                     <StackPanel Orientation="Horizontal" Spacing="8"
                                                 Visibility="{Binding ShowOwnerActions, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -103,11 +105,15 @@
                                         <Button Tag="{Binding}" Click="DeclineRequest_Click"
                                                 Content="Decline" />
                                     </StackPanel>
-
                                     
                                     <Button Tag="{Binding}" Click="CancelRequest_Click"
                                             Content="Cancel request"
-                                            Visibility="{Binding ShowRenterActions, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                            Visibility="{Binding ShowRenterCancel, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                    <Button Tag="{Binding}" Click="ProceedToPayment_Click"
+                                            Content="Proceed to payment"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Visibility="{Binding ShowProceedToPayment, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 </StackPanel>
                             </Border>
 

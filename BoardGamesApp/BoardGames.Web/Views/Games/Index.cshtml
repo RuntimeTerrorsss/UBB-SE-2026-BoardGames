@@ -1,13 +1,27 @@
 @model IEnumerable<GameDTO>
 
 @{
-    ViewData["Title"] = "Games";
-    bool showOwner = User.IsInRole("Administrator");
+    bool isAdmin = User.IsAdministrator();
+    ViewData["Title"] = isAdmin ? "Games" : "My Games";
+    bool showOwner = isAdmin && ViewBag.MineOnly != true;
+    bool showMineOnlyFilter = ViewBag.ShowMineOnlyFilter == true;
+    bool mineOnly = ViewBag.MineOnly == true;
 }
 
 <div class="page-header">
-    <h1 class="page-title">Games</h1>
-    <div class="page-actions">
+    <h1 class="page-title">@ViewData["Title"]</h1>
+    <div class="page-actions d-flex gap-2">
+        @if (showMineOnlyFilter)
+        {
+            if (mineOnly)
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary">Show all games</a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-route-mineOnly="true" class="btn btn-outline-secondary">Show only my games</a>
+            }
+        }
         <a asp-action="Create" class="btn btn-primary">Create Game</a>
     </div>
 </div>

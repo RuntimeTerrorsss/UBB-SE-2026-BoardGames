@@ -82,9 +82,9 @@ namespace BoardGames.Api.Controllers
         }
 
         [HttpPut("{requestId:int}/cancel")]
-        public IActionResult Cancel(int requestId, [FromBody] RequestActionDTO body)
+        public async Task<IActionResult> Cancel(int requestId, [FromBody] RequestActionDTO body)
         {
-            var result = this.requestService.CancelRequest(requestId, body.AccountId);
+            var result = await this.requestService.CancelRequest(requestId, body.AccountId);
             if (!result.IsSuccess)
             {
                 return this.MapCancelError(result.Error);

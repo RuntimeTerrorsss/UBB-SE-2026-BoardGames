@@ -184,8 +184,17 @@ namespace BoardGames.Api.Services
                 }
             }
 
-            var games = await gameListingRepository.GetGamesByFilter(filter);
-            return games.Select(game => gameDtoMapper.ToSummaryDTO(game)).ToList().AsReadOnly();
+            var games = await this.gameListingRepository.GetGamesByFilter(filter);
+            var summaries = games.Select(g => this.gameDtoMapper.ToSummaryDTO(g)).ToList();
+
+            if (criteria.ExcludeOwnerAccountId.HasValue)
+            {
+                summaries = summaries
+                    .Where(g => g.OwnerAccountId != criteria.ExcludeOwnerAccountId.Value)
+                    .ToList();
+            }
+
+            return summaries.AsReadOnly();
         }
     }
 }

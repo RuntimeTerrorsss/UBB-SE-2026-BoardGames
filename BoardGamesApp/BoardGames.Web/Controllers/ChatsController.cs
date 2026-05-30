@@ -197,26 +197,26 @@ namespace BoardGames.Web.Controllers
                 return this.BadRequest("Only the game owner can accept or decline this request.");
             }
 
+            int requestId = BoardGames.Shared.Helpers.RentalRequestMessageHelper.ResolveRequestId(message.RequestId, message.Content);
+            if (requestId <= 0)
+            {
+                return this.NotFound();
+            }
+
             Guid ownerAccountId = this.User.GetAccountId();
             var actionBody = new RequestActionDTO { AccountId = ownerAccountId };
 
             if (accepted)
             {
-                await this.requestProxyService.OfferGameAsync(message.RequestId, actionBody);
+                await this.requestProxyService.OfferGameAsync(requestId, actionBody);
             }
             else
             {
-                await this.requestProxyService.DenyRequestAsync(message.RequestId, actionBody);
+                await this.requestProxyService.DenyRequestAsync(requestId, actionBody);
             }
 
-            var updated = message with
-            {
-                IsAccepted = accepted,
-                IsResolved = !accepted,
-            };
-
-            await this.conversationProxyService.UpdateMessageAsync(updated);
-            return this.Ok();
+            var refreshed = await this.conversationProxyService.GetConversationByIdAsync(conversationId);
+            return this.Ok(refreshed?.MessageList.FirstOrDefault(m => m.Id == messageId));
         }
 
         [HttpPost]
@@ -230,6 +230,12 @@ namespace BoardGames.Web.Controllers
                 return this.NotFound();
             }
 
+            int requestId = BoardGames.Shared.Helpers.RentalRequestMessageHelper.ResolveRequestId(message.RequestId, message.Content);
+            if (requestId <= 0)
+            {
+                return this.NotFound();
+            }
+
             int currentPamUserId = await this.GetCurrentPamUserIdAsync();
             if (message.SenderId != currentPamUserId)
             {
@@ -237,7 +243,7 @@ namespace BoardGames.Web.Controllers
             }
 
             Guid renterAccountId = this.User.GetAccountId();
-            await this.requestProxyService.CancelRequestAsync(message.RequestId, new RequestActionDTO
+            await this.requestProxyService.CancelRequestAsync(requestId, new RequestActionDTO
             {
                 AccountId = renterAccountId,
             });

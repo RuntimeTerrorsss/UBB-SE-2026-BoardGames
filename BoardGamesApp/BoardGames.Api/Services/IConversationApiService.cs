@@ -26,6 +26,8 @@ namespace BoardGames.Api.Services
 
         Task AttachRentalRequestMessage(int requestId, Guid renterAccountId, Guid ownerAccountId, string gameName, DateTime start, DateTime end);
 
+        Task AcceptRentalRequestMessage(int requestId, int rentalId);
+
         Task FinalizeRentalRequestMessage(int requestId, bool accepted);
 
         Task<MessageDataTransferObject?> CreateCashAgreementMessage(int parentMessageId, int paymentId);

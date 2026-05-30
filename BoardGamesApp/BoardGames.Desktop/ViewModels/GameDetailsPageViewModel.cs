@@ -2,7 +2,6 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System.Collections.ObjectModel;
 using System.Configuration;
 using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
@@ -21,7 +20,10 @@ namespace BoardGames.Desktop.ViewModels
 
         private readonly IGameService gameService;
         private readonly IRequestService requestService;
+        private readonly IRentalService rentalService;
         private readonly ISessionContext sessionContext;
+        private readonly List<BookedDateRangeDTO> bookedRanges = new();
+        private readonly List<BookedDateRangeDTO> pendingRequestRanges = new();
         private readonly Uri apiBaseUri;
 
         [ObservableProperty]
@@ -39,27 +41,30 @@ namespace BoardGames.Desktop.ViewModels
         [ObservableProperty]
         private string successMessage = string.Empty;
 
-        [ObservableProperty]
-        private string availabilityMessage = string.Empty;
-
         public GameDetailsPageViewModel(
             IGameService gameService,
             IRequestService requestService,
+            IRentalService rentalService,
             ISessionContext sessionContext)
         {
             this.gameService = gameService;
             this.requestService = requestService;
+            this.rentalService = rentalService;
             this.sessionContext = sessionContext;
             this.apiBaseUri = ResolveApiBaseUri();
         }
 
-        public ObservableCollection<string> BookedDateRanges { get; } = new();
+        public IReadOnlyList<BookedDateRangeDTO> BookedRanges => this.bookedRanges;
+
+        public IReadOnlyList<BookedDateRangeDTO> PendingRequestRanges => this.pendingRequestRanges;
+
+        public Action? OnCalendarRangesLoaded { get; set; }
 
         public Action? OnBackRequested { get; set; }
 
         public Action<string>? OnLoginRequested { get; set; }
 
-        public Action? OnRequestSuccess { get; set; }
+        public Action<GameDetailDTO, DateTime, DateTime>? OnNavigateToConfirm { get; set; }
 
         public string PriceText => Game is null ? string.Empty : $"{Game.Price:0.##} RON / day";
 
@@ -87,7 +92,6 @@ namespace BoardGames.Desktop.ViewModels
         {
             ErrorMessage = string.Empty;
             SuccessMessage = string.Empty;
-            AvailabilityMessage = string.Empty;
             IsLoading = true;
 
             try
@@ -102,7 +106,7 @@ namespace BoardGames.Desktop.ViewModels
                 Game = gameResult.Data;
                 GameImage = CreateImage(Game.ImageUrl, apiBaseUri);
                 NotifyGameDisplayChanged();
-                await LoadBookedDatesAsync(gameId);
+                await LoadCalendarRangesAsync(gameId);
             }
             finally
             {
@@ -124,11 +128,10 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         [RelayCommand]
-        private async Task SubmitRequestAsync()
+        private void SubmitRequest()
         {
             ErrorMessage = string.Empty;
             SuccessMessage = string.Empty;
-            AvailabilityMessage = string.Empty;
 
             if (Game is null)
             {
@@ -150,7 +153,7 @@ namespace BoardGames.Desktop.ViewModels
 
             if (!TryGetSelectedDates(out var start, out var end))
             {
-                ErrorMessage = "Please choose a start date and an end date.";
+                ErrorMessage = "Please choose a date on the calendar.";
                 return;
             }
 
@@ -166,48 +169,7 @@ namespace BoardGames.Desktop.ViewModels
                 return;
             }
 
-            IsLoading = true;
-            OnPropertyChanged(nameof(CanSubmit));
-
-            try
-            {
-                var availability = await requestService.CheckAvailabilityAsync(Game.Id, start, end);
-                if (!availability.Success)
-                {
-                    ErrorMessage = availability.Error ?? "Could not check availability.";
-                    return;
-                }
-
-                if (!availability.Data)
-                {
-                    ErrorMessage = "The selected dates are unavailable.";
-                    return;
-                }
-
-                var createResult = await requestService.CreateRequestAsync(new CreateRequestDTO
-                {
-                    GameId = Game.Id,
-                    RenterAccountId = sessionContext.AccountId,
-                    OwnerAccountId = Game.OwnerAccountId,
-                    StartDate = start,
-                    EndDate = end,
-                });
-
-                if (!createResult.Success)
-                {
-                    ErrorMessage = DescribeCreateFailure(createResult);
-                    return;
-                }
-
-                SuccessMessage = "Rental request sent. Redirecting to chat...";
-                await LoadBookedDatesAsync(Game.Id);
-                OnRequestSuccess?.Invoke();
-            }
-            finally
-            {
-                IsLoading = false;
-                OnPropertyChanged(nameof(CanSubmit));
-            }
+            OnNavigateToConfirm?.Invoke(Game, start, end);
         }
 
         partial void OnGameChanged(GameDetailDTO? value)
@@ -225,33 +187,76 @@ namespace BoardGames.Desktop.ViewModels
             OnPropertyChanged(nameof(TotalPriceText));
         }
 
-        private async Task LoadBookedDatesAsync(int gameId)
+        public bool IsDateUnavailable(DateTime date)
         {
-            BookedDateRanges.Clear();
+            var day = date.Date;
+            if (day < DateTime.Today)
+            {
+                return true;
+            }
 
-            var now = DateTime.Today;
-            var bookedDatesResult = await requestService.GetBookedDatesAsync(gameId, now.Month, now.Year);
+            foreach (var range in this.bookedRanges)
+            {
+                if (day >= range.StartDate.Date && day <= range.EndDate.Date)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private async Task LoadCalendarRangesAsync(int gameId)
+        {
+            this.bookedRanges.Clear();
+            this.pendingRequestRanges.Clear();
+
+            var bookedDatesResult = await this.rentalService.GetBookedDatesForGameAsync(gameId);
             if (!bookedDatesResult.Success)
             {
-                AvailabilityMessage = bookedDatesResult.Error ?? "Could not load booked dates.";
+                ErrorMessage = bookedDatesResult.Error ?? "Could not load booked dates.";
                 return;
             }
 
             foreach (var bookedRange in bookedDatesResult.Data ?? Array.Empty<BookedDateRangeDTO>())
             {
-                BookedDateRanges.Add($"{bookedRange.StartDate:dd MMM yyyy} - {bookedRange.EndDate:dd MMM yyyy}");
+                this.bookedRanges.Add(bookedRange);
             }
 
-            AvailabilityMessage = BookedDateRanges.Count == 0
-                ? "No booked dates are known for this month."
-                : "Booked dates this month:";
+            if (sessionContext.IsLoggedIn)
+            {
+                var requestsResult = await this.requestService.GetRequestsForRenterAsync(sessionContext.AccountId);
+                if (requestsResult.Success)
+                {
+                    foreach (var request in requestsResult.Data ?? Array.Empty<RequestDTO>())
+                    {
+                        if (request.Game?.Id == gameId && request.Status == RequestStatus.Open)
+                        {
+                            this.pendingRequestRanges.Add(new BookedDateRangeDTO
+                            {
+                                StartDate = request.StartDate,
+                                EndDate = request.EndDate,
+                            });
+                        }
+                    }
+                }
+            }
+
+            OnCalendarRangesLoaded?.Invoke();
         }
 
         private bool TryGetSelectedDates(out DateTime start, out DateTime end)
         {
-            start = StartDate?.Date ?? default;
-            end = EndDate?.Date ?? default;
-            return StartDate.HasValue && EndDate.HasValue;
+            if (!StartDate.HasValue)
+            {
+                start = default;
+                end = default;
+                return false;
+            }
+
+            start = StartDate.Value.Date;
+            end = EndDate?.Date ?? start;
+            return true;
         }
 
         private void NotifyGameDisplayChanged()

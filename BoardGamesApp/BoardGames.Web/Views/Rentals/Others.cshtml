@@ -2,7 +2,10 @@
 
 @{
     ViewData["Title"] = "Others' Rentals";
+    ViewData["BackUrl"] = Url.Action("Index", "Dashboard");
 }
+
+<partial name="_PageBack" />
 
 <div class="container mt-4">
     <div class="page-header mb-4">

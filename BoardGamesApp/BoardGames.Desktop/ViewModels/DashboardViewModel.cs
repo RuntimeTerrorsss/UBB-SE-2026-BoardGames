@@ -1,3 +1,7 @@
+// <copyright file="DashboardViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.ViewModels
 {
     using System.Collections.ObjectModel;
@@ -9,32 +13,29 @@ namespace BoardGames.Desktop.ViewModels
 
     public class DashboardViewModel : ViewModelBase
     {
-        private readonly IConversationService conversationService;
-        private readonly INotificationService notificationService;
+        private readonly IRentalService rentalService;
+        private readonly IRequestService requestService;
         private readonly IPaymentService paymentService;
         private readonly ISessionContext sessionContext;
 
-        private int newMessagesCount;
-        private int pendingNotificationsCount;
-
-        public int NewMessagesCount { get => newMessagesCount; set => SetProperty(ref newMessagesCount, value); }
-
-        public int PendingNotificationsCount { get => pendingNotificationsCount; set => SetProperty(ref pendingNotificationsCount, value); }
-
-        public ObservableCollection<PaymentDTO> RecentPayments { get; } = new();
-
         public DashboardViewModel(
-            IConversationService conversationService,
-            INotificationService notificationService,
+            IRentalService rentalService,
+            IRequestService requestService,
             IPaymentService paymentService,
             ISessionContext sessionContext)
         {
-            this.conversationService = conversationService;
-            this.notificationService = notificationService;
+            this.rentalService = rentalService;
+            this.requestService = requestService;
             this.paymentService = paymentService;
             this.sessionContext = sessionContext;
             _ = LoadDashboardDataAsync();
         }
+
+        public ObservableCollection<RentalDTO> UpcomingRentals { get; } = new();
+
+        public ObservableCollection<RequestDTO> OpenRequests { get; } = new();
+
+        public ObservableCollection<PaymentDTO> RecentPayments { get; } = new();
 
         private async Task LoadDashboardDataAsync()
         {
@@ -43,25 +44,40 @@ namespace BoardGames.Desktop.ViewModels
                 return;
             }
 
-            var convResult = await conversationService.GetConversationsForUserAsync(sessionContext.AccountId);
-            var notifResult = await notificationService.GetNotificationsForUserAsync(sessionContext.AccountId);
-            var paymentsResult = await paymentService.GetFilteredPaymentsAsync(
-                sessionContext.AccountId, FilterType.Newest, PaymentMethod.ALL, string.Empty, 1);
+            var accountId = sessionContext.AccountId;
 
-            if (convResult.Success && convResult.Data != null)
+            var rentalsTask = rentalService.GetRentalsForRenterAsync(accountId);
+            var requestsTask = requestService.GetOpenRequestsForOwnerAsync(accountId);
+            var paymentsTask = paymentService.GetFilteredPaymentsAsync(
+                accountId, FilterType.Newest, PaymentMethod.ALL, string.Empty, 1);
+
+            await Task.WhenAll(rentalsTask, requestsTask, paymentsTask);
+
+            UpcomingRentals.Clear();
+            if (rentalsTask.Result.Success && rentalsTask.Result.Data != null)
             {
-                NewMessagesCount = convResult.Data.Count(conversation => conversation.UnreadCount.Values.Sum() > 0);
+                foreach (var rental in rentalsTask.Result.Data
+                    .Where(r => !r.IsExpired)
+                    .OrderBy(r => r.StartDate)
+                    .Take(5))
+                {
+                    UpcomingRentals.Add(rental);
+                }
             }
 
-            if (notifResult.Success && notifResult.Data != null)
+            OpenRequests.Clear();
+            if (requestsTask.Result.Success && requestsTask.Result.Data != null)
             {
-                PendingNotificationsCount = notifResult.Data.Count();
+                foreach (var request in requestsTask.Result.Data.Take(5))
+                {
+                    OpenRequests.Add(request);
+                }
             }
 
             RecentPayments.Clear();
-            if (paymentsResult.Success && paymentsResult.Data != null)
+            if (paymentsTask.Result.Success && paymentsTask.Result.Data != null)
             {
-                foreach (var payment in paymentsResult.Data.Items.Take(5))
+                foreach (var payment in paymentsTask.Result.Data.Items.Take(5))
                 {
                     RecentPayments.Add(payment);
                 }

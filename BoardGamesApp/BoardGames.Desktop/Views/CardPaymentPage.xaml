@@ -63,9 +63,6 @@
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Address:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind PaymentViewModel.DeliveryAddress, Mode=OneTime}" FontWeight="Medium" TextWrapping="Wrap"/>
-
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Your Balance:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind PaymentViewModel.BalanceAmount, Mode=OneWay}" FontWeight="Medium"/>
                     </Grid>
 
                     <MenuFlyoutSeparator Margin="0,8"/>
@@ -104,15 +101,15 @@
                                      PlaceholderText="MM/YY" MaxLength="5"
                                      Text="{x:Bind PaymentViewModel.ExpiryDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <PasswordBox Grid.Column="1" Header="CardVerificationValue" 
-                                         PlaceholderText="123" MaxLength="4"
-                                         Password="{x:Bind PaymentViewModel.CardVerificationValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="1" Header="CVV" 
+                                     PlaceholderText="123" MaxLength="4"
+                                     Text="{x:Bind PaymentViewModel.CardVerificationValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                     </StackPanel>
 
-                    <TextBlock Foreground="#E81123" 
-                               Text="Insufficient account balance. Please top up your wallet."
-                               Visibility="{x:Bind PaymentViewModel.IsWarningMessageVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind PaymentViewModel.CurrentStatusMessage, Mode=OneWay}"
+                               Foreground="#E81123" TextWrapping="Wrap"
+                               Visibility="{x:Bind PaymentViewModel.HasStatusMessage, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
 
                     <StackPanel Spacing="16" Margin="0,16,0,0">
                         <CheckBox IsChecked="{x:Bind PaymentViewModel.AreTermsAccepted, Mode=TwoWay}">
@@ -149,12 +146,12 @@
 
                     <FontIcon Glyph="&#xE10B;" FontSize="64" Foreground="Green" Margin="0,0,0,16"/>
                     <TextBlock FontSize="24" FontWeight="Bold" Text="Payment Successful!" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Your transaction has been securely processed." Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Your card has been charged successfully." Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
 
                     <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,16">
                         <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
-                            <TextBlock Text="Remaining Balance:" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Bind PaymentViewModel.BalanceAmount, Mode=OneWay}" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Amount paid:" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Bind PaymentViewModel.Price, Mode=OneWay}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
 

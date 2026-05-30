@@ -1,7 +1,7 @@
 @model SearchFilterViewModel
 @using Microsoft.AspNetCore.Authorization
 @{
-    ViewData["Title"] = "Search Games";
+    ViewData["Title"] = "Homepage";
     var priceVal = Model.MaximumPrice.HasValue ? (int)Model.MaximumPrice.Value : 100;
     var playersVal = Model.MinimumPlayers.HasValue ? Model.MinimumPlayers.Value : 1;
     var minDate = DateTime.Today.ToString("yyyy-MM-dd");
@@ -102,12 +102,20 @@
         color: inherit;
         margin-bottom: 1rem;
         position: relative;
+        cursor: pointer;
     }
 
         .game-card:hover {
             box-shadow: 0 6px 24px rgba(67,97,238,0.13);
             transform: translateY(-2px);
+            color: inherit;
         }
+
+    .game-card .card-nav-link {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
 
     .game-card-img {
         width: 200px;
@@ -145,49 +153,6 @@
                 color: #343a40;
             }
 
-    .game-card-actions {
-        display: flex;
-        align-items: center;
-        padding: 0 1.25rem;
-        gap: 0.5rem;
-        flex-shrink: 0;
-    }
-
-    .btn-rent {
-        background: #4361ee;
-        color: #fff;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0.45rem 1rem;
-        text-decoration: none;
-        transition: background 0.2s;
-        white-space: nowrap;
-    }
-
-        .btn-rent:hover {
-            background: #3451d1;
-            color: #fff;
-        }
-
-    .btn-details {
-        border: 1.5px solid #dee2e6;
-        color: #495057;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0.45rem 1rem;
-        text-decoration: none;
-        transition: all 0.2s;
-        white-space: nowrap;
-    }
-
-        .btn-details:hover {
-            border-color: #4361ee;
-            color: #4361ee;
-        }
-
     .no-results {
         text-align: center;
         padding: 3rem 0;
@@ -209,11 +174,9 @@
 
 <div class="container search-page">
 
-    <div class="d-flex align-items-center mb-3 gap-3">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill">
-            &larr; Back
-        </a>
-        <h4 class="mb-0 fw-bold" style="color:#1a1a2e">Search Games</h4>
+    <div class="mb-3">
+        <h4 class="mb-1 fw-bold" style="color:#1a1a2e">Homepage</h4>
+        <p class="text-muted small mb-0">Browse available games and filter by name, location, price, and availability.</p>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -234,6 +197,16 @@
                     <input asp-for="City" class="form-control" placeholder="Enter city" />
                 </div>
                 <div class="col-6 col-md-2">
+                    <label class="filter-label">Max price (RON/day)</label>
+                    <input type="number" class="form-control" name="MaximumPrice" min="1" max="1000" step="1"
+                           value="@(Model.MaximumPrice.HasValue ? ((int)Model.MaximumPrice.Value).ToString() : "")" placeholder="Any" />
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="filter-label">Min players</label>
+                    <input type="number" class="form-control" name="MinimumPlayers" min="1" max="20" step="1"
+                           value="@(Model.MinimumPlayers.HasValue ? Model.MinimumPlayers.Value.ToString() : "")" placeholder="Any" />
+                </div>
+                <div class="col-6 col-md-2">
                     <label asp-for="StartDate" class="filter-label"></label>
                     <input asp-for="StartDate" type="date" class="form-control" min="@minDate" />
                 </div>
@@ -241,76 +214,26 @@
                     <label asp-for="EndDate" class="filter-label"></label>
                     <input asp-for="EndDate" type="date" class="form-control" min="@minDate" />
                 </div>
-                <div class="col-12 col-md-2 d-grid">
+                <div class="col-12 col-md-4">
+                    <label asp-for="SortOption" class="filter-label"></label>
+                    <select asp-for="SortOption" class="form-select">
+                        <option value="none">Default</option>
+                        <option value="price_asc">Price: lowest first</option>
+                        <option value="price_desc">Price: highest first</option>
+                        <option value="location">Closest to city</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-8 d-flex gap-2 align-items-end">
                     <button type="submit" class="btn btn-primary-app">Search</button>
+                    <a asp-controller="Search" asp-action="Index" class="btn-outline-app" style="width:auto;display:inline-block;padding:0.55rem 1.4rem;">Clear</a>
                 </div>
             </div>
         </div>
 
+        <input type="hidden" name="Page" id="pageInput" value="@Model.Page" />
+
         <div class="row g-4">
-
-            <div class="col-12 col-lg-3">
-                <div class="filter-card">
-                    <h5>Filters</h5>
-
-                    <div class="mb-4">
-                        <label class="filter-label">
-                            Max price: <strong id="priceLabel">@(Model.MaximumPrice.HasValue ? ((int)Model.MaximumPrice.Value).ToString() : "any")</strong> RON/day
-                        </label>
-                        <input type="range" class="form-range" min="1" max="100" step="1"
-                               id="priceRange"
-                               value="@(Model.MaximumPrice.HasValue ? (int)Model.MaximumPrice.Value : 100)"
-                               oninput="document.getElementById('priceLabel').textContent = this.value; document.getElementById('priceHidden').value = this.value;" />
-                        <input type="hidden" id="priceHidden" name="MaximumPrice" value="@(Model.MaximumPrice.HasValue ? ((int)Model.MaximumPrice.Value).ToString() : "")" />
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="filter-label">
-                            Min players: <strong id="playersLabel">@(Model.MinimumPlayers.HasValue? Model.MinimumPlayers.Value.ToString() : "any")</strong>
-                        </label>
-                        <input type="range" class="form-range" min="1" max="20" step="1"
-                               id="playersRange"
-                               value="@(Model.MinimumPlayers.HasValue? Model.MinimumPlayers.Value : 1)"
-                               oninput="document.getElementById('playersLabel').textContent = this.value; document.getElementById('playersHidden').value = this.value;" />
-                        <input type="hidden" id="playersHidden" name="MinimumPlayers" value="@(Model.MinimumPlayers.HasValue? Model.MinimumPlayers.Value.ToString() : "")" />
-                    </div>
-
-                    <div class="mb-4">
-                        <label asp-for="SortOption" class="filter-label"></label>
-                        <div class="d-flex flex-column gap-2 mt-1">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="SortOption" value="none" id="sort_none"
-                                       @(Model.SortOption == "none" || Model.SortOption == null ? "checked" : "") />
-                                <label class="form-check-label" for="sort_none">Default</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="SortOption" value="price_asc" id="sort_asc"
-                                       @(Model.SortOption == "price_asc" ? "checked" : "") />
-                                <label class="form-check-label" for="sort_asc">Price: lowest first</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="SortOption" value="price_desc" id="sort_desc"
-                                       @(Model.SortOption == "price_desc" ? "checked" : "") />
-                                <label class="form-check-label" for="sort_desc">Price: highest first</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="SortOption" value="location" id="sort_loc"
-                                       @(Model.SortOption == "location" ? "checked" : "") />
-                                <label class="form-check-label" for="sort_loc">Closest to city</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <input type="hidden" name="Page" id="pageInput" value="@Model.Page" />
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary-app">Apply filters</button>
-                        <a asp-controller="Search" asp-action="Index" class="btn-outline-app">Clear filters</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-9">
+            <div class="col-12">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h5 class="fw-bold mb-0" style="color:#1a1a2e">Results</h5>
                     @if (Model.Results.Any())
@@ -331,8 +254,12 @@
                 {
                 <div class="d-flex flex-column">
                     @foreach (var game in Model.Results)
-                        {
+                    {
+                        var detailsUrl = isAuthenticated
+                            ? Url.Action("Details", "Games", new { id = game.Id })
+                            : Url.Action("Login", "Auth", new { returnUrl = Url.Action("Details", "Games", new { id = game.Id }) });
                     <div class="game-card">
+                        <a class="card-nav-link" href="@detailsUrl" aria-label="View @game.Name details"></a>
                         <img class="game-card-img" src="@GameImageHelper.GetDisplaySource(game)" alt="@game.Name"
                              onerror="this.src='@GameImageHelper.PlaceholderImageSource'" />
                         <div class="game-card-body">
@@ -340,24 +267,13 @@
                             <p class="meta"><span>Price:</span> @game.Price RON/day</p>
                             <p class="meta"><span>City:</span> @game.City</p>
                             <p class="meta"><span>Players:</span> @game.MinimumPlayerNumber - @game.MaximumPlayerNumber</p>
-                        </div>
-                        <div class="game-card-actions">
-                            <a asp-controller="Games" asp-action="Details" asp-route-id="@game.Id"
-                               class="btn-details">Details</a>
-                            @if (isAuthenticated)
-                                    {
-                            <a asp-controller="Requests" asp-action="Create" asp-route-gameId="@game.Id"
-                               class="btn-rent">Rent</a>
-                                    }
-                                    else
-                                    {
-                            <a asp-controller="Auth" asp-action="Login"
-                               asp-route-returnUrl="@Url.Action("Filter", "Search", new { Name = Model.Name, City = Model.City, Page = Model.Page })"
-                               class="btn-rent">Rent</a>
-                                    }
+                            @if (!string.IsNullOrWhiteSpace(game.Owner?.DisplayName))
+                            {
+                                <p class="meta"><span>Owner:</span> @game.Owner.DisplayName</p>
+                            }
                         </div>
                     </div>
-                        }
+                    }
                 </div>
 
                 @if (Model.TotalPages > 1)

@@ -1,4 +1,7 @@
 
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
+
 namespace BoardGames.Desktop.Converters
 {
     public class InverseBoolToVisibilityConverter : IValueConverter
