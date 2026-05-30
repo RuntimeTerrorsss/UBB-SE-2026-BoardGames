@@ -183,13 +183,13 @@ namespace BoardGames.Desktop.Views
                         SentAtDisplay = message.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
                         IsCurrentUser = isCurrentUser,
                         IsRentalRequest = isRentalRequest,
-                        MessageId = m.Id,
+                        MessageId = message.Id,
                         RequestId = isRentalRequest
-                            ? RentalRequestMessageHelper.ResolveRequestId(m.RequestId, m.Content)
+                            ? RentalRequestMessageHelper.ResolveRequestId(message.RequestId, message.Content)
                             : -1,
-                        RentalId = RentalRequestMessageHelper.ResolveRentalId(m.RentalId, m.Content),
-                        IsResolved = m.IsResolved,
-                        IsAccepted = m.IsAccepted,
+                        RentalId = RentalRequestMessageHelper.ResolveRentalId(message.RentalId, message.Content),
+                        IsResolved = message.IsResolved,
+                        IsAccepted = message.IsAccepted,
                     };
                 })
                 .ToList();
