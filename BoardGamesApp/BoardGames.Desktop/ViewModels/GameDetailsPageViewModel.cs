@@ -15,6 +15,9 @@ namespace BoardGames.Desktop.ViewModels
 {
     public partial class GameDetailsPageViewModel : BaseViewModel
     {
+        private const string EmptyTotalPriceText = "0 RON";
+        private const int InclusiveDateRangeDayOffset = 1;
+
         private readonly IGameService gameService;
         private readonly IRequestService requestService;
         private readonly IRentalService rentalService;
@@ -73,10 +76,10 @@ namespace BoardGames.Desktop.ViewModels
             {
                 if (Game is null || !TryGetSelectedDates(out var start, out var end))
                 {
-                    return "0 RON";
+                    return EmptyTotalPriceText;
                 }
 
-                int days = (end - start).Days + 1;
+                int days = (end - start).Days + InclusiveDateRangeDayOffset;
                 return $"{days * Game.Price:0.##} RON";
             }
         }

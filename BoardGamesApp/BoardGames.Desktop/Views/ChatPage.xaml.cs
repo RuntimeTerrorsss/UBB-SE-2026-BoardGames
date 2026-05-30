@@ -53,11 +53,7 @@ namespace BoardGames.Desktop.Views
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             bool show = value is true;
-            if (parameter is string p && p == "Inverse")
-            {
-                show = !show;
-            }
-
+            if (parameter is string visibilityMode && visibilityMode == "Inverse") show = !show;
             return show ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -74,8 +70,6 @@ namespace BoardGames.Desktop.Views
         public string SentAtDisplay { get; init; } = string.Empty;
 
         public bool IsCurrentUser { get; init; }
-
-        // Rental request fields
         public bool IsRentalRequest { get; init; }
 
         public int MessageId { get; init; }
@@ -88,7 +82,6 @@ namespace BoardGames.Desktop.Views
 
         public bool IsAccepted { get; init; }
 
-        // Derived visibility helpers
         public bool ShowOwnerActions => IsRentalRequest && !IsResolved && !IsAccepted && !IsCurrentUser;
 
         public bool ShowRenterCancel => IsRentalRequest && !IsResolved && !IsAccepted && IsCurrentUser;
@@ -149,12 +142,12 @@ namespace BoardGames.Desktop.Views
             {
                 int otherId = conv.ParticipantUserIds.FirstOrDefault(id => id != currentPamUserId);
                 conv.ParticipantDisplayNames.TryGetValue(otherId, out string? otherName);
-                var lastMsg = conv.MessageList.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                var latestMessage = conv.MessageList.OrderByDescending(message => message.SentAt).FirstOrDefault();
                 return new ConversationListItem
                 {
                     Conversation = conv,
                     OtherUserName = otherName ?? (otherId > 0 ? $"User {otherId}" : "Unknown"),
-                    LastMessagePreview = lastMsg?.GetChatMessagePreview() ?? "No messages yet",
+                    LastMessagePreview = latestMessage?.GetChatMessagePreview() ?? "No messages yet",
                 };
             }).ToList();
 
@@ -177,18 +170,18 @@ namespace BoardGames.Desktop.Views
 
             int currentPamUserId = this.sessionContext.PamUserId ?? 0;
             return conversation.MessageList
-                .OrderBy(m => m.SentAt)
-                .Select(m =>
+                .OrderBy(message => message.SentAt)
+                .Select(message =>
                 {
-                    bool isMe = m.SenderId == currentPamUserId;
-                    conversation.ParticipantDisplayNames.TryGetValue(m.SenderId, out string? name);
-                    bool isRentalRequest = m.Type == MessageType.MessageRentalRequest;
+                    bool isCurrentUser = message.SenderId == currentPamUserId;
+                    conversation.ParticipantDisplayNames.TryGetValue(message.SenderId, out string? senderDisplayName);
+                    bool isRentalRequest = message.Type == MessageType.MessageRentalRequest;
                     return new MessageDisplayItem
                     {
-                        SenderLabel = isMe ? "You" : (name ?? $"User {m.SenderId}"),
-                        Content = m.Content,
-                        SentAtDisplay = m.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
-                        IsCurrentUser = isMe,
+                        SenderLabel = isCurrentUser ? "You" : (senderDisplayName ?? $"User {message.SenderId}"),
+                        Content = message.Content,
+                        SentAtDisplay = message.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
+                        IsCurrentUser = isCurrentUser,
                         IsRentalRequest = isRentalRequest,
                         MessageId = m.Id,
                         RequestId = isRentalRequest

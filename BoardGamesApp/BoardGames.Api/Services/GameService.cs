@@ -50,33 +50,33 @@ namespace BoardGames.Api.Services
 
         public async Task<IReadOnlyList<GameSummaryDTO>> GetAllActiveGames()
         {
-            var games = await this.gameListingRepository.GetAll();
-            return games.Select(g => this.gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
+            var games = await gameListingRepository.GetAll();
+            return games.Select(game => gameDtoMapper.ToSummaryDTO(game)).ToList().AsReadOnly();
         }
 
         public async Task<IReadOnlyList<GameSummaryDTO>> GetAvailableGamesForRenter(Guid renterAccountId)
         {
-            var allActive = await this.GetAllActiveGames();
-            return allActive.Where(g => g.OwnerAccountId != renterAccountId).ToList().AsReadOnly();
+            var allActive = await GetAllActiveGames();
+            return allActive.Where(game => game.OwnerAccountId != renterAccountId).ToList().AsReadOnly();
         }
 
         public IReadOnlyList<GameSummaryDTO> GetGamesForOwner(Guid ownerAccountId)
         {
-            return this.gameListingRepository.GetGamesByOwner(ownerAccountId)
-                .Select(g => this.gameDtoMapper.ToSummaryDTO(g))
+            return gameListingRepository.GetGamesByOwner(ownerAccountId)
+                .Select(game => gameDtoMapper.ToSummaryDTO(game))
                 .ToList().AsReadOnly();
         }
 
         public IReadOnlyList<GameSummaryDTO> GetActiveGamesForOwner(Guid ownerAccountId)
         {
-            return this.GetGamesForOwner(ownerAccountId)
-                .Where(g => g.IsActive).ToList().AsReadOnly();
+            return GetGamesForOwner(ownerAccountId)
+                .Where(game => game.IsActive).ToList().AsReadOnly();
         }
 
         public async Task<IReadOnlyList<GameSummaryDTO>> GetAllGamesAdmin()
         {
-            var games = await this.gameListingRepository.GetAllIncludingInactive();
-            return games.Select(g => this.gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
+            var games = await gameListingRepository.GetAllIncludingInactive();
+            return games.Select(game => gameDtoMapper.ToSummaryDTO(game)).ToList().AsReadOnly();
         }
 
         public async Task<GameDetailDTO> GetGameById(int gameId)
@@ -173,7 +173,7 @@ namespace BoardGames.Api.Services
                 PlayerCount = criteria.PlayerCount,
                 AvailabilityRange = criteria.AvailableFrom.HasValue && criteria.AvailableTo.HasValue
                     ? new TimeRange(criteria.AvailableFrom.Value, criteria.AvailableTo.Value)
-                    : null,
+                    : null
             };
 
             if (!string.IsNullOrEmpty(criteria.SortBy))

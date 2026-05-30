@@ -15,6 +15,9 @@ namespace BoardGames.Api.Services
 {
     public class ConversationApiService : IConversationApiService
     {
+        private const int NewMessageIdentifier = 0;
+        private const int MissingLinkedIdentifier = -1;
+
         private readonly IConversationRepository conversationRepository;
         private readonly IAccountRepository accountRepository;
 
@@ -53,8 +56,8 @@ namespace BoardGames.Api.Services
         public async Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto)
         {
             var entity = MapDtoToEntity(dto);
-            entity.MessageId = 0;
-            var persisted = await this.conversationRepository.HandleNewMessage(entity);
+            entity.MessageId = NewMessageIdentifier;
+            var persisted = await conversationRepository.HandleNewMessage(entity);
             return MapEntityToDto(persisted);
         }
 
@@ -134,10 +137,10 @@ namespace BoardGames.Api.Services
         private async Task<ConversationDTO> MapConversationToDTOAsync(Conversation conversation)
         {
             var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDataTransferObject>();
-            var participantUserIds = conversation.Participants?.Select(p => p.UserId).ToList() ?? new List<int>();
+            var participantUserIds = conversation.Participants?.Select(participant => participant.UserId).ToList() ?? new List<int>();
             var lastRead = conversation.Participants?
-                .Where(p => p.LastMessageReadTime.HasValue)
-                .ToDictionary(p => p.UserId, p => p.LastMessageReadTime!.Value)
+                .Where(participant => participant.LastMessageReadTime.HasValue)
+                .ToDictionary(participant => participant.UserId, participant => participant.LastMessageReadTime!.Value)
                 ?? new Dictionary<int, DateTime>();
 
             var dto = new ConversationDTO(conversation.ConversationId, participantUserIds, messages, lastRead);
@@ -156,8 +159,6 @@ namespace BoardGames.Api.Services
 
         private static MessageDataTransferObject MapEntityToDto(Message message)
         {
-            const int defaultMissingIdentifier = -1;
-
             MessageType messageType = message switch
             {
                 TextMessage => MessageType.MessageText,
