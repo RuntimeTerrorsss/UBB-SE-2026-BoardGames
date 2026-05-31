@@ -1,110 +1,231 @@
-// <copyright file="ChatViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="ChatViewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using BoardGames.Desktop.Services;
+using System.Runtime.CompilerServices;
+using BoardGames.Data.Enum;
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
+using Microsoft.UI.Xaml.Controls;
 
-namespace BoardGames.Desktop.ViewModels
+namespace BoardGames.Desktop.ViewModels;
+
+public class ChatViewModel : INotifyPropertyChanged
 {
-    public class ChatViewModel : BaseViewModel
+    private string displayName;
+
+    private string initials;
+
+    private string avatarUrl;
+
+    private string inputText = string.Empty;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public event Action<MessageDataTransferObject> MessageSent;
+
+    public event Action<int, int, bool, bool> BookingRequestUpdate;
+
+    public event Action<int, int> CashAgreementAccept;
+
+    public int CurrentUserId { get; private set; }
+
+    public int ConversationId { get; private set; }
+
+    public ObservableCollection<MessageViewModel> Messages { get; } = new();
+
+    public string DisplayName
     {
-        private readonly IConversationService conversationService;
-        private readonly ISessionContext sessionContext;
-        private ConversationDTO? currentConversation;
-
-        public ObservableCollection<MessageDataTransferObject> Messages { get; } = new();
-
-        public int ConversationId { get; private set; }
-
-        public string DisplayName { get; private set; } = "Chat";
-
-        public ChatViewModel(IConversationService conversationService, ISessionContext sessionContext)
+        get => displayName;
+        set
         {
-            this.conversationService = conversationService;
-            this.sessionContext = sessionContext;
+            displayName = value;
+            OnPropertyChanged();
         }
+    }
 
-        public async Task LoadConversationAsync(int conversationId)
+    public string Initials
+    {
+        get => initials;
+        set
         {
-            IsLoading = true;
-            ConversationId = conversationId;
-            var result = await conversationService.GetConversationByIdAsync(conversationId);
+            initials = value;
+            OnPropertyChanged();
+        }
+    }
 
-            if (result.Success && result.Data != null)
+    public string AvatarUrl
+    {
+        get => avatarUrl;
+        set
+        {
+            avatarUrl = value;
+            OnPropertyChanged(nameof(AvatarUrl));
+        }
+    }
+
+    public string InputText
+    {
+        get => inputText;
+        set
+        {
+            inputText = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CanSend));
+        }
+    }
+
+    public ChatViewModel(int currentUser)
+    {
+        CurrentUserId = currentUser;
+    }
+
+    protected void OnPropertyChanged([CallerMemberName] string name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    public void LoadConversation(ConversationPreviewModel conversation, List<MessageDTO> messages, int theirUnreadCount)
+    {
+        ConversationId = conversation.ConversationId;
+        DisplayName = conversation.DisplayName;
+        Initials = conversation.Initials;
+        AvatarUrl = conversation.AvatarUrl;
+
+        List<MessageDTO> orderedMessages = messages
+            .OrderBy(messageItem => messageItem.SentAt)
+            .ThenBy(messageItem => messageItem.Id)
+            .ToList();
+
+        Messages.Clear();
+        for (int messageIndex = 0; messageIndex < orderedMessages.Count; messageIndex++)
+        {
+            var currentMessage = orderedMessages[messageIndex];
+            var newMessageViewModel = new MessageViewModel(currentMessage, CurrentUserId);
+            if (messageIndex < orderedMessages.Count - theirUnreadCount)
             {
-                currentConversation = result.Data;
-                Messages.Clear();
-                foreach (var msg in currentConversation.MessageList.OrderBy(message => message.SentAt))
-                {
-                    Messages.Add(msg);
-                }
+                newMessageViewModel.IsRead = true;
             }
 
-            IsLoading = false;
+            Messages.Add(newMessageViewModel);
         }
+    }
 
-        public async Task SendTextMessageAsync(string text)
+    public void HandleIncomingMessage(MessageDTO message)
+    {
+        if (message.ConversationId != ConversationId)
         {
-            await SendMessageInternal(text, MessageType.MessageText, string.Empty);
+            return;
         }
 
-        public async Task SendImageAsync(string imageUrl)
+        bool messageExists = Messages.Any(messageItem => messageItem.Id == message.Id);
+
+        if (messageExists)
         {
-            await SendMessageInternal(string.Empty, MessageType.MessageImage, imageUrl);
+            return;
         }
 
-        private async Task SendMessageInternal(string content, MessageType type, string imageUrl)
+        Messages.Add(new MessageViewModel(message, CurrentUserId));
+    }
+
+    public bool CanSend => !string.IsNullOrWhiteSpace(InputText);
+
+    public void SendMessage()
+    {
+        if (!CanSend)
         {
-            if (currentConversation == null)
-            {
-                return;
-            }
-
-            int currentUserId = sessionContext.PamUserId ?? 0;
-            if (currentUserId == 0)
-            {
-                ErrorMessage = "Chat requires a linked legacy user id for this account.";
-                return;
-            }
-
-            var receiverId = currentConversation.ParticipantUserIds.FirstOrDefault(id => id != currentUserId);
-
-            var messageDto = new MessageDataTransferObject(
-                0, ConversationId, currentUserId, receiverId, DateTime.UtcNow,
-                content, type, imageUrl, false, false, false, false, -1, -1);
-
-            var result = await conversationService.SendMessageAsync(messageDto);
-            if (result.Success)
-            {
-                Messages.Add(result.Data!);
-            }
+            return;
         }
 
-        public async Task UpdateMessageAsync(MessageDataTransferObject updatedMessage)
+        int unassignedIdentifier = -1;
+
+        var messageDataTransferObject = new MessageDTO(
+            unassignedIdentifier,
+            ConversationId,
+            CurrentUserId,
+            unassignedIdentifier,
+            DateTime.Now,
+            InputText,
+            MessageType.MessageText,
+            null,
+            false,
+            false,
+            false,
+            false,
+            unassignedIdentifier,
+            unassignedIdentifier);
+
+        InputText = string.Empty;
+        MessageSent.Invoke(messageDataTransferObject);
+    }
+
+    public void ResolveBookingRequest(int messageId, bool accepted)
+    {
+        var targetMessage = Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
+        if (targetMessage == null)
         {
-            var result = await conversationService.UpdateMessageAsync(updatedMessage);
-            if (result.Success)
-            {
-                var index = Messages.ToList().FindIndex(message => message.Id == updatedMessage.Id);
-                if (index != -1) Messages[index] = result.Data!;
-            }
+            return;
         }
 
-        public async Task SendReadReceiptAsync()
+        BookingRequestUpdate?.Invoke(messageId, targetMessage.ConversationId, accepted, !accepted);
+    }
+
+    public void UpdateCashAgreement(int messageId)
+    {
+        var targetMessage = Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
+        if (targetMessage == null)
         {
-            if (currentConversation == null)
-            {
-                return;
-            }
-
-            var dto = new ReadReceiptDTO(ConversationId, sessionContext.PamUserId ?? 0, 0, DateTime.UtcNow);
-            await conversationService.SendReadReceiptAsync(dto);
+            return;
         }
+
+        CashAgreementAccept?.Invoke(messageId, targetMessage.ConversationId);
+    }
+
+    public void ProceedToPayment(int messageId)
+    {
+        var targetMessage = Messages.FirstOrDefault(messageItem => messageItem.Id == messageId);
+    }
+
+    public void SendImage(string fileName)
+    {
+        int unassignedIdentifier = -1;
+
+        var messageDataTransferObject = new MessageDTO(
+            unassignedIdentifier,
+            ConversationId,
+            CurrentUserId,
+            unassignedIdentifier,
+            DateTime.Now,
+            string.Empty,
+            MessageType.MessageImage,
+            fileName,
+            false,
+            false,
+            false,
+            false,
+            unassignedIdentifier,
+            unassignedIdentifier);
+
+        var newViewModel = new MessageViewModel(messageDataTransferObject, CurrentUserId);
+        InputText = string.Empty;
+        MessageSent.Invoke(messageDataTransferObject);
+    }
+
+    public void RaiseBookingRequestUpdate(int messageId, int conversationId, bool accepted, bool resolved)
+    {
+        BookingRequestUpdate?.Invoke(messageId, conversationId, accepted, resolved);
+    }
+
+    public void RaiseCashAgreementAccept(int messageId, int conversationId)
+    {
+        CashAgreementAccept?.Invoke(messageId, conversationId);
+    }
+
+    public void RaiseMessageSent(MessageDTO message)
+    {
+        MessageSent?.Invoke(message);
     }
 }

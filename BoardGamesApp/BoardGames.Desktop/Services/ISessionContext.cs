@@ -1,7 +1,3 @@
-// <copyright file="ISessionContext.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using BoardGames.Shared.DTO;
 
@@ -39,7 +35,7 @@ namespace BoardGames.Desktop.Services
 
         bool IsLoggedIn { get; }
 
-        void Populate(AccountProfileDTO accountProfile);
+        void Populate(AccountProfileDataTransferObject accountProfile);
 
         void Clear();
     }

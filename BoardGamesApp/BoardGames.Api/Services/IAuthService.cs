@@ -1,7 +1,3 @@
-// <copyright file="IAuthService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System.Threading.Tasks;
 using BoardGames.Shared.Common;
 using BoardGames.Shared.DTO;

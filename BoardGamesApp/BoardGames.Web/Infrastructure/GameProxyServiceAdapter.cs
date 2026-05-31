@@ -1,92 +1,56 @@
-// <copyright file="GameProxyServiceAdapter.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Shared.DTO;
+using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using BoardGames.Web.Infrastructure;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using GUI_BRAP.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
     public sealed class GameProxyServiceAdapter : IGameProxyService
     {
-        private readonly HttpClient httpClient;
+        private readonly IGameService gameService;
 
-        public GameProxyServiceAdapter(HttpClient httpClient)
+        public GameProxyServiceAdapter(IGameService gameService)
         {
-            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            if (this.httpClient.BaseAddress is null)
-            {
-                throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
-            }
+            this.gameService = gameService;
         }
 
         public async Task<IReadOnlyList<GameDTO>> GetAllGamesAsync(CancellationToken cancellationToken = default)
-            => await this.GetListAsync("games", cancellationToken);
+            => (await gameService.GetAllGamesAsync(cancellationToken)).ThrowIfFailed();
 
         public async Task<GameDTO?> GetGameByIdAsync(int gameId, CancellationToken cancellationToken = default)
         {
-            using var response = await this.httpClient.GetAsync($"games/{gameId}", cancellationToken);
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            var result = await gameService.GetGameByIdAsync(gameId, cancellationToken);
+            if (result.Success)
+            {
+                return result.Data;
+            }
+
+            if (result.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            var summary = await HttpProxyClient.ReadAsync<GameSummaryDTO>(response, cancellationToken);
-            this.RebaseImageUrls(new List<GameSummaryDTO> { summary });
-            return GameDtoMapper.FromSummary(summary);
+            throw ProxyResultExtensions.ToException(result);
         }
 
         public async Task<IReadOnlyList<GameDTO>> GetGamesByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default)
-            => await this.GetListAsync($"games/owner/{ownerId}", cancellationToken);
+            => (await gameService.GetGamesForOwnerAsync(ownerId, cancellationToken)).ThrowIfFailed();
 
         public async Task<IReadOnlyList<GameDTO>> GetAvailableGamesForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
-            => await this.GetListAsync($"games/renter/{renterAccountId}/available", cancellationToken);
-
-        public async Task<IReadOnlyList<GameDTO>> SearchGamesAsync(GameSearchCriteriaDTO criteria, CancellationToken cancellationToken = default)
-        {
-            using var response = await this.httpClient.PostAsJsonAsync("games/search", criteria, cancellationToken);
-            var summaries = await HttpProxyClient.ReadAsync<List<GameSummaryDTO>>(response, cancellationToken);
-            this.RebaseImageUrls(summaries);
-            return summaries.Select(GameDtoMapper.FromSummary).ToList();
-        }
+            => (await gameService.GetAvailableGamesForRenterAsync(renterAccountId, cancellationToken)).ThrowIfFailed();
 
         public async Task CreateGameAsync(GameDTO body, CancellationToken cancellationToken = default)
-        {
-            using var response = await this.httpClient.PostAsJsonAsync("games", GameDtoMapper.ToSummary(body), cancellationToken);
-            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
-        }
+            => (await gameService.CreateGameAsync(body, cancellationToken)).ThrowIfFailed();
 
         public async Task UpdateGameAsync(int gameId, GameDTO body, CancellationToken cancellationToken = default)
-        {
-            using var response = await this.httpClient.PutAsJsonAsync($"games/{gameId}", GameDtoMapper.ToSummary(body), cancellationToken);
-            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
-        }
+            => (await gameService.UpdateGameAsync(gameId, body, cancellationToken)).ThrowIfFailed();
 
         public async Task DeleteGameAsync(int gameId, CancellationToken cancellationToken = default)
-        {
-            using var response = await this.httpClient.DeleteAsync($"games/{gameId}", cancellationToken);
-            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
-        }
-
-        private async Task<IReadOnlyList<GameDTO>> GetListAsync(string requestPath, CancellationToken cancellationToken)
-        {
-            using var response = await this.httpClient.GetAsync(requestPath, cancellationToken);
-            var summaries = await HttpProxyClient.ReadAsync<List<GameSummaryDTO>>(response, cancellationToken);
-            this.RebaseImageUrls(summaries);
-            return summaries.Select(GameDtoMapper.FromSummary).ToList();
-        }
-
-        private void RebaseImageUrls(List<GameSummaryDTO> summaries)
-        {
-            string apiOrigin = this.httpClient.BaseAddress!.GetLeftPart(UriPartial.Authority);
-            foreach (var summary in summaries)
-            {
-                if (!string.IsNullOrEmpty(summary.ImageUrl) && summary.ImageUrl.StartsWith("/"))
-                {
-                    summary.ImageUrl = apiOrigin + summary.ImageUrl;
-                }
-            }
-        }
+            => (await gameService.DeleteGameAsync(gameId, cancellationToken)).ThrowIfFailed();
     }
 }

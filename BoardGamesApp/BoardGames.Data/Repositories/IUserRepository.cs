@@ -1,6 +1,6 @@
-// <copyright file="IUserRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+//// <copyright file="IUserRepository.cs" company="PlaceholderCompany">
+//// Copyright (c) PlaceholderCompany. All rights reserved.
+//// </copyright>
 
 using BoardGames.Data.Models;
 
@@ -15,9 +15,7 @@ namespace BoardGames.Data.Repositories
         public Task<decimal> GetUserBalance(int userId);
 
         public Task UpdateBalance(int userId, decimal newBalance);
-
         Task<User?> Login(string emailOrUsername, string password);
-
         Task<bool> Register(User newUser);
     }
 }

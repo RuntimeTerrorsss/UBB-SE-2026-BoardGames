@@ -1,7 +1,3 @@
-// <copyright file="NotificationType.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Data.Enums
 {
     internal static class NotificationTypeValues
@@ -15,6 +11,6 @@ namespace BoardGames.Data.Enums
     {
         Informational = NotificationTypeValues.Informational,
         OfferReceived = NotificationTypeValues.OfferReceived,
-        OfferResult = NotificationTypeValues.OfferResult,
+        OfferResult = NotificationTypeValues.OfferResult
     }
 }

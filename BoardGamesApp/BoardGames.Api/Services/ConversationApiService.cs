@@ -1,7 +1,3 @@
-// <copyright file="ConversationApiService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +5,11 @@ using System.Threading.Tasks;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.Helpers;
 
 namespace BoardGames.Api.Services
 {
     public class ConversationApiService : IConversationApiService
     {
-        private const int NewMessageIdentifier = 0;
-        private const int MissingLinkedIdentifier = -1;
-
         private readonly IConversationRepository conversationRepository;
         private readonly IAccountRepository accountRepository;
 
@@ -29,23 +21,17 @@ namespace BoardGames.Api.Services
 
         public async Task<List<ConversationDTO>> GetConversationsForUser(Guid accountId)
         {
-            int pamUserId = await this.GetPamUserIdAsync(accountId);
-            var conversations = await this.conversationRepository.GetConversationsForUser(pamUserId);
-            var dtos = new List<ConversationDTO>();
-            foreach (var conversation in conversations)
-            {
-                dtos.Add(await this.MapConversationToDTOAsync(conversation));
-            }
-
-            return dtos;
+            int pamUserId = await GetPamUserIdAsync(accountId);
+            var conversations = await conversationRepository.GetConversationsForUser(pamUserId);
+            return conversations.Select(MapConversationToDTO).ToList();
         }
 
         public async Task<ConversationDTO?> GetConversationById(int conversationId)
         {
             try
             {
-                var conversation = await this.conversationRepository.GetConversationById(conversationId);
-                return await this.MapConversationToDTOAsync(conversation);
+                var conversation = await conversationRepository.GetConversationById(conversationId);
+                return MapConversationToDTO(conversation);
             }
             catch (InvalidOperationException)
             {
@@ -56,7 +42,7 @@ namespace BoardGames.Api.Services
         public async Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto)
         {
             var entity = MapDtoToEntity(dto);
-            entity.MessageId = NewMessageIdentifier;
+            entity.MessageId = 0;
             var persisted = await conversationRepository.HandleNewMessage(entity);
             return MapEntityToDto(persisted);
         }
@@ -64,27 +50,27 @@ namespace BoardGames.Api.Services
         public async Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto)
         {
             var entity = MapDtoToEntity(dto);
-            var updated = await this.conversationRepository.HandleMessageUpdate(entity);
+            var updated = await conversationRepository.HandleMessageUpdate(entity);
             return updated is null ? null : MapEntityToDto(updated);
         }
 
-        public async Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto)
+        public async Task HandleReadReceipt(ReadReceiptDTO dto)
         {
-            await this.conversationRepository.HandleReadReceipt(dto);
+            await conversationRepository.HandleReadReceipt(dto);
         }
 
         public async Task<int> FindOrCreateConversation(Guid accountIdA, Guid accountIdB)
         {
-            int pamUserIdA = await this.GetPamUserIdAsync(accountIdA);
-            int pamUserIdB = await this.GetPamUserIdAsync(accountIdB);
-            return await this.conversationRepository.FindOrCreateConversationBetweenUsers(pamUserIdA, pamUserIdB);
+            int pamUserIdA = await GetPamUserIdAsync(accountIdA);
+            int pamUserIdB = await GetPamUserIdAsync(accountIdB);
+            return await conversationRepository.FindOrCreateConversationBetweenUsers(pamUserIdA, pamUserIdB);
         }
 
         public async Task AttachRentalRequestMessage(int requestId, Guid renterAccountId, Guid ownerAccountId, string gameName, DateTime start, DateTime end)
         {
-            int renterPamId = await this.GetPamUserIdAsync(renterAccountId);
-            int ownerPamId = await this.GetPamUserIdAsync(ownerAccountId);
-            int conversationId = await this.conversationRepository.FindOrCreateConversationBetweenUsers(renterPamId, ownerPamId);
+            int renterPamId = await GetPamUserIdAsync(renterAccountId);
+            int ownerPamId = await GetPamUserIdAsync(ownerAccountId);
+            int conversationId = await conversationRepository.FindOrCreateConversationBetweenUsers(renterPamId, ownerPamId);
 
             string content = $"[req:{requestId}] Rental request for {gameName} from {start:d} to {end:d}.";
             var message = new RentalRequestMessage
@@ -92,7 +78,7 @@ namespace BoardGames.Api.Services
                 ConversationId = conversationId,
                 MessageSenderId = renterPamId,
                 MessageReceiverId = ownerPamId,
-                RentalRequestId = null,
+                RentalRequestId = 0,
                 RequestContent = content,
                 MessageContentAsString = content,
                 MessageSentTime = DateTime.UtcNow,
@@ -103,63 +89,51 @@ namespace BoardGames.Api.Services
                 Receiver = null!,
             };
 
-            await this.conversationRepository.HandleNewMessage(message);
-        }
-
-        public async Task AcceptRentalRequestMessage(int requestId, int rentalId)
-        {
-            await this.conversationRepository.AcceptRentalRequestByRequestId(requestId, rentalId);
+            await conversationRepository.HandleNewMessage(message);
         }
 
         public async Task FinalizeRentalRequestMessage(int requestId, bool accepted)
         {
-            var message = await this.conversationRepository.FindRentalRequestMessageByRequestId(requestId);
+            var message = await conversationRepository.FindRentalRequestMessageByRequestId(requestId);
             if (message is null)
             {
                 return;
             }
 
-            await this.conversationRepository.FinalizeRentalRequestByMessageId(message.MessageId, accepted);
+            message.IsRequestResolved = true;
+            message.IsRequestAccepted = accepted;
+            await conversationRepository.HandleMessageUpdate(message);
         }
 
         public async Task<MessageDataTransferObject?> CreateCashAgreementMessage(int parentMessageId, int paymentId)
         {
-            var created = await this.conversationRepository.CreateCashAgreementMessage(parentMessageId, paymentId);
+            var created = await conversationRepository.CreateCashAgreementMessage(parentMessageId, paymentId);
             return created is null ? null : MapEntityToDto(created);
         }
 
         private async Task<int> GetPamUserIdAsync(Guid accountId)
         {
-            var user = await this.accountRepository.GetByIdAsync(accountId);
+            var user = await accountRepository.GetByIdAsync(accountId);
             return user?.PamUserId ?? throw new KeyNotFoundException($"User with account id {accountId} not found.");
         }
 
-        private async Task<ConversationDTO> MapConversationToDTOAsync(Conversation conversation)
+        private static ConversationDTO MapConversationToDTO(Conversation conversation)
         {
             var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDataTransferObject>();
-            var participantUserIds = conversation.Participants?.Select(participant => participant.UserId).ToList() ?? new List<int>();
             var lastRead = conversation.Participants?
-                .Where(participant => participant.LastMessageReadTime.HasValue)
-                .ToDictionary(participant => participant.UserId, participant => participant.LastMessageReadTime!.Value)
+                .Where(p => p.LastMessageReadTime.HasValue)
+                .ToDictionary(p => p.UserId, p => p.LastMessageReadTime!.Value)
                 ?? new Dictionary<int, DateTime>();
-
-            var dto = new ConversationDTO(conversation.ConversationId, participantUserIds, messages, lastRead);
-
-            foreach (var pamUserId in participantUserIds)
-            {
-                var user = await this.accountRepository.GetByPamUserIdAsync(pamUserId);
-                if (user != null)
-                {
-                    dto.ParticipantDisplayNames[pamUserId] = user.DisplayName;
-                }
-            }
-
-            return dto;
+            return new ConversationDTO(
+                conversation.ConversationId,
+                conversation.Participants ?? new List<ConversationParticipant>(),
+                messages,
+                lastRead);
         }
 
         private static MessageDataTransferObject MapEntityToDto(Message message)
         {
-            int defaultMissingIdentifier = -1;
+            const int defaultMissingIdentifier = -1;
 
             MessageType messageType = message switch
             {
@@ -194,27 +168,8 @@ namespace BoardGames.Api.Services
                 IsAccepted: message is RentalRequestMessage ram ? ram.IsRequestAccepted : false,
                 IsAcceptedByBuyer: message is CashAgreementMessage camb ? camb.IsCashAgreementAcceptedByBuyer : false,
                 IsAcceptedBySeller: message is CashAgreementMessage cams ? cams.IsCashAgreementAcceptedBySeller : false,
-                RequestId: message is RentalRequestMessage rrm2
-                    ? ResolveRentalRequestId(rrm2, defaultMissingIdentifier)
-                    : defaultMissingIdentifier,
-                PaymentId: message is CashAgreementMessage cam2 ? cam2.CashPaymentId : defaultMissingIdentifier,
-                RentalId: message is RentalRequestMessage rrm3
-                    ? ResolveRentalId(rrm3, defaultMissingIdentifier)
-                    : defaultMissingIdentifier);
-        }
-
-        private static int ResolveRentalRequestId(RentalRequestMessage rentalMessage, int missingId)
-        {
-            string content = rentalMessage.RequestContent ?? rentalMessage.MessageContentAsString ?? string.Empty;
-            int requestId = RentalRequestMessageHelper.TryParseRequestIdFromContent(content);
-            return requestId > 0 ? requestId : missingId;
-        }
-
-        private static int ResolveRentalId(RentalRequestMessage rentalMessage, int missingId)
-        {
-            string content = rentalMessage.RequestContent ?? rentalMessage.MessageContentAsString ?? string.Empty;
-            int rentalId = RentalRequestMessageHelper.ResolveRentalId(rentalMessage.RentalRequestId ?? missingId, content);
-            return rentalId > 0 ? rentalId : missingId;
+                RequestId: message is RentalRequestMessage rrm2 ? rrm2.RentalRequestId : defaultMissingIdentifier,
+                PaymentId: message is CashAgreementMessage cam2 ? cam2.CashPaymentId : defaultMissingIdentifier);
         }
 
         private static Message MapDtoToEntity(MessageDataTransferObject dto)
@@ -255,7 +210,7 @@ namespace BoardGames.Api.Services
                     MessageReceiverId = dto.ReceiverId,
                     MessageSentTime = dto.SentAt,
                     MessageContentAsString = dto.Content,
-                    RentalRequestId = dto.RentalId > 0 ? dto.RentalId : null,
+                    RentalRequestId = dto.RequestId,
                     IsRequestResolved = dto.IsResolved,
                     IsRequestAccepted = dto.IsAccepted,
                     RequestContent = dto.Content,

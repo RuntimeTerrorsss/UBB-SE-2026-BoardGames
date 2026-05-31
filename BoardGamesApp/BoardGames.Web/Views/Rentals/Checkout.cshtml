@@ -1,53 +1,100 @@
-@model BoardGames.Shared.DTO.RentalCheckoutDTO
+@using BoardGames.Web.Models.Rentals
+@model RentalCheckoutViewModel
 @{
-    ViewData["Title"] = "Checkout";
-    int requestId = (int)ViewBag.RequestId;
-    int messageId = (int)ViewBag.MessageId;
+    ViewData["Title"] = "Complete Rental";
 }
 
-<div class="container py-4" style="max-width: 640px;">
-    <a asp-controller="Chats" asp-action="Index" class="btn btn-link ps-0 mb-2">&larr; Back to chat</a>
+<link rel="stylesheet" href="~/css/rentals.css" asp-append-version="true" />
 
-    <h1 class="h3 mb-3">Delivery &amp; payment</h1>
-    <p class="text-secondary">@Model.GameName · @Model.DateRange</p>
-    <p class="mb-1"><strong>Owner:</strong> @Model.OwnerName</p>
-    <p><strong>Total:</strong> @Model.Price.ToString("C")</p>
+<div class="rentals-page">
+    <a asp-controller="Chats" asp-action="Index" class="btn btn-outline-secondary mb-3">← Back to Messages</a>
 
-    @if (TempData["PaymentError"] is string paymentError)
-    {
-        <div class="alert alert-danger">@paymentError</div>
-    }
+    <h2 class="rentals-title">Complete your rental</h2>
+    <p class="rentals-subtitle mb-4">Review the booking, enter delivery details, then continue to payment.</p>
 
-    <form asp-action="CompletePayment" method="post" class="mt-4">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="rentalId" value="@Model.RentalId" />
-        <input type="hidden" name="requestId" value="@requestId" />
-        <input type="hidden" name="messageId" value="@messageId" />
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="rentals-summary-card h-100">
+                <span class="rentals-summary-label">Game</span>
+                <span class="rentals-summary-value d-block mb-3">@Model.GameName</span>
 
-        <p class="small text-secondary mb-3">Enter your card details to complete the rental payment.</p>
+                <span class="rentals-summary-label">Owner</span>
+                <span class="rentals-summary-value d-block mb-3">@Model.OwnerName</span>
 
-        <div class="mb-3">
-            <label class="form-label">Cardholder name</label>
-            <input class="form-control" name="cardholderName" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Card number</label>
-            <input class="form-control" name="cardNumber" placeholder="4242 4242 4242 4242" required />
-        </div>
-        <div class="row mb-3">
-            <div class="col-6">
-                <label class="form-label">Expiry (MM/YY)</label>
-                <input class="form-control" name="expiryDate" placeholder="MM/YY" maxlength="5" required />
-            </div>
-            <div class="col-6">
-                <label class="form-label">CVV</label>
-                <input class="form-control" name="cardVerificationValue" placeholder="123" maxlength="4" required />
+                <span class="rentals-summary-label">Rental period</span>
+                <span class="rentals-summary-value d-block mb-3">
+                    @Model.StartDate.ToString("dd MMM yyyy") – @Model.EndDate.ToString("dd MMM yyyy")
+                </span>
+
+                <span class="rentals-summary-label">Total</span>
+                <span class="rentals-summary-value">@Model.TotalPrice.ToString("C")</span>
             </div>
         </div>
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="terms" required />
-            <label class="form-check-label" for="terms">I agree to pay @Model.Price.ToString("C") with this card</label>
+
+        <div class="col-lg-7">
+            <form asp-action="Checkout" method="post" class="border rounded-3 p-4 bg-white shadow-sm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="RentalId" />
+                <input type="hidden" asp-for="MessageId" />
+                <input type="hidden" asp-for="GameId" />
+                <input type="hidden" asp-for="GameName" />
+                <input type="hidden" asp-for="OwnerName" />
+                <input type="hidden" asp-for="ClientId" />
+                <input type="hidden" asp-for="OwnerId" />
+                <input type="hidden" asp-for="StartDate" />
+                <input type="hidden" asp-for="EndDate" />
+                <input type="hidden" asp-for="TotalPrice" />
+
+                <h5 class="fw-semibold mb-3">Delivery address</h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Country" class="form-label"></label>
+                        <input asp-for="Country" class="form-control" />
+                        <span asp-validation-for="Country" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="City" class="form-label"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="Street" class="form-label"></label>
+                        <input asp-for="Street" class="form-control" />
+                        <span asp-validation-for="Street" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="StreetNumber" class="form-label"></label>
+                        <input asp-for="StreetNumber" class="form-control" />
+                        <span asp-validation-for="StreetNumber" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input asp-for="SaveAddress" class="form-check-input" />
+                    <label asp-for="SaveAddress" class="form-check-label"></label>
+                </div>
+
+                <hr class="my-4" />
+
+                <h5 class="fw-semibold mb-3">Payment method</h5>
+                <div class="d-flex gap-3 mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Card" id="payCard" checked />
+                        <label class="form-check-label" for="payCard">Card</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Cash" id="payCash" />
+                        <label class="form-check-label" for="payCash">Cash on delivery</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Continue to payment</button>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">Pay @Model.Price.ToString("C")</button>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

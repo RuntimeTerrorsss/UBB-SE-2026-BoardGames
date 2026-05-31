@@ -1,7 +1,7 @@
-// <copyright file="IRequestService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
@@ -14,18 +14,18 @@ namespace BoardGames.Shared.ProxyServices
 
         Task<ServiceResult<IReadOnlyList<RequestDTO>>> GetOpenRequestsForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<int>> CreateRequestAsync(CreateRequestDTO request, CancellationToken cancellationToken = default);
+        Task<ServiceResult<int>> CreateRequestAsync(CreateRequestDataTransferObject request, CancellationToken cancellationToken = default);
 
         Task<ServiceResult<int>> ApproveRequestAsync(int requestId, Guid ownerAccountId, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<int>> DenyRequestAsync(int requestId, RequestActionDTO action, CancellationToken cancellationToken = default);
+        Task<ServiceResult<int>> DenyRequestAsync(int requestId, RequestActionDataTransferObject action, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<int>> CancelRequestAsync(int requestId, RequestActionDTO action, CancellationToken cancellationToken = default);
+        Task<ServiceResult<int>> CancelRequestAsync(int requestId, RequestActionDataTransferObject action, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<int>> OfferGameAsync(int requestId, RequestActionDTO action, CancellationToken cancellationToken = default);
+        Task<ServiceResult<int>> OfferGameAsync(int requestId, RequestActionDataTransferObject action, CancellationToken cancellationToken = default);
 
         Task<ServiceResult<bool>> CheckAvailabilityAsync(int gameId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<IReadOnlyList<BookedDateRangeDTO>>> GetBookedDatesAsync(int gameId, int calendarMonth, int calendarYear, CancellationToken cancellationToken = default);
+        Task<ServiceResult<IReadOnlyList<BookedDateRangeDataTransferObject>>> GetBookedDatesAsync(int gameId, int calendarMonth, int calendarYear, CancellationToken cancellationToken = default);
     }
 }

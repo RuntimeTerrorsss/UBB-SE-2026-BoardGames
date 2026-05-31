@@ -1,8 +1,4 @@
-// <copyright file="BaseViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Desktop.ViewModels;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -47,7 +43,7 @@ namespace BoardGames.Tests.ViewModels
             var viewModel = new BaseViewModel();
 
             Assert.That(viewModel.IsLoading, Is.False);
-            Assert.That(viewModel.ErrorMessage, Is.EqualTo(string.Empty));
+            Assert.That(viewModel.ErrorMessage, Is.Null);
         }
     }
 }

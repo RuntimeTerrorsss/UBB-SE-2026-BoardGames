@@ -1,8 +1,8 @@
-// <copyright file="HttpResponseEnsurer.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BoardGames.Web.Infrastructure
 {

@@ -1,13 +1,11 @@
-// <copyright file="RequestActionDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
 
 namespace BoardGames.Shared.DTO
 {
-    public class RequestActionDTO
+    public class RequestActionDataTransferObject
     {
         public Guid AccountId { get; set; }
 
-        public string? Reason { get; set; }
+        public string Reason { get; set; }
     }
 }

@@ -1,7 +1,6 @@
-// <copyright file="AppDbContext.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -16,36 +15,27 @@ namespace BoardGames.Data
         private static readonly Guid DariusAccountId = new Guid("00000000-0000-0000-0000-000000000011");
         private static readonly Guid MihaiAccountId = new Guid("00000000-0000-0000-0000-000000000012");
 
-        private const string SeedDevPasswordHash = "AS4o2F+W83jN8MHnd4zAew==:FPY9GW3I5FVc3HXVLTiTNuGBYoFvDbNlMKrqE/xqIQA=";
+        private const string SeedDevPasswordHash = "uDsZUEmrma0uYI3Jszc4zA==:VX158vwbXUFhq/hkFoNOvOYZJgS5od0LYCbwn1dYF+8=";
 
         public AppDbContext() { }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        // DbSets from project 1
         public DbSet<User> Users { get; set; }
-
         public DbSet<Game> Games { get; set; }
-
         public DbSet<Rental> Rentals { get; set; }
-
         public DbSet<Payment> Payments { get; set; }
-
         public DbSet<Conversation> Conversations { get; set; }
-
         public DbSet<Message> Messages { get; set; }
-
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
-
         public DbSet<City> Cities { get; set; }
+
+        // DbSets from project 2
         public DbSet<Role> Roles { get; set; }
-
         public DbSet<AccountRole> AccountRoles { get; set; }
-
         public DbSet<FailedLoginAttempt> FailedLoginAttempts { get; set; }
-
         public DbSet<Request> Requests { get; set; }
-
         public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -216,9 +206,11 @@ namespace BoardGames.Data
                       .IsRequired(false);
             });
 
+            // Composite key for ConversationParticipant
             modelBuilder.Entity<ConversationParticipant>()
                 .HasKey(participant => new { participant.ConversationId, participant.UserId });
 
+            // Message TPH hierarchy
             modelBuilder.Entity<Message>()
                 .HasDiscriminator<string>("MessageCategory")
                 .HasValue<TextMessage>("Text")
@@ -227,6 +219,7 @@ namespace BoardGames.Data
                 .HasValue<RentalRequestMessage>("RentalRequest")
                 .HasValue<CashAgreementMessage>("CashAgreement");
 
+            // Message → User relationships
             modelBuilder.Entity<Message>()
                 .HasOne(message => message.Sender)
                 .WithMany()
@@ -241,6 +234,7 @@ namespace BoardGames.Data
                 .HasPrincipalKey(user => user.PamUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Derived Message relationships
             modelBuilder.Entity<RentalRequestMessage>()
                 .HasOne(message => message.RentalRequest)
                 .WithMany(rental => rental.Messages)
@@ -253,6 +247,7 @@ namespace BoardGames.Data
                 .HasForeignKey(message => message.CashPaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Conversation Participants → User
             modelBuilder.Entity<ConversationParticipant>()
                 .HasOne(participant => participant.User)
                 .WithMany(user => user.Conversations)
@@ -264,11 +259,13 @@ namespace BoardGames.Data
                 .Property(city => city.Names)
                 .HasConversion(
                     namesList => string.Join(',', namesList),
-                    commaSeparatedNames => commaSeparatedNames.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList())
+                    commaSeparatedNames => commaSeparatedNames.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                )
                 .Metadata.SetValueComparer(new ValueComparer<List<string>>(
                     (list1, list2) => list1.SequenceEqual(list2),
                     namesList => namesList.Aggregate(0, (accumulator, name) => HashCode.Combine(accumulator, name.GetHashCode())),
-                    namesList => namesList.ToList()));
+                    namesList => namesList.ToList()
+                ));
 
             SeedData(modelBuilder);
         }

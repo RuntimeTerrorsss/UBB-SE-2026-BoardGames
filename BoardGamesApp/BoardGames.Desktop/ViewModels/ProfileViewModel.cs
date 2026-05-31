@@ -1,26 +1,24 @@
-// <copyright file="ProfileViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BoardGames.Desktop.Commands;
-using BoardGames.Desktop.Constants;
-using BoardGames.Desktop.Services;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
-
 namespace BoardGames.Desktop.ViewModels
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using BoardGames.Desktop.Services;
+    using BoardGames.Desktop.Constants;
+    using BoardGames.Shared.DTO;
+    using BoardGames.Desktop.Services;
+    using CommunityToolkit.Mvvm.Input;
+    using Microsoft.UI.Xaml.Media;
+    using Microsoft.UI.Xaml.Media.Imaging;
+    using ApiAccountService = BoardGames.Shared.ProxyServices.IAccountService;
+    using ApiAuthService = BoardGames.Shared.ProxyServices.IAuthService;
+
     public partial class ProfileViewModel : BaseViewModel
     {
-        private readonly IAccountService accountService;
-        private readonly IAuthService authService;
+        private readonly ApiAccountService accountService;
+        private readonly ApiAuthService authService;
         private readonly IFilePickerService filePickerService;
         private readonly ISessionContext sessionContext;
 
@@ -45,12 +43,10 @@ namespace BoardGames.Desktop.ViewModels
         private string confirmPasswordError = string.Empty;
         private string currentPasswordError = string.Empty;
         private string newPasswordError = string.Empty;
-        private string errorMessage = string.Empty;
-        private bool isLoading;
 
         public ProfileViewModel(
-            IAccountService accountService,
-            IAuthService authService,
+            ApiAccountService accountService,
+            ApiAuthService authService,
             IFilePickerService filePickerService,
             ISessionContext sessionContext)
         {
@@ -60,6 +56,7 @@ namespace BoardGames.Desktop.ViewModels
             this.sessionContext = sessionContext;
 
             AvailableCountries.Clear();
+
             foreach (var currentCountry in DomainConstants.CountryList)
             {
                 AvailableCountries.Add(currentCountry);
@@ -77,55 +74,31 @@ namespace BoardGames.Desktop.ViewModels
         public ObservableCollection<string> AvailableCountries { get; } = new();
 
         public string Username { get => username; set => this.SetProperty(ref username, value); }
-
         public string DisplayName { get => displayName; set => this.SetProperty(ref displayName, value); }
-
         public string Email { get => email; set => this.SetProperty(ref email, value); }
-
         public string PhoneNumber { get => phoneNumber; set => this.SetProperty(ref phoneNumber, value); }
-
         public string Country { get => country; set => this.SetProperty(ref country, value); }
-
         public string City { get => city; set => this.SetProperty(ref city, value); }
-
         public string StreetName { get => streetName; set => this.SetProperty(ref streetName, value); }
-
         public string StreetNumber { get => streetNumber; set => this.SetProperty(ref streetNumber, value); }
-
         public string CurrentPassword { get => currentPassword; set => this.SetProperty(ref currentPassword, value); }
-
         public string NewPassword { get => newPassword; set => this.SetProperty(ref newPassword, value); }
-
         public string ConfirmPassword { get => confirmPassword; set => this.SetProperty(ref confirmPassword, value); }
 
         public string ConfirmPasswordError { get => confirmPasswordError; set => this.SetProperty(ref confirmPasswordError, value); }
-
         public string CurrentPasswordError { get => currentPasswordError; set => this.SetProperty(ref currentPasswordError, value); }
-
         public string NewPasswordError { get => newPasswordError; set => this.SetProperty(ref newPasswordError, value); }
-
         public string EmailError { get => emailError; set => this.SetProperty(ref emailError, value); }
-
         public string DisplayNameError { get => displayNameError; set => this.SetProperty(ref displayNameError, value); }
-
         public string PhoneError { get => phoneError; set => this.SetProperty(ref phoneError, value); }
-
         public string StreetNumberError { get => streetNumberError; set => this.SetProperty(ref streetNumberError, value); }
-
-        public string ErrorMessage { get => errorMessage; set => this.SetProperty(ref errorMessage, value); }
-
-        public bool IsLoading { get => isLoading; set => this.SetProperty(ref isLoading, value); }
 
         public IEnumerable<string> Countries => DomainConstants.CountryList;
 
         public ICommand SaveProfileCommand { get; }
-
         public ICommand SelectAvatarCommand { get; }
-
         public ICommand RemoveAvatarCommand { get; }
-
         public ICommand SaveNewPasswordCommand { get; }
-
         public ICommand SignOutCommand { get; }
 
         public string AvatarUrl
@@ -149,14 +122,21 @@ namespace BoardGames.Desktop.ViewModels
                     return null;
                 }
 
-                try { return new BitmapImage(new Uri(AvatarUrl)); }
-                catch (UriFormatException) { return null; }
+                try
+                {
+                    return new BitmapImage(new Uri(AvatarUrl));
+                }
+                catch (UriFormatException)
+                {
+                    return null;
+                }
             }
         }
 
         public async Task LoadProfileAsync()
         {
             this.IsLoading = true;
+
             Username = sessionContext.Username;
             DisplayName = sessionContext.DisplayName;
             Email = sessionContext.Email;
@@ -168,7 +148,9 @@ namespace BoardGames.Desktop.ViewModels
 
             this.OnPropertyChanged(nameof(ProfileImage));
 
-            var profileResult = await accountService.GetProfileAsync(sessionContext.AccountId);
+            Guid currentAccountId = sessionContext.AccountId;
+            var profileResult = await accountService.GetProfileAsync(currentAccountId);
+
             if (profileResult.Success && profileResult.Data != null)
             {
                 this.ApplyProfile(profileResult.Data);
@@ -182,7 +164,9 @@ namespace BoardGames.Desktop.ViewModels
             this.IsLoading = true;
             ClearErrors();
 
-            AccountProfileDTO updateInformation = new AccountProfileDTO
+            Guid currentAccountId = sessionContext.AccountId;
+
+            AccountProfileDataTransferObject updateInformation = new AccountProfileDataTransferObject
             {
                 DisplayName = DisplayName,
                 Email = Email,
@@ -190,15 +174,16 @@ namespace BoardGames.Desktop.ViewModels
                 Country = Country,
                 City = City,
                 StreetName = StreetName,
-                StreetNumber = StreetNumber,
+                StreetNumber = StreetNumber
             };
 
-            var updateResult = await accountService.UpdateProfileAsync(sessionContext.AccountId, updateInformation);
+            var updateResult = await accountService.UpdateProfileAsync(currentAccountId, updateInformation);
+
             if (updateResult.Success)
             {
                 if (!string.IsNullOrEmpty(pendingAvatarPath))
                 {
-                    var avatarUploadResult = await accountService.UploadAvatarAsync(sessionContext.AccountId, pendingAvatarPath);
+                    var avatarUploadResult = await accountService.UploadAvatarAsync(currentAccountId, pendingAvatarPath);
                     if (!avatarUploadResult.Success)
                     {
                         this.ProcessValidationErrors(avatarUploadResult.Error);
@@ -210,7 +195,7 @@ namespace BoardGames.Desktop.ViewModels
                     pendingAvatarPath = string.Empty;
                 }
 
-                var refreshedProfileResult = await accountService.GetProfileAsync(sessionContext.AccountId);
+                var refreshedProfileResult = await accountService.GetProfileAsync(currentAccountId);
                 if (refreshedProfileResult.Success && refreshedProfileResult.Data != null)
                 {
                     sessionContext.Populate(refreshedProfileResult.Data);
@@ -232,13 +217,21 @@ namespace BoardGames.Desktop.ViewModels
             try
             {
                 string selectedFilePath = await filePickerService.PickImageFileAsync();
+
                 if (selectedFilePath != null)
                 {
                     pendingAvatarPath = selectedFilePath;
                     AvatarUrl = selectedFilePath;
                 }
             }
-            catch (Exception ex) { this.ErrorMessage = ex.Message; }
+            catch (UnauthorizedAccessException ex)
+            {
+                this.ErrorMessage = "Access to the file was denied: " + ex.Message;
+            }
+            catch (InvalidOperationException ex)
+            {
+                this.ErrorMessage = ex.Message;
+            }
         }
 
         private async Task RemoveAvatarAsync()
@@ -248,28 +241,41 @@ namespace BoardGames.Desktop.ViewModels
             {
                 AvatarUrl = string.Empty;
                 pendingAvatarPath = string.Empty;
+                return;
             }
-            else this.ErrorMessage = removeAvatarResult.Error ?? "Failed to remove avatar.";
+
+            this.ErrorMessage = removeAvatarResult.Error ?? "Failed to remove avatar.";
         }
 
         private async Task SaveNewPasswordAsync()
         {
             ConfirmPasswordError = string.Empty;
+            CurrentPasswordError = string.Empty;
+            NewPasswordError = string.Empty;
+            this.ErrorMessage = string.Empty;
+
             if (NewPassword != ConfirmPassword)
             {
                 ConfirmPasswordError = "Passwords do not match.";
                 return;
             }
 
-            var result = await accountService.ChangePasswordAsync(sessionContext.AccountId, CurrentPassword, NewPassword);
-            if (result.Success)
+            var passwordChangeResult = await accountService.ChangePasswordAsync(
+                sessionContext.AccountId,
+                CurrentPassword,
+                NewPassword);
+
+            if (passwordChangeResult.Success)
             {
                 sessionContext.Clear();
-                this.ErrorMessage = "Password updated. Redirecting...";
+                this.ErrorMessage = "Password updated. Redirecting to login...";
                 await Task.Delay(2000);
                 await SignOutAsync();
             }
-            else this.ErrorMessage = result.Error ?? "Failed to change password.";
+            else
+            {
+                this.ErrorMessage = passwordChangeResult.Error;
+            }
         }
 
         private async Task SignOutAsync()
@@ -279,7 +285,7 @@ namespace BoardGames.Desktop.ViewModels
             OnSignOutSuccess?.Invoke();
         }
 
-        private void ApplyProfile(AccountProfileDTO profile)
+        private void ApplyProfile(AccountProfileDataTransferObject profile)
         {
             Username = profile.Username;
             DisplayName = profile.DisplayName;
@@ -294,7 +300,11 @@ namespace BoardGames.Desktop.ViewModels
 
         private void ClearErrors()
         {
-            EmailError = DisplayNameError = PhoneError = StreetNumberError = ErrorMessage = string.Empty;
+            EmailError = string.Empty;
+            DisplayNameError = string.Empty;
+            PhoneError = string.Empty;
+            StreetNumberError = string.Empty;
+            this.ErrorMessage = string.Empty;
         }
 
         private void ProcessValidationErrors(string errorString)
@@ -304,7 +314,8 @@ namespace BoardGames.Desktop.ViewModels
                 return;
             }
 
-            foreach (string error in errorString.Split(';'))
+            string[] errors = errorString.Split(';');
+            foreach (string error in errors)
             {
                 string[] parts = error.Split('|');
                 if (parts.Length < 2)
@@ -314,11 +325,21 @@ namespace BoardGames.Desktop.ViewModels
 
                 switch (parts[0])
                 {
-                    case "Email": EmailError = parts[1]; break;
-                    case "DisplayName": DisplayNameError = parts[1]; break;
-                    case "PhoneNumber": PhoneError = parts[1]; break;
-                    case "StreetNumber": StreetNumberError = parts[1]; break;
-                    default: this.ErrorMessage = parts[1]; break;
+                    case "Email":
+                        EmailError = parts[1];
+                        break;
+                    case "DisplayName":
+                        DisplayNameError = parts[1];
+                        break;
+                    case "PhoneNumber":
+                        PhoneError = parts[1];
+                        break;
+                    case "StreetNumber":
+                        StreetNumberError = parts[1];
+                        break;
+                    default:
+                        this.ErrorMessage = parts[1];
+                        break;
                 }
             }
         }

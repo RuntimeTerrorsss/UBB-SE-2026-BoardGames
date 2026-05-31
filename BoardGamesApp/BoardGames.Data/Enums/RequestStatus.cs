@@ -1,7 +1,3 @@
-// <copyright file="RequestStatus.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Data.Enums
 {
     internal static class RequestStatusValues
@@ -17,6 +13,6 @@ namespace BoardGames.Data.Enums
         Open = RequestStatusValues.Open,
         OfferPending = RequestStatusValues.OfferPending,
         Accepted = RequestStatusValues.Accepted,
-        Cancelled = RequestStatusValues.Cancelled,
+        Cancelled = RequestStatusValues.Cancelled
     }
 }

@@ -1,7 +1,5 @@
-// <copyright file="User.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,18 +12,18 @@ namespace BoardGames.Data.Models
 
         public User(Guid id, int pamUserId, string username, string displayName, string email, string passwordHash, string country, string city, string? streetName, string? streetNumber, string? avatarUrl, decimal balance)
         {
-            this.Id = id;
-            this.PamUserId = pamUserId;
-            this.Username = username;
-            this.DisplayName = displayName;
-            this.Email = email;
-            this.PasswordHash = passwordHash;
-            this.Country = country;
-            this.City = city;
-            this.StreetName = streetName;
-            this.StreetNumber = streetNumber;
-            this.AvatarUrl = avatarUrl;
-            this.Balance = balance;
+            Id = id;
+            PamUserId = pamUserId;
+            Username = username;
+            DisplayName = displayName;
+            Email = email;
+            PasswordHash = passwordHash;
+            Country = country;
+            City = city;
+            StreetName = streetName;
+            StreetNumber = streetNumber;
+            AvatarUrl = avatarUrl;
+            Balance = balance;
         }
 
         [Key]

@@ -1,7 +1,4 @@
-﻿// <copyright file="City.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -12,10 +9,10 @@ public class City
     [SetsRequiredMembers]
     public City(string mainName, List<string> names, double latitude, double longitude)
     {
-        this.MainName = mainName;
-        this.Names = names;
-        this.Latitude = latitude;
-        this.Longitude = longitude;
+        MainName = mainName;
+        Names = names;
+        Latitude = latitude;
+        Longitude = longitude;
     }
 
     public City()

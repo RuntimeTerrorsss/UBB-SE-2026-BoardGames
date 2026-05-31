@@ -1,42 +1,41 @@
-// <copyright file="AddressValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="AddressValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
-using BoardGames.Shared.DTO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BoardGames.Shared.Validators
 {
-    /// <summary>
-    /// Validates address fields on an <see cref="UpdateProfileDTO"/>.
-    /// Returns a map of field-name → error message (empty when the address is valid).
-    /// </summary>
-    public class AddressValidator : IValidator<Dictionary<string, string>, UpdateProfileDTO>
+    public class AddressValidator : IValidator<Dictionary<string, string>, Address>
     {
         private const string RequiredFieldMessage = "is required";
 
-        public Dictionary<string, string> Validate(UpdateProfileDTO profile)
+        public Dictionary<string, string> Validate(Address address)
         {
             var validationErrors = new Dictionary<string, string>();
 
-            if (string.IsNullOrWhiteSpace(profile.Country))
+            if (string.IsNullOrWhiteSpace(address.Country))
             {
-                validationErrors[nameof(profile.Country)] = $"{nameof(profile.Country)} {RequiredFieldMessage}";
+                validationErrors[nameof(address.Country)] = $"{nameof(address.Country)} {RequiredFieldMessage}";
             }
 
-            if (string.IsNullOrWhiteSpace(profile.City))
+            if (string.IsNullOrWhiteSpace(address.City))
             {
-                validationErrors[nameof(profile.City)] = $"{nameof(profile.City)} {RequiredFieldMessage}";
+                validationErrors[nameof(address.City)] = $"{nameof(address.City)} {RequiredFieldMessage}";
             }
 
-            if (string.IsNullOrWhiteSpace(profile.StreetName))
+            if (string.IsNullOrWhiteSpace(address.Street))
             {
-                validationErrors[nameof(profile.StreetName)] = $"{nameof(profile.StreetName)} {RequiredFieldMessage}";
+                validationErrors[nameof(address.Street)] = $"{nameof(address.Street)} {RequiredFieldMessage}";
             }
 
-            if (string.IsNullOrWhiteSpace(profile.StreetNumber))
+            if (string.IsNullOrWhiteSpace(address.StreetNumber))
             {
-                validationErrors[nameof(profile.StreetNumber)] = $"{nameof(profile.StreetNumber)} {RequiredFieldMessage}";
+                validationErrors[nameof(address.StreetNumber)] = $"{nameof(address.StreetNumber)} {RequiredFieldMessage}";
             }
 
             return validationErrors;

@@ -1,14 +1,10 @@
-// <copyright file="RequestService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using BoardGames.Api.Mappers;
 using BoardGames.Data.Constants;
+using BoardGames.Api.Mappers;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
@@ -31,30 +27,29 @@ namespace BoardGames.Api.Services
         private readonly IConversationApiService conversationApiService;
         private readonly RequestMapper requestDtoMapper;
 
-        public RequestService(
-            IRequestRepository requestRepository,
-            IRentalRepository rentalRepository,
-            IGameRepository gameRepository,
-            INotificationService notificationService,
-            IConversationApiService conversationApiService,
-            RequestMapper requestMapper)
+        public RequestService(IRequestRepository requestRepository,
+                              IRentalRepository rentalRepository,
+                              IGameRepository gameRepository,
+                              INotificationService notificationService,
+                              IConversationApiService conversationApiService,
+                              RequestMapper requestMapper)
         {
-            this.requestDataRepository = requestRepository;
-            this.rentalConflictRepository = rentalRepository;
-            this.gameValidationRepository = gameRepository;
-            this.requestNotificationService = notificationService;
+            requestDataRepository = requestRepository;
+            rentalConflictRepository = rentalRepository;
+            gameValidationRepository = gameRepository;
+            requestNotificationService = notificationService;
             this.conversationApiService = conversationApiService;
-            this.requestDtoMapper = requestMapper;
+            requestDtoMapper = requestMapper;
         }
 
         public ImmutableList<RequestDTO> GetRequestsForRenter(Guid renterAccountId) =>
-            this.requestDataRepository.GetRequestsByRenter(renterAccountId).Select(request => this.requestDtoMapper.ToDTO(request)!).ToImmutableList();
+            requestDataRepository.GetRequestsByRenter(renterAccountId).Select(request => requestDtoMapper.ToDTO(request)!).ToImmutableList();
 
         public ImmutableList<RequestDTO> GetRequestsForOwner(Guid ownerAccountId) =>
-            this.requestDataRepository.GetRequestsByOwner(ownerAccountId).Select(request => this.requestDtoMapper.ToDTO(request)!).ToImmutableList();
+            requestDataRepository.GetRequestsByOwner(ownerAccountId).Select(request => requestDtoMapper.ToDTO(request)!).ToImmutableList();
 
         public ImmutableList<RequestDTO> GetOpenRequestsForOwner(Guid ownerAccountId) =>
-            this.GetRequestsForOwner(ownerAccountId).Where(request => request.Status == DtoRequestStatus.Open).ToImmutableList();
+            GetRequestsForOwner(ownerAccountId).Where(request => request.Status == DtoRequestStatus.Open).ToImmutableList();
 
         public async Task<Result<int, CreateRequestError>> CreateRequest(int gameId, Guid renterAccountId, Guid ownerAccountId, DateTime startDate, DateTime endDate)
         {
@@ -66,7 +61,7 @@ namespace BoardGames.Api.Services
             Game game;
             try
             {
-                game = this.gameValidationRepository.GetGame(gameId);
+                game = gameValidationRepository.GetGame(gameId);
             }
             catch (KeyNotFoundException)
             {
@@ -79,22 +74,22 @@ namespace BoardGames.Api.Services
                 return Result<int, CreateRequestError>.Failure(CreateRequestError.OwnerCannotRent);
             }
 
-            if (!this.CheckAvailability(gameId, startDate, endDate))
+            if (!CheckAvailability(gameId, startDate, endDate))
             {
                 return Result<int, CreateRequestError>.Failure(CreateRequestError.DatesUnavailable);
             }
 
             var newRequest = new Request(NewRequestId, new Game { Id = gameId }, new Account { Id = renterAccountId }, new Account { Id = effectiveOwnerId }, startDate, endDate);
-            this.requestDataRepository.Add(newRequest);
+            requestDataRepository.Add(newRequest);
 
             var ownerNotificationGameName = game.Name ?? "a game";
-            this.SendNotificationToAccount(effectiveOwnerId, NotificationTitles.RentalRequestReceived,
+            SendNotificationToAccount(effectiveOwnerId, NotificationTitles.RentalRequestReceived,
                 $"You have a new rental request for {ownerNotificationGameName} {FormatPeriod(startDate, endDate)}.",
                 relatedRequestId: newRequest.Id);
 
             try
             {
-                await this.conversationApiService.AttachRentalRequestMessage(newRequest.Id, renterAccountId, effectiveOwnerId, ownerNotificationGameName, startDate, endDate);
+                await conversationApiService.AttachRentalRequestMessage(newRequest.Id, renterAccountId, effectiveOwnerId, ownerNotificationGameName, startDate, endDate);
             }
             catch (Exception ex)
             {
@@ -109,7 +104,7 @@ namespace BoardGames.Api.Services
             Request req;
             try
             {
-                req = this.requestDataRepository.Get(requestId);
+                req = requestDataRepository.Get(requestId);
             }
             catch (KeyNotFoundException)
             {
@@ -126,7 +121,7 @@ namespace BoardGames.Api.Services
                 return Result<int, ApproveRequestError>.Failure(ApproveRequestError.NotFound);
             }
 
-            var (success, rentalId) = await this.TryApproveOpenRequestAndNotify(req);
+            var (success, rentalId) = await TryApproveOpenRequestAndNotify(req);
             if (!success)
             {
                 return Result<int, ApproveRequestError>.Failure(ApproveRequestError.TransactionFailed);
@@ -140,7 +135,7 @@ namespace BoardGames.Api.Services
             Request req;
             try
             {
-                req = this.requestDataRepository.Get(requestId);
+                req = requestDataRepository.Get(requestId);
             }
             catch (KeyNotFoundException)
             {
@@ -153,17 +148,17 @@ namespace BoardGames.Api.Services
             }
 
             var reason = string.IsNullOrWhiteSpace(denialReason?.Trim()) ? DialogMessages.NoReasonProvided : denialReason!.Trim();
-            this.requestNotificationService.DeleteNotificationsLinkedToRequest(requestId);
-            this.requestDataRepository.Delete(requestId);
+            requestNotificationService.DeleteNotificationsLinkedToRequest(requestId);
+            requestDataRepository.Delete(requestId);
 
             var renterId = req.Renter?.Id ?? Guid.Empty;
             var gameName = req.Game?.Name ?? "the selected game";
-            this.SendNotificationToAccount(renterId, NotificationTitles.RentalRequestDeclined,
+            SendNotificationToAccount(renterId, NotificationTitles.RentalRequestDeclined,
                 $"Your request for {gameName} {FormatPeriod(req.StartDate, req.EndDate)} was declined. Reason: {reason}");
 
             try
             {
-                await this.conversationApiService.FinalizeRentalRequestMessage(requestId, accepted: false);
+                await conversationApiService.FinalizeRentalRequestMessage(requestId, accepted: false);
             }
             catch (Exception ex)
             {
@@ -173,12 +168,12 @@ namespace BoardGames.Api.Services
             return Result<int, DenyRequestError>.Success(requestId);
         }
 
-        public async Task<Result<int, CancelRequestError>> CancelRequest(int requestId, Guid cancellingAccountId)
+        public Result<int, CancelRequestError> CancelRequest(int requestId, Guid cancellingAccountId)
         {
             Request req;
             try
             {
-                req = this.requestDataRepository.Get(requestId);
+                req = requestDataRepository.Get(requestId);
             }
             catch (KeyNotFoundException)
             {
@@ -190,20 +185,10 @@ namespace BoardGames.Api.Services
                 return Result<int, CancelRequestError>.Failure(CancelRequestError.Unauthorized);
             }
 
-            this.requestNotificationService.DeleteNotificationsLinkedToRequest(requestId);
-
+            requestNotificationService.DeleteNotificationsLinkedToRequest(requestId);
             try
             {
-                await this.conversationApiService.FinalizeRentalRequestMessage(requestId, accepted: false);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[WARN] FinalizeRentalRequestMessage(cancel) failed for request {requestId}: {ex.Message}");
-            }
-
-            try
-            {
-                this.requestDataRepository.Delete(requestId);
+                requestDataRepository.Delete(requestId);
             }
             catch (KeyNotFoundException)
             {
@@ -215,17 +200,17 @@ namespace BoardGames.Api.Services
 
         public void OnGameDeactivated(int deactivatedGameId)
         {
-            var pending = this.requestDataRepository.GetRequestsByGame(deactivatedGameId)
+            var pending = requestDataRepository.GetRequestsByGame(deactivatedGameId)
                 .Where(request => request.Status == DataRequestStatus.Open || request.Status == DataRequestStatus.OfferPending).ToImmutableList();
 
             foreach (var pendingRequest in pending)
             {
-                this.requestNotificationService.DeleteNotificationsLinkedToRequest(pendingRequest.Id);
-                this.requestDataRepository.Delete(pendingRequest.Id);
+                requestNotificationService.DeleteNotificationsLinkedToRequest(pendingRequest.Id);
+                requestDataRepository.Delete(pendingRequest.Id);
 
                 var renterId = pendingRequest.Renter?.Id ?? Guid.Empty;
                 var gameName = pendingRequest.Game?.Name ?? "the selected game";
-                this.SendNotificationToAccount(renterId, NotificationTitles.RentalRequestCancelled,
+                SendNotificationToAccount(renterId, NotificationTitles.RentalRequestCancelled,
                     $"Your request for {gameName} {FormatPeriod(pendingRequest.StartDate, pendingRequest.EndDate)} has been cancelled because the game is no longer available.");
             }
         }
@@ -242,13 +227,13 @@ namespace BoardGames.Api.Services
                 year = DateTime.UtcNow.Year;
             }
 
-            return this.requestDataRepository.GetRequestsByGame(gameId)
+            return requestDataRepository.GetRequestsByGame(gameId)
                 .Where(request => request.StartDate.Month == month && request.StartDate.Year == year)
                 .OrderBy(request => request.StartDate)
                 .Select(request => new BookedDateRange
                 {
                     StartDate = request.StartDate,
-                    EndDate = request.EndDate,
+                    EndDate = request.EndDate.AddHours(DomainConstants.RentalBufferHours),
                 })
                 .ToImmutableList();
         }
@@ -263,7 +248,7 @@ namespace BoardGames.Api.Services
             Game game;
             try
             {
-                game = this.gameValidationRepository.GetGame(gameId);
+                game = gameValidationRepository.GetGame(gameId);
             }
             catch (KeyNotFoundException)
             {
@@ -275,15 +260,15 @@ namespace BoardGames.Api.Services
                 return false;
             }
 
-            bool rentalConflict = this.rentalConflictRepository.GetRentalsByGame(gameId)
-                .Any(rental => startDate.Date <= rental.EndDate.Date && endDate.Date >= rental.StartDate.Date);
+            bool rentalConflict = rentalConflictRepository.GetRentalsByGame(gameId)
+                .Any(rental => startDate < rental.EndDate.AddHours(DomainConstants.RentalBufferHours) && endDate > rental.StartDate.AddHours(-DomainConstants.RentalBufferHours));
             if (rentalConflict)
             {
                 return false;
             }
 
-            return !this.requestDataRepository.GetRequestsByGame(gameId)
-                .Any(request => startDate.Date <= request.EndDate.Date && endDate.Date >= request.StartDate.Date);
+            return !requestDataRepository.GetRequestsByGame(gameId)
+                .Any(request => request.StartDate.AddHours(-DomainConstants.RentalBufferHours) < endDate && request.EndDate.AddHours(DomainConstants.RentalBufferHours) > startDate);
         }
 
         public async Task<Result<int, OfferError>> OfferGame(int requestId, Guid offeringOwnerAccountId)
@@ -291,7 +276,7 @@ namespace BoardGames.Api.Services
             Request req;
             try
             {
-                req = this.requestDataRepository.Get(requestId);
+                req = requestDataRepository.Get(requestId);
             }
             catch (KeyNotFoundException)
             {
@@ -308,7 +293,7 @@ namespace BoardGames.Api.Services
                 return Result<int, OfferError>.Failure(OfferError.RequestNotOpen);
             }
 
-            var (success, rentalId) = await this.TryApproveOpenRequestAndNotify(req);
+            var (success, rentalId) = await TryApproveOpenRequestAndNotify(req);
             if (!success)
             {
                 return Result<int, OfferError>.Failure(OfferError.TransactionFailed);
@@ -324,7 +309,7 @@ namespace BoardGames.Api.Services
                 return;
             }
 
-            this.requestNotificationService.SendNotificationToUser(accountId, new NotificationDTO
+            requestNotificationService.SendNotificationToUser(accountId, new NotificationDTO
             {
                 Id = NewRequestId,
                 Recipient = new UserDTO { Id = accountId },
@@ -338,16 +323,14 @@ namespace BoardGames.Api.Services
 
         private async Task<(bool Success, int RentalId)> TryApproveOpenRequestAndNotify(Request req)
         {
-            var conflicts = this.requestDataRepository.GetOverlappingRequests(
-                req.Game?.Id ?? MissingForeignKeyId,
-                req.Id,
-                req.StartDate,
-                req.EndDate);
+            var buffStart = req.StartDate.AddHours(-DomainConstants.RentalBufferHours);
+            var buffEnd = req.EndDate.AddHours(DomainConstants.RentalBufferHours);
+            var conflicts = requestDataRepository.GetOverlappingRequests(req.Game?.Id ?? MissingForeignKeyId, req.Id, buffStart, buffEnd);
 
             int rentalId;
             try
             {
-                rentalId = this.requestDataRepository.ApproveAtomically(req, conflicts);
+                rentalId = requestDataRepository.ApproveAtomically(req, conflicts);
             }
             catch (Exception ex)
             {
@@ -359,21 +342,21 @@ namespace BoardGames.Api.Services
             foreach (var conflict in conflicts)
             {
                 var conflictRenterId = conflict.Renter?.Id ?? Guid.Empty;
-                this.SendNotificationToAccount(conflictRenterId, NotificationTitles.BookingUnavailable,
+                SendNotificationToAccount(conflictRenterId, NotificationTitles.BookingUnavailable,
                     $"Your request for {gameName} {FormatPeriod(conflict.StartDate, conflict.EndDate)} was declined because the game is no longer available in that period.");
             }
 
             var renterId = req.Renter?.Id ?? Guid.Empty;
-            this.SendNotificationToAccount(renterId, NotificationTitles.RentalRequestApproved,
+            SendNotificationToAccount(renterId, NotificationTitles.RentalRequestApproved,
                 $"Your request for {gameName} {FormatPeriod(req.StartDate, req.EndDate)} was approved.");
 
             try
             {
-                await this.conversationApiService.AcceptRentalRequestMessage(req.Id, rentalId);
+                await conversationApiService.FinalizeRentalRequestMessage(req.Id, accepted: true);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WARN] AcceptRentalRequestMessage failed for request {req.Id}: {ex.Message}");
+                Console.WriteLine($"[WARN] FinalizeRentalRequestMessage(approve) failed for request {req.Id}: {ex.Message}");
             }
 
             return (true, rentalId);

@@ -1,8 +1,13 @@
-// <copyright file="RentalRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="RentalRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
+using BoardGames.Data;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,18 +19,22 @@ namespace BoardGames.Data.Repositories
 
         public RentalRepository(AppDbContext appContext)
         {
-            this.context = appContext;
+            context = appContext;
         }
+
+        // ==========================================
+        // Project 1 methods (original)
+        // ==========================================
 
         public async Task<Rental?> GetById(int rentalId)
         {
-            return await this.context.Rentals
+            return await context.Rentals
                 .FirstOrDefaultAsync(rental => rental.Id == rentalId);
         }
 
         public async Task<TimeRange?> GetRentalTimeRange(int rentalId)
         {
-            return await this.context.Rentals
+            return await context.Rentals
                 .Where(rental => rental.Id == rentalId)
                 .Select(rental => new TimeRange(rental.StartDate, rental.EndDate))
                 .FirstOrDefaultAsync();
@@ -33,14 +42,14 @@ namespace BoardGames.Data.Repositories
 
         public async Task<List<TimeRange>> GetAllOccupiedPeriods()
         {
-            return await this.context.Rentals
+            return await context.Rentals
                 .Select(rental => new TimeRange(rental.StartDate, rental.EndDate))
                 .ToListAsync();
         }
 
         public async Task<List<TimeRange>> GetUnavailableTimeRanges(int gameId)
         {
-            return await this.context.Rentals
+            return await context.Rentals
                 .Where(rental => rental.GameId == gameId)
                 .Select(rental => new TimeRange(rental.StartDate, rental.EndDate))
                 .ToListAsync();
@@ -51,7 +60,7 @@ namespace BoardGames.Data.Repositories
             var requestStart = startTime.Date;
             var requestEnd = endTime.Date;
 
-            bool hasOverlap = await this.context.Rentals.AnyAsync(rental =>
+            bool hasOverlap = await context.Rentals.AnyAsync(rental =>
                 rental.GameId == gameId &&
                 rental.StartDate.Date <= requestEnd &&
                 rental.EndDate.Date >= requestStart);
@@ -60,13 +69,13 @@ namespace BoardGames.Data.Repositories
 
         public async Task AddRental(Rental rental)
         {
-            await this.context.Rentals.AddAsync(rental);
-            await this.context.SaveChangesAsync();
+            await context.Rentals.AddAsync(rental);
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<Rental>> GetRentalsForUser(int userId)
         {
-            return await this.context.Rentals
+            return await context.Rentals
                 .Include(rental => rental.Game)
                 .Include(rental => rental.Client)
                 .Include(rental => rental.Owner)
@@ -80,26 +89,30 @@ namespace BoardGames.Data.Repositories
             throw new NotSupportedException("Use POST api/rentals/book; this repository only persists rentals.");
         }
 
+        // ==========================================
+        // Project 2 methods (merged from RentalRepository2)
+        // ==========================================
+
         private IQueryable<Rental> RentalsWithNavigations() =>
-            this.context.Rentals
+            context.Rentals
                 .Include(rental => rental.Game)
                 .Include(rental => rental.Client)
                 .Include(rental => rental.Owner);
 
         public ImmutableList<Rental> GetAll()
         {
-            return this.RentalsWithNavigations().ToImmutableList();
+            return RentalsWithNavigations().ToImmutableList();
         }
 
         public void Add(Rental rental)
         {
-            rental.Game = this.ResolveGame(rental.Game);
-            rental.Client = this.ResolveUser(rental.Client);
-            rental.Owner = this.ResolveUser(rental.Owner);
-            this.context.Rentals.Add(rental);
-            this.context.SaveChanges();
+            rental.Game = ResolveGame(rental.Game);
+            rental.Client = ResolveUser(rental.Client);
+            rental.Owner = ResolveUser(rental.Owner);
+            context.Rentals.Add(rental);
+            context.SaveChanges();
 
-            var saved = this.RentalsWithNavigations().FirstOrDefault(savedRental => savedRental.Id == rental.Id);
+            var saved = RentalsWithNavigations().FirstOrDefault(savedRental => savedRental.Id == rental.Id);
             if (saved != null)
             {
                 rental.Game = saved.Game;
@@ -108,45 +121,45 @@ namespace BoardGames.Data.Repositories
             }
         }
 
-        public void AddConfirmed(Rental rental) => this.Add(rental);
+        public void AddConfirmed(Rental rental) => Add(rental);
 
         public ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId)
         {
-            return this.RentalsWithNavigations()
+            return RentalsWithNavigations()
                 .Where(rental => rental.Owner != null && rental.Owner.Id == ownerAccountId)
                 .ToImmutableList();
         }
 
         public ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId)
         {
-            return this.RentalsWithNavigations()
+            return RentalsWithNavigations()
                 .Where(rental => rental.Client != null && rental.Client.Id == renterAccountId)
                 .ToImmutableList();
         }
 
         public ImmutableList<Rental> GetRentalsByGame(int gameId)
         {
-            return this.RentalsWithNavigations()
+            return RentalsWithNavigations()
                 .Where(rental => rental.Game != null && rental.Game.Id == gameId)
                 .ToImmutableList();
         }
 
         public Rental Delete(int id)
         {
-            var rental = this.RentalsWithNavigations().FirstOrDefault(repositoryRental => repositoryRental.Id == id);
+            var rental = RentalsWithNavigations().FirstOrDefault(repositoryRental => repositoryRental.Id == id);
             if (rental == null)
             {
                 throw new KeyNotFoundException();
             }
 
-            this.context.Rentals.Remove(rental);
-            this.context.SaveChanges();
+            context.Rentals.Remove(rental);
+            context.SaveChanges();
             return rental;
         }
 
         public void Update(int id, Rental updated)
         {
-            var existing = this.RentalsWithNavigations().FirstOrDefault(rental => rental.Id == id);
+            var existing = RentalsWithNavigations().FirstOrDefault(rental => rental.Id == id);
             if (existing == null)
             {
                 return;
@@ -154,27 +167,27 @@ namespace BoardGames.Data.Repositories
 
             if (updated.Game != null)
             {
-                existing.Game = this.ResolveGame(updated.Game);
+                existing.Game = ResolveGame(updated.Game);
             }
 
             if (updated.Client != null)
             {
-                existing.Client = this.ResolveUser(updated.Client);
+                existing.Client = ResolveUser(updated.Client);
             }
 
             if (updated.Owner != null)
             {
-                existing.Owner = this.ResolveUser(updated.Owner);
+                existing.Owner = ResolveUser(updated.Owner);
             }
 
             existing.StartDate = updated.StartDate;
             existing.EndDate = updated.EndDate;
-            this.context.SaveChanges();
+            context.SaveChanges();
         }
 
         public Rental Get(int id)
         {
-            var rental = this.RentalsWithNavigations().FirstOrDefault(repositoryRental => repositoryRental.Id == id);
+            var rental = RentalsWithNavigations().FirstOrDefault(repositoryRental => repositoryRental.Id == id);
             if (rental == null)
             {
                 throw new KeyNotFoundException();
@@ -182,6 +195,10 @@ namespace BoardGames.Data.Repositories
 
             return rental;
         }
+
+        // ==========================================
+        // Helpers
+        // ==========================================
 
         private User? ResolveUser(User? user)
         {
@@ -190,7 +207,7 @@ namespace BoardGames.Data.Repositories
                 return null;
             }
 
-            return this.context.Users.Find(user.Id);
+            return context.Users.Find(user.Id);
         }
 
         private Game? ResolveGame(Game? game)
@@ -200,7 +217,7 @@ namespace BoardGames.Data.Repositories
                 return null;
             }
 
-            return this.context.Games.Find(game.Id);
+            return context.Games.Find(game.Id);
         }
     }
 }

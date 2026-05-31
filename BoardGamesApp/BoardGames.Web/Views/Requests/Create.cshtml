@@ -2,10 +2,7 @@
 
 @{
     ViewData["Title"] = "Create Request";
-    ViewData["BackUrl"] = Url.Action("My");
 }
-
-<partial name="_PageBack" />
 
 <div class="page-header">
     <h1 class="page-title">Create Request</h1>
@@ -42,12 +39,15 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Select dates</label>
-            <div id="rentalDateCalendar"></div>
-            <input type="hidden" asp-for="StartDate" id="StartDate" />
-            <input type="hidden" asp-for="EndDate" id="EndDate" />
+            <label asp-for="StartDate" class="form-label">Start Date</label>
+            <input asp-for="StartDate" class="form-control" type="date" id="StartDate" value="@(Model.StartDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.StartDate.ToString("yyyy-MM-dd"))" />
             <span asp-validation-for="StartDate" class="text-danger"></span>
-            <span asp-validation-for="EndDate" class="text-danger d-block"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EndDate" class="form-label">End Date</label>
+            <input asp-for="EndDate" class="form-control" type="date" id="EndDate" value="@(Model.EndDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.EndDate.ToString("yyyy-MM-dd"))" />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
         </div>
 
         <div class="form-actions">
@@ -59,39 +59,4 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <link rel="stylesheet" href="~/css/rental-date-picker.css" asp-append-version="true" />
-    <script src="~/js/rental-date-picker.js" asp-append-version="true"></script>
-    <script>
-        const gameSelect = document.getElementById('GameId');
-        const startDateInput = document.getElementById('StartDate');
-        const endDateInput = document.getElementById('EndDate');
-        const calendarContainer = document.getElementById('rentalDateCalendar');
-        let rentalPicker = new RentalDatePicker(calendarContainer, {
-            bookedRanges: [],
-            startInput: startDateInput,
-            endInput: endDateInput
-        });
-
-        async function loadBookedDates(gameId) {
-            if (!gameId || gameId === '0') {
-                rentalPicker.setBookedRanges([]);
-                return;
-            }
-
-            const response = await fetch(`@Url.Action("BookedDates", "Requests")?gameId=${gameId}`);
-            if (!response.ok) {
-                rentalPicker.setBookedRanges([]);
-                return;
-            }
-
-            rentalPicker.setBookedRanges(await response.json());
-        }
-
-        if (gameSelect) {
-            gameSelect.addEventListener('change', () => loadBookedDates(gameSelect.value));
-            if (gameSelect.value && gameSelect.value !== '0') {
-                loadBookedDates(gameSelect.value);
-            }
-        }
-    </script>
 }

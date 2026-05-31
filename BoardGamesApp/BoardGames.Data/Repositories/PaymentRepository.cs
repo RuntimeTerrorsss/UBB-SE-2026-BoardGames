@@ -1,7 +1,12 @@
-﻿// <copyright file="PaymentRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="PaymentRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BoardGames.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories
@@ -12,17 +17,17 @@ namespace BoardGames.Data.Repositories
 
         public PaymentRepository(AppDbContext appContext)
         {
-            this.context = appContext;
+            context = appContext;
         }
 
         public async Task<IReadOnlyList<Payment>> GetAllPaymentsAsync()
         {
-            return await this.context.Payments.ToListAsync();
+            return await context.Payments.ToListAsync();
         }
 
         public virtual async Task<Payment?> GetPaymentByIdentifierAsync(int paymentId)
         {
-            return await this.context.Payments.FirstOrDefaultAsync(payment => payment.TransactionIdentifier == paymentId);
+            return await context.Payments.FirstOrDefaultAsync(payment => payment.TransactionIdentifier == paymentId);
         }
 
         public virtual async Task<int> AddPaymentAsync(Payment payment)
@@ -41,27 +46,27 @@ namespace BoardGames.Data.Repositories
             payment.Client = null;
             payment.Owner = null;
 
-            await this.context.Payments.AddAsync(payment);
-            await this.context.SaveChangesAsync();
+            await context.Payments.AddAsync(payment);
+            await context.SaveChangesAsync();
 
             return payment.TransactionIdentifier;
         }
 
         public async Task<bool> DeletePaymentAsync(Payment payment)
         {
-            var paymentToDelete = await this.context.Payments.FindAsync(payment.TransactionIdentifier);
+            var paymentToDelete = await context.Payments.FindAsync(payment.TransactionIdentifier);
             if (paymentToDelete == null)
             {
                 return false;
             }
 
-            this.context.Payments.Remove(paymentToDelete);
-            return await this.context.SaveChangesAsync() > 0;
+            context.Payments.Remove(paymentToDelete);
+            return await context.SaveChangesAsync() > 0;
         }
 
         public virtual async Task<Payment?> UpdatePaymentAsync(Payment payment)
         {
-            var existingPayment = await this.context.Payments.FindAsync(payment.TransactionIdentifier);
+            var existingPayment = await context.Payments.FindAsync(payment.TransactionIdentifier);
 
             if (existingPayment == null)
             {
@@ -88,7 +93,7 @@ namespace BoardGames.Data.Repositories
             existingPayment.DateConfirmedBuyer = payment.DateConfirmedBuyer;
             existingPayment.DateConfirmedSeller = payment.DateConfirmedSeller;
 
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return previousPayment;
         }

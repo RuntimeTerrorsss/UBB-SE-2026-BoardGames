@@ -1,16 +1,12 @@
-// <copyright file="ListingsPage.xaml.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Extensions.DependencyInjection;
 using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Views;
 using BoardGames.Desktop.ViewModels;
 
-namespace BoardGames.Desktop.Views
+namespace BoardRentAndProperty.Views
 {
     public sealed partial class ListingsPage : Page
     {
@@ -21,11 +17,6 @@ namespace BoardGames.Desktop.Views
             this.InitializeComponent();
         }
 
-        private void FilterMyGamesButton_Click(object sender, RoutedEventArgs routedEventArgs)
-        {
-            ViewModel?.ToggleMyGamesFilter();
-        }
-
         private void CreateGameButton_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             this.Frame.Navigate(typeof(CreateGameView));
@@ -33,7 +24,10 @@ namespace BoardGames.Desktop.Views
 
         private void EditGameButton_Click(object sender, RoutedEventArgs routedEventArgs)
         {
-            if ((sender as Button)?.Tag is GameSummaryDTO gameToEdit)
+            var clickedButton = sender as Button;
+            var gameToEdit = clickedButton?.Tag as GameDTO;
+
+            if (gameToEdit != null)
             {
                 this.Frame.Navigate(typeof(EditGameView), gameToEdit.Id);
             }
@@ -42,38 +36,30 @@ namespace BoardGames.Desktop.Views
         private async void DeleteGameButton_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             var clickedButton = sender as Button;
-            var gameToDelete = clickedButton?.Tag as GameSummaryDTO;
+            var gameToDelete = clickedButton?.Tag as GameDTO;
 
             if (gameToDelete == null)
             {
                 return;
             }
 
-            var confirmDialog = new ContentDialog
-            {
-                Title = "Delete Game?",
-                Content = $"Are you sure you want to permanently delete '{gameToDelete.Name}'? Pending requests will be cancelled.",
-                PrimaryButtonText = "Delete",
-                CloseButtonText = "Cancel",
-                DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.XamlRoot,
-            };
-
-            var deleteConfirmationResult = await confirmDialog.ShowAsync();
+            var deleteConfirmationResult = await DialogHelper.ShowConfirmationAsync(
+                this.XamlRoot,
+                Constants.DialogTitles.DeleteGameConfirmation,
+                $"Are you sure you want to permanently delete '{gameToDelete.Name}'? Pending requests will be cancelled and notified. Deletion is blocked if active or upcoming rentals exist.",
+                Constants.DialogButtons.Delete,
+                Constants.DialogButtons.Cancel,
+                ContentDialogButton.Close);
 
             if (deleteConfirmationResult == ContentDialogResult.Primary)
             {
                 var gameDeletionResult = await ViewModel.TryDeleteGameAsync(gameToDelete);
                 if (!string.IsNullOrWhiteSpace(gameDeletionResult.DialogMessage))
                 {
-                    var msgDialog = new ContentDialog
-                    {
-                        Title = gameDeletionResult.DialogTitle ?? "Notice",
-                        Content = gameDeletionResult.DialogMessage,
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot,
-                    };
-                    await msgDialog.ShowAsync();
+                    await DialogHelper.ShowMessageAsync(
+                        this.XamlRoot,
+                        gameDeletionResult.DialogTitle,
+                        gameDeletionResult.DialogMessage);
                 }
             }
         }
@@ -99,17 +85,7 @@ namespace BoardGames.Desktop.Views
 
         private void Image_ImageFailed(object sender, ExceptionRoutedEventArgs exceptionRoutedEventArgs)
         {
-            if (sender is Microsoft.UI.Xaml.Controls.Image failedImage)
-            {
-                if (this.Resources.TryGetValue("DefaultGameImage", out var defaultImage))
-                {
-                    failedImage.Source = defaultImage as Microsoft.UI.Xaml.Media.ImageSource;
-                }
-                else
-                {
-                    failedImage.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("ms-appx:///Assets/default-game-placeholder.jpg"));
-                }
-            }
+            ImageFailureHandler.HandleFailure(sender as Image, Resources);
         }
     }
 }

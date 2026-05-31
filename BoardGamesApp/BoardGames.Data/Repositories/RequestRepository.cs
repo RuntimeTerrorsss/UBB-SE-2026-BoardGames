@@ -1,8 +1,7 @@
-// <copyright file="RequestRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using BoardGames.Data.Enums;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -29,13 +28,13 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Request> GetAll()
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             return RequestsWithNavigations(dbContext).ToImmutableList();
         }
 
         public void Add(Request request)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
 
             request.Game = ResolveGame(dbContext, request.Game);
             request.Renter = ResolveUser(dbContext, request.Renter);
@@ -56,7 +55,7 @@ namespace BoardGames.Data.Repositories
 
         public Request Delete(int id)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var request = RequestsWithNavigations(dbContext).FirstOrDefault(repositoryRequest => repositoryRequest.Id == id);
             if (request == null)
             {
@@ -70,7 +69,7 @@ namespace BoardGames.Data.Repositories
 
         public void Update(int id, Request updated)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var existing = RequestsWithNavigations(dbContext).FirstOrDefault(request => request.Id == id);
             if (existing == null)
             {
@@ -101,7 +100,7 @@ namespace BoardGames.Data.Repositories
 
         public void UpdateStatus(int requestId, RequestStatus status, Guid? offeringAccountId)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var existing = RequestsWithNavigations(dbContext).FirstOrDefault(request => request.Id == requestId);
             if (existing == null)
             {
@@ -115,7 +114,7 @@ namespace BoardGames.Data.Repositories
 
         public Request Get(int id)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var request = RequestsWithNavigations(dbContext).FirstOrDefault(repositoryRequest => repositoryRequest.Id == id);
             if (request == null)
             {
@@ -127,7 +126,7 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Request> GetRequestsByOwner(Guid ownerAccountId)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             return RequestsWithNavigations(dbContext)
                 .Where(request => request.Owner != null && request.Owner.Id == ownerAccountId)
                 .ToImmutableList();
@@ -135,7 +134,7 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Request> GetRequestsByRenter(Guid renterAccountId)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             return RequestsWithNavigations(dbContext)
                 .Where(request => request.Renter != null && request.Renter.Id == renterAccountId)
                 .ToImmutableList();
@@ -143,7 +142,7 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Request> GetRequestsByGame(int gameId)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             return RequestsWithNavigations(dbContext)
                 .Where(request => request.Game != null && request.Game.Id == gameId)
                 .ToImmutableList();
@@ -151,7 +150,7 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Request> GetOverlappingRequests(int gameId, int excludeRequestId, DateTime bufferedStart, DateTime bufferedEnd)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             return RequestsWithNavigations(dbContext)
                 .Where(request => request.Game != null && request.Game.Id == gameId
                     && request.Id != excludeRequestId
@@ -162,11 +161,11 @@ namespace BoardGames.Data.Repositories
 
         public int ApproveAtomically(Request approvedRequest, ImmutableList<Request> overlappingRequests)
         {
-            using var strategyContext = this.dbContextFactory.CreateDbContext();
+            using var strategyContext = dbContextFactory.CreateDbContext();
             var executionStrategy = strategyContext.Database.CreateExecutionStrategy();
             return executionStrategy.Execute(() =>
             {
-                using var dbContext = this.dbContextFactory.CreateDbContext();
+                using var dbContext = dbContextFactory.CreateDbContext();
                 using var transaction = dbContext.Database.BeginTransaction();
                 try
                 {
@@ -228,19 +227,13 @@ namespace BoardGames.Data.Repositories
             if (user.PamUserId != 0)
             {
                 var trackedByPam = dbContext.Users.Local.FirstOrDefault(cached => cached.PamUserId == user.PamUserId);
-                if (trackedByPam != null)
-                {
-                    return trackedByPam;
-                }
+                if (trackedByPam != null) return trackedByPam;
 
                 return dbContext.Users.SingleOrDefault(u => u.PamUserId == user.PamUserId);
             }
 
             var trackedById = dbContext.Users.Local.FirstOrDefault(cachedUser => cachedUser.Id == user.Id);
-            if (trackedById != null)
-            {
-                return trackedById;
-            }
+            if (trackedById != null) return trackedById;
 
             if (user.Id != Guid.Empty)
             {

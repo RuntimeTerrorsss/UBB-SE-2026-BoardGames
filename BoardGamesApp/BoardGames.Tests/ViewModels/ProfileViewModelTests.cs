@@ -1,11 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using BoardGames.Desktop.Commands;
-using BoardGames.Desktop.ViewModels;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.Utilities;
+using BoardRentAndProperty.ViewModels;
+using CommunityToolkit.Mvvm.Input;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -23,84 +22,86 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.testAccountId = Guid.NewGuid();
-            this.accountService = new FakeClientAccountService();
-            this.authService = new FakeClientAuthService();
-            this.filePickerService = new FakeFilePickerService();
-            this.sessionContext = new FakeSessionContext
+            testAccountId = Guid.NewGuid();
+            accountService = new FakeClientAccountService();
+            authService = new FakeClientAuthService();
+            filePickerService = new FakeFilePickerService();
+            sessionContext = new FakeSessionContext
             {
-                AccountId = this.testAccountId,
+                AccountId = testAccountId,
                 Username = "testuser",
-                DisplayName = "Test User"
+                DisplayName = "Test User",
+                Email = "test@test.com",
+                PhoneNumber = string.Empty,
+                Country = string.Empty,
+                City = string.Empty,
+                StreetName = string.Empty,
+                StreetNumber = string.Empty,
             };
 
-            this.systemUnderTest = new ProfileViewModel(
-                this.accountService,
-                this.authService,
-                this.filePickerService,
-                this.sessionContext);
+            systemUnderTest = new ProfileViewModel(
+                accountService,
+                authService,
+                filePickerService,
+                sessionContext);
         }
 
         [Test]
         public async Task LoadProfileAsync_ValidData_PopulatesProperties()
         {
-            var profileData = new AccountProfileDTO { Username = "loaded_user", DisplayName = "Loaded Name" };
-            this.accountService.ProfileResult = ServiceResult<AccountProfileDTO>.Ok(profileData);
+            var profileData = new AccountProfileDataTransferObject
+            {
+                Id = testAccountId,
+                Username = "loaded_user",
+                DisplayName = "Loaded Name",
+                Email = "loaded@test.com",
+            };
 
-            await this.systemUnderTest.LoadProfileAsync();
+            accountService.ProfileResult =
+                ServiceResult<AccountProfileDataTransferObject>.Ok(profileData);
 
-            Assert.That(this.systemUnderTest.Username, Is.EqualTo("loaded_user"));
-            Assert.That(this.systemUnderTest.DisplayName, Is.EqualTo("Loaded Name"));
+            await systemUnderTest.LoadProfileAsync();
+
+            Assert.That(systemUnderTest.Username, Is.EqualTo("loaded_user"));
+            Assert.That(systemUnderTest.DisplayName, Is.EqualTo("Loaded Name"));
+            Assert.That(systemUnderTest.Email, Is.EqualTo("loaded@test.com"));
         }
 
         [Test]
-        public void SaveProfileCommand_InvalidData_SetsValidationErrors()
+        public async Task SaveProfileCommand_InvalidData_SetsDisplayNameError()
         {
-            this.systemUnderTest.DisplayName = "A";
-            this.accountService.UpdateProfileResult = ServiceResult.Fail("DisplayName|Display name must be at least 2 characters.");
+            systemUnderTest.DisplayName = "A";
 
-            this.systemUnderTest.SaveProfileCommand.Execute(null);
+            var failureResult = ServiceResult<bool>.Fail("DisplayName|Display name must be between 2 and 50 characters long.");
+            accountService.UpdateProfileResult = failureResult;
 
-            Assert.That(this.systemUnderTest.DisplayNameError, Is.EqualTo("Display name must be at least 2 characters."));
+            await ((IAsyncRelayCommand)systemUnderTest.SaveProfileCommand).ExecuteAsync(null);
+
+            Assert.That(systemUnderTest.DisplayNameError, Is.EqualTo("Display name must be between 2 and 50 characters long."));
+        }
+
+        [Test]
+        public async Task SelectAvatarCommand_UserPicksFile_SetsAvatarUrlPreview()
+        {
+            string fakePath = "C:\\test_avatar.jpg";
+            filePickerService.SelectedPath = fakePath;
+
+            await ((IAsyncRelayCommand)systemUnderTest.SelectAvatarCommand).ExecuteAsync(null);
+
+            Assert.That(systemUnderTest.AvatarUrl, Is.EqualTo(fakePath));
+            Assert.That(accountService.UploadAvatarCallCount, Is.EqualTo(0));
         }
 
         [Test]
         public async Task SaveNewPasswordCommand_PasswordsDoNotMatch_SetsConfirmError()
         {
-            this.systemUnderTest.NewPassword = "Pass";
-            this.systemUnderTest.ConfirmPassword = "NoMatch";
+            systemUnderTest.NewPassword = "Password123!";
+            systemUnderTest.ConfirmPassword = "DifferentPassword123!";
 
-            this.systemUnderTest.SaveNewPasswordCommand.Execute(null);
-            await Task.Delay(50);
+            await ((IAsyncRelayCommand)systemUnderTest.SaveNewPasswordCommand).ExecuteAsync(null);
 
-            Assert.That(this.systemUnderTest.ConfirmPasswordError, Is.EqualTo("Passwords do not match."));
-            Assert.That(this.accountService.ChangePasswordCallCount, Is.EqualTo(0));
-        }
-
-        [Test]
-        public async Task SignOutCommand_Executes_ClearsSessionAndTriggersCallback()
-        {
-            bool callbackTriggered = false;
-            this.systemUnderTest.OnSignOutSuccess = () => callbackTriggered = true;
-
-            this.systemUnderTest.SignOutCommand.Execute(null);
-            await Task.Delay(50);
-
-            Assert.That(this.sessionContext.IsLoggedIn, Is.False);
-            Assert.That(this.authService.LogoutCallCount, Is.EqualTo(1));
-            Assert.That(callbackTriggered, Is.True);
-        }
-
-        [Test]
-        public async Task SelectAvatarCommand_UserPicksFile_UpdatesAvatarUrl()
-        {
-            string fakePath = "C:\\avatar.jpg";
-            this.filePickerService.SelectedPath = fakePath;
-
-            this.systemUnderTest.SelectAvatarCommand.Execute(null);
-            await Task.Delay(50);
-
-            Assert.That(this.systemUnderTest.AvatarUrl, Is.EqualTo(fakePath));
+            Assert.That(systemUnderTest.ConfirmPasswordError, Is.EqualTo("Passwords do not match."));
+            Assert.That(accountService.ChangePasswordCallCount, Is.EqualTo(0));
         }
     }
 }

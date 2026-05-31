@@ -1,7 +1,7 @@
-// <copyright file="IRentalService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
@@ -14,8 +14,6 @@ namespace BoardGames.Shared.ProxyServices
 
         Task<ServiceResult<bool>> IsSlotAvailableAsync(int gameId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<IReadOnlyList<BookedDateRangeDTO>>> GetBookedDatesForGameAsync(int gameId, CancellationToken cancellationToken = default);
-
-        Task<ServiceResult> CreateConfirmedRentalAsync(CreateRentalDTO rental, CancellationToken cancellationToken = default);
+        Task<ServiceResult> CreateConfirmedRentalAsync(CreateRentalDataTransferObject rental, CancellationToken cancellationToken = default);
     }
 }

@@ -1,12 +1,11 @@
-// <copyright file="RequestsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System.Net;
-using BoardGames.Shared.DTO;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
-using BoardGames.Web.Models.Requests;
+using BoardGames.Web.Models.Games;
+using BoardGames.Shared.DTO;
+using GUI_BRAP.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,39 +16,31 @@ namespace BoardGames.Web.Controllers
     {
         private readonly IRequestProxyService requestProxyService;
         private readonly IGameProxyService gameProxyService;
-        private readonly IChatProxyService chatProxyService;
-        private readonly IRentalProxyService rentalProxyService;
 
-        public RequestsController(
-            IRequestProxyService requestProxyService,
-            IGameProxyService gameProxyService,
-            IChatProxyService chatProxyService,
-            IRentalProxyService rentalProxyService)
+        public RequestsController(IRequestProxyService requestProxyService, IGameProxyService gameProxyService)
         {
             this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
-            this.chatProxyService = chatProxyService ?? throw new ArgumentNullException(nameof(chatProxyService));
-            this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
         }
 
         [HttpGet]
         public async Task<IActionResult> My()
         {
-            Guid renterAccountId = this.User.GetAccountId();
+            Guid renterAccountId = User.GetAccountId();
 
             try
             {
-                var requests = await this.requestProxyService.GetRequestsForRenterAsync(renterAccountId);
+                var requests = await requestProxyService.GetRequestsForRenterAsync(renterAccountId);
                 var sortedRequests = requests.OrderByDescending(request => request.StartDate).ToList();
 
-                return this.View(new MyRequestsViewModel
+                return View(new MyRequestsViewModel
                 {
                     Requests = sortedRequests,
                 });
             }
             catch (ProxyServiceException ex)
             {
-                return this.View(new MyRequestsViewModel
+                return View(new MyRequestsViewModel
                 {
                     ErrorMessage = ex.Message,
                 });
@@ -59,47 +50,28 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Others()
         {
-            Guid ownerAccountId = this.User.GetAccountId();
-            var openRequests = await this.requestProxyService.GetOpenRequestsForOwnerAsync(ownerAccountId);
+            Guid ownerAccountId = User.GetAccountId();
+            var openRequests = await requestProxyService.GetOpenRequestsForOwnerAsync(ownerAccountId);
             return View(openRequests);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> BookedDates(int gameId)
-        {
-            if (gameId <= 0)
-            {
-                return this.Json(Array.Empty<BookedDateRangeDTO>());
-            }
-
-            try
-            {
-                var bookedDates = await this.rentalProxyService.GetBookedDatesForGameAsync(gameId);
-                return this.Json(bookedDates);
-            }
-            catch (ProxyServiceException)
-            {
-                return this.Json(Array.Empty<BookedDateRangeDTO>());
-            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            Guid renterAccountId = this.User.GetAccountId();
+            Guid renterAccountId = User.GetAccountId();
 
             try
             {
-                var availableGames = await this.gameProxyService.GetAvailableGamesForRenterAsync(renterAccountId);
+                var availableGames = await gameProxyService.GetAvailableGamesForRenterAsync(renterAccountId);
 
-                return this.View(new CreateRequestViewModel
+                return View(new CreateRequestViewModel
                 {
                     AvailableGames = availableGames,
                 });
             }
             catch (ProxyServiceException ex)
             {
-                return this.View(new CreateRequestViewModel
+                return View(new CreateRequestViewModel
                 {
                     ErrorMessage = ex.Message,
                 });
@@ -110,23 +82,13 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateRequestViewModel form)
         {
-            Guid renterAccountId = this.User.GetAccountId();
+            Guid renterAccountId = User.GetAccountId();
 
-            var availableGames = await this.LoadAvailableGamesOrEmptyAsync(renterAccountId);
+            var availableGames = await LoadAvailableGamesOrEmptyAsync(renterAccountId);
 
-            if (form.StartDate.Date < DateTime.Today)
+            if (!ModelState.IsValid)
             {
-                this.ModelState.AddModelError(nameof(form.StartDate), "Start date cannot be in the past.");
-            }
-
-            if (form.StartDate.Date > form.EndDate.Date)
-            {
-                this.ModelState.AddModelError(nameof(form.StartDate), "Start date must be before or equal to end date.");
-            }
-
-            if (!this.ModelState.IsValid)
-            {
-                return this.View(new CreateRequestViewModel
+                return View(new CreateRequestViewModel
                 {
                     GameId = form.GameId,
                     StartDate = form.StartDate,
@@ -138,8 +100,8 @@ namespace BoardGames.Web.Controllers
             GameDTO? selectedGame = availableGames.FirstOrDefault(game => game.Id == form.GameId);
             if (selectedGame is null)
             {
-                this.ModelState.AddModelError(nameof(form.GameId), "The selected game is not available.");
-                return this.View(new CreateRequestViewModel
+                ModelState.AddModelError(nameof(form.GameId), "The selected game is not available.");
+                return View(new CreateRequestViewModel
                 {
                     GameId = form.GameId,
                     StartDate = form.StartDate,
@@ -148,7 +110,7 @@ namespace BoardGames.Web.Controllers
                 });
             }
 
-            var body = new CreateRequestDTO
+            var body = new CreateRequestDataTransferObject
             {
                 GameId = selectedGame.Id,
                 RenterAccountId = renterAccountId,
@@ -159,23 +121,18 @@ namespace BoardGames.Web.Controllers
 
             try
             {
-                await this.requestProxyService.CreateRequestAsync(body);
-
-                this.TempData["SuccessMessage"] = "Your rental request has been submitted successfully!";
-
-                return this.RedirectToAction("Index", "Chats");
+                await requestProxyService.CreateRequestAsync(body);
+                return RedirectToAction(nameof(My));
             }
             catch (ProxyServiceException ex)
             {
-                string friendlyMessage = MapCreateRequestError(ex);
-
-                return this.View(new CreateRequestViewModel
+                return View(new CreateRequestViewModel
                 {
                     GameId = form.GameId,
                     StartDate = form.StartDate,
                     EndDate = form.EndDate,
                     AvailableGames = availableGames,
-                    ErrorMessage = friendlyMessage,
+                    ErrorMessage = ex.Message,
                 });
             }
         }
@@ -184,98 +141,80 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Offer(int id)
         {
-            Guid ownerAccountId = this.User.GetAccountId();
+            Guid ownerAccountId = User.GetAccountId();
 
             try
             {
-                await this.requestProxyService.OfferGameAsync(id, new RequestActionDTO
+                await requestProxyService.OfferGameAsync(id, new RequestActionDataTransferObject
                 {
                     AccountId = ownerAccountId,
                 });
-                this.TempData["SuccessMessage"] = "The request was approved and the rental was created.";
+                TempData["SuccessMessage"] = "The request was approved and the rental was created.";
             }
             catch (ProxyServiceException proxyException)
             {
-                this.TempData["ErrorMessage"] = proxyException.Message;
+                TempData["ErrorMessage"] = proxyException.Message;
             }
 
-            return this.RedirectToAction(nameof(this.Others));
+            return RedirectToAction(nameof(Others));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deny(int id, string? reason)
         {
-            Guid ownerAccountId = this.User.GetAccountId();
+            Guid ownerAccountId = User.GetAccountId();
 
             try
             {
-                await this.requestProxyService.DenyRequestAsync(id, new RequestActionDTO
+                await requestProxyService.DenyRequestAsync(id, new RequestActionDataTransferObject
                 {
                     AccountId = ownerAccountId,
                     Reason = reason ?? string.Empty,
                 });
-                this.TempData["SuccessMessage"] = "The request was declined.";
+                TempData["SuccessMessage"] = "The request was declined.";
             }
             catch (ProxyServiceException proxyException)
             {
-                this.TempData["ErrorMessage"] = proxyException.Message;
+                TempData["ErrorMessage"] = proxyException.Message;
             }
 
-            return this.RedirectToAction(nameof(this.Others));
+            return RedirectToAction(nameof(Others));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int requestId)
         {
-            Guid renterAccountId = this.User.GetAccountId();
+            Guid renterAccountId = User.GetAccountId();
 
-            var body = new RequestActionDTO
+            var body = new RequestActionDataTransferObject
             {
                 AccountId = renterAccountId,
             };
 
             try
             {
-                await this.requestProxyService.CancelRequestAsync(requestId, body);
+                await requestProxyService.CancelRequestAsync(requestId, body);
             }
             catch (ProxyServiceException ex)
             {
-                this.TempData["ErrorMessage"] = ex.Message;
+                TempData["ErrorMessage"] = ex.Message;
             }
 
-            return this.RedirectToAction(nameof(this.My));
+            return RedirectToAction(nameof(My));
         }
 
         private async Task<IReadOnlyList<GameDTO>> LoadAvailableGamesOrEmptyAsync(Guid renterAccountId)
         {
             try
             {
-                return await this.gameProxyService.GetAvailableGamesForRenterAsync(renterAccountId);
+                return await gameProxyService.GetAvailableGamesForRenterAsync(renterAccountId);
             }
             catch (ProxyServiceException)
             {
                 return new List<GameDTO>();
             }
-        }
-
-        private static string MapCreateRequestError(ProxyServiceException ex)
-        {
-            return ex.ApiErrorCode switch
-            {
-                "owner_cannot_rent" => "You cannot rent your own game.",
-                "dates_unavailable" => "The selected dates are no longer available.",
-                "game_not_found" => "Game not found.",
-                "invalid_date_range" => "Invalid date range.",
-                _ => ex.StatusCode switch
-                {
-                    HttpStatusCode.NotFound => "The requested resource was not found.",
-                    HttpStatusCode.Forbidden => "You do not have permission to perform this action.",
-                    HttpStatusCode.Conflict => "The request could not be completed due to a conflict. Please try again.",
-                    _ => !string.IsNullOrWhiteSpace(ex.Message) ? ex.Message : "An unexpected error occurred. Please try again.",
-                },
-            };
         }
     }
 }

@@ -1,11 +1,8 @@
-// <copyright file="RentalsFromOthersViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Immutable;
-using BoardGames.Shared.DTO;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -20,16 +17,16 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.rentalService = new FakeClientRentalService();
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.sampleRenterIdentifier };
+            rentalService = new FakeClientRentalService();
+            currentUserContext = new FakeCurrentUserContext { CurrentUserId = sampleRenterIdentifier };
         }
 
         [Test]
         public void Constructor_LoadsRentalsForCurrentRenter()
         {
-            this.rentalService.RentalsForRenter = ImmutableList.Create(this.BuildRental(1), this.BuildRental(2));
+            rentalService.RentalsForRenter = ImmutableList.Create(BuildRental(1), BuildRental(2));
 
-            var viewModel = new RentalsFromOthersViewModel(this.rentalService, this.currentUserContext);
+            var viewModel = new RentalsFromOthersViewModel(rentalService, currentUserContext);
 
             Assert.That(viewModel.TotalCount, Is.EqualTo(2));
         }
@@ -37,11 +34,11 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void Reload_OrdersRentalsByStartDateDescending()
         {
-            var olderRental = this.BuildRental(1, DateTime.UtcNow.AddDays(2));
-            var newerRental = this.BuildRental(2, DateTime.UtcNow.AddDays(10));
-            this.rentalService.RentalsForRenter = ImmutableList.Create(olderRental, newerRental);
+            var olderRental = BuildRental(1, DateTime.UtcNow.AddDays(2));
+            var newerRental = BuildRental(2, DateTime.UtcNow.AddDays(10));
+            rentalService.RentalsForRenter = ImmutableList.Create(olderRental, newerRental);
 
-            var viewModel = new RentalsFromOthersViewModel(this.rentalService, this.currentUserContext);
+            var viewModel = new RentalsFromOthersViewModel(rentalService, currentUserContext);
 
             Assert.That(viewModel.PagedItems[0].Id, Is.EqualTo(2));
         }
@@ -52,7 +49,7 @@ namespace BoardGames.Tests.ViewModels
             {
                 Id = identifier,
                 Game = new GameDTO { Id = 100 },
-                Renter = new UserDTO { Id = this.sampleRenterIdentifier },
+                Renter = new UserDTO { Id = sampleRenterIdentifier },
                 Owner = new UserDTO { Id = Guid.NewGuid() },
                 StartDate = startDate ?? DateTime.UtcNow.AddDays(1),
                 EndDate = (startDate ?? DateTime.UtcNow.AddDays(1)).AddDays(2),

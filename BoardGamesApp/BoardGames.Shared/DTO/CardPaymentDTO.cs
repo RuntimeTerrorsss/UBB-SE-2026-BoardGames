@@ -1,6 +1,8 @@
-﻿// <copyright file="CardPaymentDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="CardPaymentDTO.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+
+using System;
 
 namespace BoardGames.Shared.DTO
 {

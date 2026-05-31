@@ -1,7 +1,9 @@
-﻿// <copyright file="RepositoryPayment.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="RepositoryPayment.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System.Collections.Generic;
+using System.Linq;
 using BoardGames.Data.Constants;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,23 +15,23 @@ namespace BoardGames.Data.Repositories
 
         public RepositoryPayment(AppDbContext appContext)
         {
-            this.context = appContext;
+            context = appContext;
         }
 
         public async Task<IReadOnlyList<HistoryPayment>> GetAllPayments()
         {
-            return await this.BuildPaymentQuery().ToListAsync();
+            return await BuildPaymentQuery().ToListAsync();
         }
 
         public async Task<HistoryPayment?> GetPaymentById(int searchedPaymentId)
         {
-            return await this.BuildPaymentQuery()
+            return await BuildPaymentQuery()
                 .FirstOrDefaultAsync(payment => payment.TransactionIdentifier == searchedPaymentId);
         }
 
         private IQueryable<HistoryPayment> BuildPaymentQuery()
         {
-            return this.context.Payments
+            return context.Payments
                 .Include(payment => payment.Request)
                     .ThenInclude(rental => rental!.Game)
                 .Include(payment => payment.Owner)

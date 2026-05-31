@@ -1,7 +1,8 @@
-// <copyright file="SessionContext.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="SessionContext.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
 using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Enums
@@ -29,22 +30,22 @@ namespace BoardGames.Data.Enums
         /// intended for internal use to establish a default session state.</remarks>
         private SessionContext()
         {
-            this.userId = UnregisteredUserID;
-            this.IsLoggedIn = false;
+            userId = UnregisteredUserID;
+            IsLoggedIn = false;
         }
 
         /// <summary>
         /// Gets or sets the unique identifier for the user.
         /// </summary>
-        public int UserId
-        {
-            get => this.userId;
-            set
+        public int UserId 
+        { 
+            get => userId; 
+            set 
             {
-                if (this.userId != value)
+                if (userId != value)
                 {
-                    this.userId = value;
-                    this.OnUserChanged?.Invoke();
+                    userId = value;
+                    OnUserChanged?.Invoke();
                 }
             }
         }
@@ -57,6 +58,9 @@ namespace BoardGames.Data.Enums
         /// <summary>
         /// Retrieves the singleton instance of the SessionContext class.
         /// </summary>
+        /// <remarks>This method implements the singleton pattern to ensure that only one instance of
+        /// SessionContext exists throughout the application's lifetime. Subsequent calls return the same
+        /// instance.</remarks>
         /// <returns>The single, shared instance of SessionContext.</returns>
         public static SessionContext GetInstance()
         {
@@ -76,18 +80,20 @@ namespace BoardGames.Data.Enums
         {
             if (user != null)
             {
-                this.UserId = user.PamUserId;
-                this.IsLoggedIn = true;
+                UserId = user.PamUserId;
+                IsLoggedIn = true;
             }
         }
 
         /// <summary>
         /// Resets the user state to indicate that no user is currently logged in.
         /// </summary>
+        /// <remarks>Call this method to clear all authentication information and revert the user to an
+        /// unregistered state. After calling this method, the user will be considered logged out.</remarks>
         public void Clear()
         {
-            this.UserId = UnregisteredUserID;
-            this.IsLoggedIn = false;
+            UserId = UnregisteredUserID;
+            IsLoggedIn = false;
         }
     }
 }

@@ -1,3 +1,6 @@
+using System.IO;
+using System.Threading.Tasks;
+
 namespace BoardGames.Api.Services
 {
     public interface IAvatarStorageService

@@ -1,7 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using BoardGames.Desktop.ViewModels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+
+// To learn more about WinUI, the WinUI project structure,
+// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace BoardGames.Desktop.Views
 {
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
     public sealed partial class RegisterView : Page
     {
         public RegisterViewModel ViewModel { get; }
@@ -12,24 +32,24 @@ namespace BoardGames.Desktop.Views
             ViewModel = new RegisterViewModel(App.UserService, App.Session);
             ViewModel.NavigateToLogin += () => Frame.Navigate(typeof(LoginView));
             ViewModel.NavigateToHome += () => Frame.Navigate(typeof(DiscoveryView));
-            ViewModel.PropertyChanged += (viewModelSender, propertyChangedEventArgs) =>
+            ViewModel.PropertyChanged += (s, e) =>
             {
-                if (propertyChangedEventArgs.PropertyName == nameof(ViewModel.IsLoading))
+                if (e.PropertyName == nameof(ViewModel.IsLoading))
                 {
                     RegisterButton.IsEnabled = !ViewModel.IsLoading;
-                    RegisterButton.Content = ViewModel.IsLoading ? "Creating accountÃ¢â‚¬Â¦" : "Create account";
+                    RegisterButton.Content = ViewModel.IsLoading ? "Creating account…" : "Create account";
                 }
 
-                if (propertyChangedEventArgs.PropertyName == nameof(ViewModel.ErrorMessage))
+                if (e.PropertyName == nameof(ViewModel.ErrorMessage))
                 {
                     ErrorBar.IsOpen = !string.IsNullOrEmpty(ViewModel.ErrorMessage);
                     ErrorBar.Message = ViewModel.ErrorMessage;
                 }
             };
 
-            ViewModel.PropertyChanged += (viewModelSender, propertyChangedEventArgs) =>
+            ViewModel.PropertyChanged += (s, e) =>
             {
-                switch (propertyChangedEventArgs.PropertyName)
+                switch (e.PropertyName)
                 {
                     case nameof(ViewModel.UsernameError):
                         UsernameErrorText.Text = ViewModel.UsernameError;
@@ -62,8 +82,10 @@ namespace BoardGames.Desktop.Views
                 }
             };
             DataContext = ViewModel;
-            PasswordInput.PasswordChanged += (passwordInputSender, passwordChangedEventArgs) => ViewModel.Password = PasswordInput.Password;
-            ConfirmPasswordInput.PasswordChanged += (confirmPasswordInputSender, confirmPasswordChangedEventArgs) => ViewModel.ConfirmPassword = ConfirmPasswordInput.Password;
+
+            // PasswordBox can't use Binding
+            PasswordInput.PasswordChanged += (s, e) => ViewModel.Password = PasswordInput.Password;
+            ConfirmPasswordInput.PasswordChanged += (s, e) => ViewModel.ConfirmPassword = ConfirmPasswordInput.Password;
         }
     }
 }

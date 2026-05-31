@@ -1,13 +1,11 @@
-using BoardGames.Desktop.ViewModels;
-// <copyright file="RequestsFromOthersViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.Services;
+using BoardRentAndProperty.Utilities;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -23,23 +21,23 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.requestService = new FakeClientRequestService
+            requestService = new FakeClientRequestService
             {
                 OpenRequestsForOwner = ImmutableList<RequestDTO>.Empty,
             };
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.sampleOwnerIdentifier };
+            currentUserContext = new FakeCurrentUserContext { CurrentUserId = sampleOwnerIdentifier };
 
-            this.viewModel = new RequestsFromOthersViewModel(
-                this.requestService,
-                this.currentUserContext);
+            viewModel = new RequestsFromOthersViewModel(
+                requestService,
+                currentUserContext);
         }
 
         [Test]
         public async Task TryApproveRequest_WhenServiceSucceeds_ReturnsNull()
         {
-            this.requestService.ApproveRequestResult = Result<int, ApproveRequestError>.Success(500);
+            requestService.ApproveRequestResult = Result<int, ApproveRequestError>.Success(500);
 
-            string? errorMessage = await this.viewModel.TryApproveRequestAsync(42);
+            string? errorMessage = await viewModel.TryApproveRequestAsync(42);
 
             Assert.That(errorMessage, Is.Null);
         }
@@ -47,10 +45,10 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task TryDenyRequest_WhenServiceReturnsUnauthorized_ReturnsNonNullErrorMessage()
         {
-            this.requestService.DenyRequestResult =
+            requestService.DenyRequestResult =
                 Result<int, DenyRequestError>.Failure(DenyRequestError.Unauthorized);
 
-            string? errorMessage = await this.viewModel.TryDenyRequestAsync(42, "unavailable");
+            string? errorMessage = await viewModel.TryDenyRequestAsync(42, "unavailable");
 
             Assert.That(errorMessage, Is.Not.Null);
         }

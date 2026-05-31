@@ -1,13 +1,10 @@
-using BoardGames.Shared.DTO;
-// <copyright file="RentalsToOthersViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -23,17 +20,17 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.rentalService = new FakeClientRentalService();
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.ownerIdentifier };
+            rentalService = new FakeClientRentalService();
+            currentUserContext = new FakeCurrentUserContext { CurrentUserId = ownerIdentifier };
         }
 
         [Test]
         public void ShowingText_WithRentals_ContainsCountAndRentalsKeyword()
         {
-            this.rentalService.RentalsForOwner =
-                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(50));
+            rentalService.RentalsForOwner =
+                ImmutableList.Create(BuildRental(10), BuildRental(20), BuildRental(30), BuildRental(50));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+            var viewModel = new RentalsToOthersViewModel(rentalService, currentUserContext);
 
             Assert.That(viewModel.ShowingText, Does.Contain("rentals"));
             Assert.That(viewModel.ShowingText, Does.Contain("4"));
@@ -42,25 +39,25 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void Constructor_WithRentals_SetsCorrectOwnerIdAndTotalCount()
         {
-            this.rentalService.RentalsForOwner =
-                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(40));
+            rentalService.RentalsForOwner =
+                ImmutableList.Create(BuildRental(10), BuildRental(20), BuildRental(30), BuildRental(40));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+            var viewModel = new RentalsToOthersViewModel(rentalService, currentUserContext);
 
             Assert.That(viewModel.TotalCount, Is.EqualTo(4));
-            Assert.That(viewModel.CurrentGameOwnerUserId, Is.EqualTo(this.ownerIdentifier));
+            Assert.That(viewModel.CurrentGameOwnerUserId, Is.EqualTo(ownerIdentifier));
         }
 
         [Test]
         public void Constructor_WithRentals_PagedItemsContainCorrectRentalDetails()
         {
-            this.rentalService.RentalsForOwner = ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30));
+            rentalService.RentalsForOwner = ImmutableList.Create(BuildRental(10), BuildRental(20), BuildRental(30));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+            var viewModel = new RentalsToOthersViewModel(rentalService, currentUserContext);
             var pagedRentalIds = viewModel.PagedItems.Select(rental => rental.Id).ToList();
 
             Assert.That(viewModel.PagedItems.All(rental => rental.Game.Id == 1), Is.True);
-            Assert.That(viewModel.PagedItems.All(rental => rental.Owner.Id == this.ownerIdentifier), Is.True);
+            Assert.That(viewModel.PagedItems.All(rental => rental.Owner.Id == ownerIdentifier), Is.True);
             Assert.That(pagedRentalIds, Does.Contain(10));
             Assert.That(pagedRentalIds, Does.Contain(20));
             Assert.That(pagedRentalIds, Does.Contain(30));
@@ -69,13 +66,13 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task LoadRentals_AfterServiceDataChanged_RefreshesTotalCountAndPagedItems()
         {
-            this.rentalService.RentalsForOwner = ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30));
+            rentalService.RentalsForOwner = ImmutableList.Create(BuildRental(10), BuildRental(20), BuildRental(30));
 
-            var viewModel = new RentalsToOthersViewModel(this.rentalService, this.currentUserContext);
+            var viewModel = new RentalsToOthersViewModel(rentalService, currentUserContext);
             Assert.That(viewModel.TotalCount, Is.EqualTo(3));
 
-            this.rentalService.RentalsForOwner =
-                ImmutableList.Create(this.BuildRental(10), this.BuildRental(20), this.BuildRental(30), this.BuildRental(50));
+            rentalService.RentalsForOwner =
+                ImmutableList.Create(BuildRental(10), BuildRental(20), BuildRental(30), BuildRental(50));
 
             await viewModel.LoadRentalsAsync();
 
@@ -91,8 +88,8 @@ namespace BoardGames.Tests.ViewModels
             {
                 Id = rentalId,
                 Game = new GameDTO { Id = 1 },
-                Renter = new UserDTO { Id = this.renterIdentifier },
-                Owner = new UserDTO { Id = this.ownerIdentifier },
+                Renter = new UserDTO { Id = renterIdentifier },
+                Owner = new UserDTO { Id = ownerIdentifier },
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddDays(7),
             };

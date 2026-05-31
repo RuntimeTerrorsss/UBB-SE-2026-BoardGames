@@ -1,10 +1,6 @@
-// <copyright file="AppDbContextFactory.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace BoardGames.Data

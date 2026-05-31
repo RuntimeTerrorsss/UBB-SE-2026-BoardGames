@@ -3,14 +3,16 @@ namespace BoardGames.Desktop.ViewModels
     using System;
     using System.Collections.Generic;
     using BoardGames.Desktop.Services;
+    using BoardGames.Desktop.Services;
 
     public class MenuBarViewModel : BaseViewModel
     {
-        private const string DefaultSelectedMenuLabel = "Dashboard";
+        private const string DefaultSelectedMenuLabel = "My Games";
 
         private readonly IDesktopAuthorizationService authorizationService;
+
         private Dictionary<string, Action> navigationActionsByMenuLabel;
-        private string selectedMenuPageName = DefaultSelectedMenuLabel;
+        private string selectedMenuPageName;
 
         public MenuBarViewModel(IDesktopAuthorizationService authorizationService)
         {
@@ -18,17 +20,21 @@ namespace BoardGames.Desktop.ViewModels
             navigationActionsByMenuLabel = BuildNavigationActions();
         }
 
-        public MenuBarViewModel(ISessionContext sessionContext)
+        public MenuBarViewModel(BoardGames.Desktop.Services.ISessionContext sessionContext)
             : this(new DesktopAuthorizationService(sessionContext))
         {
         }
 
-        public event Action<AppPage>? RequestNavigation;
+        public event Action<AppPage> RequestNavigation;
 
         public Dictionary<string, Action> NavigationActionsByMenuLabel
         {
             get => navigationActionsByMenuLabel;
-            private set => SetProperty(ref navigationActionsByMenuLabel, value);
+            private set
+            {
+                navigationActionsByMenuLabel = value;
+                this.OnPropertyChanged();
+            }
         }
 
         public string SelectedPageName
@@ -36,8 +42,10 @@ namespace BoardGames.Desktop.ViewModels
             get => selectedMenuPageName;
             set
             {
-                if (SetProperty(ref selectedMenuPageName, value))
+                if (selectedMenuPageName != value)
                 {
+                    selectedMenuPageName = value;
+                    this.OnPropertyChanged();
                     HandleMenuNavigation(value);
                 }
             }
@@ -46,18 +54,21 @@ namespace BoardGames.Desktop.ViewModels
         public void Rebuild()
         {
             NavigationActionsByMenuLabel = BuildNavigationActions();
-            SelectedPageName = DefaultSelectedMenuLabel;
+            selectedMenuPageName = DefaultSelectedMenuLabel;
+            this.OnPropertyChanged(nameof(SelectedPageName));
         }
 
         private Dictionary<string, Action> BuildNavigationActions()
         {
             var actions = new Dictionary<string, Action>
             {
-                { "Dashboard",     () => RequestNavigation?.Invoke(AppPage.Dashboard) },
-                { "Chat",          () => RequestNavigation?.Invoke(AppPage.Chat) },
-                { "My Games",      () => RequestNavigation?.Invoke(AppPage.Listings) },
-                { "Notifications", () => RequestNavigation?.Invoke(AppPage.Notifications) },
-                { "Profile",       () => RequestNavigation?.Invoke(AppPage.Profile) },
+                { "My Games",         () => RequestNavigation?.Invoke(AppPage.Listings) },
+                { "My Requests",      () => RequestNavigation?.Invoke(AppPage.RequestsToOthers) },
+                { "My Rentals",       () => RequestNavigation?.Invoke(AppPage.RentalsFromOthers) },
+                { "Others' Requests", () => RequestNavigation?.Invoke(AppPage.RequestsFromOthers) },
+                { "Others' Rentals",  () => RequestNavigation?.Invoke(AppPage.RentalsToOthers) },
+                { "Notifications",    () => RequestNavigation?.Invoke(AppPage.Notifications) },
+                { "Profile",          () => RequestNavigation?.Invoke(AppPage.Profile) },
             };
 
             if (authorizationService.IsAdministrator)
@@ -72,7 +83,8 @@ namespace BoardGames.Desktop.ViewModels
 
         private void HandleMenuNavigation(string selectedMenuLabel)
         {
-            if (navigationActionsByMenuLabel.TryGetValue(selectedMenuLabel, out var navigationAction))
+            if (!string.IsNullOrEmpty(selectedMenuLabel)
+                && navigationActionsByMenuLabel.TryGetValue(selectedMenuLabel, out var navigationAction))
             {
                 navigationAction.Invoke();
             }

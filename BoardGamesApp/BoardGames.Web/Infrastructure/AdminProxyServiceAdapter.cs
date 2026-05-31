@@ -1,10 +1,13 @@
-// <copyright file="AdminProxyServiceAdapter.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Shared.DTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Account;
-using System.Net.Http.Json;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using GUI_BRAP.Models;
+using GUI_BRAP.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
@@ -13,50 +16,32 @@ namespace BoardGames.Web.Infrastructure
         private const int FirstPage = 1;
         private const int DefaultPageSize = 100;
 
-        private readonly HttpClient httpClient;
+        private readonly IAdminService adminService;
 
-        public AdminProxyServiceAdapter(HttpClient httpClient)
+        public AdminProxyServiceAdapter(IAdminService adminService)
         {
-            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            if (this.httpClient.BaseAddress is null)
-            {
-                throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
-            }
+            this.adminService = adminService;
         }
 
         public async Task<IEnumerable<AdminAccountViewModel>> GetAllAccountsAsync()
         {
-            using var response = await this.httpClient.GetAsync($"admin/accounts?page={FirstPage}&pageSize={DefaultPageSize}");
-            var accounts = await HttpProxyClient.ReadAsync<List<AccountProfileDTO>>(response);
+            var accounts = (await adminService.GetAllAccountsAsync(FirstPage, DefaultPageSize)).ThrowIfFailed();
             return accounts.Select(Map).ToList();
         }
 
         public async Task SuspendAccountAsync(string accountId)
-        {
-            using var response = await this.httpClient.PutAsync($"admin/accounts/{Guid.Parse(accountId)}/suspend", content: null);
-            await HttpProxyClient.EnsureSuccessAsync(response);
-        }
+            => (await adminService.SuspendAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
 
         public async Task UnsuspendAccountAsync(string accountId)
-        {
-            using var response = await this.httpClient.PutAsync($"admin/accounts/{Guid.Parse(accountId)}/unsuspend", content: null);
-            await HttpProxyClient.EnsureSuccessAsync(response);
-        }
+            => (await adminService.UnsuspendAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
 
         public async Task UnlockAccountAsync(string accountId)
-        {
-            using var response = await this.httpClient.PutAsync($"admin/accounts/{Guid.Parse(accountId)}/unlock", content: null);
-            await HttpProxyClient.EnsureSuccessAsync(response);
-        }
+            => (await adminService.UnlockAccountAsync(Guid.Parse(accountId))).ThrowIfFailed();
 
         public async Task ResetPasswordAsync(string accountId, string newPassword)
-        {
-            var body = new ResetPasswordDTO { NewPassword = newPassword };
-            using var response = await this.httpClient.PutAsJsonAsync($"admin/accounts/{Guid.Parse(accountId)}/reset-password", body);
-            await HttpProxyClient.EnsureSuccessAsync(response);
-        }
+            => (await adminService.ResetPasswordAsync(Guid.Parse(accountId), newPassword)).ThrowIfFailed();
 
-        private static AdminAccountViewModel Map(AccountProfileDTO profile) => new()
+        private static AdminAccountViewModel Map(AccountProfileDataTransferObject profile) => new()
         {
             Id = profile.Id.ToString(),
             Username = profile.Username,

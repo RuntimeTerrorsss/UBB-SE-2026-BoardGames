@@ -1,8 +1,9 @@
-// <copyright file="MessageBase.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ServerCommunication
 {
@@ -12,8 +13,8 @@ namespace ServerCommunication
         {
             return new MessageWrapper
             {
-                Type = this.GetType().Name,
-                Payload = JsonSerializer.SerializeToUtf8Bytes((object)this),
+                Type = GetType().Name,
+                Payload = JsonSerializer.SerializeToUtf8Bytes((object)this)
             };
         }
     }

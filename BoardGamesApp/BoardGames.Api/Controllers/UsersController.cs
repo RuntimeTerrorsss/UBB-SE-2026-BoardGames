@@ -1,7 +1,3 @@
-// <copyright file="UsersController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using BoardGames.Api.Services;
@@ -24,7 +20,7 @@ namespace BoardGames.Api.Controllers
         [HttpGet("except/{excludeAccountId:guid}")]
         public ActionResult<IReadOnlyList<UserDTO>> GetUsersExcept(Guid excludeAccountId)
         {
-            return this.Ok(this.userService.GetUsersExcept(excludeAccountId));
+            return Ok(userService.GetUsersExcept(excludeAccountId));
         }
     }
 }

@@ -1,10 +1,10 @@
-// <copyright file="NotificationsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Shared.DTO;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
+using BoardGames.Shared.DTO;
+using GUI_BRAP.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,41 +23,25 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int page = 1)
         {
-            Guid accountId = this.User.GetAccountId();
+            Guid accountId = User.GetAccountId();
             int pageSize = 3;
 
             try
             {
-                var notifications = await this.notificationProxyService.GetNotificationsForUserAsync(accountId);
+                var notifications = await notificationProxyService.GetNotificationsForUserAsync(accountId);
 
                 var paginatedNotifications = notifications.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-                this.ViewData["CurrentPage"] = page;
-                this.ViewData["TotalCount"] = notifications.Count;
-                this.ViewData["PageSize"] = pageSize;
+                ViewData["CurrentPage"] = page;
+                ViewData["TotalCount"] = notifications.Count;
+                ViewData["PageSize"] = pageSize;
 
                 return View(paginatedNotifications);
             }
             catch (ProxyServiceException exception)
             {
-                this.TempData["ErrorMessage"] = "Could not load notifications at this time.";
-                return this.View(Array.Empty<NotificationDTO>());
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetCount()
-        {
-            Guid accountId = this.User.GetAccountId();
-
-            try
-            {
-                var notifications = await this.notificationProxyService.GetNotificationsForUserAsync(accountId);
-                return this.Json(new { count = notifications.Count });
-            }
-            catch (ProxyServiceException)
-            {
-                return this.Json(new { count = 0 });
+                TempData["ErrorMessage"] = "Could not load notifications at this time.";
+                return View(Array.Empty<NotificationDTO>());
             }
         }
 
@@ -67,15 +51,16 @@ namespace BoardGames.Web.Controllers
         {
             try
             {
-                await this.notificationProxyService.DeleteNotificationAsync(id);
-                this.TempData["SuccessMessage"] = "Notification deleted successfully.";
+                await notificationProxyService.DeleteNotificationAsync(id);
+                TempData["SuccessMessage"] = "Notification deleted successfully.";
             }
             catch (ProxyServiceException exception)
             {
-                this.TempData["ErrorMessage"] = "Failed to delete notification. " + exception.Message;
+                TempData["ErrorMessage"] = "Failed to delete notification. " + exception.Message;
             }
 
-            return this.RedirectToAction(nameof(this.Index));
+            return RedirectToAction(nameof(Index));
         }
+
     }
 }

@@ -1,7 +1,12 @@
-// <copyright file="UserRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="UserRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BoardGames.Data.Constants;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,27 +18,27 @@ namespace BoardGames.Data.Repositories
 
         public UserRepository(AppDbContext appContext)
         {
-            this.context = appContext;
+            context = appContext;
         }
 
         public async Task<User?> GetById(int id)
         {
-            return await this.context.Users.FirstOrDefaultAsync(user => user.PamUserId == id);
+            return await context.Users.FirstOrDefaultAsync(user => user.PamUserId == id);
         }
 
         public async Task<User?> GetGameById(int id)
         {
-            return await this.GetById(id);
+            return await GetById(id);
         }
 
         public async Task<List<User>> GetAll()
         {
-            return await this.context.Users.ToListAsync();
+            return await context.Users.ToListAsync();
         }
 
         public async Task SaveAddress(int id, Address address)
         {
-            var foundUser = await this.context.Users.FirstOrDefaultAsync(user => user.PamUserId == id);
+            var foundUser = await context.Users.FirstOrDefaultAsync(user => user.PamUserId == id);
 
             if (foundUser is null)
             {
@@ -45,12 +50,12 @@ namespace BoardGames.Data.Repositories
             foundUser.StreetName = address.Street;
             foundUser.StreetNumber = address.StreetNumber;
 
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<decimal> GetUserBalance(int userId)
         {
-            return await this.context.Users
+            return await context.Users
                 .Where(user => user.PamUserId == userId)
                 .Select(user => (decimal?)user.Balance)
                 .FirstOrDefaultAsync() ?? 0m;
@@ -58,7 +63,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task UpdateBalance(int userId, decimal newBalance)
         {
-            var foundUser = await this.context.Users.FirstOrDefaultAsync(user => user.PamUserId == userId);
+            var foundUser = await context.Users.FirstOrDefaultAsync(user => user.PamUserId == userId);
 
             if (foundUser is null)
             {
@@ -67,23 +72,20 @@ namespace BoardGames.Data.Repositories
 
             foundUser.Balance = newBalance;
 
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
-
         private async Task<User?> GetByIdentifier(string identifier)
         {
-            return await this.context.Users
+            return await context.Users
                 .FirstOrDefaultAsync(user => user.Email == identifier || user.Username == identifier);
         }
 
         public async Task<User?> Login(string emailOrUsername, string password)
         {
-            var user = await this.GetByIdentifier(emailOrUsername);
+            var user = await GetByIdentifier(emailOrUsername);
 
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
+
 
             if (user.PasswordHash == password)
             {
@@ -95,20 +97,17 @@ namespace BoardGames.Data.Repositories
 
         public async Task<bool> Register(User newUser)
         {
-            var exists = await this.context.Users
+            var exists = await context.Users
                 .AnyAsync(user => user.Username == newUser.Username || user.Email == newUser.Email);
 
-            if (exists)
-            {
-                return false;
-            }
+            if (exists) return false;
 
-            Console.WriteLine("user can be created now");
+            Console.WriteLine("--------------------------user can be created now");
 
             newUser.CreatedAt = DateTime.Now;
-            await this.context.Users.AddAsync(newUser);
+            await context.Users.AddAsync(newUser);
 
-            var result = await this.context.SaveChangesAsync();
+            var result = await context.SaveChangesAsync();
             return result > 0;
         }
     }

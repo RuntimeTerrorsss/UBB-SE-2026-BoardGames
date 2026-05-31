@@ -1,7 +1,3 @@
-// <copyright file="RequestMapper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
 using DataRequestStatus = BoardGames.Data.Enums.RequestStatus;
@@ -30,13 +26,33 @@ namespace BoardGames.Api.Mappers
             return new RequestDTO
             {
                 Id = request.Id,
-                Game = this.gameMapper.ToSummaryDTO(request.Game),
-                Renter = this.participantMapper.ToDTO(request.Renter),
-                Owner = this.participantMapper.ToDTO(request.Owner),
+                Game = gameMapper.ToDTO(request.Game),
+                Renter = participantMapper.ToDTO(request.Renter),
+                Owner = participantMapper.ToDTO(request.Owner),
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
                 Status = ToDataTransferObjectStatus(request.Status),
-                OfferingUser = request.OfferingUser != null ? this.participantMapper.ToDTO(request.OfferingUser) : null,
+                OfferingUser = request.OfferingUser != null ? participantMapper.ToDTO(request.OfferingUser) : null,
+            };
+        }
+
+        public Request? ToModel(RequestDTO? dto)
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return new Request
+            {
+                Id = dto.Id,
+                Game = gameMapper.ToModel(dto.Game),
+                Renter = participantMapper.ToModel(dto.Renter),
+                Owner = participantMapper.ToModel(dto.Owner),
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                Status = ToModelStatus(dto.Status),
+                OfferingUser = dto.OfferingUser != null ? participantMapper.ToModel(dto.OfferingUser) : null,
             };
         }
 

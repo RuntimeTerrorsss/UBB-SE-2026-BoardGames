@@ -1,7 +1,3 @@
-// <copyright file="20260513112732_FixNotificationMappings.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

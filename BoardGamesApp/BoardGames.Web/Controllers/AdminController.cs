@@ -1,28 +1,26 @@
-// <copyright file="AdminController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Web.Helpers;
-using BoardGames.Web.Infrastructure;
+using BoardGames.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace BoardGames.Web.Controllers
 {
+
     [Authorize(Roles = AppRoles.Administrator)]
     public class AdminController : Controller
     {
-        private readonly IAdminProxyService adminProxyService;
+        private readonly IAdminProxyService _adminProxyService;
 
-        public AdminController(IAdminProxyService adminProxyServiceParam)
+        public AdminController(IAdminProxyService adminProxyService)
         {
-            this.adminProxyService = adminProxyServiceParam;
+            _adminProxyService = adminProxyService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var accounts = await this.adminProxyService.GetAllAccountsAsync();
+            var accounts = await _adminProxyService.GetAllAccountsAsync();
             return View(accounts);
         }
 
@@ -30,18 +28,18 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Suspend(string id)
         {
-            await this.adminProxyService.SuspendAccountAsync(id);
-            this.TempData["SuccessMessage"] = "Account successfully suspended.";
-            return this.RedirectToAction(nameof(this.Index));
+            await _adminProxyService.SuspendAccountAsync(id);
+            TempData["SuccessMessage"] = "Account successfully suspended.";
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unsuspend(string id)
         {
-            await this.adminProxyService.UnsuspendAccountAsync(id);
-            this.TempData["SuccessMessage"] = "Account successfully unsuspended.";
-            return this.RedirectToAction(nameof(this.Index));
+            await _adminProxyService.UnsuspendAccountAsync(id);
+            TempData["SuccessMessage"] = "Account successfully unsuspended.";
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -50,22 +48,22 @@ namespace BoardGames.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(newPassword))
             {
-                this.TempData["ErrorMessage"] = "Password cannot be empty.";
-                return this.RedirectToAction(nameof(this.Index));
+                TempData["ErrorMessage"] = "Password cannot be empty.";
+                return RedirectToAction(nameof(Index));
             }
 
-            await this.adminProxyService.ResetPasswordAsync(id, newPassword);
-            this.TempData["SuccessMessage"] = "Password has been successfully reset.";
-            return this.RedirectToAction(nameof(this.Index));
+            await _adminProxyService.ResetPasswordAsync(id, newPassword);
+            TempData["SuccessMessage"] = "Password has been successfully reset.";
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unlock(string id)
         {
-            await this.adminProxyService.UnlockAccountAsync(id);
-            this.TempData["SuccessMessage"] = "Account has been successfully unlocked.";
-            return this.RedirectToAction(nameof(this.Index));
+            await _adminProxyService.UnlockAccountAsync(id);
+            TempData["SuccessMessage"] = "Account has been successfully unlocked.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

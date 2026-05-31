@@ -1,174 +1,248 @@
+// <copyright file="PaymentHistoryViewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using BookingBoardGames.Data.Constants;
+using BookingBoardGames.Data.Enum;
+using BookingBoardGames.Sharing.DTO;
+using BookingBoardGames.Sharing.Services;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BoardGames.Data.Enums;
-    using BoardGames.Desktop.Commands;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-    using Windows.Storage;
-    using Windows.System;
-
     public class FilterOption
     {
         public FilterType Type { get; set; }
 
-        public string DisplayName { get; set; } = string.Empty;
+        public string DisplayName { get; set; }
     }
 
     public class PaymentHistoryViewModel : ViewModelBase
     {
-        private const int FirstPageNumber = 1;
-        private const int InitialTotalPages = 1;
-        private const int SearchDebounceMilliseconds = 300;
-
-        private readonly IPaymentService paymentService;
-        private readonly ISessionContext sessionContext;
-
+        private readonly IServicePayment paymentService;
         private FilterOption selectedFilterOption;
         private PaymentMethod selectedPaymentMethod;
         private string searchText = string.Empty;
+        private CancellationTokenSource searchCancellationTokenSource;
         private decimal totalAmount;
-        private int currentPage = FirstPageNumber;
-        private int totalPages = InitialTotalPages;
-        private bool isLoading;
-        private string errorMessage = string.Empty;
-        private CancellationTokenSource? searchCancellationTokenSource;
 
-        public ObservableCollection<PaymentDTO> Payments { get; } = new();
+        private int currentPage = PaymentHistoryViewModelConstants.FirstPage;
+        private int pageSize = PaymentHistoryViewModelConstants.DefaultPageSize;
+        private int totalPages = PaymentHistoryViewModelConstants.StartupTotalPagesCount;
 
-        public ObservableCollection<FilterOption> FilterOptions { get; }
+        private const int MinimumPageCount = PaymentHistoryViewModelConstants.MinimumPagesCount;
 
-        public IEnumerable<PaymentMethod> PaymentMethodOptions { get; } = Enum.GetValues(typeof(PaymentMethod)).Cast<PaymentMethod>();
+        public ObservableCollection<PaymentDataTransferObject> Payments { get; set; }
 
-        public RelayCommand<PaymentDTO> OpenReceiptCommand { get; }
+        public RelayCommand<PaymentDataTransferObject> OpenReceiptCommand { get; }
 
         public RelayCommandNoParam NextPageCommand { get; }
 
         public RelayCommandNoParam PreviousPageCommand { get; }
 
-        public bool IsLoading { get => isLoading; set => SetProperty(ref isLoading, value); }
+        public int CurrentPage
+        {
+            get => currentPage;
+            set
+            {
+                if (SetProperty(ref currentPage, value))
+                {
+                    NextPageCommand?.RaiseCanExecuteChanged();
+                    PreviousPageCommand?.RaiseCanExecuteChanged();
+                }
+            }
+        }
 
-        public string ErrorMessage { get => errorMessage; set => SetProperty(ref errorMessage, value); }
+        public int TotalPages
+        {
+            get => totalPages;
+            set
+            {
+                if (SetProperty(ref totalPages, value))
+                {
+                    NextPageCommand?.RaiseCanExecuteChanged();
+                    PreviousPageCommand?.RaiseCanExecuteChanged();
+                }
+            }
+        }
 
-        public decimal TotalAmount { get => totalAmount; private set => SetProperty(ref totalAmount, value); }
+        public ObservableCollection<FilterOption> FilterOptions { get; }
 
-        public int CurrentPage { get => currentPage; set => SetProperty(ref currentPage, value); }
-
-        public int TotalPages { get => totalPages; set => SetProperty(ref totalPages, value); }
+        public IEnumerable<PaymentMethod> PaymentMethodOptions { get; } = Enum.GetValues(typeof(PaymentMethod)).Cast<PaymentMethod>();
 
         public string SearchText
         {
             get => searchText;
-            set { if (SetProperty(ref searchText, value)) TriggerDebouncedSearch(); }
+            set
+            {
+                if (SetProperty(ref searchText, value))
+                {
+                    searchCancellationTokenSource?.Cancel();
+                    searchCancellationTokenSource = new CancellationTokenSource();
+                    _ = DebounceSearch(searchCancellationTokenSource.Token);
+                }
+            }
+        }
+
+        private async Task DebounceSearch(CancellationToken searchCancellationToken)
+        {
+            try
+            {
+                await Task.Delay(PaymentHistoryViewModelConstants.TaskDelayTime, searchCancellationToken);
+                if (!searchCancellationToken.IsCancellationRequested)
+                {
+                    await ApplyFilter(resetPage: true);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+            }
         }
 
         public FilterOption SelectedFilterOption
         {
             get => selectedFilterOption;
-            set { if (SetProperty(ref selectedFilterOption, value)) _ = ApplyFilter(true); }
+            set
+            {
+                if (SetProperty(ref selectedFilterOption, value))
+                {
+                    _ = ApplyFilter(resetPage: true);
+                }
+            }
         }
 
         public PaymentMethod SelectedPaymentMethod
         {
             get => selectedPaymentMethod;
-            set { if (SetProperty(ref selectedPaymentMethod, value)) _ = ApplyFilter(true); }
+            set
+            {
+                if (this.SetProperty(ref selectedPaymentMethod, value))
+                {
+                    _ = ApplyFilter(resetPage: true);
+                }
+            }
         }
 
-        public PaymentHistoryViewModel(IPaymentService paymentService, ISessionContext sessionContext)
+        public decimal TotalAmount
+        {
+            get => totalAmount;
+            private set
+            {
+                if (SetProperty(ref totalAmount, value))
+                {
+                    OnPropertyChanged(nameof(TotalAmountText));
+                }
+            }
+        }
+
+        public string TotalAmountText => $"{TotalAmount:C}";
+
+        public PaymentHistoryViewModel(IServicePayment paymentService)
         {
             this.paymentService = paymentService;
-            this.sessionContext = sessionContext;
+            Payments = new ObservableCollection<PaymentDataTransferObject>();
 
             FilterOptions = new ObservableCollection<FilterOption>
             {
-                new() { Type = FilterType.AllTime, DisplayName = "All Time" },
-                new() { Type = FilterType.Newest, DisplayName = "Date: Newest First" },
-                new() { Type = FilterType.Oldest, DisplayName = "Date: Oldest First" },
-                new() { Type = FilterType.AlphabeticalAsc, DisplayName = "Alphabetical (A-Z)" }
+                new FilterOption { Type = FilterType.AllTime, DisplayName = "All Time" },
+                new FilterOption { Type = FilterType.Last3Months, DisplayName = "Last 3 Months" },
+                new FilterOption { Type = FilterType.Last6Months, DisplayName = "Last 6 Months" },
+                new FilterOption { Type = FilterType.Last9Months, DisplayName = "Last 9 Months" },
+                new FilterOption { Type = FilterType.Newest, DisplayName = "Date: Newest First" },
+                new FilterOption { Type = FilterType.Oldest, DisplayName = "Date: Oldest First" },
+                new FilterOption { Type = FilterType.AlphabeticalAsc, DisplayName = "Alphabetical (A-Z)" },
+                new FilterOption { Type = FilterType.AlphabeticalDesc, DisplayName = "Alphabetical (Z-A)" },
             };
 
-            selectedFilterOption = FilterOptions.First();
-            selectedPaymentMethod = PaymentMethod.ALL;
-
-            OpenReceiptCommand = new RelayCommand<PaymentDTO>(async (dto) => await OpenReceipt(dto));
+            OpenReceiptCommand = new RelayCommand<PaymentDataTransferObject>(async dto => await OpenReceipt(dto));
             NextPageCommand = new RelayCommandNoParam(async () => await OnNextPage(), () => CurrentPage < TotalPages);
-            PreviousPageCommand = new RelayCommandNoParam(async () => await OnPreviousPage(), () => CurrentPage > 1);
+            PreviousPageCommand = new RelayCommandNoParam(async () => await OnPreviousPage(), () => CurrentPage > PaymentHistoryViewModelConstants.FirstPage);
 
-            _ = ApplyFilter(true);
+            // Default to display all
+            SelectedFilterOption = FilterOptions.First(filter => filter.Type == FilterType.AllTime);
+            SelectedPaymentMethod = PaymentMethod.ALL;
         }
 
-        private void TriggerDebouncedSearch()
+        private bool OnLastPage()
         {
-            searchCancellationTokenSource?.Cancel();
-            searchCancellationTokenSource = new CancellationTokenSource();
-            var token = searchCancellationTokenSource.Token;
-            _ = Task.Delay(SearchDebounceMilliseconds, token).ContinueWith(async _ => await ApplyFilter(true), token);
+            return CurrentPage == TotalPages;
         }
 
-        private async Task OnNextPage() { CurrentPage++; await ApplyFilter(false); }
-
-        private async Task OnPreviousPage() { CurrentPage--; await ApplyFilter(false); }
-
-        public async Task ApplyFilter(bool resetPage)
+        private async Task OnNextPage()
         {
-            if (!sessionContext.IsLoggedIn) return;
-            if (resetPage) CurrentPage = FirstPageNumber;
-
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-
-            var result = await paymentService.GetFilteredPaymentsAsync(
-                sessionContext.AccountId,
-                selectedFilterOption.Type,
-                selectedPaymentMethod,
-                searchText,
-                CurrentPage);
-
-            if (result.Success && result.Data != null)
+            if (!OnLastPage())
             {
-                Payments.Clear();
-                foreach (var payment in result.Data.Items)
-                {
-                    Payments.Add(payment);
-                }
-
-                TotalPages = result.Data.TotalPages;
-                TotalAmount = Payments.Sum(payment => payment.Amount);
-
-                NextPageCommand.RaiseCanExecuteChanged();
-                PreviousPageCommand.RaiseCanExecuteChanged();
+                CurrentPage++;
+                await ApplyFilter(resetPage: false);
             }
-            else
-            {
-                ErrorMessage = result.Error ?? "Eroare la Ã®ncÄƒrcarea plÄƒÈ›ilor.";
-            }
-
-            IsLoading = false;
         }
 
-        private async Task OpenReceipt(PaymentDTO selectedPayment)
+        private bool OnFirstPage()
         {
-            if (selectedPayment == null) return;
-            var result = await paymentService.GetReceiptPathAsync(selectedPayment.PaymentId);
+            return CurrentPage == PaymentHistoryViewModelConstants.FirstPage;
+        }
 
-            if (result.Success && !string.IsNullOrEmpty(result.Data))
+        private async Task OnPreviousPage()
+        {
+            if (!OnFirstPage())
             {
-                try
+                CurrentPage--;
+                await ApplyFilter(resetPage: false);
+            }
+        }
+
+        private async Task OpenReceipt(PaymentDataTransferObject selectedPayment)
+        {
+            if (selectedPayment == null)
+            {
+                return;
+            }
+
+            string receiptFilePath = await paymentService.GetReceiptDocumentPath(selectedPayment.PaymentId);
+
+            try
+            {
+                var receiptFileInfo = new System.IO.FileInfo(receiptFilePath);
+                if (receiptFileInfo.Exists)
                 {
-                    var storageFile = await StorageFile.GetFileFromPathAsync(result.Data);
-                    await Launcher.LaunchFileAsync(storageFile);
-                }
-                catch (Exception)
-                {
-                    ErrorMessage = "Nu s-a putut deschide chitanÈ›a.";
+                    // windows storage file reference to launch safely
+                    var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(receiptFileInfo.FullName);
+                    await Windows.System.Launcher.LaunchFileAsync(storageFile);
                 }
             }
+            catch (Exception)
+            {
+            }
+        }
+
+        private async Task ApplyFilter(bool resetPage = false)
+        {
+            if (selectedFilterOption == null)
+            {
+                return;
+            }
+
+            if (resetPage)
+            {
+                CurrentPage = PaymentHistoryViewModelConstants.FirstPage;
+            }
+
+            var pagedResult = await paymentService.GetFilteredPayments(selectedFilterOption.Type, selectedPaymentMethod, searchText, CurrentPage, pageSize);
+
+            Payments.Clear();
+            foreach (var payment in pagedResult.Items)
+            {
+                Payments.Add(payment);
+            }
+
+            TotalPages = pagedResult.TotalPages == PaymentHistoryViewModelConstants.NoPages ? MinimumPageCount : pagedResult.TotalPages;
+
+            TotalAmount = paymentService.CalculateTotalAmount(pagedResult.Items);
         }
     }
 }

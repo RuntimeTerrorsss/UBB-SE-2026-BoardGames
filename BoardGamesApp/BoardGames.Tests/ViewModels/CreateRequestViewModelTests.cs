@@ -1,13 +1,12 @@
-using BoardGames.Desktop.ViewModels;
-// <copyright file="CreateRequestViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.Services;
+using BoardRentAndProperty.Utilities;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -25,30 +24,30 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.gameService = new FakeClientGameService
+            gameService = new FakeClientGameService
             {
-                AvailableGamesForRenter = ImmutableList.Create(this.BuildOtherUsersGame(300)),
+                AvailableGamesForRenter = ImmutableList.Create(BuildOtherUsersGame(300)),
             };
-            this.requestService = new FakeClientRequestService();
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.currentUserId };
+            requestService = new FakeClientRequestService();
+            currentUserContext = new FakeCurrentUserContext { CurrentUserId = currentUserId };
         }
 
         [Test]
         public async Task Constructor_LoadsGamesCurrentUserAndRefreshesCollection()
         {
-            var viewModel = this.BuildViewModel();
+            var viewModel = BuildViewModel();
 
             Assert.Multiple(() =>
             {
-                Assert.That(viewModel.CurrentUserId, Is.EqualTo(this.currentUserId));
+                Assert.That(viewModel.CurrentUserId, Is.EqualTo(currentUserId));
                 Assert.That(viewModel.AvailableGamesToRequest.Count, Is.EqualTo(1));
                 Assert.That(viewModel.AvailableGamesToRequest[0].Id, Is.EqualTo(300));
-                Assert.That(viewModel.AvailableGamesToRequest[0].Owner.Id, Is.Not.EqualTo(this.currentUserId));
+                Assert.That(viewModel.AvailableGamesToRequest[0].Owner.Id, Is.Not.EqualTo(currentUserId));
                 Assert.That(viewModel.AvailableGamesToRequest[0].IsActive, Is.True);
             });
 
-            this.gameService.AvailableGamesForRenter =
-                ImmutableList.Create(this.BuildOtherUsersGame(300), this.BuildOtherUsersGame(401));
+            gameService.AvailableGamesForRenter =
+                ImmutableList.Create(BuildOtherUsersGame(300), BuildOtherUsersGame(401));
 
             await viewModel.LoadAvailableGamesAsync();
 
@@ -58,7 +57,7 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void ValidateRequestInputs_RequiresGameAndDates()
         {
-            var viewModel = this.BuildViewModel();
+            var viewModel = BuildViewModel();
 
             PopulateWithValidSelections(viewModel);
             Assert.That(viewModel.ValidateRequestInputs(), Is.True);
@@ -71,7 +70,7 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task SubmitRequest_CoversValidationSuccessAndInvalidDateRange()
         {
-            var invalidViewModel = this.BuildViewModel();
+            var invalidViewModel = BuildViewModel();
 
             ViewOperationResult validationFailure = await invalidViewModel.SubmitRequestAsync();
 
@@ -80,25 +79,25 @@ namespace BoardGames.Tests.ViewModels
                 Assert.That(validationFailure.IsSuccess, Is.False);
                 Assert.That(validationFailure.DialogTitle, Is.EqualTo("Validation Error"));
             });
-            Assert.That(this.requestService.CreateRequestCallCount, Is.EqualTo(0));
+            Assert.That(requestService.CreateRequestCallCount, Is.EqualTo(0));
 
-            this.requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
+            requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
 
-            var successfulViewModel = this.BuildViewModel();
+            var successfulViewModel = BuildViewModel();
             PopulateWithValidSelections(successfulViewModel);
 
             ViewOperationResult successResult = await successfulViewModel.SubmitRequestAsync();
 
             Assert.That(successResult.IsSuccess, Is.True);
-            Assert.That(this.requestService.CreateRequestCallCount, Is.EqualTo(1));
-            Assert.That(this.requestService.LastGameId, Is.EqualTo(300));
-            Assert.That(this.requestService.LastRenterAccountId, Is.EqualTo(this.currentUserId));
-            Assert.That(this.requestService.LastOwnerAccountId, Is.EqualTo(this.otherOwnerId));
+            Assert.That(requestService.CreateRequestCallCount, Is.EqualTo(1));
+            Assert.That(requestService.LastGameId, Is.EqualTo(300));
+            Assert.That(requestService.LastRenterAccountId, Is.EqualTo(currentUserId));
+            Assert.That(requestService.LastOwnerAccountId, Is.EqualTo(otherOwnerId));
 
-            this.requestService.CreateRequestResult =
+            requestService.CreateRequestResult =
                 Result<int, CreateRequestError>.Failure(CreateRequestError.InvalidDateRange);
 
-            var invalidDateRangeViewModel = this.BuildViewModel();
+            var invalidDateRangeViewModel = BuildViewModel();
             PopulateWithValidSelections(invalidDateRangeViewModel);
 
             ViewOperationResult invalidDateRangeResult = await invalidDateRangeViewModel.SubmitRequestAsync();
@@ -113,10 +112,10 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task SubmitRequest_MapsServiceErrorsAndTrySubmitRequestMirrorsResult()
         {
-            this.requestService.CreateRequestResult =
+            requestService.CreateRequestResult =
                 Result<int, CreateRequestError>.Failure(CreateRequestError.OwnerCannotRent);
 
-            var ownerCannotRentViewModel = this.BuildViewModel();
+            var ownerCannotRentViewModel = BuildViewModel();
             PopulateWithValidSelections(ownerCannotRentViewModel);
 
             ViewOperationResult ownerCannotRentResult = await ownerCannotRentViewModel.SubmitRequestAsync();
@@ -130,25 +129,25 @@ namespace BoardGames.Tests.ViewModels
                 Assert.That(ownerCannotRentTrySubmitMessage, Does.Contain("own game"));
             });
 
-            this.requestService.CreateRequestResult =
+            requestService.CreateRequestResult =
                 Result<int, CreateRequestError>.Failure(CreateRequestError.DatesUnavailable);
 
-            var datesUnavailableViewModel = this.BuildViewModel();
+            var datesUnavailableViewModel = BuildViewModel();
             PopulateWithValidSelections(datesUnavailableViewModel);
             ViewOperationResult datesUnavailableResult = await datesUnavailableViewModel.SubmitRequestAsync();
             Assert.That(datesUnavailableResult.DialogMessage, Does.Contain("not available"));
 
-            this.requestService.CreateRequestResult =
+            requestService.CreateRequestResult =
                 Result<int, CreateRequestError>.Failure(CreateRequestError.GameDoesNotExist);
 
-            var missingGameViewModel = this.BuildViewModel();
+            var missingGameViewModel = BuildViewModel();
             PopulateWithValidSelections(missingGameViewModel);
             ViewOperationResult missingGameResult = await missingGameViewModel.SubmitRequestAsync();
             Assert.That(missingGameResult.DialogMessage, Does.Contain("no longer exists"));
 
-            this.requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
+            requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
 
-            var successfulTrySubmitViewModel = this.BuildViewModel();
+            var successfulTrySubmitViewModel = BuildViewModel();
             PopulateWithValidSelections(successfulTrySubmitViewModel);
             string? successfulTrySubmitMessage = await successfulTrySubmitViewModel.TrySubmitRequestAsync();
             Assert.That(successfulTrySubmitMessage, Is.Null);
@@ -157,11 +156,11 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void Setters_RaisePropertyChangedForBindableFields()
         {
-            var viewModel = this.BuildViewModel();
+            var viewModel = BuildViewModel();
             var changedProperties = new List<string?>();
             viewModel.PropertyChanged += (_, eventArgs) => changedProperties.Add(eventArgs.PropertyName);
 
-            viewModel.SelectedGame = this.BuildOtherUsersGame(888);
+            viewModel.SelectedGame = BuildOtherUsersGame(888);
             viewModel.StartDate = DateTimeOffset.Now.AddDays(2);
             viewModel.EndDate = DateTimeOffset.Now.AddDays(10);
 
@@ -176,9 +175,9 @@ namespace BoardGames.Tests.ViewModels
         private CreateRequestViewModel BuildViewModel()
         {
             return new CreateRequestViewModel(
-                this.gameService,
-                this.requestService,
-                this.currentUserContext);
+                gameService,
+                requestService,
+                currentUserContext);
         }
 
         private static void AssertInvalidRequestInputs(CreateRequestViewModel viewModel, Action<CreateRequestViewModel> invalidate)
@@ -200,7 +199,7 @@ namespace BoardGames.Tests.ViewModels
             return new GameDTO
             {
                 Id = gameId,
-                Owner = new UserDTO { Id = this.otherOwnerId },
+                Owner = new UserDTO { Id = otherOwnerId },
                 Name = $"Board Game {gameId}",
                 Price = 12m,
                 IsActive = true,

@@ -1,86 +1,122 @@
-// <copyright file="LoginViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Desktop.Services;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using BookingBoardGames.Sharing.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {
-    public partial class LoginViewModel : BaseViewModel
+    public class LoginViewModel : INotifyPropertyChanged
     {
-        private readonly IAuthService authService;
-        private readonly ISessionContext sessionContext;
+        private readonly IUserService userService;
+        private readonly SessionService sessionService;
 
-        [ObservableProperty]
-        private string usernameOrEmail = string.Empty;
-
-        [ObservableProperty]
+        private string identifier = string.Empty;
         private string password = string.Empty;
+        private string errorMessage = string.Empty;
+        private string identifierError = string.Empty;
+        private string passwordError = string.Empty;
+        private bool isLoading;
 
-        [ObservableProperty]
-        private bool rememberMe;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        [ObservableProperty]
-        private string infoMessage = string.Empty;
+        public event Action? NavigateToHome;
 
-        public LoginViewModel(IAuthService authService, ISessionContext sessionContext)
+        public event Action? NavigateToRegister;
+
+        public ICommand LoginCommand { get; }
+
+        public ICommand GoToRegisterCommand { get; }
+
+        public string Identifier
         {
-            this.authService = authService;
-            this.sessionContext = sessionContext;
+            get => identifier;
+            set { identifier = value; OnPropertyChanged(); }
         }
 
-        public Action? OnLoginSuccess { get; set; }
+        public string Password
+        {
+            get => password;
+            set { password = value; OnPropertyChanged(); }
+        }
 
-        public Action? OnNavigateToRegister { get; set; }
+        public string ErrorMessage
+        {
+            get => errorMessage;
+            set { errorMessage = value; OnPropertyChanged(); }
+        }
 
-        [RelayCommand]
+        public string IdentifierError
+        {
+            get => identifierError;
+            set { identifierError = value; OnPropertyChanged(); }
+        }
+
+        public string PasswordError
+        {
+            get => passwordError;
+            set { passwordError = value; OnPropertyChanged(); }
+        }
+
+        public bool IsLoading
+        {
+            get => isLoading;
+            set
+            {
+                isLoading = value;
+                OnPropertyChanged();
+                (LoginCommand as RelayCommandNoParam)?.RaiseCanExecuteChanged();
+            }
+        }
+
+        public LoginViewModel(IUserService userService, SessionService sessionService)
+        {
+            this.userService = userService;
+            this.sessionService = sessionService;
+            LoginCommand = new RelayCommandNoParam(async () => await LoginAsync(), () => !IsLoading);
+            GoToRegisterCommand = new RelayCommandNoParam(() => NavigateToRegister?.Invoke());
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private async Task LoginAsync()
         {
-            ErrorMessage = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(UsernameOrEmail) || string.IsNullOrWhiteSpace(Password))
+            if (!ValidateUser())
             {
-                ErrorMessage = "Please enter both username/email and password.";
                 return;
             }
 
             IsLoading = true;
+            ErrorMessage = string.Empty;
 
-            try
+            var user = await userService.LoginAsync(Identifier.Trim(), Password);
+
+            if (user == null)
             {
-                var loginRequest = new LoginDTO
-                {
-                    UsernameOrEmail = UsernameOrEmail.Trim(),
-                    Password = Password,
-                    RememberMe = RememberMe,
-                };
-
-                var loginResult = await authService.LoginAsync(loginRequest);
-                if (loginResult.Success && loginResult.Data is not null)
-                {
-                    sessionContext.Populate(loginResult.Data);
-                    ErrorMessage = string.Empty;
-                    InfoMessage = string.Empty;
-                    OnLoginSuccess?.Invoke();
-                    return;
-                }
-
-                ErrorMessage = loginResult.Error ?? "Login failed.";
-            }
-            finally
-            {
+                ErrorMessage = "Invalid username/email or password.";
                 IsLoading = false;
+                return;
             }
+
+            sessionService.SetUser(user.Id, user.Username, user.DisplayName);
+            IsLoading = false;
+            NavigateToHome?.Invoke();
         }
 
-        [RelayCommand]
-        private void NavigateToRegister()
+        private bool ValidateUser()
         {
-            OnNavigateToRegister?.Invoke();
+            IdentifierError = string.IsNullOrWhiteSpace(Identifier) ? "Username or email is required." : string.Empty;
+            PasswordError = string.IsNullOrWhiteSpace(Password) ? "Password is required." : string.Empty;
+
+            return string.IsNullOrEmpty(IdentifierError)
+                && string.IsNullOrEmpty(PasswordError);
         }
     }
 }

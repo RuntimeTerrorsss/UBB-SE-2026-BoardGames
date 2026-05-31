@@ -1,12 +1,9 @@
-using BoardGames.Desktop.ViewModels;
-// <copyright file="EditGameViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -23,11 +20,11 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.gameService = new FakeClientGameService
+            gameService = new FakeClientGameService
             {
                 ValidateGameHandler = game => new List<string>(),
             };
-            this.viewModel = new EditGameViewModel(this.gameService);
+            viewModel = new EditGameViewModel(gameService);
         }
 
         [Test]
@@ -36,7 +33,7 @@ namespace BoardGames.Tests.ViewModels
             var existingGame = new GameDTO
             {
                 Id = SampleGameIdentifier,
-                Owner = new UserDTO { Id = this.sampleOwnerIdentifier },
+                Owner = new UserDTO { Id = sampleOwnerIdentifier },
                 Name = "Existing Game",
                 Price = 15m,
                 MinimumPlayerNumber = 2,
@@ -45,34 +42,34 @@ namespace BoardGames.Tests.ViewModels
                 IsActive = true,
             };
 
-            this.gameService.GameToReturn = existingGame;
+            gameService.GameToReturn = existingGame;
 
-            await this.viewModel.LoadGameAsync(SampleGameIdentifier);
+            await viewModel.LoadGameAsync(SampleGameIdentifier);
 
-            Assert.That(this.viewModel.EditedGameId, Is.EqualTo(SampleGameIdentifier));
-            Assert.That(this.viewModel.GameName, Is.EqualTo("Existing Game"));
+            Assert.That(viewModel.EditedGameId, Is.EqualTo(SampleGameIdentifier));
+            Assert.That(viewModel.GameName, Is.EqualTo("Existing Game"));
         }
 
         [Test]
         public async Task UpdateGame_ValidInputs_CallsUpdateWithCorrectIdentifier()
         {
-            this.gameService.GameToReturn = new GameDTO
-            {
-                Id = SampleGameIdentifier,
-                Owner = new UserDTO { Id = this.sampleOwnerIdentifier },
-                Name = "Valid Name",
-                Price = 10m,
-                MinimumPlayerNumber = 2,
-                MaximumPlayerNumber = 4,
-                Description = "This description is long enough to pass the validation rules.",
-                IsActive = true,
-            };
+            gameService.GameToReturn = new GameDTO
+                {
+                    Id = SampleGameIdentifier,
+                    Owner = new UserDTO { Id = sampleOwnerIdentifier },
+                    Name = "Valid Name",
+                    Price = 10m,
+                    MinimumPlayerNumber = 2,
+                    MaximumPlayerNumber = 4,
+                    Description = "This description is long enough to pass the validation rules.",
+                    IsActive = true,
+                };
 
-            await this.viewModel.LoadGameAsync(SampleGameIdentifier);
-            await this.viewModel.UpdateGameAsync();
+            await viewModel.LoadGameAsync(SampleGameIdentifier);
+            await viewModel.UpdateGameAsync();
 
-            Assert.That(this.gameService.UpdateGameCallCount, Is.EqualTo(1));
-            Assert.That(this.gameService.LastUpdatedGameId, Is.EqualTo(SampleGameIdentifier));
+            Assert.That(gameService.UpdateGameCallCount, Is.EqualTo(1));
+            Assert.That(gameService.LastUpdatedGameId, Is.EqualTo(SampleGameIdentifier));
         }
     }
 }

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Others\u2019 Requests";
+    const string placeholderImageSource = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Crect width='160' height='160' fill='%23e9ecef'/%3E%3Ccircle cx='58' cy='56' r='14' fill='%23ced4da'/%3E%3Cpath d='M38 118l30-34 20 23 16-18 18 18v11H38z' fill='%23adb5bd'/%3E%3C/svg%3E";
 }
 
 <div class="page-header">
@@ -29,12 +30,55 @@ else
     <div class="request-card-list">
     @foreach (var request in Model.OrderByDescending(request => request.StartDate))
     {
+        string imageSource = placeholderImageSource;
+
+        if (request.Game?.Image is { Length: > 0 })
+        {
+            string mimeType = "image/jpeg";
+
+            if (request.Game.Image.Length >= 4 &&
+                request.Game.Image[0] == 0x89 &&
+                request.Game.Image[1] == 0x50 &&
+                request.Game.Image[2] == 0x4E &&
+                request.Game.Image[3] == 0x47)
+            {
+                mimeType = "image/png";
+            }
+            else if (request.Game.Image.Length >= 3 &&
+                     request.Game.Image[0] == 0x47 &&
+                     request.Game.Image[1] == 0x49 &&
+                     request.Game.Image[2] == 0x46)
+            {
+                mimeType = "image/gif";
+            }
+            else if (request.Game.Image.Length >= 2 &&
+                     request.Game.Image[0] == 0x42 &&
+                     request.Game.Image[1] == 0x4D)
+            {
+                mimeType = "image/bmp";
+            }
+            else if (request.Game.Image.Length >= 12 &&
+                     request.Game.Image[0] == 0x52 &&
+                     request.Game.Image[1] == 0x49 &&
+                     request.Game.Image[2] == 0x46 &&
+                     request.Game.Image[3] == 0x46 &&
+                     request.Game.Image[8] == 0x57 &&
+                     request.Game.Image[9] == 0x45 &&
+                     request.Game.Image[10] == 0x42 &&
+                     request.Game.Image[11] == 0x50)
+            {
+                mimeType = "image/webp";
+            }
+
+            imageSource = $"data:{mimeType};base64,{Convert.ToBase64String(request.Game.Image)}";
+        }
+
         string gameName = request.Game?.Name ?? "Unknown Game";
         string requesterName = request.Renter?.DisplayName ?? "Unknown User";
 
         <div class="request-card" id="request-card-@request.Id">
             <div class="request-card-image-wrap">
-                <img class="request-card-image" src="@GameImageHelper.GetDisplaySource(request.Game)" alt="@gameName" />
+                <img class="request-card-image" src="@imageSource" alt="@gameName" />
             </div>
 
             <div class="request-card-body">

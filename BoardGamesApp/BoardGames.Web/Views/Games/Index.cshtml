@@ -1,90 +1,54 @@
-@model IEnumerable<GameDTO>
+@* <!--@model GameDTO[]
+@using BoardGames.Shared.DTO
 
 @{
-    bool isAdmin = User.IsAdministrator();
-    ViewData["Title"] = isAdmin ? "Games" : "My Games";
-    bool showOwner = isAdmin && ViewBag.MineOnly != true;
-    bool showMineOnlyFilter = ViewBag.ShowMineOnlyFilter == true;
-    bool mineOnly = ViewBag.MineOnly == true;
+    ViewData["Title"] = "Games";
 }
 
-<div class="page-header">
-    <h1 class="page-title">@ViewData["Title"]</h1>
-    <div class="page-actions d-flex gap-2">
-        @if (showMineOnlyFilter)
+<div class="container mt-4">
+    <h2>Available Games</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var game in Model)
         {
-            if (mineOnly)
-            {
-                <a asp-action="Index" class="btn btn-outline-secondary">Show all games</a>
-            }
-            else
-            {
-                <a asp-action="Index" asp-route-mineOnly="true" class="btn btn-outline-secondary">Show only my games</a>
-            }
-        }
-        <a asp-action="Create" class="btn btn-primary">Create Game</a>
-    </div>
-</div>
-
-@if (TempData["DeleteError"] is string deleteError)
-{
-    <div class="alert alert-danger" role="alert">@deleteError</div>
-}
-
-@if (Model is null || !Model.Any())
-{
-    <div class="empty-state">
-        <p>No games available.</p>
-    </div>
-}
-else
-{
-    <div class="game-card-list">
-@foreach (var item in Model)
-{
-        <div class="@(item.IsActive ? "game-card" : "game-card game-card-inactive")">
-            <a class="d-flex align-items-center gap-3 flex-grow-1 text-decoration-none text-reset" asp-action="Details" asp-route-id="@item.Id">
-                <div class="game-card-image-wrap">
-                    <img class="game-card-image" src="@GameImageHelper.GetDisplaySource(item)" alt="@item.Name" />
-                </div>
-
-                <div class="game-card-body">
-                    <div class="game-card-title-row">
-                        <h2 class="game-card-title">@item.Name</h2>
-                        <div class="game-card-status">
-                            @if (item.IsActive)
-                            {
-                                <span class="badge bg-success status-badge">Active</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary status-badge">Inactive</span>
-                            }
-                        </div>
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(item.Description))
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(game.Image))
                     {
-                        <p class="game-card-description">@item.Description</p>
+                        <img src="@game.Image" class="card-img-top" alt="@game.Name"
+                             style="height:200px; object-fit:cover;"
+                             onerror="this.src='https://placehold.co/300x200?text=No+Image'" />
                     }
-
-                    <div class="game-card-meta">
-                        <span>Price: @item.Price</span>
-                        <span>Players: @item.MinimumPlayerNumber - @item.MaximumPlayerNumber</span>
-                    </div>
-
-                    @if (showOwner && !string.IsNullOrWhiteSpace(item.Owner?.DisplayName))
+                    else
                     {
-                        <div class="game-card-owner">Owner: @item.Owner.DisplayName</div>
+                        <img src="https://placehold.co/300x200?text=No+Image"
+                             class="card-img-top" alt="@game.Name" style="height:200px; object-fit:cover;" />
                     }
+                    <div class="card-body">
+                        <h5 class="card-title">@game.Name</h5>
+                        <p class="card-text text-muted">
+                            <small>@game.City</small>
+                        </p>
+                        <p class="card-text">
+                            <strong>@game.Price.ToString("C")/day</strong>
+                        </p>
+                        <p class="card-text">
+                            <small>Players: @game.MinimumPlayerNumber – @game.MaximumPlayerNumber</small>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a asp-action="Details" asp-route-id="@game.GameId" class="btn btn-primary w-100">
+                            View Details
+                        </a>
+                    </div>
                 </div>
-            </a>
-
-            <div class="game-card-actions">
-                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </div>
-        </div>
-}
+        }
     </div>
-}
+</div> --> *@

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="BoardGames.Desktop.Views.EditGameView"
+    x:Class="BoardRentAndProperty.Views.EditGameView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,7 +10,6 @@
 
     <ScrollViewer>
         <StackPanel Width="400" HorizontalAlignment="Center" Spacing="15" Margin="0,40,0,40">
-            <Button Content="← Back" HorizontalAlignment="Left" Click="BackButton_Click" />
             <TextBlock Text="Edit Listing" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
 
             <TextBox Header="Game Name (5-30 chars)*" Text="{x:Bind ViewModel.GameName, Mode=TwoWay}" MaxLength="30"/>

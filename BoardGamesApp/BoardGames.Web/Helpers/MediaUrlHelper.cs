@@ -1,7 +1,3 @@
-// <copyright file="MediaUrlHelper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Web.Helpers
 {
     public static class MediaUrlHelper
@@ -16,7 +12,7 @@ namespace BoardGames.Web.Helpers
             return ResolveMediaUrl(imageUrl);
         }
 
-        public static string? ResolveMediaUrl(string? urlOrFileName)
+        private static string? ResolveMediaUrl(string? urlOrFileName)
         {
             if (string.IsNullOrWhiteSpace(urlOrFileName))
             {

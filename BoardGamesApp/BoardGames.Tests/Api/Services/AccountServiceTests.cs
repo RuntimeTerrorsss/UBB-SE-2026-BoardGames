@@ -1,12 +1,13 @@
-// <copyright file="AccountServiceTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Api.Mappers;
+using BoardRentAndProperty.Api.Models;
+using BoardRentAndProperty.Api.Services;
+using BoardRentAndProperty.Api.Utilities;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
 using NUnit.Framework;
-using AccountService = BoardGames.Api.Services.AccountService;
+using AccountService = BoardRentAndProperty.Api.Services.AccountService;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -20,12 +21,12 @@ namespace BoardGames.Tests.Api.Services
         [SetUp]
         public void SetUp()
         {
-            this.accountRepository = new FakeAccountRepository();
-            this.avatarStorageService = new FakeAvatarStorageService();
-            this.service = new AccountService(
-                this.accountRepository,
+            accountRepository = new FakeAccountRepository();
+            avatarStorageService = new FakeAvatarStorageService();
+            service = new AccountService(
+                accountRepository,
                 new AccountProfileMapper(),
-                this.avatarStorageService);
+                avatarStorageService);
         }
 
         [Test]
@@ -33,9 +34,9 @@ namespace BoardGames.Tests.Api.Services
         {
             var accountId = Guid.NewGuid();
 
-            this.accountRepository.AccountsById[accountId] = null;
+            accountRepository.AccountsById[accountId] = null;
 
-            var serviceResult = await this.service.GetProfileAsync(accountId);
+            var serviceResult = await service.GetProfileAsync(accountId);
 
             Assert.That(serviceResult.Success, Is.False);
             Assert.That(serviceResult.Error, Is.EqualTo("Account not found."));
@@ -45,7 +46,7 @@ namespace BoardGames.Tests.Api.Services
         public async Task GetProfileAsync_AccountExists_ReturnsSuccessResultWithProfileData()
         {
             var accountId = Guid.NewGuid();
-            var account = new User
+            var account = new Account
             {
                 Id = accountId,
                 Username = "test_user",
@@ -53,9 +54,9 @@ namespace BoardGames.Tests.Api.Services
                 Roles = { new Role { Id = Guid.NewGuid(), Name = "Standard User" } },
             };
 
-            this.accountRepository.AccountsById[accountId] = account;
+            accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await this.service.GetProfileAsync(accountId);
+            var serviceResult = await service.GetProfileAsync(accountId);
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(serviceResult.Data, Is.Not.Null);
@@ -66,28 +67,28 @@ namespace BoardGames.Tests.Api.Services
         public async Task UpdateProfileAsync_ValidData_UpdatesAccountAndReturnsSuccess()
         {
             var accountId = Guid.NewGuid();
-            var account = new User
+            var account = new Account
             {
                 Id = accountId,
                 DisplayName = "Original Name",
                 Email = "original@test.com",
             };
 
-            var updateData = new AccountProfileDTO
+            var updateData = new AccountProfileDataTransferObject
             {
                 DisplayName = "Updated Display Name",
                 Email = "updated@test.com",
             };
 
-            this.accountRepository.AccountsById[accountId] = account;
-            this.accountRepository.AccountsByEmail["updated@test.com"] = null;
+            accountRepository.AccountsById[accountId] = account;
+            accountRepository.AccountsByEmail["updated@test.com"] = null;
 
-            var serviceResult = await this.service.UpdateProfileAsync(accountId, updateData);
+            var serviceResult = await service.UpdateProfileAsync(accountId, updateData);
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(account.DisplayName, Is.EqualTo("Updated Display Name"));
-            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
 
         [Test]
@@ -101,14 +102,14 @@ namespace BoardGames.Tests.Api.Services
                 PasswordHash = originalHash,
             };
 
-            this.accountRepository.AccountsById[accountId] = account;
+            accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await this.service.ChangePasswordAsync(accountId, "OldPassword123!", "NewSecurePass123!");
+            var serviceResult = await service.ChangePasswordAsync(accountId, "OldPassword123!", "NewSecurePass123!");
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(account.PasswordHash, Is.Not.EqualTo(originalHash));
-            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
 
         [Test]
@@ -117,15 +118,15 @@ namespace BoardGames.Tests.Api.Services
             var accountId = Guid.NewGuid();
             var account = new Account { Id = accountId };
 
-            this.accountRepository.AccountsById[accountId] = account;
+            accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await this.service.SetAvatarUrlAsync(accountId, "/avatars/test.png");
+            var serviceResult = await service.SetAvatarUrlAsync(accountId, "/avatars/test.png");
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(serviceResult.Data, Is.EqualTo("/avatars/test.png"));
             Assert.That(account.AvatarUrl, Is.EqualTo("/avatars/test.png"));
-            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
 
         [Test]
@@ -138,16 +139,16 @@ namespace BoardGames.Tests.Api.Services
                 AvatarUrl = "/avatars/old.png",
             };
 
-            this.accountRepository.AccountsById[accountId] = account;
+            accountRepository.AccountsById[accountId] = account;
 
-            var serviceResult = await this.service.RemoveAvatarAsync(accountId);
+            var serviceResult = await service.RemoveAvatarAsync(accountId);
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(account.AvatarUrl, Is.Empty);
-            Assert.That(this.avatarStorageService.DeleteCallCount, Is.EqualTo(1));
-            Assert.That(this.avatarStorageService.LastDeletedPath, Is.EqualTo("/avatars/old.png"));
-            Assert.That(this.accountRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(this.accountRepository.LastUpdatedAccount, Is.SameAs(account));
+            Assert.That(avatarStorageService.DeleteCallCount, Is.EqualTo(1));
+            Assert.That(avatarStorageService.LastDeletedPath, Is.EqualTo("/avatars/old.png"));
+            Assert.That(accountRepository.UpdateCallCount, Is.EqualTo(1));
+            Assert.That(accountRepository.LastUpdatedAccount, Is.SameAs(account));
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿// <copyright file="Conversation.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,9 +8,8 @@ public class Conversation
 {
     public Conversation(List<ConversationParticipant> participants)
     {
-        this.Participants = participants;
+        Participants = participants;
     }
-
     public Conversation()
     {
     }
@@ -22,6 +19,5 @@ public class Conversation
     public int ConversationId { get; set; }
 
     public ICollection<ConversationParticipant> Participants { get; set; } = new List<ConversationParticipant>();
-
     public ICollection<Message> Messages { get; set; } = new List<Message>();
 }

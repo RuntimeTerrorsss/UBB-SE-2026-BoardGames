@@ -1,15 +1,11 @@
-// <copyright file="DesktopNotificationService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardGames.Desktop.Services;
-using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
+using ApiNotificationService = BoardGames.Shared.ProxyServices.INotificationService;
+using CurrentUserContextInterface = BoardGames.Desktop.Services.ICurrentUserContext;
 
 namespace BoardGames.Desktop.Services
 {
@@ -19,26 +15,26 @@ namespace BoardGames.Desktop.Services
         IDisposable
     {
         private const int NewNotificationId = 0;
-        private readonly INotificationService apiNotificationService;
-        private readonly IServerClient serverNotificationClient;
-        private readonly ISessionContext sessionContext;
-        private readonly IToastNotificationService toastNotificationService;
 
+        private readonly ApiNotificationService apiNotificationService;
+        private readonly IServerClient serverNotificationClient;
+        private readonly CurrentUserContextInterface currentUserContext;
+        private readonly IToastNotificationService toastNotificationService;
         private readonly List<IObserver<NotificationDTO>> notificationObservers = new();
         private readonly object notificationObserversLock = new();
         private bool isDisposed;
 
         public DesktopNotificationService(
-            INotificationService apiNotificationService,
+            ApiNotificationService apiNotificationService,
             IServerClient serverNotificationClient,
-            ISessionContext sessionContext,
+            CurrentUserContextInterface currentUserContext,
             IToastNotificationService toastNotificationService)
         {
             this.apiNotificationService = apiNotificationService;
             this.serverNotificationClient = serverNotificationClient;
-            this.sessionContext = sessionContext;
+            this.currentUserContext = currentUserContext;
             this.toastNotificationService = toastNotificationService;
-            SubscribeToServer(sessionContext.AccountId);
+            this.serverNotificationClient.Subscribe(this);
         }
 
         public Task<ServiceResult<NotificationDTO>> GetNotificationByIdentifierAsync(
@@ -82,13 +78,12 @@ namespace BoardGames.Desktop.Services
             var persistResult = await apiNotificationService.PersistNotificationAsync(
                 notificationToPersist,
                 cancellationToken);
-
             if (!persistResult.Success)
             {
                 return persistResult;
             }
 
-            if (sessionContext.AccountId == recipientAccountId)
+            if (currentUserContext.CurrentUserId == recipientAccountId)
             {
                 NotifyObservers(notificationToPersist);
                 toastNotificationService.Show(notification.Title, notification.Body);
@@ -125,19 +120,23 @@ namespace BoardGames.Desktop.Services
                 }
                 catch (System.Net.Sockets.SocketException socketException)
                 {
-                    Debug.WriteLine($"DesktopNotificationService: listen terminated - {socketException}");
+                    System.Diagnostics.Debug.WriteLine($"DesktopNotificationService: listen terminated - {socketException}");
                 }
                 catch (InvalidOperationException invalidOperationException)
                 {
-                    Debug.WriteLine($"DesktopNotificationService: listen terminated - {invalidOperationException}");
+                    System.Diagnostics.Debug.WriteLine($"DesktopNotificationService: listen terminated - {invalidOperationException}");
                 }
             });
 
         public void StopListening() => serverNotificationClient.StopListening();
 
-        public void OnCompleted() { }
+        public void OnCompleted()
+        {
+        }
 
-        public void OnError(Exception error) { }
+        public void OnError(Exception error)
+        {
+        }
 
         public void OnNext(IncomingNotification incomingNotification)
         {

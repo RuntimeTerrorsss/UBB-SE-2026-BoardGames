@@ -1,15 +1,13 @@
-using BoardGames.Data.Repositories;
-using Xunit;
-using BoardGames.Api.Legacy.Services;
-using Moq;
-// <copyright file="ReceiptServiceTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using BookingBoardGames.Data.Interfaces;
+using BookingBoardGames.Sharing.Services;
+using Moq;
+using Xunit;
+
+
 
 namespace BoardGames.Tests.UnitTests
 {
@@ -20,25 +18,27 @@ namespace BoardGames.Tests.UnitTests
         private readonly Mock<InterfaceGamesRepository> _mockGameRepository;
         private readonly ReceiptService _receiptService;
 
+
         private readonly List<string> _filesToCleanup = new();
 
         public ReceiptServiceTests()
         {
-            this._mockUserRepository = new Mock<IUserRepository>();
-            this._mockRentalService = new Mock<IRentalService>();
-            this._mockGameRepository = new Mock<InterfaceGamesRepository>();
+            _mockUserRepository = new Mock<IUserRepository>();
+            _mockRentalService = new Mock<IRentalService>();
+            _mockGameRepository = new Mock<InterfaceGamesRepository>();
 
-            this._receiptService = new ReceiptService(
-                this._mockUserRepository.Object,
-                this._mockRentalService.Object,
-                this._mockGameRepository.Object);
+            _receiptService = new ReceiptService(
+                _mockUserRepository.Object,
+                _mockRentalService.Object,
+                _mockGameRepository.Object);
 
-            this.SetupDefaultMocks();
+            SetupDefaultMocks();
         }
 
         public void Dispose()
         {
-            foreach (var filePath in this._filesToCleanup)
+
+            foreach (var filePath in _filesToCleanup)
             {
                 if (File.Exists(filePath))
                 {
@@ -48,6 +48,7 @@ namespace BoardGames.Tests.UnitTests
                     }
                     catch
                     {
+
                     }
                 }
             }
@@ -55,13 +56,13 @@ namespace BoardGames.Tests.UnitTests
 
         private void SetupDefaultMocks()
         {
-            this._mockRentalService.Setup(mockRentalService => mockRentalService.GetRentalById(It.IsAny<int>()))
+            _mockRentalService.Setup(mockRentalService => mockRentalService.GetRentalById(It.IsAny<int>()))
                 .ReturnsAsync(new Rental { GameId = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(3) });
 
-            this._mockGameRepository.Setup(mockGameRepository => mockGameRepository.GetGameById(It.IsAny<int>()))
+            _mockGameRepository.Setup(mockGameRepository => mockGameRepository.GetGameById(It.IsAny<int>()))
                 .ReturnsAsync(new Game { Name = "Test Boardgame" });
 
-            this._mockUserRepository.Setup(mockUserRepository => mockUserRepository.GetById(It.IsAny<int>()))
+            _mockUserRepository.Setup(mockUserRepository => mockUserRepository.GetById(It.IsAny<int>()))
                 .ReturnsAsync(new User { Username = "TestUser" });
         }
 
@@ -70,9 +71,12 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public void GenerateReceiptRelativePath_ValidId_ReturnsExpectedFormat()
         {
+
             int requestId = 99;
 
-            string result = this._receiptService.GenerateReceiptRelativePath(requestId);
+
+            string result = _receiptService.GenerateReceiptRelativePath(requestId);
+
 
             Assert.NotNull(result);
             Assert.StartsWith("receipts\\receipt_99_", result);
@@ -88,10 +92,12 @@ namespace BoardGames.Tests.UnitTests
         [InlineData("")]
         public async Task GetReceiptDocument_ReceiptPathIsNullOrEmpty_ThrowsInvalidOperationException(string invalidPath)
         {
+
             var payment = new Payment { ReceiptFilePath = invalidPath };
 
+
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => this._receiptService.GetReceiptDocument(payment));
+                () => _receiptService.GetReceiptDocument(payment));
 
             Assert.Equal("Receipt path is missing.", exception.Message);
         }
@@ -99,10 +105,14 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetReceiptDocument_ReceiptPathIsWhiteSpace_ThrowsFromPrepareDocumentPath()
         {
+
+
+
             var payment = new Payment { ReceiptFilePath = "   " };
 
+
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => this._receiptService.GetReceiptDocument(payment));
+                () => _receiptService.GetReceiptDocument(payment));
 
             Assert.Equal("Receipt path is missing.", exception.Message);
         }
@@ -114,22 +124,27 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetReceiptDocument_FileAlreadyExists_ReturnsPathWithoutRecreating()
         {
+
             var payment = new Payment
             {
                 RequestId = 1,
                 PaymentMethod = "card",
-                ReceiptFilePath = "receipts\\test_existing_receipt.pdf",
+                ReceiptFilePath = "receipts\\test_existing_receipt.pdf"
             };
 
-            string createdPath = await this._receiptService.GetReceiptDocument(payment);
-            this._filesToCleanup.Add(createdPath);
 
-            string existingPath = await this._receiptService.GetReceiptDocument(payment);
+            string createdPath = await _receiptService.GetReceiptDocument(payment);
+            _filesToCleanup.Add(createdPath);
+
+
+            string existingPath = await _receiptService.GetReceiptDocument(payment);
+
 
             Assert.Equal(createdPath, existingPath);
             Assert.True(File.Exists(existingPath));
 
-            this._mockRentalService.Verify(mockRentalService => mockRentalService.GetRentalById(It.IsAny<int>()), Times.Once);
+
+            _mockRentalService.Verify(mockRentalService => mockRentalService.GetRentalById(It.IsAny<int>()), Times.Once);
         }
 
         #endregion
@@ -139,6 +154,7 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetReceiptDocument_FileDoesNotExist_CashPayment_CreatesPdfAndHitsCatchBlockForDate()
         {
+
             var payment = new Payment
             {
                 RequestId = 2,
@@ -149,26 +165,30 @@ namespace BoardGames.Tests.UnitTests
                 DateConfirmedSeller = DateTime.Now,
                 DateConfirmedBuyer = DateTime.Now,
 
-                ReceiptFilePath = "receipts\\bad_format_name.pdf",
+
+                ReceiptFilePath = "receipts\\bad_format_name.pdf"
             };
 
-            string generatedPath = await this._receiptService.GetReceiptDocument(payment);
-            this._filesToCleanup.Add(generatedPath);
+
+            string generatedPath = await _receiptService.GetReceiptDocument(payment);
+            _filesToCleanup.Add(generatedPath);
+
 
             Assert.True(File.Exists(generatedPath));
 
-            this._mockRentalService.Verify(mockRentalService => mockRentalService.GetRentalById(payment.RequestId), Times.Once);
-            this._mockGameRepository.Verify(mockGameRepository => mockGameRepository.GetGameById(It.IsAny<int>()), Times.Once);
-            this._mockUserRepository.Verify(mockUserRepository => mockUserRepository.GetById(payment.ClientId), Times.Once);
-            this._mockUserRepository.Verify(mockUserRepository => mockUserRepository.GetById(payment.OwnerId), Times.Once);
+            _mockRentalService.Verify(mockRentalService => mockRentalService.GetRentalById(payment.RequestId), Times.Once);
+            _mockGameRepository.Verify(mockGameRepository => mockGameRepository.GetGameById(It.IsAny<int>()), Times.Once);
+            _mockUserRepository.Verify(mockUserRepository => mockUserRepository.GetById(payment.ClientId), Times.Once);
+            _mockUserRepository.Verify(mockUserRepository => mockUserRepository.GetById(payment.OwnerId), Times.Once);
         }
 
         [Fact]
         public async Task GetReceiptDocument_FileDoesNotExist_CardPayment_CreatesPdfWithValidGeneratedPath()
         {
+
             int requestId = 3;
 
-            string validRelativePath = this._receiptService.GenerateReceiptRelativePath(requestId);
+            string validRelativePath = _receiptService.GenerateReceiptRelativePath(requestId);
 
             var payment = new Payment
             {
@@ -178,15 +198,17 @@ namespace BoardGames.Tests.UnitTests
                 PaidAmount = 100m,
                 PaymentMethod = "card",
                 DateOfTransaction = DateTime.Now,
-                ReceiptFilePath = validRelativePath,
+                ReceiptFilePath = validRelativePath
             };
 
-            string generatedPath = await this._receiptService.GetReceiptDocument(payment);
-            this._filesToCleanup.Add(generatedPath);
+
+            string generatedPath = await _receiptService.GetReceiptDocument(payment);
+            _filesToCleanup.Add(generatedPath);
+
 
             Assert.True(File.Exists(generatedPath));
 
-            this._mockRentalService.Verify(mockRentalService => mockRentalService.GetRentalById(payment.RequestId), Times.Once);
+            _mockRentalService.Verify(mockRentalService => mockRentalService.GetRentalById(payment.RequestId), Times.Once);
         }
 
         #endregion

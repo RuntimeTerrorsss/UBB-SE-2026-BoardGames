@@ -1,7 +1,3 @@
-// <copyright file="ViewOperationResult.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Desktop.ViewModels
 {
     public sealed class ViewOperationResult
@@ -14,9 +10,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public bool IsSuccess { get; }
-
         public string DialogTitle { get; }
-
         public string DialogMessage { get; }
 
         public static ViewOperationResult Success(string dialogTitle = "", string dialogMessage = "")
