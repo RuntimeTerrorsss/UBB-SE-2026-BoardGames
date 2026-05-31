@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationServer", "Notif
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerCommunication", "ServerCommunication\ServerCommunication.csproj", "{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -137,6 +139,18 @@ Global
 		{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}.Release|x64.Build.0 = Release|Any CPU
 		{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}.Release|x86.ActiveCfg = Release|Any CPU
 		{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}.Release|x86.Build.0 = Release|Any CPU
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Debug|Any CPU.Build.0 = Debug|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Debug|x64.ActiveCfg = Debug|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Debug|x64.Build.0 = Debug|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Debug|x86.ActiveCfg = Debug|x86
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Debug|x86.Build.0 = Debug|x86
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Release|Any CPU.ActiveCfg = Release|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Release|Any CPU.Build.0 = Release|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Release|x64.ActiveCfg = Release|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Release|x64.Build.0 = Release|x64
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Release|x86.ActiveCfg = Release|x86
+		{26585DCF-E8B1-4E6B-856F-21B7DF5E9276}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
