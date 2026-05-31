@@ -1,151 +1,146 @@
 @model GameDTO
+@using BoardGames.Web.Helpers
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model?.Name ?? "Game Details";
+    ViewData["BackUrl"] = Url.Action("Index", "Search");
+    ViewData["BackText"] = "Back";
 }
 
-<div class="page-header">
-    <h1 class="page-title">Game Details</h1>
+<partial name="_PageBack" />
+
+<div class="game-details-header mb-4">
+    <h1 class="page-title mb-1">@Model?.Name</h1>
+    @if (!string.IsNullOrWhiteSpace(Model?.Owner?.DisplayName))
+    {
+        <p class="text-muted mb-0">@Model.Owner.DisplayName</p>
+    }
 </div>
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <img src="@GameImageHelper.GetDisplaySource(Model)" class="img-fluid rounded" alt="@Model?.Name" style="max-height: 300px; width: 100%; object-fit: cover;" />
-    </div>
-    <div class="col-md-8">
+<div class="row g-4">
+    <div class="col-lg-7">
+        <img src="@GameImageHelper.GetDisplaySource(Model)" class="game-details-image rounded mb-4" alt="@Model?.Name" />
 
-<dl class="row details-list">
-    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Price)</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(model => model.Price)</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MinimumPlayerNumber)</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(model => model.MinimumPlayerNumber)</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MaximumPlayerNumber)</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(model => model.MaximumPlayerNumber)</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
-    <dd class="col-sm-9">
-        @if (Model.IsActive)
-        {
-            <span class="badge bg-success status-badge">Active</span>
-        }
-        else
-        {
-            <span class="badge bg-secondary status-badge">Inactive</span>
-        }
-    </dd>
-</dl>
+        <div class="game-details-section">
+            <h2 class="h5 fw-semibold mb-3">Details</h2>
+            <p class="text-secondary">@Model?.Description</p>
+            @if (!string.IsNullOrWhiteSpace(Model?.City))
+            {
+                <p class="text-secondary mb-1">@Model.City</p>
+            }
+            <p class="text-secondary mb-1">@Model?.MinimumPlayerNumber – @Model?.MaximumPlayerNumber players</p>
+            <p class="fw-semibold mb-0">@Model?.Price.ToString("0.##") RON / day</p>
+        </div>
     </div>
+
+    @if (Model?.IsActive == true)
+    {
+        <div class="col-lg-5">
+            <div class="game-details-rental-panel">
+                <h2 class="h4 fw-semibold mb-3">Request rental</h2>
+                <p class="fw-semibold mb-2">Choose dates</p>
+
+                <form asp-controller="Games" asp-action="Book" asp-route-id="@Model.Id" method="get" id="rentalRequestForm">
+                    <div id="rentalDateCalendar"></div>
+                    <input type="hidden" id="StartDate" name="StartDate" required />
+                    <input type="hidden" id="EndDate" name="EndDate" required />
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                        <span class="fw-semibold">Estimated total</span>
+                        <span class="fw-bold" id="estimatedTotal">0 RON</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" id="btnRequest" disabled>Send request</button>
+                    <div id="availabilityMessage" class="small text-muted mt-2"></div>
+                </form>
+            </div>
+        </div>
+    }
 </div>
 
-@if (Model.IsActive)
+@{
+    bool canEditFromDetails = User.Identity?.IsAuthenticated == true
+        && !User.IsAdministrator()
+        && Model?.Owner?.Id == User.GetAccountId();
+}
+@if (canEditFromDetails)
 {
-	<div class="card mt-4 mb-4">
-		<div class="card-header bg-primary text-white">
-			<h5 class="mb-0">Check Availability & Request Rental</h5>
-		</div>
-		<div class="card-body">
-			<form asp-controller="Games" asp-action="Book" asp-route-id="@Model.Id" method="get">
-
-				<div class="row">
-					<div class="col-md-5">
-						<div class="mb-3">
-							<label for="StartDate" class="form-label">Start Date</label>
-							<input type="date" class="form-control" id="StartDate" name="StartDate" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-						</div>
-					</div>
-					<div class="col-md-5">
-						<div class="mb-3">
-							<label for="EndDate" class="form-label">End Date</label>
-							<input type="date" class="form-control" id="EndDate" name="EndDate" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-						</div>
-					</div>
-					<div class="col-md-2 d-flex align-items-end">
-						<div class="mb-3 w-100">
-							<button type="submit" class="btn btn-success w-100" id="btnRequest">Request</button>
-						</div>
-					</div>
-				</div>
-				<div id="availabilityMessage" class="alert d-none" role="alert"></div>
-			</form>
-		</div>
-	</div>
+    <div class="page-actions mt-4">
+        <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+    </div>
 }
-
-<div class="page-actions">
-    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
-    <a class="btn btn-secondary" asp-action="Index">Back</a>
-</div>
 
 @section Scripts {
-	<script>
+    <link rel="stylesheet" href="~/css/rental-date-picker.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/game-details.css" asp-append-version="true" />
+    <script src="~/js/rental-date-picker.js" asp-append-version="true"></script>
+    <script>
 		const bookedDates = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.BookedDates ?? new List<BookedDateRangeDTO>()));
-		const bufferHours = 48; 
+		const pendingRequestDates = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PendingRequestDates ?? new List<BookedDateRangeDTO>()));
+        const pricePerDay = @((Model?.Price ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture));
+        const startDateInput = document.getElementById('StartDate');
+        const endDateInput = document.getElementById('EndDate');
+        const btnRequest = document.getElementById('btnRequest');
+        const msgDiv = document.getElementById('availabilityMessage');
+        const estimatedTotal = document.getElementById('estimatedTotal');
 
-		const startDateInput = document.getElementById('StartDate');
-		const endDateInput = document.getElementById('EndDate');
-		const btnRequest = document.getElementById('btnRequest');
-		const msgDiv = document.getElementById('availabilityMessage');
+		const rentalPicker = new RentalDatePicker(document.getElementById('rentalDateCalendar'), {
+			bookedRanges: bookedDates,
+			pendingRequestRanges: pendingRequestDates,
+			startInput: startDateInput,
+			endInput: endDateInput,
+			onChange: checkAvailability
+		});
 
-		function checkAvailability() {
-			msgDiv.classList.add('d-none');
-			msgDiv.classList.remove('alert-danger', 'alert-success');
-			btnRequest.disabled = false;
+        function checkAvailability() {
+            msgDiv.textContent = '';
+            msgDiv.classList.remove('text-danger', 'text-success');
+            btnRequest.disabled = true;
+            estimatedTotal.textContent = '0 RON';
 
-			const startVal = startDateInput.value;
-			const endVal = endDateInput.value;
+            const startVal = startDateInput.value;
+            const endVal = endDateInput.value;
 
-			if (!startVal || !endVal) return;
+            if (!startVal || !endVal) {
+                return;
+            }
 
-			const start = new Date(startVal);
-			const end = new Date(endVal);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0);
+            const start = new Date(startVal + 'T00:00:00');
+            const end = new Date(endVal + 'T00:00:00');
 
-			if (start < today) {
-				showError('Start date cannot be in the past.');
+            if (start > end) {
+                showError('End date cannot be earlier than the start date.');
+                return;
+            }
+
+            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            estimatedTotal.textContent = `${(days * pricePerDay).toFixed(2)} RON`;
+
+			if (RentalDatePickerHelpers.rangesOverlap(start, end, bookedDates)) {
+				showError('These dates are unavailable.');
 				return;
 			}
 
-			if (start > end) {
-				showError('Start date must be before or equal to end date.');
+			if (RentalDatePickerHelpers.rangesOverlap(start, end, pendingRequestDates)) {
+				showError('You already have an open request for these dates.');
 				return;
 			}
 
-			
-			for (const range of bookedDates) {
-				const bookedStart = new Date(range.StartDate);
-				const bookedEnd = new Date(range.EndDate);
-                
-				const bufferedStart = new Date(bookedStart.getTime() - bufferHours * 60 * 60 * 1000);
-				const bufferedEnd = new Date(bookedEnd.getTime() + bufferHours * 60 * 60 * 1000);
+            showSuccess('Dates are available.');
+        }
 
-				if (start <= bufferedEnd && end >= bufferedStart) {
-					showError('These dates are unavailable or fall within the 48-hour buffer of an existing rental.');
-					return;
-				}
-			}
+        function showError(msg) {
+            msgDiv.textContent = msg;
+            msgDiv.classList.remove('text-success');
+            msgDiv.classList.add('text-danger');
+            btnRequest.disabled = true;
+        }
 
-			showSuccess('Dates are available!');
-		}
-
-		function showError(msg) {
-			msgDiv.textContent = msg;
-			msgDiv.classList.remove('d-none', 'alert-success');
-			msgDiv.classList.add('alert-danger');
-			btnRequest.disabled = true;
-		}
-
-		function showSuccess(msg) {
-			msgDiv.textContent = msg;
-			msgDiv.classList.remove('d-none', 'alert-danger');
-			msgDiv.classList.add('alert-success');
-			btnRequest.disabled = false;
-		}
-
-		startDateInput.addEventListener('change', checkAvailability);
-		endDateInput.addEventListener('change', checkAvailability);
-	</script>
+        function showSuccess(msg) {
+            msgDiv.textContent = msg;
+            msgDiv.classList.remove('text-danger');
+            msgDiv.classList.add('text-success');
+            btnRequest.disabled = false;
+        }
+    </script>
 }

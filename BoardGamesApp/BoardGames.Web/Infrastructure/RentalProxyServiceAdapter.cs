@@ -44,5 +44,44 @@ namespace BoardGames.Web.Infrastructure
             using var response = await this.httpClient.GetAsync(url, cancellationToken);
             return await HttpProxyClient.ReadAsync<bool>(response, cancellationToken);
         }
+
+        public async Task<RentalCheckoutDTO?> GetCheckoutSummaryAsync(int rentalId, Guid renterAccountId, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.GetAsync($"rentals/{rentalId}/checkout?accountId={renterAccountId}", cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            return await HttpProxyClient.ReadAsync<RentalCheckoutDTO>(response, cancellationToken);
+        }
+
+        public async Task CompleteCardPaymentAsync(CompleteRentalCardPaymentDTO payment, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.PostAsJsonAsync("rentals/complete-card-payment", payment, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                string message = response.ReasonPhrase ?? "Payment failed.";
+                try
+                {
+                    var payload = await response.Content.ReadFromJsonAsync<ApiErrorPayload>(cancellationToken: cancellationToken);
+                    if (!string.IsNullOrWhiteSpace(payload?.Message))
+                    {
+                        message = payload.Message;
+                    }
+                }
+                catch
+                {
+                    // Keep default message.
+                }
+
+                throw new InvalidOperationException(message);
+            }
+        }
+
+        private sealed class ApiErrorPayload
+        {
+            public string? Message { get; set; }
+        }
     }
 }

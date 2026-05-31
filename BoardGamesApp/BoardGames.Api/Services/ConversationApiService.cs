@@ -9,11 +9,15 @@ using System.Threading.Tasks;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
+using BoardGames.Shared.Helpers;
 
 namespace BoardGames.Api.Services
 {
     public class ConversationApiService : IConversationApiService
     {
+        private const int NewMessageIdentifier = 0;
+        private const int MissingLinkedIdentifier = -1;
+
         private readonly IConversationRepository conversationRepository;
         private readonly IAccountRepository accountRepository;
 
@@ -52,8 +56,8 @@ namespace BoardGames.Api.Services
         public async Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto)
         {
             var entity = MapDtoToEntity(dto);
-            entity.MessageId = 0;
-            var persisted = await this.conversationRepository.HandleNewMessage(entity);
+            entity.MessageId = NewMessageIdentifier;
+            var persisted = await conversationRepository.HandleNewMessage(entity);
             return MapEntityToDto(persisted);
         }
 
@@ -102,6 +106,11 @@ namespace BoardGames.Api.Services
             await this.conversationRepository.HandleNewMessage(message);
         }
 
+        public async Task AcceptRentalRequestMessage(int requestId, int rentalId)
+        {
+            await this.conversationRepository.AcceptRentalRequestByRequestId(requestId, rentalId);
+        }
+
         public async Task FinalizeRentalRequestMessage(int requestId, bool accepted)
         {
             var message = await this.conversationRepository.FindRentalRequestMessageByRequestId(requestId);
@@ -110,9 +119,7 @@ namespace BoardGames.Api.Services
                 return;
             }
 
-            message.IsRequestResolved = true;
-            message.IsRequestAccepted = accepted;
-            await this.conversationRepository.HandleMessageUpdate(message);
+            await this.conversationRepository.FinalizeRentalRequestByMessageId(message.MessageId, accepted);
         }
 
         public async Task<MessageDataTransferObject?> CreateCashAgreementMessage(int parentMessageId, int paymentId)
@@ -130,10 +137,10 @@ namespace BoardGames.Api.Services
         private async Task<ConversationDTO> MapConversationToDTOAsync(Conversation conversation)
         {
             var messages = conversation.Messages?.Select(MapEntityToDto).ToList() ?? new List<MessageDataTransferObject>();
-            var participantUserIds = conversation.Participants?.Select(p => p.UserId).ToList() ?? new List<int>();
+            var participantUserIds = conversation.Participants?.Select(participant => participant.UserId).ToList() ?? new List<int>();
             var lastRead = conversation.Participants?
-                .Where(p => p.LastMessageReadTime.HasValue)
-                .ToDictionary(p => p.UserId, p => p.LastMessageReadTime!.Value)
+                .Where(participant => participant.LastMessageReadTime.HasValue)
+                .ToDictionary(participant => participant.UserId, participant => participant.LastMessageReadTime!.Value)
                 ?? new Dictionary<int, DateTime>();
 
             var dto = new ConversationDTO(conversation.ConversationId, participantUserIds, messages, lastRead);
@@ -152,7 +159,7 @@ namespace BoardGames.Api.Services
 
         private static MessageDataTransferObject MapEntityToDto(Message message)
         {
-            const int defaultMissingIdentifier = -1;
+            int defaultMissingIdentifier = -1;
 
             MessageType messageType = message switch
             {
@@ -187,8 +194,27 @@ namespace BoardGames.Api.Services
                 IsAccepted: message is RentalRequestMessage ram ? ram.IsRequestAccepted : false,
                 IsAcceptedByBuyer: message is CashAgreementMessage camb ? camb.IsCashAgreementAcceptedByBuyer : false,
                 IsAcceptedBySeller: message is CashAgreementMessage cams ? cams.IsCashAgreementAcceptedBySeller : false,
-                RequestId: message is RentalRequestMessage rrm2 ? (rrm2.RentalRequestId ?? defaultMissingIdentifier) : defaultMissingIdentifier,
-                PaymentId: message is CashAgreementMessage cam2 ? cam2.CashPaymentId : defaultMissingIdentifier);
+                RequestId: message is RentalRequestMessage rrm2
+                    ? ResolveRentalRequestId(rrm2, defaultMissingIdentifier)
+                    : defaultMissingIdentifier,
+                PaymentId: message is CashAgreementMessage cam2 ? cam2.CashPaymentId : defaultMissingIdentifier,
+                RentalId: message is RentalRequestMessage rrm3
+                    ? ResolveRentalId(rrm3, defaultMissingIdentifier)
+                    : defaultMissingIdentifier);
+        }
+
+        private static int ResolveRentalRequestId(RentalRequestMessage rentalMessage, int missingId)
+        {
+            string content = rentalMessage.RequestContent ?? rentalMessage.MessageContentAsString ?? string.Empty;
+            int requestId = RentalRequestMessageHelper.TryParseRequestIdFromContent(content);
+            return requestId > 0 ? requestId : missingId;
+        }
+
+        private static int ResolveRentalId(RentalRequestMessage rentalMessage, int missingId)
+        {
+            string content = rentalMessage.RequestContent ?? rentalMessage.MessageContentAsString ?? string.Empty;
+            int rentalId = RentalRequestMessageHelper.ResolveRentalId(rentalMessage.RentalRequestId ?? missingId, content);
+            return rentalId > 0 ? rentalId : missingId;
         }
 
         private static Message MapDtoToEntity(MessageDataTransferObject dto)
@@ -229,7 +255,7 @@ namespace BoardGames.Api.Services
                     MessageReceiverId = dto.ReceiverId,
                     MessageSentTime = dto.SentAt,
                     MessageContentAsString = dto.Content,
-                    RentalRequestId = dto.RequestId,
+                    RentalRequestId = dto.RentalId > 0 ? dto.RentalId : null,
                     IsRequestResolved = dto.IsResolved,
                     IsRequestAccepted = dto.IsAccepted,
                     RequestContent = dto.Content,

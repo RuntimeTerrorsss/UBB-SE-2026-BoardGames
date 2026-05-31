@@ -8,13 +8,13 @@
 
         <StackPanel Padding="24" Spacing="20">
 
-            <!-- Title -->
+            
             <TextBlock
                 Text="Recommended Games"
                 FontSize="28"
                 FontWeight="Bold"/>
 
-            <!-- Feed -->
+            
             <ItemsControl x:Name="GamesFeed">
 
                 <ItemsControl.ItemsPanel>

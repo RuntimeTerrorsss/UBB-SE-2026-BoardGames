@@ -6,7 +6,6 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using BoardGames.Api.Mappers;
-using BoardGames.Data.Constants;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
@@ -32,7 +31,7 @@ namespace BoardGames.Api.Services
         {
             foreach (var rental in this.rentalDataRepository.GetRentalsByGame(gameId))
             {
-                if (startDate < rental.EndDate.AddHours(DomainConstants.RentalBufferHours) && endDate > rental.StartDate.AddHours(-DomainConstants.RentalBufferHours))
+                if (startDate.Date <= rental.EndDate.Date && endDate.Date >= rental.StartDate.Date)
                 {
                     return false;
                 }
@@ -56,7 +55,7 @@ namespace BoardGames.Api.Services
         {
             if (!DateRangeValidationHelper.HasValidFutureDateRange(startDate, endDate))
             {
-                throw new ArgumentException("Start date must be before end date and not in the past.");
+                throw new ArgumentException("Start date must be on or before end date and not in the past.");
             }
 
             var game = this.gameLookupRepository.GetGame(gameId);
@@ -67,7 +66,7 @@ namespace BoardGames.Api.Services
 
             if (!this.IsSlotAvailable(gameId, startDate, endDate))
             {
-                throw new InvalidOperationException($"Selected dates fall within the mandatory {DomainConstants.RentalBufferHours}-hour buffer of another rental.");
+                throw new InvalidOperationException("Selected dates overlap with an existing rental.");
             }
 
             var rental = new Rental

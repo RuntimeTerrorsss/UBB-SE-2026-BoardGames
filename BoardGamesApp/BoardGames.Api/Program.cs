@@ -1,6 +1,4 @@
-// <copyright file="Program.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+
 
 using BoardGames.Api.Mappers;
 using BoardGames.Api.Services;
@@ -10,14 +8,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+const int AuthenticationCookieLifetimeHours = 8;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
-
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
-
-// Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IFailedLoginRepository, FailedLoginRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
@@ -30,16 +26,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<GamesRepository>();
 builder.Services.AddScoped<IGameRepository>(sp => sp.GetRequiredService<GamesRepository>());
 builder.Services.AddScoped<InterfaceGamesRepository>(sp => sp.GetRequiredService<GamesRepository>());
-
-// Mappers
 builder.Services.AddScoped<AccountProfileMapper>();
 builder.Services.AddScoped<GameMapper>();
 builder.Services.AddScoped<NotificationMapper>();
 builder.Services.AddScoped<RentalMapper>();
 builder.Services.AddScoped<RequestMapper>();
 builder.Services.AddScoped<UserMapper>();
-
-// Business services
 builder.Services.AddScoped<IAvatarStorageService, AvatarStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -50,11 +42,10 @@ builder.Services.AddScoped<IRentalService, RentalService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IConversationApiService, ConversationApiService>();
+builder.Services.AddScoped<IRentalPaymentService, RentalPaymentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddHttpContextAccessor();
-
-// Cookie auth
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -62,7 +53,7 @@ builder.Services
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.ExpireTimeSpan = TimeSpan.FromHours(AuthenticationCookieLifetimeHours);
         options.SlidingExpiration = true;
         options.Events.OnRedirectToLogin = context =>
         {

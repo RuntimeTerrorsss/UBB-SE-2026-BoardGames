@@ -28,6 +28,7 @@ namespace BoardGames.Desktop.Services
             return pageType == typeof(ShellPage)
                 || pageType == typeof(SearchGamesPage)
                 || pageType == typeof(GameDetailsPage)
+                || pageType == typeof(ConfirmBookingView)
                 || pageType == typeof(LoginPage)
                 || pageType == typeof(RegisterPage)
                 || (pageType == typeof(PlaceholderPage) && this.IsLoggedIn);
@@ -38,6 +39,11 @@ namespace BoardGames.Desktop.Services
             if (page is AppPage.Filter or AppPage.GameDetails or AppPage.Login or AppPage.Register)
             {
                 return true;
+            }
+
+            if (page == AppPage.ConfirmRental)
+            {
+                return this.IsLoggedIn;
             }
 
             if (!this.IsLoggedIn)

@@ -21,6 +21,11 @@ namespace BoardGames.Desktop.Views
             this.InitializeComponent();
         }
 
+        private void FilterMyGamesButton_Click(object sender, RoutedEventArgs routedEventArgs)
+        {
+            ViewModel?.ToggleMyGamesFilter();
+        }
+
         private void CreateGameButton_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             this.Frame.Navigate(typeof(CreateGameView));

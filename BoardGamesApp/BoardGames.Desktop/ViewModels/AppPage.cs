@@ -8,6 +8,7 @@ namespace BoardGames.Desktop.ViewModels
     {
         Filter,
         GameDetails,
+        ConfirmRental,
         Login,
         Register,
         Games,

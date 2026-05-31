@@ -33,11 +33,23 @@ namespace BoardGames.Web.Controllers
             base.OnActionExecuting(context);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool mineOnly = false)
         {
             var ownerId = this.User.GetAccountId();
-            var myGames = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
-            return this.View(myGames);
+            IReadOnlyList<GameDTO> games;
+
+            if (this.User.IsAdministrator() && !mineOnly)
+            {
+                games = await this.gameProxyService.GetAllGamesAsync();
+            }
+            else
+            {
+                games = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
+            }
+
+            this.ViewBag.ShowMineOnlyFilter = this.User.IsAdministrator();
+            this.ViewBag.MineOnly = mineOnly;
+            return this.View(games);
         }
 
         public async Task<IActionResult> Details(int id)
@@ -57,6 +69,30 @@ namespace BoardGames.Web.Controllers
             {
                 this.ViewBag.BookedDates = new List<BookedDateRangeDTO>();
             }
+
+            var pendingRequestDates = new List<BookedDateRangeDTO>();
+            try
+            {
+                Guid renterAccountId = this.User.GetAccountId();
+                var renterRequests = await this.requestProxyService.GetRequestsForRenterAsync(renterAccountId);
+                foreach (var request in renterRequests)
+                {
+                    if (request.Game?.Id == id && request.Status == RequestStatus.Open)
+                    {
+                        pendingRequestDates.Add(new BookedDateRangeDTO
+                        {
+                            StartDate = request.StartDate,
+                            EndDate = request.EndDate,
+                        });
+                    }
+                }
+            }
+            catch (ProxyServiceException)
+            {
+                pendingRequestDates = new List<BookedDateRangeDTO>();
+            }
+
+            this.ViewBag.PendingRequestDates = pendingRequestDates;
 
             return this.View(game);
         }

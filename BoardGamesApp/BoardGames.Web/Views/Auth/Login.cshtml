@@ -4,13 +4,20 @@
 @{
     ViewData["Title"] = "Sign in";
     Layout = "_Layout";
+    ViewData["BackUrl"] = Url.Action("Index", "Search");
 }
+
+<partial name="_PageBack" />
 
 <div class="page-header">
     <h1 class="page-title">Sign in</h1>
 </div>
 
 <div class="form-section">
+    @if (ViewData["InfoMessage"] is string infoMessage)
+    {
+        <div class="alert alert-info py-2 small" role="alert">@infoMessage</div>
+    }
     <form asp-action="Login" method="post">
         <div asp-validation-summary="All" class="text-danger mb-3"></div>
         <input type="hidden" asp-for="ReturnUrl" />

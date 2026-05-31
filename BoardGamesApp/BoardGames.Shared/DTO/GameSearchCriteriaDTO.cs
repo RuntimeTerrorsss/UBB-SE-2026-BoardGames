@@ -21,5 +21,10 @@ namespace BoardGames.Shared.DTO
         public DateTime? AvailableTo { get; set; }
 
         public string? SortBy { get; set; }
+
+        /// <summary>
+        /// When set, games owned by this account are excluded (homepage / search for renters).
+        /// </summary>
+        public Guid? ExcludeOwnerAccountId { get; set; }
     }
 }

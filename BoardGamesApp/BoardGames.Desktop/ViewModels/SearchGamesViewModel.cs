@@ -16,6 +16,10 @@ namespace BoardGames.Desktop.ViewModels
 {
     public partial class SearchGamesViewModel : BaseViewModel
     {
+        private const double NoMaximumPriceFilter = 0;
+        private const double NoPlayerCountFilter = 0;
+        private const int SingleGameCount = 1;
+
         private readonly IGameService gameService;
         private readonly ISessionContext sessionContext;
         private readonly Uri apiBaseUri;
@@ -88,8 +92,8 @@ namespace BoardGames.Desktop.ViewModels
         {
             SearchText = string.Empty;
             City = string.Empty;
-            MaximumPrice = 0;
-            PlayerCount = 0;
+            MaximumPrice = NoMaximumPriceFilter;
+            PlayerCount = NoPlayerCountFilter;
             AvailableFrom = null;
             AvailableTo = null;
             SelectedSortOption = "None";
@@ -118,9 +122,9 @@ namespace BoardGames.Desktop.ViewModels
 
             try
             {
-                ServiceResult<IReadOnlyList<GameSummaryDTO>> result = useSearch
+                ServiceResult<IReadOnlyList<GameSummaryDTO>> result = useSearch || !sessionContext.IsLoggedIn
                     ? await gameService.SearchGamesAsync(BuildSearchCriteria())
-                    : await gameService.GetAllGamesAsync();
+                    : await gameService.GetAvailableGamesForRenterAsync(sessionContext.AccountId);
 
                 if (!result.Success)
                 {
@@ -151,7 +155,7 @@ namespace BoardGames.Desktop.ViewModels
             ResultsSummary = Games.Count switch
             {
                 0 => "No games matched the current search.",
-                1 => "1 game available",
+                SingleGameCount => "1 game available",
                 _ => $"{Games.Count} games available",
             };
 
@@ -166,11 +170,12 @@ namespace BoardGames.Desktop.ViewModels
             {
                 Name = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText.Trim(),
                 City = string.IsNullOrWhiteSpace(City) ? null : City.Trim(),
-                MaximumPrice = MaximumPrice > 0 ? decimal.Round((decimal)MaximumPrice, 2) : null,
-                PlayerCount = PlayerCount > 0 ? (int)Math.Ceiling(PlayerCount) : null,
+                MaximumPrice = MaximumPrice > NoMaximumPriceFilter ? decimal.Round((decimal)MaximumPrice, 2) : null,
+                PlayerCount = PlayerCount > NoPlayerCountFilter ? (int)Math.Ceiling(PlayerCount) : null,
                 AvailableFrom = AvailableFrom?.Date,
                 AvailableTo = AvailableTo?.Date,
                 SortBy = SelectedSortOption == "None" ? null : SelectedSortOption,
+                ExcludeOwnerAccountId = sessionContext.IsLoggedIn ? sessionContext.AccountId : null,
             };
         }
 
@@ -178,8 +183,8 @@ namespace BoardGames.Desktop.ViewModels
         {
             return !string.IsNullOrWhiteSpace(SearchText)
                 || !string.IsNullOrWhiteSpace(City)
-                || MaximumPrice > 0
-                || PlayerCount > 0
+                || MaximumPrice > NoMaximumPriceFilter
+                || PlayerCount > NoPlayerCountFilter
                 || AvailableFrom.HasValue
                 || AvailableTo.HasValue
                 || SelectedSortOption != "None";

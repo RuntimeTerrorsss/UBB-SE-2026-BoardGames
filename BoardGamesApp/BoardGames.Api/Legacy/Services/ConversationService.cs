@@ -1,7 +1,3 @@
-// <copyright file="ConversationService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
@@ -11,6 +7,10 @@ namespace BoardGames.Api.Legacy.Services
 {
     public class ConversationService : IConversationService
     {
+        private static readonly TimeSpan PollingDelay = TimeSpan.FromMilliseconds(100);
+        private const int MissingUserIdentifier = 0;
+        private const int MissingMessageIdentifier = -1;
+
         private IConversationRepository ConversationRepository { get; set; }
 
         private IUserRepository userRepository;
@@ -151,7 +151,7 @@ namespace BoardGames.Api.Legacy.Services
         public string GetOtherUserNameByMessageDTO(MessageDTO message)
         {
             int otherUserId = message.SenderId == this.UserId ? message.ReceiverId : message.SenderId;
-            if (otherUserId <= 0)
+            if (otherUserId <= MissingUserIdentifier)
             {
                 return "Unknown User";
             }
@@ -162,17 +162,15 @@ namespace BoardGames.Api.Legacy.Services
         public async Task SendMessage(MessageDTO message)
         {
             Message persisted = await this.ConversationRepository.HandleNewMessage(this.MessageDTOToMessage(message));
-
             this.recentlySentMessageIds.Add(persisted.MessageId);
-
-            var cachedConv = this.cachedConversations.FirstOrDefault(c => c.ConversationId == persisted.ConversationId);
-            if (cachedConv != null)
+            var cachedConversation = this.cachedConversations.FirstOrDefault(conversation => conversation.ConversationId == persisted.ConversationId);
+            if (cachedConversation != null)
             {
-                if (cachedConv.Messages is IList<Message> collection)
+                if (cachedConversation.Messages is IList<Message> messageCollection)
                 {
-                    if (!collection.Any(message => message.MessageId == persisted.MessageId))
+                    if (!messageCollection.Any(existingMessage => existingMessage.MessageId == persisted.MessageId))
                     {
-                        collection.Add(persisted);
+                        messageCollection.Add(persisted);
                     }
                 }
             }
@@ -261,33 +259,33 @@ namespace BoardGames.Api.Legacy.Services
             {
                 try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(0.1));
+                    await Task.Delay(PollingDelay);
                     var fetchedConversations = await this.ConversationRepository.GetConversationsForUser(this.UserId);
 
-                    foreach (var fetchedConv in fetchedConversations)
+                    foreach (var fetchedConversation in fetchedConversations)
                     {
-                        var cachedConv = this.cachedConversations.FirstOrDefault(c => c.ConversationId == fetchedConv.ConversationId);
+                        var cachedConversation = this.cachedConversations.FirstOrDefault(conversation => conversation.ConversationId == fetchedConversation.ConversationId);
 
-                        if (cachedConv == null)
+                        if (cachedConversation == null)
                         {
-                            this.NotifySubscribersAboutNewConversation(fetchedConv);
+                            this.NotifySubscribersAboutNewConversation(fetchedConversation);
                         }
                         else
                         {
-                            foreach (var fetchedMsg in fetchedConv.Messages)
+                            foreach (var fetchedMessage in fetchedConversation.Messages)
                             {
-                                var cachedMsg = cachedConv.Messages.FirstOrDefault(message => message.MessageId == fetchedMsg.MessageId);
-                                if (cachedMsg == null)
+                                var cachedMessage = cachedConversation.Messages.FirstOrDefault(message => message.MessageId == fetchedMessage.MessageId);
+                                if (cachedMessage == null)
                                 {
-                                    if (!this.recentlySentMessageIds.Remove(fetchedMsg.MessageId))
+                                    if (!this.recentlySentMessageIds.Remove(fetchedMessage.MessageId))
                                     {
-                                        await this.NotifySubscribersAboutMessage(fetchedMsg);
+                                        await this.NotifySubscribersAboutMessage(fetchedMessage);
                                     }
                                 }
                                 else
                                 {
                                     bool updated = false;
-                                    if (fetchedMsg is RentalRequestMessage fetchedRental && cachedMsg is RentalRequestMessage cachedRental)
+                                    if (fetchedMessage is RentalRequestMessage fetchedRental && cachedMessage is RentalRequestMessage cachedRental)
                                     {
                                         if (fetchedRental.IsRequestResolved != cachedRental.IsRequestResolved ||
                                             fetchedRental.IsRequestAccepted != cachedRental.IsRequestAccepted)
@@ -295,7 +293,7 @@ namespace BoardGames.Api.Legacy.Services
                                             updated = true;
                                         }
                                     }
-                                    else if (fetchedMsg is CashAgreementMessage fetchedCash && cachedMsg is CashAgreementMessage cachedCash)
+                                    else if (fetchedMessage is CashAgreementMessage fetchedCash && cachedMessage is CashAgreementMessage cachedCash)
                                     {
                                         if (fetchedCash.IsCashAgreementResolved != cachedCash.IsCashAgreementResolved ||
                                             fetchedCash.IsCashAgreementAcceptedByBuyer != cachedCash.IsCashAgreementAcceptedByBuyer ||
@@ -307,7 +305,7 @@ namespace BoardGames.Api.Legacy.Services
 
                                     if (updated)
                                     {
-                                        await this.NotifySubscribersAboutMessageUpdate(fetchedMsg);
+                                        await this.NotifySubscribersAboutMessageUpdate(fetchedMessage);
                                     }
                                 }
                             }
@@ -435,8 +433,6 @@ namespace BoardGames.Api.Legacy.Services
 
         public MessageDTO MessageToMessageDTO(Message message)
         {
-            int defaultMissingIdentifier = -1;
-
             MessageType messageType = message switch
             {
                 TextMessage => MessageType.MessageText,
@@ -470,8 +466,8 @@ namespace BoardGames.Api.Legacy.Services
                 IsAccepted: message is RentalRequestMessage rentalAcceptedMessage ? rentalAcceptedMessage.IsRequestAccepted : false,
                 IsAcceptedByBuyer: message is CashAgreementMessage cashBuyerMessage ? cashBuyerMessage.IsCashAgreementAcceptedByBuyer : false,
                 IsAcceptedBySeller: message is CashAgreementMessage cashSellerMessage ? cashSellerMessage.IsCashAgreementAcceptedBySeller : false,
-                PaymentId: message is CashAgreementMessage cashPaymentMessage ? cashPaymentMessage.CashPaymentId : defaultMissingIdentifier,
-                RequestId: message is RentalRequestMessage rentalRequestMessage ? rentalRequestMessage.RentalRequestId : defaultMissingIdentifier);
+                PaymentId: message is CashAgreementMessage cashPaymentMessage ? cashPaymentMessage.CashPaymentId : MissingMessageIdentifier,
+                RequestId: message is RentalRequestMessage rentalRequestMessage ? rentalRequestMessage.RentalRequestId : MissingMessageIdentifier);
         }
 
         public ConversationDTO ConversationToConversationDTO(Conversation conversation)

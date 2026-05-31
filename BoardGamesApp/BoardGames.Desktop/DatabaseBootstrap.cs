@@ -1,6 +1,3 @@
-// <copyright file="DatabaseBootstrap.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 namespace BoardGames.Desktop
 {
@@ -19,10 +16,7 @@ namespace BoardGames.Desktop
                 if (!context.Users.Any(user => user.Username == "henry_08"))
                 {
                     System.Diagnostics.Debug.WriteLine("Database is missing Henry. Re-seeding...");
-
-                    // Clear existing data to ensure IDs start from 1 (this is aggressive but ensures test consistency)
                     context.Database.ExecuteSqlRaw("DELETE FROM messages; DELETE FROM conversation_participants; DELETE FROM conversations; DELETE FROM payments; DELETE FROM rentals; DELETE FROM games; DELETE FROM users;");
-                    // Reset identity seeds if supported by the provider (SQL Server)
                     context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('users', RESEED, 0);");
                     context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('games', RESEED, 0);");
                     context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('rentals', RESEED, 0);");
@@ -93,11 +87,11 @@ namespace BoardGames.Desktop
                     var messages = new List<Message>
                     {
                         new SystemMessage { Conversation = conversation1, Sender = systemUser, Receiver = systemUser, MessageSentTime = new DateTime(2026, 3, 1, 8, 55, 0), MessageContent = "New conversation", MessageContentAsString = "New conversation" },
-                        new RentalRequestMessage { Conversation = conversation1, Sender = bob, Receiver = alice, MessageSentTime = new DateTime(2026, 3, 1, 9, 0, 0), RequestContent = "Hey, is Catan available March 1–7?", IsRequestResolved = false, IsRequestAccepted = false, RentalRequest = rental1, MessageContentAsString = "Rental Request" },
-                        new TextMessage { Conversation = conversation1, Sender = alice, Receiver = bob, MessageSentTime = new DateTime(2026, 3, 1, 9, 5, 0), TextMessageContent = "Yes, it's free — it's all yours!", MessageContentAsString = "Yes, it's free — it's all yours!" },
+                        new RentalRequestMessage { Conversation = conversation1, Sender = bob, Receiver = alice, MessageSentTime = new DateTime(2026, 3, 1, 9, 0, 0), RequestContent = "Hey, is Catan available March 1â€“7?", IsRequestResolved = false, IsRequestAccepted = false, RentalRequest = rental1, MessageContentAsString = "Rental Request" },
+                        new TextMessage { Conversation = conversation1, Sender = alice, Receiver = bob, MessageSentTime = new DateTime(2026, 3, 1, 9, 5, 0), TextMessageContent = "Yes, it's free â€” it's all yours!", MessageContentAsString = "Yes, it's free â€” it's all yours!" },
                         new ImageMessage { Conversation = conversation1, Sender = bob, Receiver = alice, MessageSentTime = new DateTime(2026, 3, 1, 9, 8, 0), MessageImageUrl = "hamster.jpg", MessageContentAsString = "[Image]" },
                         new SystemMessage { Conversation = conversation2, Sender = systemUser, Receiver = systemUser, MessageSentTime = new DateTime(2026, 3, 10, 9, 55, 0), MessageContent = "New conversation", MessageContentAsString = "New conversation" },
-                        new RentalRequestMessage { Conversation = conversation2, Sender = bob, Receiver = carol, MessageSentTime = new DateTime(2026, 3, 10, 10, 0, 0), RequestContent = "Can I borrow Activity March 10–15?", IsRequestResolved = false, IsRequestAccepted = false, RentalRequest = rental2, MessageContentAsString = "Rental Request" },
+                        new RentalRequestMessage { Conversation = conversation2, Sender = bob, Receiver = carol, MessageSentTime = new DateTime(2026, 3, 10, 10, 0, 0), RequestContent = "Can I borrow Activity March 10â€“15?", IsRequestResolved = false, IsRequestAccepted = false, RentalRequest = rental2, MessageContentAsString = "Rental Request" },
                         new TextMessage { Conversation = conversation2, Sender = carol, Receiver = bob, MessageSentTime = new DateTime(2026, 3, 10, 10, 10, 0), TextMessageContent = "Perfect, thanks a lot!", MessageContentAsString = "Perfect, thanks a lot!" },
                     };
 

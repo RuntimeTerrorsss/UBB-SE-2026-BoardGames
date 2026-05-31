@@ -20,6 +20,7 @@ namespace BoardGames.Desktop.ViewModels
 
         private readonly IGameService gameListingService;
         private readonly IDesktopAuthorizationService authorizationService;
+        private bool showOnlyMyGames;
 
         public ListingsViewModel(IGameService gameListingService, IDesktopAuthorizationService authorizationService)
         {
@@ -33,9 +34,33 @@ namespace BoardGames.Desktop.ViewModels
         {
         }
 
-        public string PageTitle => authorizationService.IsAdministrator ? "Games" : "My Listings";
+        public string PageTitle => authorizationService.IsAdministrator ? "Games" : "My Games";
+
+        public bool IsAdministrator => authorizationService.IsAdministrator;
+
+        public bool ShowOnlyMyGames
+        {
+            get => showOnlyMyGames;
+            set
+            {
+                if (showOnlyMyGames != value)
+                {
+                    showOnlyMyGames = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilterButtonLabel));
+                    _ = ReloadAsync();
+                }
+            }
+        }
+
+        public string FilterButtonLabel => showOnlyMyGames ? "Show all games" : "Show only my games";
 
         public Task LoadGamesAsync() => ReloadAsync();
+
+        public void ToggleMyGamesFilter()
+        {
+            ShowOnlyMyGames = !ShowOnlyMyGames;
+        }
 
         protected override void Reload() => _ = ReloadAsync();
 
@@ -47,7 +72,7 @@ namespace BoardGames.Desktop.ViewModels
                 return;
             }
 
-            var gameListingsResult = authorizationService.IsAdministrator
+            var gameListingsResult = authorizationService.IsAdministrator && !showOnlyMyGames
                 ? await gameListingService.GetAllGamesAsync()
                 : await gameListingService.GetGamesForOwnerAsync(authorizationService.CurrentAccountId);
 

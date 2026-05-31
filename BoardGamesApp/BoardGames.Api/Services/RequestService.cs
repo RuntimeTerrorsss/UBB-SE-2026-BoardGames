@@ -173,7 +173,7 @@ namespace BoardGames.Api.Services
             return Result<int, DenyRequestError>.Success(requestId);
         }
 
-        public Result<int, CancelRequestError> CancelRequest(int requestId, Guid cancellingAccountId)
+        public async Task<Result<int, CancelRequestError>> CancelRequest(int requestId, Guid cancellingAccountId)
         {
             Request req;
             try
@@ -191,6 +191,16 @@ namespace BoardGames.Api.Services
             }
 
             this.requestNotificationService.DeleteNotificationsLinkedToRequest(requestId);
+
+            try
+            {
+                await this.conversationApiService.FinalizeRentalRequestMessage(requestId, accepted: false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARN] FinalizeRentalRequestMessage(cancel) failed for request {requestId}: {ex.Message}");
+            }
+
             try
             {
                 this.requestDataRepository.Delete(requestId);
@@ -238,7 +248,7 @@ namespace BoardGames.Api.Services
                 .Select(request => new BookedDateRange
                 {
                     StartDate = request.StartDate,
-                    EndDate = request.EndDate.AddHours(DomainConstants.RentalBufferHours),
+                    EndDate = request.EndDate,
                 })
                 .ToImmutableList();
         }
@@ -266,14 +276,14 @@ namespace BoardGames.Api.Services
             }
 
             bool rentalConflict = this.rentalConflictRepository.GetRentalsByGame(gameId)
-                .Any(rental => startDate < rental.EndDate.AddHours(DomainConstants.RentalBufferHours) && endDate > rental.StartDate.AddHours(-DomainConstants.RentalBufferHours));
+                .Any(rental => startDate.Date <= rental.EndDate.Date && endDate.Date >= rental.StartDate.Date);
             if (rentalConflict)
             {
                 return false;
             }
 
             return !this.requestDataRepository.GetRequestsByGame(gameId)
-                .Any(request => request.StartDate.AddHours(-DomainConstants.RentalBufferHours) < endDate && request.EndDate.AddHours(DomainConstants.RentalBufferHours) > startDate);
+                .Any(request => startDate.Date <= request.EndDate.Date && endDate.Date >= request.StartDate.Date);
         }
 
         public async Task<Result<int, OfferError>> OfferGame(int requestId, Guid offeringOwnerAccountId)
@@ -328,9 +338,11 @@ namespace BoardGames.Api.Services
 
         private async Task<(bool Success, int RentalId)> TryApproveOpenRequestAndNotify(Request req)
         {
-            var buffStart = req.StartDate.AddHours(-DomainConstants.RentalBufferHours);
-            var buffEnd = req.EndDate.AddHours(DomainConstants.RentalBufferHours);
-            var conflicts = this.requestDataRepository.GetOverlappingRequests(req.Game?.Id ?? MissingForeignKeyId, req.Id, buffStart, buffEnd);
+            var conflicts = this.requestDataRepository.GetOverlappingRequests(
+                req.Game?.Id ?? MissingForeignKeyId,
+                req.Id,
+                req.StartDate,
+                req.EndDate);
 
             int rentalId;
             try
@@ -357,11 +369,11 @@ namespace BoardGames.Api.Services
 
             try
             {
-                await this.conversationApiService.FinalizeRentalRequestMessage(req.Id, accepted: true);
+                await this.conversationApiService.AcceptRentalRequestMessage(req.Id, rentalId);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WARN] FinalizeRentalRequestMessage(approve) failed for request {req.Id}: {ex.Message}");
+                Console.WriteLine($"[WARN] AcceptRentalRequestMessage failed for request {req.Id}: {ex.Message}");
             }
 
             return (true, rentalId);
