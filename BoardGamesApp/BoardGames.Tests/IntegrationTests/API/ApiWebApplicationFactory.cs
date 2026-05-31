@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,12 +64,70 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
         private sealed class StubConversationApiService : IConversationApiService
         {
-            public Task<List<ConversationDTO>> GetConversationsForUser(Guid accountId) => Task.FromResult(new List<ConversationDTO>());
-            public Task<ConversationDTO?> GetConversationById(int conversationId) => Task.FromResult<ConversationDTO?>(null);
-            public Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto) => Task.FromResult(dto);
-            public Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto) => Task.FromResult<MessageDataTransferObject?>(dto);
+            private static readonly List<ConversationDTO> conversations = new List<ConversationDTO>();
+            private static readonly List<MessageDataTransferObject> messages = new List<MessageDataTransferObject>();
+            private static readonly Dictionary<int, (Guid A, Guid B)> conversationParticipants = new Dictionary<int, (Guid A, Guid B)>();
+            private static int conversationIdCounter = 1;
+            private static int messageIdCounter = 1;
+
+            public Task<List<ConversationDTO>> GetConversationsForUser(Guid accountId)
+            {
+                var userConversations = conversationParticipants
+                    .Where(kvp => kvp.Value.A == accountId || kvp.Value.B == accountId)
+                    .Select(kvp => kvp.Key)
+                    .ToHashSet();
+
+                return Task.FromResult(conversations.Where(c => userConversations.Contains(c.Id)).ToList());
+            }
+
+            public Task<ConversationDTO?> GetConversationById(int conversationId)
+            {
+                var found = conversations.FirstOrDefault(c => c.Id == conversationId);
+                return Task.FromResult(found);
+            }
+
+            public Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto)
+            {
+                var msg = dto with { Id = messageIdCounter++ };
+                messages.Add(msg);
+                return Task.FromResult(msg);
+            }
+
+            public Task<MessageDataTransferObject?> UpdateMessage(MessageDataTransferObject dto)
+            {
+                var index = messages.FindIndex(m => m.Id == dto.Id);
+                if (index == -1)
+                {
+                    return Task.FromResult<MessageDataTransferObject?>(null);
+                }
+
+                messages[index] = dto;
+                return Task.FromResult<MessageDataTransferObject?>(dto);
+            }
+
             public Task HandleReadReceipt(BoardGames.Data.Models.ReadReceiptDTO dto) => Task.CompletedTask;
-            public Task<int> FindOrCreateConversation(Guid accountIdA, Guid accountIdB) => Task.FromResult(1);
+
+            public Task<int> FindOrCreateConversation(Guid accountIdA, Guid accountIdB)
+            {
+                var existingId = conversationParticipants
+                    .Where(kvp => (kvp.Value.A == accountIdA && kvp.Value.B == accountIdB) || (kvp.Value.B == accountIdA && kvp.Value.A == accountIdB))
+                    .Select(kvp => kvp.Key)
+                    .FirstOrDefault();
+
+                if (existingId != 0)
+                {
+                    return Task.FromResult(existingId);
+                }
+
+                var id = conversationIdCounter++;
+                conversationParticipants[id] = (accountIdA, accountIdB);
+                conversations.Add(new ConversationDTO
+                {
+                    Id = id,
+                });
+                return Task.FromResult(id);
+            }
+
             public Task AttachRentalRequestMessage(int requestId, Guid renterAccountId, Guid ownerAccountId, string gameName, DateTime start, DateTime end) => Task.CompletedTask;
             public Task FinalizeRentalRequestMessage(int requestId, bool accepted) => Task.CompletedTask;
             public Task<MessageDataTransferObject?> CreateCashAgreementMessage(int parentMessageId, int paymentId) => Task.FromResult<MessageDataTransferObject?>(null);

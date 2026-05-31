@@ -1,4 +1,4 @@
-﻿// <copyright file="AccountsApiIntegrationTests.cs" company="BoardRent">
+// <copyright file="AccountsApiIntegrationTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -189,6 +189,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             {
                 CurrentPassword = "Password123!",
                 NewPassword = "Password1234!",
+                ConfirmPassword = "Password1234!",
             };
 
             var response = await this.client.PutAsJsonAsync($"api/accounts/{this.accountId}/password", changePassword);
@@ -202,6 +203,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             {
                 CurrentPassword = "WrongPassword!",
                 NewPassword = "Password1234!",
+                ConfirmPassword = "Password1234!",
             };
 
             var response = await this.client.PutAsJsonAsync($"api/accounts/{this.accountId}/password", changePassword);
@@ -215,6 +217,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             {
                 CurrentPassword = "Password123!",
                 NewPassword = "weak",
+                ConfirmPassword = "weak",
             };
 
             var response = await this.client.PutAsJsonAsync($"api/accounts/{this.accountId}/password", changePassword);
@@ -228,6 +231,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             {
                 CurrentPassword = "Password123!",
                 NewPassword = "Password1234!",
+                ConfirmPassword = "Password1234!",
             };
 
             var response = await this.client.PutAsJsonAsync($"api/accounts/{Guid.NewGuid()}/password", changePassword);

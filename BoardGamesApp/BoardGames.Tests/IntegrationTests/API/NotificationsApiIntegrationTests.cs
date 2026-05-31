@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -114,6 +114,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Title = "Updated Title",
                 Body = "Updated Body",
                 Timestamp = DateTime.UtcNow,
+                Recipient = new UserDTO { DisplayName = "Test" },
             };
 
             var updateNotificationResponse =
@@ -133,6 +134,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Title = "X",
                 Body = "Y",
                 Timestamp = DateTime.UtcNow,
+                Recipient = new UserDTO { DisplayName = "Test" },
             };
 
             var updateMissingNotificationResponse =

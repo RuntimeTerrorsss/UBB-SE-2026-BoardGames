@@ -1,4 +1,4 @@
-﻿// <copyright file="AuthApiIntegrationTests.cs" company="BoardRent">
+// <copyright file="AuthApiIntegrationTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -42,6 +42,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "user1",
                 Email = "user1@mail.com",
                 Password = "StrongPass123!",
+                ConfirmPassword = "StrongPass123!",
+                DisplayName = "User One",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             var response = await this.client.PostAsJsonAsync("api/auth/register", request);
@@ -57,6 +64,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "user2",
                 Email = "user2@mail.com",
                 Password = "123",
+                ConfirmPassword = "123",
+                DisplayName = "User Two",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             var response = await this.client.PostAsJsonAsync("api/auth/register", request);
@@ -72,6 +86,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "duplicateUser",
                 Email = "a@mail.com",
                 Password = "StrongPass123!",
+                ConfirmPassword = "StrongPass123!",
+                DisplayName = "Duplicate",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             await this.client.PostAsJsonAsync("api/auth/register", request);
@@ -89,6 +110,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "userA",
                 Email = "same@mail.com",
                 Password = "StrongPass123!",
+                ConfirmPassword = "StrongPass123!",
+                DisplayName = "User A",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             var request2 = new RegisterDTO
@@ -96,6 +124,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "userB",
                 Email = "same@mail.com",
                 Password = "StrongPass123!",
+                ConfirmPassword = "StrongPass123!",
+                DisplayName = "User B",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             await this.client.PostAsJsonAsync("api/auth/register", request1);
@@ -113,6 +148,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "loginUser",
                 Email = "login@mail.com",
                 Password = "StrongPass123!",
+                ConfirmPassword = "StrongPass123!",
+                DisplayName = "Login User",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             await this.client.PostAsJsonAsync("api/auth/register", register);
@@ -136,6 +178,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 Username = "userWrongPass",
                 Email = "wrong@mail.com",
                 Password = "StrongPass123!",
+                ConfirmPassword = "StrongPass123!",
+                DisplayName = "Wrong Pass",
+                PhoneNumber = "1234567890",
+                Country = "Country",
+                City = "City",
+                StreetName = "Street",
+                StreetNumber = "1"
             };
 
             await this.client.PostAsJsonAsync("api/auth/register", register);

@@ -116,7 +116,7 @@ namespace BoardGames.Api.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return this.Forbid(ex.Message);
+                return this.StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden, ex.Message);
             }
             catch (ArgumentException ex)
             {
@@ -138,7 +138,7 @@ namespace BoardGames.Api.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return this.Forbid(ex.Message);
+                return this.StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden, ex.Message);
             }
             catch (InvalidOperationException ex)
             {

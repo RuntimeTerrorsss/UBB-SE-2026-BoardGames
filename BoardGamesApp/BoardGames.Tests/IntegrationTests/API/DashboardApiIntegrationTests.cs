@@ -1,4 +1,4 @@
-﻿// <copyright file="DashboardApiIntegrationTests.cs" company="BoardRent">
+// <copyright file="DashboardApiIntegrationTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -75,7 +75,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task GetPaymentHistory_WithValidUser_ReturnsOk()
         {
-            var response = await this.client.GetAsync($"api/dashboard/payments/{this.accountId}");
+            var response = await this.client.GetAsync($"api/payments/user/{this.accountId}/history");
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
@@ -87,7 +87,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task GetPaymentHistory_WithInvalidUser_ReturnsEmptyList()
         {
-            var response = await this.client.GetAsync($"api/dashboard/payments/{Guid.NewGuid()}");
+            var response = await this.client.GetAsync($"api/payments/user/{Guid.NewGuid()}/history");
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
@@ -99,7 +99,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task GetPaymentHistory_ReturnsOnlyUserPayments()
         {
-            var response = await this.client.GetAsync($"api/dashboard/payments/{this.accountId}");
+            var response = await this.client.GetAsync($"api/payments/user/{this.accountId}/history");
 
             var data = await response.Content.ReadFromJsonAsync<PaymentDTO[]>();
 
@@ -111,7 +111,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
         [Test]
         public async Task GetPaymentHistory_ReturnsSortedByDateDescending()
         {
-            var response = await this.client.GetAsync($"api/dashboard/payments/{this.accountId}");
+            var response = await this.client.GetAsync($"api/payments/user/{this.accountId}/history");
 
             var data = await response.Content.ReadFromJsonAsync<PaymentDTO[]>();
 

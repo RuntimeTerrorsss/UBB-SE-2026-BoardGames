@@ -1,4 +1,4 @@
-﻿// <copyright file="ConversationsApiIntegrationTests.cs" company="BoardRent">
+// <copyright file="ConversationsApiIntegrationTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -147,7 +147,12 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 RequestId: -1,
                 PaymentId: -1);
 
-            var result = await this.client.PutAsJsonAsync("api/conversation/messages", message);
+            var sendResult = await this.client.PostAsJsonAsync("api/conversation/messages", message);
+            var createdMessage = await sendResult.Content.ReadFromJsonAsync<MessageDataTransferObject>();
+
+            var updatedMessage = createdMessage! with { Content = "new" };
+
+            var result = await this.client.PutAsJsonAsync("api/conversation/messages", updatedMessage);
 
             Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }

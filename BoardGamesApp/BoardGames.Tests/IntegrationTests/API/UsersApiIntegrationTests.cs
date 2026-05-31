@@ -1,4 +1,4 @@
-﻿// <copyright file="UsersApiIntegrationTests.cs" company="BoardRent">
+// <copyright file="UsersApiIntegrationTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -75,7 +75,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             var returnedUsers = await response.Content.ReadFromJsonAsync<UserDTO[]>();
 
             Assert.That(returnedUsers, Is.Not.Null);
-            Assert.That(returnedUsers!.Length, Is.EqualTo(2));
+            Assert.That(returnedUsers!.Length, Is.EqualTo(5));
 
             Assert.That(returnedUsers.Any(returnedUser => returnedUser.Id == this.secondaryTestUserAccountId), Is.True);
             Assert.That(returnedUsers.Any(returnedUser => returnedUser.Id == this.tertiaryTestUserAccountId), Is.True);
@@ -141,7 +141,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             var returnedUsers = await response.Content.ReadFromJsonAsync<UserDTO[]>();
 
             Assert.That(returnedUsers, Is.Not.Null);
-            Assert.That(returnedUsers!.Length, Is.EqualTo(3));
+            Assert.That(returnedUsers!.Length, Is.EqualTo(6));
         }
 
         [Test]

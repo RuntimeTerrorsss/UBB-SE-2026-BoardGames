@@ -1,4 +1,4 @@
-﻿// <copyright file="GamesApiIntegrationTests.cs" company="BoardRent">
+// <copyright file="GamesApiIntegrationTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -41,7 +41,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             await ApiTestDataBuilder.SeedUserAsync(
                 dbContext,
                 this.ownerAccountId,
-                1,
+                99,
                 "game-owner",
                 "owner@test.com");
         }
@@ -61,7 +61,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             var dbContext =
                 scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+            await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
             var response = await this.client.GetAsync("api/games");
 
@@ -85,7 +85,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
             }
 
             var response =
@@ -159,7 +159,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
             }
 
             var dto = new GameUpdateDTO
@@ -190,7 +190,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
             }
 
             var dto = new GameUpdateDTO
@@ -220,7 +220,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
             }
 
             var dto = new GameUpdateDTO
@@ -255,7 +255,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                 $"api/games/99999?requestingAccountId={this.ownerAccountId}",
                 dto);
 
-            Assert.That((int)response.StatusCode, Is.EqualTo(500));
+            Assert.That((int)response.StatusCode, Is.EqualTo(404));
         }
 
         [Test]
@@ -269,7 +269,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
             }
 
             var response = await this.client.DeleteAsync(
@@ -289,7 +289,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
             }
 
             var response = await this.client.DeleteAsync(
@@ -304,7 +304,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             var response = await this.client.DeleteAsync(
                 $"api/games/99999?requestingAccountId={this.ownerAccountId}");
 
-            Assert.That((int)response.StatusCode, Is.EqualTo(500));
+            Assert.That((int)response.StatusCode, Is.EqualTo(404));
         }
 
         [Test]
@@ -318,11 +318,13 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 gameId =
-                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                    await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
                 dbContext.Rentals.Add(new Rental
                 {
                     GameId = gameId,
+                    ClientId = 99,
+                    OwnerId = 99,
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddDays(5),
                 });
@@ -345,7 +347,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
                     scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 await ApiTestDataBuilder
-                    .SeedGameAsync(dbContext, 1, "Chess");
+                    .SeedGameAsync(dbContext, 99, "Chess");
             }
 
             var dto = new GameSearchCriteriaDTO
@@ -391,7 +393,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                gameId = await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                gameId = await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
                 var game = dbContext.Games.First(game => game.Id == gameId);
 
@@ -418,7 +420,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                gameId = await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+                gameId = await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
                 var game = dbContext.Games.First(game => game.Id == gameId);
 
@@ -439,7 +441,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+            await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
             var response = await this.client.GetAsync($"api/games/owner/{this.ownerAccountId}");
 
@@ -453,7 +455,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+            await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
             var response = await this.client.GetAsync($"api/games/owner/{this.ownerAccountId}/active");
 
@@ -467,7 +469,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
 
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            await ApiTestDataBuilder.SeedGameAsync(dbContext, 1);
+            await ApiTestDataBuilder.SeedGameAsync(dbContext, 99);
 
             var response = await this.client.GetAsync("api/games/admin");
 

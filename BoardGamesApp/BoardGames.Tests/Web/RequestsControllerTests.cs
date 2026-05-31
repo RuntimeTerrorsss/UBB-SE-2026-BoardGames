@@ -1,330 +1,331 @@
-﻿//// <copyright file="RequestsControllerTests.cs" company="BoardRent">
-//// Copyright (c) BoardRent. All rights reserved.
-//// </copyright>
+// <copyright file="RequestsControllerTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
-//using System;
-//using System.Collections.Generic;
-//using System.Net;
-//using System.Security.Claims;
-//using System.Threading.Tasks;
-//using BoardGames.Api.Controllers;
-//using BoardGames.Shared.DTO;
-//using BoardGames.Web.Controllers;
-//using BoardGames.Web.Infrastructure;
-//using BoardGames.Web.Models.Requests;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Moq;
-//using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+using BoardGames.Web.Controllers;
+using BoardGames.Web.Infrastructure;
+using BoardGames.Web.Models.Requests;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Xunit;
+using RequestsController = BoardGames.Web.Controllers.RequestsController;
 
-//namespace BoardGames.Tests.Web
-//{
-//    public class RequestsControllerTests
-//    {
-//        private readonly Mock<IRequestProxyService> requestProxy;
-//        private readonly Mock<IGameProxyService> gameProxy;
-//        private readonly Mock<IChatProxyService> chatProxy;
-//        private readonly Mock<IRentalProxyService> rentalProxy;
-//        private readonly Guid accountId;
 
-//        private readonly GameDTO availableGame = new GameDTO
-//        {
-//            Id = 1,
-//            Name = "Ticket to Ride",
-//            Owner = new UserDTO { Id = Guid.NewGuid(), DisplayName = "Owner" },
-//        };
+namespace BoardGames.Tests.Web
+{
+    public class RequestsControllerTests
+    {
+        private readonly Mock<IRequestProxyService> requestProxy;
+        private readonly Mock<IGameProxyService> gameProxy;
+        private readonly Mock<IChatProxyService> chatProxy;
+        private readonly Mock<IRentalProxyService> rentalProxy;
+        private readonly Guid accountId;
 
-//        public RequestsControllerTests()
-//        {
-//            this.requestProxy = new Mock<IRequestProxyService>();
-//            this.gameProxy = new Mock<IGameProxyService>();
-//            this.chatProxy = new Mock<IChatProxyService>();
-//            this.rentalProxy = new Mock<IRentalProxyService>();
-//            this.accountId = Guid.NewGuid();
-//        }
+        private readonly GameDTO availableGame = new GameDTO
+        {
+            Id = 1,
+            Name = "Ticket to Ride",
+            Owner = new UserDTO { Id = Guid.NewGuid(), DisplayName = "Owner" },
+        };
 
-//        private RequestsController CreateController()
-//        {
-//            var controller = new RequestsController(
-//                this.requestProxy.Object,
-//                this.gameProxy.Object,
-//                this.chatProxy.Object,
-//                this.rentalProxy.Object);
+        public RequestsControllerTests()
+        {
+            this.requestProxy = new Mock<IRequestProxyService>();
+            this.gameProxy = new Mock<IGameProxyService>();
+            this.chatProxy = new Mock<IChatProxyService>();
+            this.rentalProxy = new Mock<IRentalProxyService>();
+            this.accountId = Guid.NewGuid();
+        }
 
-//            var identity = new ClaimsIdentity(
-//                new[]
-//            {
-//                new Claim(ClaimTypes.NameIdentifier, this.accountId.ToString()),
-//            }, "Test");
+        private RequestsController CreateController()
+        {
+            var controller = new RequestsController(
+                this.requestProxy.Object,
+                this.gameProxy.Object,
+                this.chatProxy.Object,
+                this.rentalProxy.Object);
 
-//            controller.ControllerContext = new ControllerContext
-//            {
-//                HttpContext = new DefaultHttpContext
-//                {
-//                    User = new ClaimsPrincipal(identity),
-//                },
-//            };
+            var identity = new ClaimsIdentity(
+                new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, this.accountId.ToString()),
+            }, "Test");
 
-//            return controller;
-//        }
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(identity),
+                },
+            };
 
-//        private void SetupAvailableGames(IReadOnlyList<GameDTO>? games = null)
-//        {
-//            this.gameProxy
-//                .Setup(s => s.GetAvailableGamesForRenterAsync(this.accountId, default))
-//                .ReturnsAsync(games ?? new List<GameDTO> { this.availableGame });
-//        }
+            return controller;
+        }
 
-//        [Fact]
-//        public async Task Create_GamesAvailable_ReturnsViewWithGames()
-//        {
-//            this.SetupAvailableGames();
+        private void SetupAvailableGames(IReadOnlyList<GameDTO>? games = null)
+        {
+            this.gameProxy
+                .Setup(s => s.GetAvailableGamesForRenterAsync(this.accountId, default))
+                .ReturnsAsync(games ?? new List<GameDTO> { this.availableGame });
+        }
 
-//            var result = await this.CreateController().Create() as ViewResult;
+        [Fact]
+        public async Task Create_GamesAvailable_ReturnsViewWithGames()
+        {
+            this.SetupAvailableGames();
 
-//            Assert.NotNull(result);
-//            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
-//            Assert.Single(vm.AvailableGames);
-//        }
+            var result = await this.CreateController().Create() as ViewResult;
 
-//        [Fact]
-//        public async Task Create_GamesProxyFails_ReturnsViewWithErrorMessage()
-//        {
-//            this.gameProxy
-//                .Setup(s => s.GetAvailableGamesForRenterAsync(this.accountId, default))
-//                .ThrowsAsync(new ProxyServiceException("Unavailable", HttpStatusCode.ServiceUnavailable, null));
+            Assert.NotNull(result);
+            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
+            Assert.Single(vm.AvailableGames);
+        }
 
-//            var result = await this.CreateController().Create() as ViewResult;
+        [Fact]
+        public async Task Create_GamesProxyFails_ReturnsViewWithErrorMessage()
+        {
+            this.gameProxy
+                .Setup(s => s.GetAvailableGamesForRenterAsync(this.accountId, default))
+                .ThrowsAsync(new ProxyServiceException("Unavailable", HttpStatusCode.ServiceUnavailable, null));
 
-//            Assert.NotNull(result);
-//            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
-//            Assert.NotNull(vm.ErrorMessage);
-//        }
+            var result = await this.CreateController().Create() as ViewResult;
 
-//        [Fact]
-//        public async Task Create_StartDateInPast_ReturnsViewWithModelError()
-//        {
-//            this.SetupAvailableGames();
+            Assert.NotNull(result);
+            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
+            Assert.NotNull(vm.ErrorMessage);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(-1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            }) as ViewResult;
+        [Fact]
+        public async Task Create_StartDateInPast_ReturnsViewWithModelError()
+        {
+            this.SetupAvailableGames();
 
-//            Assert.NotNull(result);
-//            Assert.True(result!.ViewData.ModelState.ContainsKey(nameof(CreateRequestViewModel.StartDate)));
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(-1),
+                EndDate = DateTime.Today.AddDays(3),
+            }) as ViewResult;
 
-//        [Fact]
-//        public async Task Create_StartDateInPast_SkipsRequestCreation()
-//        {
-//            this.SetupAvailableGames();
+            Assert.NotNull(result);
+            Assert.True(result!.ViewData.ModelState.ContainsKey(nameof(CreateRequestViewModel.StartDate)));
+        }
 
-//            await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(-1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            });
+        [Fact]
+        public async Task Create_StartDateInPast_SkipsRequestCreation()
+        {
+            this.SetupAvailableGames();
 
-//            this.requestProxy.Verify(
-//                s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default),
-//                Times.Never);
-//        }
+            await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(-1),
+                EndDate = DateTime.Today.AddDays(3),
+            });
 
-//        [Fact]
-//        public async Task Create_EndDateBeforeStartDate_ReturnsViewWithModelError()
-//        {
-//            this.SetupAvailableGames();
+            this.requestProxy.Verify(
+                s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default),
+                Times.Never);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(5),
-//                EndDate = DateTime.Today.AddDays(2),
-//            }) as ViewResult;
+        [Fact]
+        public async Task Create_EndDateBeforeStartDate_ReturnsViewWithModelError()
+        {
+            this.SetupAvailableGames();
 
-//            Assert.NotNull(result);
-//            Assert.True(result!.ViewData.ModelState.ContainsKey(nameof(CreateRequestViewModel.StartDate)));
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(5),
+                EndDate = DateTime.Today.AddDays(2),
+            }) as ViewResult;
 
-//        [Fact]
-//        public async Task Create_StartDateEqualsEndDate_CreatesRequest()
-//        {
-//            this.SetupAvailableGames();
+            Assert.NotNull(result);
+            Assert.True(result!.ViewData.ModelState.ContainsKey(nameof(CreateRequestViewModel.StartDate)));
+        }
 
-//            await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(2),
-//                EndDate = DateTime.Today.AddDays(2),
-//            });
+        [Fact]
+        public async Task Create_StartDateEqualsEndDate_CreatesRequest()
+        {
+            this.SetupAvailableGames();
 
-//            this.requestProxy.Verify(
-//                s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default),
-//                Times.Once);
-//        }
+            await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(2),
+                EndDate = DateTime.Today.AddDays(2),
+            });
 
-//        [Fact]
-//        public async Task Create_GameNotAvailable_ReturnsViewWithModelError()
-//        {
-//            this.SetupAvailableGames(new List<GameDTO>());
+            this.requestProxy.Verify(
+                s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default),
+                Times.Once);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            }) as ViewResult;
+        [Fact]
+        public async Task Create_GameNotAvailable_ReturnsViewWithModelError()
+        {
+            this.SetupAvailableGames(new List<GameDTO>());
 
-//            Assert.NotNull(result);
-//            Assert.True(result!.ViewData.ModelState.ContainsKey(nameof(CreateRequestViewModel.GameId)));
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(1),
+                EndDate = DateTime.Today.AddDays(3),
+            }) as ViewResult;
 
-//        [Fact]
-//        public async Task Create_GameNotAvailable_SkipsRequestCreation()
-//        {
-//            this.SetupAvailableGames(new List<GameDTO>());
+            Assert.NotNull(result);
+            Assert.True(result!.ViewData.ModelState.ContainsKey(nameof(CreateRequestViewModel.GameId)));
+        }
 
-//            await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            });
+        [Fact]
+        public async Task Create_GameNotAvailable_SkipsRequestCreation()
+        {
+            this.SetupAvailableGames(new List<GameDTO>());
 
-//            this.requestProxy.Verify(
-//                s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default),
-//                Times.Never);
-//        }
+            await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(1),
+                EndDate = DateTime.Today.AddDays(3),
+            });
 
-//        [Fact]
-//        public async Task Create_ValidForm_RedirectsToChatsIndex()
-//        {
-//            this.SetupAvailableGames();
+            this.requestProxy.Verify(
+                s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default),
+                Times.Never);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(1),
-//                EndDate = DateTime.Today.AddDays(4),
-//            }) as RedirectToActionResult;
+        [Fact]
+        public async Task Create_ValidForm_RedirectsToChatsIndex()
+        {
+            this.SetupAvailableGames();
 
-//            Assert.NotNull(result);
-//            Assert.Equal("Index", result!.ActionName);
-//            Assert.Equal("Chats", result.ControllerName);
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(1),
+                EndDate = DateTime.Today.AddDays(4),
+            }) as RedirectToActionResult;
 
-//        [Fact]
-//        public async Task Create_ValidForm_SendsCorrectDataToProxy()
-//        {
-//            this.SetupAvailableGames();
-//            CreateRequestDTO? captured = null;
-//            this.requestProxy
-//                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
-//                .Callback<CreateRequestDTO, System.Threading.CancellationToken>((dto, _) => captured = dto)
-//                .Returns(Task.CompletedTask);
+            Assert.NotNull(result);
+            Assert.Equal("Index", result!.ActionName);
+            Assert.Equal("Chats", result.ControllerName);
+        }
 
-//            var start = DateTime.Today.AddDays(1);
-//            var end = DateTime.Today.AddDays(5);
+        [Fact]
+        public async Task Create_ValidForm_SendsCorrectDataToProxy()
+        {
+            this.SetupAvailableGames();
+            CreateRequestDTO? captured = null;
+            this.requestProxy
+                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
+                .Callback<CreateRequestDTO, System.Threading.CancellationToken>((dto, _) => captured = dto)
+                .Returns(Task.CompletedTask);
 
-//            await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = start,
-//                EndDate = end,
-//            });
+            var start = DateTime.Today.AddDays(1);
+            var end = DateTime.Today.AddDays(5);
 
-//            Assert.NotNull(captured);
-//            Assert.Equal(start, captured!.StartDate);
-//            Assert.Equal(end, captured.EndDate);
-//            Assert.Equal(this.accountId, captured.RenterAccountId);
-//        }
+            await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = start,
+                EndDate = end,
+            });
 
-//        [Fact]
-//        public async Task Create_DatesUnavailable_ReturnsViewWithFriendlyMessage()
-//        {
-//            this.SetupAvailableGames();
-//            this.requestProxy
-//                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
-//                .ThrowsAsync(new ProxyServiceException("Conflict", HttpStatusCode.Conflict, "dates_unavailable"));
+            Assert.NotNull(captured);
+            Assert.Equal(start, captured!.StartDate);
+            Assert.Equal(end, captured.EndDate);
+            Assert.Equal(this.accountId, captured.RenterAccountId);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            }) as ViewResult;
+        [Fact]
+        public async Task Create_DatesUnavailable_ReturnsViewWithFriendlyMessage()
+        {
+            this.SetupAvailableGames();
+            this.requestProxy
+                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
+                .ThrowsAsync(new ProxyServiceException("Conflict", HttpStatusCode.Conflict, "dates_unavailable"));
 
-//            Assert.NotNull(result);
-//            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
-//            Assert.Equal("The selected dates are no longer available.", vm.ErrorMessage);
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(1),
+                EndDate = DateTime.Today.AddDays(3),
+            }) as ViewResult;
 
-//        [Fact]
-//        public async Task Create_OwnerCannotRent_ReturnsViewWithFriendlyMessage()
-//        {
-//            this.SetupAvailableGames();
-//            this.requestProxy
-//                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
-//                .ThrowsAsync(new ProxyServiceException("Bad request", HttpStatusCode.BadRequest, "owner_cannot_rent"));
+            Assert.NotNull(result);
+            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
+            Assert.Equal("The selected dates are no longer available.", vm.ErrorMessage);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            }) as ViewResult;
+        [Fact]
+        public async Task Create_OwnerCannotRent_ReturnsViewWithFriendlyMessage()
+        {
+            this.SetupAvailableGames();
+            this.requestProxy
+                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
+                .ThrowsAsync(new ProxyServiceException("Bad request", HttpStatusCode.BadRequest, "owner_cannot_rent"));
 
-//            Assert.NotNull(result);
-//            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
-//            Assert.Equal("You cannot rent your own game.", vm.ErrorMessage);
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(1),
+                EndDate = DateTime.Today.AddDays(3),
+            }) as ViewResult;
 
-//        [Fact]
-//        public async Task Create_InvalidDateRange_ReturnsViewWithFriendlyMessage()
-//        {
-//            this.SetupAvailableGames();
-//            this.requestProxy
-//                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
-//                .ThrowsAsync(new ProxyServiceException("Validation", HttpStatusCode.UnprocessableEntity, "invalid_date_range"));
+            Assert.NotNull(result);
+            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
+            Assert.Equal("You cannot rent your own game.", vm.ErrorMessage);
+        }
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = DateTime.Today.AddDays(1),
-//                EndDate = DateTime.Today.AddDays(3),
-//            }) as ViewResult;
+        [Fact]
+        public async Task Create_InvalidDateRange_ReturnsViewWithFriendlyMessage()
+        {
+            this.SetupAvailableGames();
+            this.requestProxy
+                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
+                .ThrowsAsync(new ProxyServiceException("Validation", HttpStatusCode.UnprocessableEntity, "invalid_date_range"));
 
-//            Assert.NotNull(result);
-//            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
-//            Assert.Equal("Invalid date range.", vm.ErrorMessage);
-//        }
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = DateTime.Today.AddDays(1),
+                EndDate = DateTime.Today.AddDays(3),
+            }) as ViewResult;
 
-//        [Fact]
-//        public async Task Create_ProxyFails_PreservesOriginalDatesInView()
-//        {
-//            this.SetupAvailableGames();
-//            this.requestProxy
-//                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
-//                .ThrowsAsync(new ProxyServiceException("Conflict", HttpStatusCode.Conflict, "dates_unavailable"));
+            Assert.NotNull(result);
+            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
+            Assert.Equal("Invalid date range.", vm.ErrorMessage);
+        }
 
-//            var start = DateTime.Today.AddDays(2);
-//            var end = DateTime.Today.AddDays(6);
+        [Fact]
+        public async Task Create_ProxyFails_PreservesOriginalDatesInView()
+        {
+            this.SetupAvailableGames();
+            this.requestProxy
+                .Setup(s => s.CreateRequestAsync(It.IsAny<CreateRequestDTO>(), default))
+                .ThrowsAsync(new ProxyServiceException("Conflict", HttpStatusCode.Conflict, "dates_unavailable"));
 
-//            var result = await this.CreateController().Create(new CreateRequestViewModel
-//            {
-//                GameId = 1,
-//                StartDate = start,
-//                EndDate = end,
-//            }) as ViewResult;
+            var start = DateTime.Today.AddDays(2);
+            var end = DateTime.Today.AddDays(6);
 
-//            Assert.NotNull(result);
-//            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
-//            Assert.Equal(start, vm.StartDate);
-//            Assert.Equal(end, vm.EndDate);
-//        }
-//    }
-//}
+            var result = await this.CreateController().Create(new CreateRequestViewModel
+            {
+                GameId = 1,
+                StartDate = start,
+                EndDate = end,
+            }) as ViewResult;
+
+            Assert.NotNull(result);
+            var vm = Assert.IsType<CreateRequestViewModel>(result!.Model);
+            Assert.Equal(start, vm.StartDate);
+            Assert.Equal(end, vm.EndDate);
+        }
+    }
+}
