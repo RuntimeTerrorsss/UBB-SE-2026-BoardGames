@@ -1,35 +1,26 @@
-// <copyright file="NotificationProxyServiceAdapter.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BoardGames.Web.Infrastructure;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Shared.DTO;
-using System.Net.Http.Json;
+using GUI_BRAP.ProxyServices;
 
 namespace BoardGames.Web.Infrastructure
 {
     public sealed class NotificationProxyServiceAdapter : INotificationProxyService
     {
-        private readonly HttpClient httpClient;
+        private readonly INotificationService notificationService;
 
-        public NotificationProxyServiceAdapter(HttpClient httpClient)
+        public NotificationProxyServiceAdapter(INotificationService notificationService)
         {
-            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            if (this.httpClient.BaseAddress is null)
-            {
-                throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
-            }
+            this.notificationService = notificationService;
         }
 
         public async Task<IReadOnlyList<NotificationDTO>> GetNotificationsForUserAsync(Guid accountId)
-        {
-            using var response = await this.httpClient.GetAsync($"notifications/user/{accountId}");
-            return await HttpProxyClient.ReadAsync<List<NotificationDTO>>(response);
-        }
+            => (await notificationService.GetNotificationsForUserAsync(accountId)).ThrowIfFailed();
 
         public async Task DeleteNotificationAsync(int notificationId)
-        {
-            using var response = await this.httpClient.DeleteAsync($"notifications/{notificationId}");
-            await HttpProxyClient.EnsureSuccessAsync(response);
-        }
+            => (await notificationService.DeleteNotificationByIdentifierAsync(notificationId)).ThrowIfFailed();
     }
 }

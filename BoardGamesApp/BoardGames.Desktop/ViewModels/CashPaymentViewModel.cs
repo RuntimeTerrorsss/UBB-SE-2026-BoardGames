@@ -1,3 +1,12 @@
+// <copyright file="CashPaymentViewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+using System;
+using System.Threading.Tasks;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using BoardGames.Api.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -65,7 +74,7 @@ namespace BoardGames.Desktop.ViewModels
             PaidAmount = rentalPrice.ToString();
 
             int createdPaymentIdentifier = await cashPaymentService.AddCashPaymentAsync(
-                new CashPaymentDTO(NewPaymentPlaceholderId, rentalRequestId, clientUser.Id, ownerUser.Id, rentalPrice));
+                new CashPaymentDataTransferObject(NewPaymentPlaceholderId, rentalRequestId, clientUser.Id, ownerUser.Id, rentalPrice));
 
             await conversationService.OnCashPaymentSelected(rentalRequestMessageIdentifier, createdPaymentIdentifier);
         }

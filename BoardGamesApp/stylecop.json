@@ -2,8 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
   "settings": {
     "documentationRules": {
-      "companyName": "BoardRent",
-      "copyrightText": "Copyright (c) {companyName}. All rights reserved.",
       "documentInterfaces": false,
       "documentClasses": false,
       "documentConstructors": false,
@@ -20,11 +18,6 @@
     },
     "layoutRules": {
       "newlineAtEndOfFile": "require"
-    },
-    "namingRules": {
-      "allowLocalForeignWords": true,
-      "allowTypeParametersWithoutT": false,
-      "allowBuiltInTypeAliases": true
     }
   }
 }

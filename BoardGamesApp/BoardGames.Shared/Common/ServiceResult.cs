@@ -1,7 +1,3 @@
-// <copyright file="ServiceResult.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Shared.Common
 {
     public class ServiceResult<T>

@@ -1,8 +1,10 @@
-// <copyright file="UserService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
+
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -15,7 +17,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<IReadOnlyList<UserDTO>>> GetUsersExceptAsync(Guid excludeAccountId, CancellationToken cancellationToken = default)
         {
-            var client = this.CreateClient();
+            var client = CreateClient();
             return ApiResponseReader.SendAsync<IReadOnlyList<UserDTO>>(
                 token => client.GetAsync($"api/users/except/{excludeAccountId}", token),
                 async (response, token) =>

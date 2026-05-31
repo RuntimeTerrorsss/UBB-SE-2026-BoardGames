@@ -1,12 +1,8 @@
-﻿// <copyright file="ProfileViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
-
-namespace BoardGames.Web.Models.Account
+﻿namespace BoardGames.Web.Models.Account
 {
+    using System.ComponentModel.DataAnnotations;
+    using Microsoft.AspNetCore.Http;
+
     public class ProfileViewModel
     {
         [Display(Name = "Username")]

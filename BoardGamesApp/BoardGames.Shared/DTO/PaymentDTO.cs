@@ -1,10 +1,12 @@
-﻿// <copyright file="PaymentDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="PaymentDataTransferObject.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+
+using System;
 
 namespace BoardGames.Shared.DTO
 {
-    public class PaymentDTO
+    public class PaymentDataTransferObject
     {
         public int PaymentId { get; set; }
 
@@ -36,7 +38,7 @@ namespace BoardGames.Shared.DTO
         /// <summary>
         /// Gets formatted amount string for display.
         /// </summary>
-        public string AmountText => $"{this.Amount:C}";
+        public string AmountText => $"{Amount:C}";
 
         public string? PaymentMethod { get; set; }
 

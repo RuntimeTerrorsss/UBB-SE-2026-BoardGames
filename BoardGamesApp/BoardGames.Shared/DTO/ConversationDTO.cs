@@ -1,4 +1,4 @@
-// <copyright file="ConversationDTO.cs" company="PlaceholderCompany">
+﻿// <copyright file="ConversationDTO.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -10,25 +10,17 @@ namespace BoardGames.Shared.DTO
 {
     public class ConversationDTO
     {
-        public ConversationDTO()
-        {
-            MessageList = new List<MessageDataTransferObject>();
-            ParticipantUserIds = new List<int>();
-            LastRead = new Dictionary<int, DateTime>();
-            UnreadCount = new Dictionary<int, int>();
-        }
-
         public ConversationDTO(
             int conversationId,
-            IReadOnlyList<int> participantUserIds,
+            ICollection<ConversationParticipant> participants,
             List<MessageDataTransferObject> messages,
             Dictionary<int, DateTime> lastRead)
         {
             Id = conversationId;
-            ParticipantUserIds = participantUserIds;
+            Participants = participants;
             MessageList = messages;
             LastRead = lastRead;
-            UnreadCount = participantUserIds.ToDictionary(userId => userId, _ => 0);
+            UnreadCount = participants.ToDictionary(participant => participant.UserId, _ => 0);
             UpdateUnreadCounts();
         }
 
@@ -36,13 +28,11 @@ namespace BoardGames.Shared.DTO
 
         public List<MessageDataTransferObject> MessageList { get; set; }
 
-        public IReadOnlyList<int> ParticipantUserIds { get; set; }
+        public ICollection<ConversationParticipant> Participants { get; set; }
 
         public Dictionary<int, DateTime> LastRead { get; set; }
 
         public Dictionary<int, int> UnreadCount { get; set; }
-
-        public Dictionary<int, string> ParticipantDisplayNames { get; set; } = new();
 
         public void AddMessageToListDTO(MessageDataTransferObject newMessage)
         {
@@ -60,9 +50,9 @@ namespace BoardGames.Shared.DTO
             int defaultUnreadCount = 0;
             int systemMessageSenderIdentifier = 0;
 
-            foreach (var participantUserId in ParticipantUserIds)
+            foreach (var participantItem in Participants)
             {
-                UnreadCount[participantUserId] = defaultUnreadCount;
+                UnreadCount[participantItem.UserId] = defaultUnreadCount;
             }
 
             foreach (var messageItem in MessageList)

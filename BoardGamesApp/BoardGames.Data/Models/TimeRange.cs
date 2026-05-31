@@ -1,29 +1,19 @@
-﻿// <copyright file="TimeRange.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 [Owned]
 public class TimeRange
 {
-    public TimeRange()
-    {
-    }
+    public TimeRange() { }
 
     public TimeRange(DateTime startTime, DateTime endTime)
     {
-        if (endTime.Date < startTime.Date)
-        {
-            throw new ArgumentException("End date must be on or after the start date.");
-        }
-
+        if (endTime.Date < startTime.Date) throw new ArgumentException("End date must be on or after the start date.");
         startTime = startTime.Date;
         endTime = endTime.Date;
-        this.StartTime = startTime;
-        this.EndTime = endTime;
+        StartTime = startTime;
+        EndTime = endTime;
     }
 
     [Column("start_time")]

@@ -20,8 +20,7 @@ namespace BoardGames.Shared.DTO
         bool IsAcceptedByBuyer,
         bool IsAcceptedBySeller,
         int RequestId,
-        int PaymentId,
-        int RentalId = -1)
+        int PaymentId)
     {
         public string GetChatMessagePreview()
         {

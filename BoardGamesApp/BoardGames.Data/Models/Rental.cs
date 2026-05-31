@@ -1,7 +1,3 @@
-// <copyright file="Rental.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,19 +8,17 @@ namespace BoardGames.Data.Models
     [Table("rentals")]
     public class Rental
     {
-        public Rental()
-        {
-        }
+        public Rental() { }
 
         public Rental(int id, int gameId, int clientId, int ownerId, DateTime startDate, DateTime endDate, decimal? totalPrice = null)
         {
-            this.Id = id;
-            this.GameId = gameId;
-            this.ClientId = clientId;
-            this.OwnerId = ownerId;
-            this.StartDate = startDate;
-            this.EndDate = endDate;
-            this.TotalPrice = totalPrice;
+            Id = id;
+            GameId = gameId;
+            ClientId = clientId;
+            OwnerId = ownerId;
+            StartDate = startDate;
+            EndDate = endDate;
+            TotalPrice = totalPrice;
         }
 
         [Key]
@@ -39,6 +33,7 @@ namespace BoardGames.Data.Models
 
         [Column("total_price")]
         public decimal? TotalPrice { get; set; }
+
 
         [Column("game_id")]
         public int GameId { get; set; }
@@ -59,7 +54,7 @@ namespace BoardGames.Data.Models
         public User? Owner { get; set; }
 
         /// <summary>Alias for Client — used by the canonical request/rental lifecycle.</summary>
-        public User? Renter => this.Client;
+        public User? Renter => Client;
 
         public Payment? Payment { get; set; }
 

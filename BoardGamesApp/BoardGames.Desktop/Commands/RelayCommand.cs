@@ -1,3 +1,6 @@
+﻿// <copyright file="RelayCommand.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 using System;
 using System.Windows.Input;
@@ -13,15 +16,15 @@ namespace BoardGames.Desktop.Commands
 
         public bool CanExecute(object? parameter)
         {
-            return this.canExecuteFunction?.Invoke() ?? true;
+            return canExecuteFunction?.Invoke() ?? true;
         }
 
         public void Execute(object? parameter)
         {
-            this.executeAction(parameter);
+            executeAction(parameter);
         }
 
         public void NotifyCanExecuteChanged() =>
-            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

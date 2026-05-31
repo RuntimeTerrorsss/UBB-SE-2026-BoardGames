@@ -1,13 +1,10 @@
-// <copyright file="BookedDateRangeDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
 
 namespace BoardGames.Shared.DTO
 {
-    public class BookedDateRangeDTO
+    public class BookedDateRangeDataTransferObject
     {
         public DateTime StartDate { get; set; }
-
         public DateTime EndDate { get; set; }
     }
 }

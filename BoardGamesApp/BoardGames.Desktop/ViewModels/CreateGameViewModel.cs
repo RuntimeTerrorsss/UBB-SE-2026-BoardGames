@@ -1,9 +1,11 @@
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
-using AppConstants = BoardGames.Desktop.Constants.Constants;
-using DomainValues = BoardGames.Desktop.Constants.DomainConstants;
+using BoardGames.Desktop.Constants;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.Services;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -17,24 +19,17 @@ namespace BoardGames.Desktop.ViewModels
         private readonly ICurrentUserContext currentUserContext;
 
         public string GameName { get; set; } = string.Empty;
-
         public decimal GamePrice { get; set; }
-
         public double GamePriceAsDouble
         {
             get => (double)GamePrice;
             set => GamePrice = (decimal)value;
         }
-
-        public int MinimumPlayersRequired { get; set; } = DomainValues.GameDefaultMinimumPlayers;
-
-        public int MaximumPlayersAllowed { get; set; } = DomainValues.GameDefaultMaximumPlayers;
-
+        public int MinimumPlayersRequired { get; set; } = DomainConstants.GameDefaultMinimumPlayers;
+        public int MaximumPlayersAllowed { get; set; } = DomainConstants.GameDefaultMaximumPlayers;
         public string GameDescription { get; set; } = string.Empty;
-
         public bool IsGameActive { get; set; } = true;
-
-        public byte[]? GameImage { get; set; }
+        public byte[] GameImage { get; set; } = null;
 
         public Guid CurrentUserId => currentUserContext.CurrentUserId;
 
@@ -46,7 +41,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public List<string> ValidateGameInputs()
         {
-            return GameInputValidator.Validate(BuildValidationGameDTO());
+            return GameInputValidator.Validate(BuildGameDataTransferObject());
         }
 
         public async Task<ViewOperationResult> SubmitCreateGameAsync()
@@ -55,12 +50,16 @@ namespace BoardGames.Desktop.ViewModels
             if (gameValidationErrors.Count > NoValidationErrors)
             {
                 return ViewOperationResult.Failure(
-                    AppConstants.DialogTitles.ValidationError,
+                    Constants.DialogTitles.ValidationError,
                     string.Join(Environment.NewLine, gameValidationErrors));
             }
 
-            var saveResult = await SaveGameAsync();
-            return saveResult;
+            var savedGame = await SaveGameAsync();
+            return savedGame != null
+                ? ViewOperationResult.Success()
+                : ViewOperationResult.Failure(
+                    Constants.DialogTitles.ValidationError,
+                    Constants.DialogMessages.UnexpectedErrorOccurred);
         }
 
         public void SetGamePriceFromText(string rawPriceText)
@@ -74,54 +73,20 @@ namespace BoardGames.Desktop.ViewModels
             GamePrice = ZeroPriceForEmptyOrInvalidInput;
         }
 
-        public async Task<ViewOperationResult> SaveGameAsync()
+        public async Task<GameDTO?> SaveGameAsync()
         {
-            if (GameInputValidator.Validate(BuildValidationGameDTO()).Count > NoValidationErrors)
+            var newGameDataTransferObject = BuildGameDataTransferObject();
+
+            if (GameInputValidator.Validate(newGameDataTransferObject).Count > NoValidationErrors)
             {
-                return ViewOperationResult.Failure(
-                    AppConstants.DialogTitles.ValidationError,
-                    AppConstants.DialogMessages.UnexpectedErrorOccurred);
+                return null;
             }
 
-            var createDto = BuildGameCreateDTO();
-            var createGameResult = await gameListingService.CreateGameAsync(createDto);
-
-            return createGameResult.Success
-                ? ViewOperationResult.Success()
-                : ViewOperationResult.Failure(
-                    AppConstants.DialogTitles.ValidationError,
-                    createGameResult.Error ?? AppConstants.DialogMessages.UnexpectedErrorOccurred);
+            var createGameResult = await gameListingService.CreateGameAsync(newGameDataTransferObject);
+            return createGameResult.Success ? newGameDataTransferObject : null;
         }
 
-        private GameSummaryDTO BuildGameSummaryDTO()
-        {
-            return new GameSummaryDTO
-            {
-                Id = NewGameId,
-                OwnerAccountId = CurrentUserId,
-                Name = GameName,
-                Price = GamePrice,
-                MinimumPlayerNumber = MinimumPlayersRequired,
-                MaximumPlayerNumber = MaximumPlayersAllowed,
-                IsActive = IsGameActive,
-            };
-        }
-
-        private GameCreateDTO BuildGameCreateDTO()
-        {
-            return new GameCreateDTO
-            {
-                OwnerAccountId = CurrentUserId,
-                Name = GameName,
-                Price = GamePrice,
-                MinimumPlayerNumber = MinimumPlayersRequired,
-                MaximumPlayerNumber = MaximumPlayersAllowed,
-                Description = GameDescription,
-                Image = GameImage ?? Array.Empty<byte>(),
-            };
-        }
-
-        private GameDTO BuildValidationGameDTO()
+        private GameDTO BuildGameDataTransferObject()
         {
             return new GameDTO
             {
@@ -133,7 +98,7 @@ namespace BoardGames.Desktop.ViewModels
                 MaximumPlayerNumber = MaximumPlayersAllowed,
                 Description = GameDescription,
                 Image = GameImage,
-                IsActive = IsGameActive,
+                IsActive = IsGameActive
             };
         }
     }

@@ -1,9 +1,13 @@
-// <copyright file="PaymentAPIProxy.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="PaymentAPIProxy.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using BoardGames.Data.Repositories;
 
 namespace BoardGames.Shared.ProxyRepositories
@@ -24,13 +28,13 @@ namespace BoardGames.Shared.ProxyRepositories
 
         public async Task<IReadOnlyList<Payment>> GetAllPaymentsAsync()
         {
-            return await this.httpClient.GetFromJsonAsync<List<Payment>>("payments", JsonOptions)
+            return await httpClient.GetFromJsonAsync<List<Payment>>("payments", JsonOptions)
                    ?? new List<Payment>();
         }
 
         public async Task<Payment?> GetPaymentByIdentifierAsync(int paymentId)
         {
-            var response = await this.httpClient.GetAsync($"payments/{paymentId}");
+            var response = await httpClient.GetAsync($"payments/{paymentId}");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -55,7 +59,7 @@ namespace BoardGames.Shared.ProxyRepositories
             payment.Client = null;
             payment.Owner = null;
 
-            var response = await this.httpClient.PostAsJsonAsync("payments", payment, JsonOptions);
+            var response = await httpClient.PostAsJsonAsync("payments", payment, JsonOptions);
             if (!response.IsSuccessStatusCode)
             {
                 var errorBody = await response.Content.ReadAsStringAsync();
@@ -76,7 +80,7 @@ namespace BoardGames.Shared.ProxyRepositories
 
         public async Task<Payment?> UpdatePaymentAsync(Payment payment)
         {
-            var response = await this.httpClient.PutAsJsonAsync(
+            var response = await httpClient.PutAsJsonAsync(
                 $"payments/{payment.TransactionIdentifier}",
                 payment,
                 JsonOptions);
@@ -96,7 +100,7 @@ namespace BoardGames.Shared.ProxyRepositories
                 return false;
             }
 
-            var response = await this.httpClient.DeleteAsync($"payments/{payment.TransactionIdentifier}");
+            var response = await httpClient.DeleteAsync($"payments/{payment.TransactionIdentifier}");
             return response.IsSuccessStatusCode;
         }
     }

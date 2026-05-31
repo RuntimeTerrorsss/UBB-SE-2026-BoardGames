@@ -1,85 +1,77 @@
-// <copyright file="CashPaymentPage.xaml.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="CashPaymentPage.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
 using BoardGames.Desktop.Navigation;
-using BoardGames.Desktop.Services;
-using BoardGames.Shared.DTO;
-using BoardGames.Shared.ProxyServices;
-using Microsoft.Extensions.DependencyInjection;
+using BoardGames.Desktop.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
-namespace BoardGames.Desktop.Views
+namespace BookingBoardGames.Src.Views
 {
     public sealed partial class CashPaymentPage : Page
     {
-        private BookingNavigationArguments? booking;
-        private Window? hostWindow;
+        public CashPaymentViewModel PaymentViewModel { get; set; }
+
+        private Window currentApplicationWindow;
 
         public CashPaymentPage()
         {
             this.InitializeComponent();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs navigationArgs)
+        protected async override void OnNavigatedTo(NavigationEventArgs navigationArgs)
         {
             base.OnNavigatedTo(navigationArgs);
-            if (navigationArgs.Parameter is not BookingNavigationArguments args)
-            {
-                return;
-            }
 
-            this.booking = args;
-            this.hostWindow = args.CurrentWindow;
-            this.DataContext = new
+            try
             {
-                GameName = args.Checkout.GameName,
-                OwnerName = args.Checkout.OwnerName,
-                RequestDates = args.Checkout.DateRange,
-                DeliveryAddress = args.DeliveryAddress,
-                PaidAmount = args.Checkout.Price.ToString("C"),
-            };
-        }
-
-        private async void ConfirmCashPayment_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.booking is null)
-            {
-                return;
-            }
-
-            var session = App.Services.GetRequiredService<ISessionContext>();
-            var paymentService = App.Services.GetRequiredService<IRentalPaymentService>();
-            var result = await paymentService.CompleteCardPaymentAsync(new CompleteRentalCardPaymentDTO
-            {
-                RequestId = this.booking.ChatRequestId,
-                RentalId = this.booking.RentalId,
-                MessageId = this.booking.MessageId,
-                RenterAccountId = session.AccountId,
-                PaymentMethod = "CASH",
-            });
-
-            if (!result.Success)
-            {
-                var dialog = new ContentDialog
+                if (navigationArgs.Parameter is BookingNavigationArguments booking)
                 {
-                    Title = "Payment failed",
-                    Content = result.Error ?? "Could not complete the cash payment.",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot,
-                };
-                await dialog.ShowAsync();
+                    if (booking.ConversationService == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Cash payment navigation missing conversation service.");
+                        return;
+                    }
+
+                    this.PaymentViewModel = new CashPaymentViewModel(
+                        App.CashPaymentService,
+                        App.UserRepository,
+                        App.RentalService,
+                        App.GameRepository,
+                        booking.RequestIdentifier,
+                        booking.DeliveryAddress,
+                        booking.BookingMessageIdentifier,
+                        booking.ConversationService);
+
+                    await this.PaymentViewModel.InitializeAsync(
+                        booking.RequestIdentifier,
+                        booking.DeliveryAddress);
+
+                    this.DataContext = this.PaymentViewModel;
+                    this.currentApplicationWindow = booking.CurrentWindow;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
+        }
+
+        private void NavigateToChatButton_Click(object sender, RoutedEventArgs routedArgs)
+        {
+            if (this.currentApplicationWindow != null)
+            {
+                this.currentApplicationWindow.Close();
                 return;
             }
 
-            this.hostWindow?.Close();
-        }
-
-        private void NavigateToChatButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.hostWindow?.Close();
+            if (this.Frame?.CanGoBack == true)
+            {
+                this.Frame.GoBack();
+            }
         }
     }
 }

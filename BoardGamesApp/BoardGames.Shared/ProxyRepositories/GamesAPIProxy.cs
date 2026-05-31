@@ -1,15 +1,19 @@
-// <copyright file="GamesAPIProxy.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="GamesRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using BoardGames.Data.Enums;
-using BoardGames.Data.Models;
-using BoardGames.Data.Repositories;
-
-namespace BoardGames.Shared.ProxyRepositories;
-
+using System.Threading.Tasks;
+using BoardGames.Data;
+using BoardGames.Data.Enum;
+using BoardGames.Data.Interfaces;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 /// <summary>
 /// Repository responsible for reading game/listing data from the database.
 /// Important:
@@ -40,11 +44,7 @@ public class GamesAPIProxy : InterfaceGamesRepository
         {
             var response = await this.httpClient.GetAsync($"games/{gameId}");
             Debug.WriteLine($"GetGameById status: {response.StatusCode}");
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-
+            if (!response.IsSuccessStatusCode) return null;
             var raw = await response.Content.ReadAsStringAsync();
             Debug.WriteLine($"GetGameById raw: {raw}");
             return JsonSerializer.Deserialize<Game>(raw, JsonOptions);
@@ -92,15 +92,4 @@ public class GamesAPIProxy : InterfaceGamesRepository
                    $"games/feed/remaining?userId={userId}", JsonOptions)
                ?? new List<Game>();
     }
-
-    public void AddGame(Game game) => throw new NotImplementedException();
-    public Game DeleteGame(int id) => throw new NotImplementedException();
-    public void UpdateGame(int id, Game updated) => throw new NotImplementedException();
-    public Game GetGame(int id) => throw new NotImplementedException();
-    public System.Collections.Immutable.ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId) => throw new NotImplementedException();
-
-    public void Add(Game entity) => throw new NotImplementedException();
-    public Game Delete(int id) => throw new NotImplementedException();
-    public void Update(int id, Game entity) => throw new NotImplementedException();
-    public Game Get(int id) => throw new NotImplementedException();
 }

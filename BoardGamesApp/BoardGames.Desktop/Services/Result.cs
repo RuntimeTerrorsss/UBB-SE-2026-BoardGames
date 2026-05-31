@@ -1,6 +1,4 @@
-// <copyright file="Result.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
 
 namespace BoardGames.Desktop.Services
 {
@@ -11,7 +9,7 @@ namespace BoardGames.Desktop.Services
 
         private Result(bool isSuccess, TSuccess successPayloadValue, TError failureErrorValue)
         {
-            this.IsSuccess = isSuccess;
+            IsSuccess = isSuccess;
             this.successPayloadValue = successPayloadValue;
             this.failureErrorValue = failureErrorValue;
         }
@@ -22,12 +20,12 @@ namespace BoardGames.Desktop.Services
         {
             get
             {
-                if (!this.IsSuccess)
+                if (!IsSuccess)
                 {
                     throw new InvalidOperationException("Cannot read Value on a failed Result.");
                 }
 
-                return this.successPayloadValue;
+                return successPayloadValue;
             }
         }
 
@@ -35,12 +33,12 @@ namespace BoardGames.Desktop.Services
         {
             get
             {
-                if (this.IsSuccess)
+                if (IsSuccess)
                 {
                     throw new InvalidOperationException("Cannot read Error on a successful Result.");
                 }
 
-                return this.failureErrorValue;
+                return failureErrorValue;
             }
         }
 

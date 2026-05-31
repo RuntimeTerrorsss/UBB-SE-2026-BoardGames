@@ -1,5 +1,5 @@
-﻿// <copyright file="RentalQueries.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="RentalQueries.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace BoardGames.Shared.ProxyRepositories.Sql

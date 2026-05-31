@@ -1,7 +1,3 @@
-// <copyright file="CurrentUserContext.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 
 namespace BoardGames.Desktop.Services
@@ -15,10 +11,10 @@ namespace BoardGames.Desktop.Services
             this.sessionContext = sessionContext;
         }
 
-        public Guid CurrentUserId => this.sessionContext.AccountId;
+        public Guid CurrentUserId => sessionContext.AccountId;
 
-        public int? CurrentPamUserId => this.sessionContext.PamUserId;
+        public int? CurrentPamUserId => sessionContext.PamUserId;
 
-        public bool IsLoggedIn => this.sessionContext.IsLoggedIn;
+        public bool IsLoggedIn => sessionContext.IsLoggedIn;
     }
 }

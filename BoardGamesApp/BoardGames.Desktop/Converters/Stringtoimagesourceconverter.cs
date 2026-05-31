@@ -1,3 +1,6 @@
+﻿// <copyright file="StringToImageSourceConverter.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 using System;
 using Microsoft.UI.Xaml.Data;

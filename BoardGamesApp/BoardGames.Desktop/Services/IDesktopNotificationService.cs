@@ -1,13 +1,9 @@
-// <copyright file="IDesktopNotificationService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.Services
 {

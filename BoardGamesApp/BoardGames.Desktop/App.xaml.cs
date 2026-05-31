@@ -1,139 +1,404 @@
-// <copyright file="App.xaml.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
 using System.Configuration;
-using System.Net;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.Services.Listeners;
 using BoardGames.Desktop.ViewModels;
-using BoardGames.Desktop.Views;
+using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
+using BoardRentAndProperty.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using H.NotifyIcon;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Windows.AppLifecycle;
 
-namespace BoardGames.Desktop
+namespace BoardRentAndProperty
 {
     public partial class App : Application
     {
-        private const int ApiClientTimeoutSeconds = 30;
+        private const int DefaultProcessSlot = 1;
+        private const int ProcessSlotArgumentIndex = 1;
+        private const int KeyPartIndex = 0;
+        private const int ValuePartIndex = 1;
+        private const int SplitKeyValuePartsCount = 2;
+        private const int DevModePrimaryProcessSlot = 1;
+        private const int DevModeSecondaryProcessSlot = 2;
+        private const int NoRunningProcessCount = 0;
+        private const int SuccessExitCode = 0;
 
-        private Frame? rootFrame;
+        private const string TwoWindowsEnvironmentKey = "TWO_WINDOWS";
+        private const string EnabledEnvironmentValue = "true";
+        private const string NotificationNavigationArgumentKey = "navigate";
+        private const string TrayIconIdentityPrefix = "BoardRentAndProperty.TrayIcon";
+
+        public static IServiceProvider Services { get; private set; } = default!;
+        public static Window? MainWindow { get; set; }
+        public Frame? RootFrame { get; set; }
+
+        public string AppUserModelId { get; }
+        public int CurrentProcessSlot { get; }
+        public NotificationsViewModel? NotificationsViewModel { get; private set; }
+
+        private TaskbarIcon? trayIcon;
+        private static Process? notificationServerProcess;
+        private static Process? secondClientProcess;
+
+        private Window? mainWindow;
+        private readonly bool shouldLaunchSecondClient;
+        private IDesktopNotificationService? notificationService;
+        private readonly NotificationManager notificationManager;
 
         public App()
         {
-            ConfigureServices();
-            this.InitializeComponent();
-        }
+            CurrentProcessSlot = GetProcessSlotFromArgs();
+            shouldLaunchSecondClient = CurrentProcessSlot == DevModePrimaryProcessSlot && IsTwoWindowsEnabled();
 
-        public static IServiceProvider Services { get; private set; } = default!;
-
-        public static MainWindow MainWindow { get; private set; } = default!;
-
-        protected override void OnLaunched(LaunchActivatedEventArgs args)
-        {
-            rootFrame = new Frame();
-            MainWindow = new MainWindow();
-            MainWindow.SetRootContent(rootFrame);
-            MainWindow.Activate();
-            rootFrame.Navigate(typeof(ShellPage));
-        }
-
-        public static void NavigateTo(AppPage route, object? parameter = null, bool clearBackStack = false)
-        {
-            if (TryGetShellPage(out var shellPage))
+            if (shouldLaunchSecondClient)
             {
-                shellPage.NavigateTo(route, parameter, clearBackStack);
+                StartNotificationServer();
             }
+
+            AppUserModelId = $"BoardRentAndProperty -- slot-{CurrentProcessSlot}";
+
+            notificationManager = new NotificationManager();
+            SetupNotificationManager();
+            EnsureSingleInstance(AppUserModelId);
+
+            ConfigureServices();
+
+            InitializeServices();
+
+            InitializeComponent();
+        }
+
+        private void ConfigureServices()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            string apiBaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"]
+                ?? throw new InvalidOperationException("ApiBaseUrl is not configured in App.config.");
+            var apiBaseAddress = new Uri(apiBaseUrl, UriKind.Absolute);
+
+            serviceCollection.AddBoardRentApiClient(apiClientOptions =>
+            {
+                apiClientOptions.BaseAddress = apiBaseAddress;
+                apiClientOptions.Timeout = TimeSpan.FromSeconds(10);
+            });
+
+            serviceCollection.AddSingleton<ISessionContext, SessionContext>();
+            serviceCollection.AddSingleton<ICurrentUserContext, CurrentUserContext>();
+            serviceCollection.AddSingleton<IDesktopAuthorizationService, DesktopAuthorizationService>();
+            serviceCollection.AddSingleton<IToastNotificationService, ToastNotificationService>();
+            serviceCollection.AddSingleton<IServerClient, NotificationClient>();
+            serviceCollection.AddSingleton<IFilePickerService, FilePickerService>();
+            serviceCollection.AddSingleton<IDesktopNotificationService, DesktopNotificationService>();
+
+            serviceCollection.AddSingleton<NotificationsViewModel>();
+            serviceCollection.AddSingleton<MenuBarViewModel>();
+            serviceCollection.AddTransient<ListingsViewModel>();
+            serviceCollection.AddTransient<CreateGameViewModel>();
+            serviceCollection.AddTransient<EditGameViewModel>();
+            serviceCollection.AddTransient<CreateRequestViewModel>();
+            serviceCollection.AddTransient<CreateRentalViewModel>();
+            serviceCollection.AddTransient<RequestsFromOthersViewModel>();
+            serviceCollection.AddTransient<RequestsToOthersViewModel>();
+            serviceCollection.AddTransient<RentalsFromOthersViewModel>();
+            serviceCollection.AddTransient<RentalsToOthersViewModel>();
+            serviceCollection.AddTransient<LoginViewModel>();
+            serviceCollection.AddTransient<RegisterViewModel>();
+            serviceCollection.AddTransient<ProfileViewModel>();
+            serviceCollection.AddTransient<AdminViewModel>();
+
+            Services = serviceCollection.BuildServiceProvider();
+            Ioc.Default.ConfigureServices(Services);
+        }
+
+        // Static helpers used by BoardRent view models that call App.NavigateTo / App.NavigateBack.
+        public static void NavigateTo(Type pageType, object? parameter = null, bool clearBackStack = false)
+        {
+            if (Application.Current is not App appInstance) return;
+            if (appInstance.RootFrame == null) return;
+            var authorizationService = Services.GetService<IDesktopAuthorizationService>();
+            if (authorizationService != null && !authorizationService.CanAccessPage(pageType))
+            {
+                if (!authorizationService.IsLoggedIn)
+                {
+                    appInstance.RootFrame.Navigate(typeof(LoginPage));
+                    appInstance.RootFrame.BackStack.Clear();
+                }
+
+                return;
+            }
+
+            appInstance.RootFrame.Navigate(pageType, parameter);
+            if (clearBackStack) appInstance.RootFrame.BackStack.Clear();
         }
 
         public static void NavigateBack()
         {
-            if (TryGetShellPage(out var shellPage))
+            if (Application.Current is not App appInstance) return;
+            if (appInstance.RootFrame != null && appInstance.RootFrame.CanGoBack) appInstance.RootFrame.GoBack();
+        }
+
+        private int GetProcessSlotFromArgs()
+        {
+            var commandLineArgs = Environment.GetCommandLineArgs();
+            if (commandLineArgs.Length > ProcessSlotArgumentIndex
+                && int.TryParse(commandLineArgs[ProcessSlotArgumentIndex], out var parsedProcessSlot))
+                return parsedProcessSlot;
+            return DefaultProcessSlot;
+        }
+
+        #region Two-window dev mode
+
+        private static string? FindRepoRoot()
+        {
+            var currentDirectory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (currentDirectory != null)
             {
-                shellPage.NavigateBack();
+                if (Directory.Exists(Path.Combine(currentDirectory.FullName, ".git"))) return currentDirectory.FullName;
+                currentDirectory = currentDirectory.Parent;
             }
+            return null;
+        }
+
+        private static string? FindNotificationServerBinDir()
+        {
+            var current = new DirectoryInfo(AppContext.BaseDirectory);
+            while (current != null)
+            {
+                var candidate = Path.Combine(current.FullName, "NotificationServer", "bin");
+                if (Directory.Exists(candidate)) return candidate;
+                current = current.Parent;
+            }
+            return null;
+        }
+
+        private static bool IsTwoWindowsEnabled()
+        {
+            try
+            {
+                var repoRoot = FindRepoRoot();
+                if (repoRoot == null) return false;
+                var envPath = Path.Combine(repoRoot, ".env");
+                if (!File.Exists(envPath)) return false;
+                foreach (var line in File.ReadAllLines(envPath))
+                {
+                    var trimmed = line.Trim();
+                    if (trimmed.StartsWith('#') || !trimmed.Contains('=')) continue;
+                    var parts = trimmed.Split('=', SplitKeyValuePartsCount);
+                    if (parts[KeyPartIndex].Trim() == TwoWindowsEnvironmentKey)
+                        return parts[ValuePartIndex].Trim().Equals(EnabledEnvironmentValue, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch (IOException) { return false; }
+            catch (UnauthorizedAccessException) { return false; }
+            catch (System.Security.SecurityException) { return false; }
+            return false;
+        }
+
+        private static void StartNotificationServer()
+        {
+            try
+            {
+                if (Process.GetProcessesByName("NotificationServer").Length > NoRunningProcessCount) return;
+                var serverBinDir = FindNotificationServerBinDir();
+                if (serverBinDir == null) return;
+                var serverExe = Directory.GetFiles(serverBinDir, "NotificationServer.exe", SearchOption.AllDirectories).FirstOrDefault();
+                if (serverExe == null) return;
+                notificationServerProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName = serverExe,
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Minimized,
+                });
+            }
+            catch (UnauthorizedAccessException) { }
+            catch (System.ComponentModel.Win32Exception) { }
+            catch (IOException) { }
+        }
+
+        private static void LaunchSecondClient()
+        {
+            try
+            {
+                var currentExe = Environment.ProcessPath;
+                if (currentExe == null) return;
+                secondClientProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName = currentExe,
+                    Arguments = DevModeSecondaryProcessSlot.ToString(),
+                    UseShellExecute = true,
+                    WorkingDirectory = Path.GetDirectoryName(currentExe),
+                });
+            }
+            catch (UnauthorizedAccessException) { }
+            catch (System.ComponentModel.Win32Exception) { }
+        }
+
+        private static void KillSpawnedChildProcesses()
+        {
+            try { if (secondClientProcess != null && !secondClientProcess.HasExited) secondClientProcess.Kill(entireProcessTree: true); }
+            catch (InvalidOperationException) { }
+            catch (System.ComponentModel.Win32Exception) { }
+            try { if (notificationServerProcess != null && !notificationServerProcess.HasExited) notificationServerProcess.Kill(entireProcessTree: true); }
+            catch (InvalidOperationException) { }
+            catch (System.ComponentModel.Win32Exception) { }
+        }
+
+        #endregion
+
+        private void SetupNotificationManager()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
+            {
+                notificationManager.Unregister();
+                (notificationService as IDisposable)?.Dispose();
+                KillSpawnedChildProcesses();
+            };
+
+            notificationManager.NotificationClicked += (sender, args) =>
+            {
+                mainWindow?.DispatcherQueue.TryEnqueue(() =>
+                {
+                    mainWindow?.Activate();
+                    if (args.ContainsKey(NotificationNavigationArgumentKey)
+                        && args[NotificationNavigationArgumentKey] == nameof(NotificationsPage))
+                    {
+                        ActivateWindow();
+                        NavigateToNotificationsWithinShell();
+                    }
+                });
+            };
+
+            notificationManager.Init();
+        }
+
+        private void NavigateToNotificationsWithinShell()
+        {
+            var authorizationService = Services.GetRequiredService<IDesktopAuthorizationService>();
+            if (!authorizationService.IsLoggedIn)
+            {
+                OnUserLoggedOut();
+                return;
+            }
+
+            if (RootFrame?.Content is MenuBarPage currentShell) { currentShell.NavigateToNotifications(); return; }
+            void OnShellLoaded(object sender, NavigationEventArgs navigationEventArgs)
+            {
+                if (navigationEventArgs.Content is MenuBarPage loadedShell)
+                {
+                    RootFrame!.Navigated -= OnShellLoaded;
+                    loadedShell.NavigateToNotifications();
+                }
+            }
+            RootFrame!.Navigated += OnShellLoaded;
+            NavigateTo(typeof(MenuBarPage));
+        }
+
+        private void EnsureSingleInstance(string appUserModelId)
+        {
+            var appInstance = AppInstance.FindOrRegisterForKey(appUserModelId);
+            if (!appInstance.IsCurrent)
+            {
+                appInstance.RedirectActivationToAsync(AppInstance.GetCurrent().GetActivatedEventArgs()).AsTask().Wait();
+                Environment.Exit(SuccessExitCode);
+            }
+            appInstance.Activated += (sender, args) => ActivateWindow();
+        }
+
+        private void InitializeServices()
+        {
+            RootFrame = new Frame();
+            notificationService = Services.GetRequiredService<IDesktopNotificationService>();
+            NotificationsViewModel = Services.GetRequiredService<NotificationsViewModel>();
+            notificationService.StartListening();
+        }
+
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        {
+            CreateAndShowMainWindow();
+            var rootGrid = new Grid();
+            rootGrid.Children.Add(RootFrame);
+            MainWindow!.Content = rootGrid;
+            RootFrame!.Navigate(typeof(LoginPage));
+            CreateTrayIcon();
+            if (shouldLaunchSecondClient) LaunchSecondClient();
         }
 
         public static void OnUserLoggedIn()
         {
-            if (TryGetShellPage(out var shellPage))
-            {
-                shellPage.RefreshNavigation();
-                shellPage.NavigateTo(AppPage.Filter, clearBackStack: true);
-            }
+            if (Application.Current is not App appInstance) return;
+            if (appInstance.RootFrame == null) return;
+            var resolvedSessionContext = Services.GetRequiredService<ISessionContext>();
+            var resolvedNotificationService = Services.GetRequiredService<IDesktopNotificationService>();
+            var resolvedMenuBarViewModel = Services.GetRequiredService<MenuBarViewModel>();
+            var resolvedNotificationsViewModel = Services.GetRequiredService<NotificationsViewModel>();
+            resolvedNotificationService.SubscribeToServer(resolvedSessionContext.AccountId);
+            resolvedMenuBarViewModel.Rebuild();
+            _ = resolvedNotificationsViewModel.LoadNotificationsForUserAsync(resolvedSessionContext.AccountId);
+            NavigateTo(typeof(MenuBarPage), clearBackStack: true);
         }
 
         public static void OnUserLoggedOut()
         {
-            var sessionContext = Services.GetRequiredService<ISessionContext>();
-            sessionContext.Clear();
-
-            if (TryGetShellPage(out var shellPage))
-            {
-                shellPage.RefreshNavigation();
-                shellPage.NavigateTo(AppPage.Filter, clearBackStack: true);
-            }
+            if (Application.Current is not App appInstance) return;
+            if (appInstance.RootFrame == null) return;
+            var resolvedSessionContext = Services.GetRequiredService<ISessionContext>();
+            resolvedSessionContext.Clear();
+            NavigateTo(typeof(LoginPage), parameter: null, clearBackStack: true);
         }
 
-        private static bool TryGetShellPage(out ShellPage? shellPage)
+        private void CreateAndShowMainWindow()
         {
-            shellPage = null;
-
-            if (Current is not App app || app.rootFrame?.Content is not ShellPage currentShell)
-            {
-                return false;
-            }
-
-            shellPage = currentShell;
-            return true;
+            MainWindow = mainWindow = new MainWindow();
+            mainWindow.Content = RootFrame;
+            mainWindow.Activate();
+            mainWindow.Title = AppUserModelId;
         }
 
-        private static void ConfigureServices()
+        private void ActivateWindow()
         {
-            string? apiBaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"]?.Trim();
-            if (string.IsNullOrWhiteSpace(apiBaseUrl) || !Uri.TryCreate(apiBaseUrl, UriKind.Absolute, out var apiBaseAddress))
+            mainWindow?.DispatcherQueue.TryEnqueue(() =>
             {
-                throw new InvalidOperationException("ApiBaseUrl is not configured correctly in App.config.");
-            }
-
-            var serviceCollection = new ServiceCollection();
-            var cookieContainer = new CookieContainer();
-
-            serviceCollection.AddBoardRentApiClient(options =>
-            {
-                options.BaseAddress = apiBaseAddress;
-                options.Timeout = TimeSpan.FromSeconds(ApiClientTimeoutSeconds);
-                options.CookieContainer = cookieContainer;
+                if (mainWindow is MainWindow activatedMainWindow) activatedMainWindow.AppWindow.Show();
+                mainWindow?.Activate();
             });
+        }
 
-            serviceCollection.AddSingleton(cookieContainer);
-            serviceCollection.AddSingleton<ISessionContext, SessionContext>();
-            serviceCollection.AddSingleton<ICurrentUserContext, CurrentUserContext>();
-            serviceCollection.AddSingleton<IDesktopAuthorizationService, DesktopAuthorizationService>();
-            serviceCollection.AddSingleton<IFilePickerService, FilePickerService>();
-            serviceCollection.AddSingleton<IServerClient, NotificationClient>();
-            serviceCollection.AddSingleton<IToastNotificationService, ToastNotificationService>();
-            serviceCollection.AddSingleton<IDesktopNotificationService, DesktopNotificationService>();
+        private void CreateTrayIcon()
+        {
+            trayIcon = new TaskbarIcon
+            {
+                Id = CreateTrayIconId(CurrentProcessSlot),
+                CustomName = $"{TrayIconIdentityPrefix}.Slot{CurrentProcessSlot}",
+                ToolTipText = AppUserModelId,
+                IconSource = new BitmapImage(new Uri(global::BoardGames.Desktop.Constants.App.AppTrayIconUri)),
+            };
+            var trayOpenCommand = new XamlUICommand();
+            trayOpenCommand.ExecuteRequested += (sender, args) => ActivateWindow();
+            var trayOpenMenuItem = new MenuFlyoutItem { Text = "Open", Command = trayOpenCommand };
+            var trayExitCommand = new XamlUICommand();
+            trayExitCommand.ExecuteRequested += (sender, args) => { trayIcon.Dispose(); Environment.Exit(SuccessExitCode); };
+            var trayExitMenuItem = new MenuFlyoutItem { Text = "Exit", Command = trayExitCommand };
+            trayIcon.ContextFlyout = new MenuFlyout { Items = { trayOpenMenuItem, trayExitMenuItem } };
+            if (mainWindow!.Content is Grid rootGrid) rootGrid.Children.Add(trayIcon);
+        }
 
-            serviceCollection.AddSingleton<ShellViewModel>();
-            serviceCollection.AddTransient<SearchGamesViewModel>();
-            serviceCollection.AddTransient<GameDetailsPageViewModel>();
-            serviceCollection.AddTransient<LoginViewModel>();
-            serviceCollection.AddTransient<RegisterViewModel>();
-            serviceCollection.AddTransient<DashboardViewModel>();
-            serviceCollection.AddTransient<ChatViewModel>();
-            serviceCollection.AddTransient<ListingsViewModel>();
-            serviceCollection.AddTransient<NotificationsViewModel>();
-            serviceCollection.AddTransient<ProfileViewModel>();
-            serviceCollection.AddTransient<AdminViewModel>();
-            serviceCollection.AddTransient<CreateGameViewModel>();
-            serviceCollection.AddTransient<EditGameViewModel>();
-
-            Services = serviceCollection.BuildServiceProvider();
-            Ioc.Default.ConfigureServices(Services);
+        private static Guid CreateTrayIconId(int processSlot)
+        {
+            byte[] seedBytes = Encoding.UTF8.GetBytes($"{TrayIconIdentityPrefix}.Slot{processSlot}");
+            byte[] hashBytes = MD5.HashData(seedBytes);
+            return new Guid(hashBytes);
         }
     }
 }

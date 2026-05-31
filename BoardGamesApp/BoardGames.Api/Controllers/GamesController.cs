@@ -1,5 +1,3 @@
-
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,8 +21,8 @@ namespace BoardGames.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAll()
         {
-            var games = await this.gameService.GetAllActiveGames();
-            return this.Ok(games);
+            var games = await gameService.GetAllActiveGames();
+            return Ok(games);
         }
 
         [HttpGet("{gameId:int}")]
@@ -32,12 +30,12 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                var game = await this.gameService.GetGameById(gameId);
-                return this.Ok(game);
+                var game = await gameService.GetGameById(gameId);
+                return Ok(game);
             }
             catch (KeyNotFoundException ex)
             {
-                return this.NotFound(ex.Message);
+                return NotFound(ex.Message);
             }
         }
 
@@ -46,46 +44,39 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                var imageBytes = await this.gameService.GetGameImage(gameId);
+                var imageBytes = await gameService.GetGameImage(gameId);
                 if (imageBytes == null || imageBytes.Length == 0)
                 {
-                    return this.NotFound("Image not found");
+                    return NotFound("Image not found");
                 }
-
-                return this.File(imageBytes, "image/jpeg");
+                return File(imageBytes, "image/jpeg");
             }
             catch (KeyNotFoundException ex)
             {
-                return this.NotFound(ex.Message);
+                return NotFound(ex.Message);
             }
-        }
-
-        [HttpGet("renter/{renterAccountId:guid}/available")]
-        public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAvailableForRenter(Guid renterAccountId)
-        {
-            var games = await this.gameService.GetAvailableGamesForRenter(renterAccountId);
-            return this.Ok(games);
         }
 
         [HttpGet("owner/{ownerAccountId:guid}")]
         public ActionResult<IReadOnlyList<GameSummaryDTO>> GetByOwner(Guid ownerAccountId)
         {
-            var games = this.gameService.GetGamesForOwner(ownerAccountId);
-            return this.Ok(games);
+            var games = gameService.GetGamesForOwner(ownerAccountId);
+            return Ok(games);
         }
 
         [HttpGet("owner/{ownerAccountId:guid}/active")]
         public ActionResult<IReadOnlyList<GameSummaryDTO>> GetActiveByOwner(Guid ownerAccountId)
         {
-            var games = this.gameService.GetActiveGamesForOwner(ownerAccountId);
-            return this.Ok(games);
+            var games = gameService.GetActiveGamesForOwner(ownerAccountId);
+            return Ok(games);
         }
 
         [HttpGet("admin")]
         public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> GetAllGamesAdmin()
         {
-            var games = await this.gameService.GetAllGamesAdmin();
-            return this.Ok(games);
+            // Note: Authorization is enforced by the caller/middleware (Admin role required)
+            var games = await gameService.GetAllGamesAdmin();
+            return Ok(games);
         }
 
         [HttpPost]
@@ -93,12 +84,13 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                var game = this.gameService.CreateGame(body, body.OwnerAccountId);
-                return this.CreatedAtAction(nameof(this.GetById), new { gameId = game.Id }, game);
+                // OwnerAccountId is temporarily sourced from the body until Task 7 wires up session identity.
+                var game = gameService.CreateGame(body, body.OwnerAccountId);
+                return CreatedAtAction(nameof(GetById), new { gameId = game.Id }, game);
             }
             catch (ArgumentException ex)
             {
-                return this.BadRequest(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -107,20 +99,21 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                this.gameService.UpdateGame(gameId, body, requestingAccountId, isAdmin);
-                return this.NoContent();
+                // requestingAccountId & isAdmin are temporarily sourced from query params until Task 7 wires up session identity.
+                gameService.UpdateGame(gameId, body, requestingAccountId, isAdmin);
+                return NoContent();
             }
             catch (KeyNotFoundException)
             {
-                return this.NotFound();
+                return NotFound();
             }
             catch (UnauthorizedAccessException ex)
             {
-                return this.Forbid(ex.Message);
+                return Forbid(ex.Message);
             }
             catch (ArgumentException ex)
             {
-                return this.BadRequest(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -129,28 +122,29 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                var deletedGame = this.gameService.DeleteGame(gameId, requestingAccountId, isAdmin);
-                return this.Ok(deletedGame);
+                // requestingAccountId & isAdmin are temporarily sourced from query params until Task 7 wires up session identity.
+                var deletedGame = gameService.DeleteGame(gameId, requestingAccountId, isAdmin);
+                return Ok(deletedGame);
             }
             catch (KeyNotFoundException)
             {
-                return this.NotFound();
+                return NotFound();
             }
             catch (UnauthorizedAccessException ex)
             {
-                return this.Forbid(ex.Message);
+                return Forbid(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
-                return this.BadRequest(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPost("search")]
         public async Task<ActionResult<IReadOnlyList<GameSummaryDTO>>> SearchGames([FromBody] GameSearchCriteriaDTO criteria)
         {
-            var games = await this.gameService.SearchGames(criteria);
-            return this.Ok(games);
+            var games = await gameService.SearchGames(criteria);
+            return Ok(games);
         }
     }
 }

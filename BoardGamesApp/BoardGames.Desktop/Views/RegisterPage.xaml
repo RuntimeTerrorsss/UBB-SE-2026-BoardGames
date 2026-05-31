@@ -1,5 +1,5 @@
 <Page
-    x:Class="BoardGames.Desktop.Views.RegisterPage"
+    x:Class="BoardRentAndProperty.Views.RegisterPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,7 +13,6 @@
 
                 <TextBlock Text="Create an account" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-                <TextBlock Text="{Binding SuccessMessage}" Foreground="ForestGreen" HorizontalAlignment="Center" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                 <StackPanel>
@@ -32,12 +31,12 @@
                 </StackPanel>
 
                 <StackPanel>
-                    <PasswordBox x:Name="PasswordBox" Header="Password" PasswordChanged="PasswordBox_PasswordChanged" />
+                    <PasswordBox Header="Password" Password="{Binding Password, Mode=TwoWay}" />
                     <TextBlock Text="{Binding PasswordError}" Foreground="Red" FontSize="12" TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <StackPanel>
-                    <PasswordBox x:Name="ConfirmPasswordBox" Header="Confirm Password" PasswordChanged="ConfirmPasswordBox_PasswordChanged" />
+                    <PasswordBox Header="Confirm Password" Password="{Binding ConfirmPassword, Mode=TwoWay}" />
                     <TextBlock Text="{Binding ConfirmPasswordError}" Foreground="Red" FontSize="12" TextWrapping="Wrap"/>
                 </StackPanel>
 
@@ -76,7 +75,7 @@
                         Style="{StaticResource AccentButtonStyle}"
                         Margin="0,10,0,0"/>
 
-                <HyperlinkButton Content="Already have an account?" Command="{Binding GoToLoginCommand}" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                <HyperlinkButton Content="Already have an account?" Command="{Binding GoToLoginCommand}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
 
             </StackPanel>
         </ScrollViewer>

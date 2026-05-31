@@ -1,6 +1,8 @@
-﻿// <copyright file="BookingDTO.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="BookingDTO.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+
+using System;
 
 namespace BoardGames.Shared.DTO;
 /// <summary>
@@ -25,7 +27,6 @@ public record BookingDTO
     /// Gets or sets the image data as a byte array.
     /// </summary>
     public byte[]? Image { get; set; }
-
     public string ImageUrl { get; set; } = string.Empty;
 
     /// <summary>

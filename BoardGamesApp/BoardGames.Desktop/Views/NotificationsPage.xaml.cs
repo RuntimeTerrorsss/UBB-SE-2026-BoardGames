@@ -1,16 +1,12 @@
-// <copyright file="NotificationsPage.xaml.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Desktop.ViewModels;
-using BoardGames.Shared.DTO;
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using System.Diagnostics;
+using BoardGames.Shared.DTO;
+using BoardGames.Desktop.ViewModels;
 
-namespace BoardGames.Desktop.Views
+namespace BoardRentAndProperty.Views
 {
     public sealed partial class NotificationsPage : Page
     {

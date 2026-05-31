@@ -1,7 +1,9 @@
-// <copyright file="IRentalRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="IRentalRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using BoardGames.Data.Models;
 
@@ -9,6 +11,7 @@ namespace BoardGames.Data.Repositories
 {
     public interface IRentalRepository
     {
+        // --- Project 1 methods ---
         Task<Rental?> GetById(int id);
 
         Task<TimeRange?> GetRentalTimeRange(int id);
@@ -29,22 +32,15 @@ namespace BoardGames.Data.Repositories
         /// </summary>
         Task BookGameWithRentalRequest(int clientId, int gameId, DateTime startDate, DateTime endDate);
 
+        // --- Project 2 methods (merged from IRentalRepository2) ---
         ImmutableList<Rental> GetAll();
-
         void Add(Rental rental);
-
         Rental Delete(int id);
-
         void Update(int id, Rental updated);
-
         Rental Get(int id);
-
         void AddConfirmed(Rental confirmedRental);
-
         ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId);
-
         ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId);
-
         ImmutableList<Rental> GetRentalsByGame(int gameId);
     }
 }

@@ -1,6 +1,12 @@
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using BoardGames.Shared.DTO;
 using BoardGames.Desktop.ViewModels;
+using BoardGames.Desktop.Views;
 
-namespace BoardGames.Desktop.Views
+namespace BoardRentAndProperty.Views
 {
     public sealed partial class CreateRequestView : Page
     {

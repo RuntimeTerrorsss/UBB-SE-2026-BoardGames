@@ -1,18 +1,14 @@
-// <copyright file="GameService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using BoardGames.Api.Mappers;
 using BoardGames.Data.Constants;
 using BoardGames.Data.Enums;
-using BoardGames.Data.Models;
+using BoardGames.Api.Mappers;
 using BoardGames.Data.Repositories;
 using BoardGames.Shared.DTO;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Services
 {
@@ -28,10 +24,10 @@ namespace BoardGames.Api.Services
 
         public GameService(InterfaceGamesRepository gameRepository, IRentalRepository rentalRepository, GameMapper gameMapper, IRequestService requestService)
         {
-            this.gameListingRepository = gameRepository;
-            this.gameRentalRepository = rentalRepository;
-            this.gameDtoMapper = gameMapper;
-            this.rentalRequestService = requestService;
+            gameListingRepository = gameRepository;
+            gameRentalRepository = rentalRepository;
+            gameDtoMapper = gameMapper;
+            rentalRequestService = requestService;
         }
 
         private List<string> ValidateGameInput(string name, decimal price, int minPlayers, int maxPlayers, string description) =>
@@ -51,99 +47,91 @@ namespace BoardGames.Api.Services
         public async Task<IReadOnlyList<GameSummaryDTO>> GetAllActiveGames()
         {
             var games = await gameListingRepository.GetAll();
-            return games.Select(game => gameDtoMapper.ToSummaryDTO(game)).ToList().AsReadOnly();
-        }
-
-        public async Task<IReadOnlyList<GameSummaryDTO>> GetAvailableGamesForRenter(Guid renterAccountId)
-        {
-            var allActive = await GetAllActiveGames();
-            return allActive.Where(game => game.OwnerAccountId != renterAccountId).ToList().AsReadOnly();
+            return games.Select(g => gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
         }
 
         public IReadOnlyList<GameSummaryDTO> GetGamesForOwner(Guid ownerAccountId)
         {
             return gameListingRepository.GetGamesByOwner(ownerAccountId)
-                .Select(game => gameDtoMapper.ToSummaryDTO(game))
+                .Select(g => gameDtoMapper.ToSummaryDTO(g))
                 .ToList().AsReadOnly();
         }
 
         public IReadOnlyList<GameSummaryDTO> GetActiveGamesForOwner(Guid ownerAccountId)
         {
             return GetGamesForOwner(ownerAccountId)
-                .Where(game => game.IsActive).ToList().AsReadOnly();
+                .Where(g => g.IsActive).ToList().AsReadOnly();
         }
 
         public async Task<IReadOnlyList<GameSummaryDTO>> GetAllGamesAdmin()
         {
             var games = await gameListingRepository.GetAllIncludingInactive();
-            return games.Select(game => gameDtoMapper.ToSummaryDTO(game)).ToList().AsReadOnly();
+            return games.Select(g => gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
         }
 
         public async Task<GameDetailDTO> GetGameById(int gameId)
         {
-            var game = await this.gameListingRepository.GetGameById(gameId);
+            var game = await gameListingRepository.GetGameById(gameId);
             if (game == null)
             {
                 throw new KeyNotFoundException($"Game with ID {gameId} not found.");
             }
-
-            return this.gameDtoMapper.ToDetailDTO(game);
+            return gameDtoMapper.ToDetailDTO(game);
         }
 
         public async Task<byte[]?> GetGameImage(int gameId)
         {
-            var game = await this.gameListingRepository.GetGameById(gameId);
+            var game = await gameListingRepository.GetGameById(gameId);
             if (game == null)
             {
                 throw new KeyNotFoundException($"Game with ID {gameId} not found.");
             }
-
             return game.Image;
         }
 
         public GameDetailDTO CreateGame(GameCreateDTO dto, Guid ownerAccountId)
         {
-            var errors = this.ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
+            var errors = ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
             if (errors.Any())
             {
                 throw new ArgumentException(string.Join(Environment.NewLine, errors));
             }
 
             dto.Image = GameInputHelper.EnsureImageOrDefault(dto.Image, AppDomain.CurrentDomain.BaseDirectory);
-            var model = this.gameDtoMapper.ToModel(dto, ownerAccountId);
-            this.gameListingRepository.AddGame(model);
-
-            return this.gameDtoMapper.ToDetailDTO(model);
+            var model = gameDtoMapper.ToModel(dto, ownerAccountId);
+            gameListingRepository.AddGame(model);
+            
+            return gameDtoMapper.ToDetailDTO(model);
         }
 
         public void UpdateGame(int gameId, GameUpdateDTO dto, Guid requestingAccountId, bool isAdmin)
         {
-            var game = this.gameListingRepository.GetGame(gameId);
+            var game = gameListingRepository.GetGame(gameId);
             if (game.Owner?.Id != requestingAccountId && !isAdmin)
             {
                 throw new UnauthorizedAccessException("You are not authorized to update this game.");
             }
 
-            var errors = this.ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
+            var errors = ValidateGameInput(dto.Name, dto.Price, dto.MinimumPlayerNumber, dto.MaximumPlayerNumber, dto.Description);
             if (errors.Any())
             {
                 throw new ArgumentException(string.Join(Environment.NewLine, errors));
             }
 
             dto.Image = GameInputHelper.EnsureImageOrDefault(dto.Image, AppDomain.CurrentDomain.BaseDirectory);
-            this.gameDtoMapper.ApplyUpdate(game, dto);
-            this.gameListingRepository.UpdateGame(gameId, game);
+            gameDtoMapper.ApplyUpdate(game, dto);
+            gameListingRepository.UpdateGame(gameId, game);
         }
 
         public GameDetailDTO DeleteGame(int gameId, Guid requestingAccountId, bool isAdmin)
         {
-            var game = this.gameListingRepository.GetGame(gameId);
+            var game = gameListingRepository.GetGame(gameId);
             if (game.Owner?.Id != requestingAccountId && !isAdmin)
             {
                 throw new UnauthorizedAccessException("You are not authorized to delete this game.");
             }
 
-            var gameRentals = this.gameRentalRepository.GetRentalsByGame(gameId);
+            var gameRentals = gameRentalRepository.GetRentalsByGame(gameId);
             var now = DateTime.Now;
             var activeCount = gameRentals.Count(rental => rental.EndDate >= now);
             if (activeCount > NoActiveOrUpcomingRentals)
@@ -154,13 +142,13 @@ namespace BoardGames.Api.Services
 
             foreach (var rental in gameRentals)
             {
-                this.gameRentalRepository.Delete(rental.Id);
+                gameRentalRepository.Delete(rental.Id);
             }
 
-            this.rentalRequestService.OnGameDeactivated(gameId);
-            this.gameListingRepository.DeleteGame(gameId);
-
-            return this.gameDtoMapper.ToDetailDTO(game);
+            rentalRequestService.OnGameDeactivated(gameId);
+            gameListingRepository.DeleteGame(gameId);
+            
+            return gameDtoMapper.ToDetailDTO(game);
         }
 
         public async Task<IReadOnlyList<GameSummaryDTO>> SearchGames(GameSearchCriteriaDTO criteria)
@@ -171,8 +159,8 @@ namespace BoardGames.Api.Services
                 City = criteria.City,
                 MaximumPrice = criteria.MaximumPrice,
                 PlayerCount = criteria.PlayerCount,
-                AvailabilityRange = criteria.AvailableFrom.HasValue && criteria.AvailableTo.HasValue
-                    ? new TimeRange(criteria.AvailableFrom.Value, criteria.AvailableTo.Value)
+                AvailabilityRange = criteria.AvailableFrom.HasValue && criteria.AvailableTo.HasValue 
+                    ? new TimeRange(criteria.AvailableFrom.Value, criteria.AvailableTo.Value) 
                     : null
             };
 
@@ -184,17 +172,8 @@ namespace BoardGames.Api.Services
                 }
             }
 
-            var games = await this.gameListingRepository.GetGamesByFilter(filter);
-            var summaries = games.Select(g => this.gameDtoMapper.ToSummaryDTO(g)).ToList();
-
-            if (criteria.ExcludeOwnerAccountId.HasValue)
-            {
-                summaries = summaries
-                    .Where(g => g.OwnerAccountId != criteria.ExcludeOwnerAccountId.Value)
-                    .ToList();
-            }
-
-            return summaries.AsReadOnly();
+            var games = await gameListingRepository.GetGamesByFilter(filter);
+            return games.Select(g => gameDtoMapper.ToSummaryDTO(g)).ToList().AsReadOnly();
         }
     }
 }

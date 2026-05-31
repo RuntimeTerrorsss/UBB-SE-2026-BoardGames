@@ -1,14 +1,12 @@
-using BoardGames.Desktop.ViewModels;
-// <copyright file="CreateRentalViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.Utilities;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -27,35 +25,35 @@ namespace BoardGames.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            this.gameService = new FakeClientGameService
+            gameService = new FakeClientGameService
             {
-                ActiveGamesForOwner = ImmutableList.Create(this.BuildActiveGame(100)),
+                ActiveGamesForOwner = ImmutableList.Create(BuildActiveGame(100)),
             };
-            this.rentalService = new FakeClientRentalService();
-            this.userService = new FakeClientUserService
+            rentalService = new FakeClientRentalService();
+            userService = new FakeClientUserService
             {
-                UsersExceptCurrent = ImmutableList.Create(new UserDTO { Id = this.renterUserId, DisplayName = "Renter" }),
+                UsersExceptCurrent = ImmutableList.Create(new UserDTO { Id = renterUserId, DisplayName = "Renter" }),
             };
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.ownerUserId };
+            currentUserContext = new FakeCurrentUserContext { CurrentUserId = ownerUserId };
         }
 
         [Test]
         public async Task Constructor_LoadsCollectionsCurrentUserAndRefreshesData()
         {
-            var viewModel = this.BuildViewModel();
+            var viewModel = BuildViewModel();
             await viewModel.LoadRentalFormDataAsync();
 
             Assert.Multiple(() =>
             {
-                Assert.That(viewModel.CurrentUserId, Is.EqualTo(this.ownerUserId));
+                Assert.That(viewModel.CurrentUserId, Is.EqualTo(ownerUserId));
                 Assert.That(viewModel.OwnedActiveGames.Select(game => game.Id), Is.EquivalentTo(new[] { 100 }));
                 Assert.That(viewModel.OwnedActiveGames.All(game => game.IsActive), Is.True);
-                Assert.That(viewModel.AvailableRenters.Select(user => user.Id), Is.EquivalentTo(new[] { this.renterUserId }));
+                Assert.That(viewModel.AvailableRenters.Select(user => user.Id), Is.EquivalentTo(new[] { renterUserId }));
             });
 
-            this.gameService.ActiveGamesForOwner = ImmutableList.Create(this.BuildActiveGame(100), this.BuildActiveGame(201));
-            this.userService.UsersExceptCurrent = ImmutableList.Create(
-                    new UserDTO { Id = this.renterUserId, DisplayName = "Renter" },
+            gameService.ActiveGamesForOwner = ImmutableList.Create(BuildActiveGame(100), BuildActiveGame(201));
+            userService.UsersExceptCurrent = ImmutableList.Create(
+                    new UserDTO { Id = renterUserId, DisplayName = "Renter" },
                     new UserDTO { Id = Guid.NewGuid(), DisplayName = "Second renter" });
 
             await viewModel.LoadRentalFormDataAsync();
@@ -70,21 +68,21 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void ValidateRentalInputs_RequiresGameRenterAndDates()
         {
-            var viewModel = this.BuildViewModel();
+            var viewModel = BuildViewModel();
 
-            this.PopulateWithValidSelections(viewModel);
+            PopulateWithValidSelections(viewModel);
             Assert.That(viewModel.ValidateRentalInputs(), Is.True);
 
-            this.AssertInvalidRentalInputs(viewModel, model => model.SelectedGameToRent = null!);
-            this.AssertInvalidRentalInputs(viewModel, model => model.SelectedRenter = null!);
-            this.AssertInvalidRentalInputs(viewModel, model => model.StartDate = null);
-            this.AssertInvalidRentalInputs(viewModel, model => model.EndDate = null);
+            AssertInvalidRentalInputs(viewModel, model => model.SelectedGameToRent = null!);
+            AssertInvalidRentalInputs(viewModel, model => model.SelectedRenter = null!);
+            AssertInvalidRentalInputs(viewModel, model => model.StartDate = null);
+            AssertInvalidRentalInputs(viewModel, model => model.EndDate = null);
         }
 
         [Test]
         public async Task CreateRental_CoversSuccessValidationFailureAndExceptions()
         {
-            var invalidViewModel = this.BuildViewModel();
+            var invalidViewModel = BuildViewModel();
 
             ViewOperationResult validationFailure = await invalidViewModel.CreateRentalAsync();
 
@@ -93,24 +91,24 @@ namespace BoardGames.Tests.ViewModels
                 Assert.That(validationFailure.IsSuccess, Is.False);
                 Assert.That(validationFailure.DialogTitle, Is.EqualTo("Validation Error"));
             });
-            Assert.That(this.rentalService.CreateRentalCallCount, Is.EqualTo(0));
+            Assert.That(rentalService.CreateRentalCallCount, Is.EqualTo(0));
 
-            var successfulViewModel = this.BuildViewModel();
-            this.PopulateWithValidSelections(successfulViewModel);
+            var successfulViewModel = BuildViewModel();
+            PopulateWithValidSelections(successfulViewModel);
 
             ViewOperationResult successResult = await successfulViewModel.CreateRentalAsync();
 
             Assert.That(successResult.IsSuccess, Is.True);
-            Assert.That(this.rentalService.CreateRentalCallCount, Is.EqualTo(1));
-            Assert.That(this.rentalService.LastGameId, Is.EqualTo(100));
-            Assert.That(this.rentalService.LastRenterAccountId, Is.EqualTo(this.renterUserId));
-            Assert.That(this.rentalService.LastOwnerAccountId, Is.EqualTo(this.ownerUserId));
+            Assert.That(rentalService.CreateRentalCallCount, Is.EqualTo(1));
+            Assert.That(rentalService.LastGameId, Is.EqualTo(100));
+            Assert.That(rentalService.LastRenterAccountId, Is.EqualTo(renterUserId));
+            Assert.That(rentalService.LastOwnerAccountId, Is.EqualTo(ownerUserId));
 
-            this.rentalService.CreateRentalException =
+            rentalService.CreateRentalException =
                 new ArgumentException("Start date must be before end date and not in the past.");
 
-            var argumentExceptionViewModel = this.BuildViewModel();
-            this.PopulateWithValidSelections(argumentExceptionViewModel);
+            var argumentExceptionViewModel = BuildViewModel();
+            PopulateWithValidSelections(argumentExceptionViewModel);
 
             ViewOperationResult argumentExceptionResult = await argumentExceptionViewModel.CreateRentalAsync();
 
@@ -120,11 +118,11 @@ namespace BoardGames.Tests.ViewModels
                 Assert.That(argumentExceptionResult.DialogTitle, Is.EqualTo("Validation Error"));
             });
 
-            this.rentalService.CreateRentalException =
+            rentalService.CreateRentalException =
                 new InvalidOperationException("Dates overlap with existing rental.");
 
-            var unexpectedExceptionViewModel = this.BuildViewModel();
-            this.PopulateWithValidSelections(unexpectedExceptionViewModel);
+            var unexpectedExceptionViewModel = BuildViewModel();
+            PopulateWithValidSelections(unexpectedExceptionViewModel);
 
             ViewOperationResult unexpectedExceptionResult = await unexpectedExceptionViewModel.CreateRentalAsync();
 
@@ -139,20 +137,20 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task SaveRental_CoversSuccessValidationFailureAndServiceMessage()
         {
-            var successfulViewModel = this.BuildViewModel();
-            this.PopulateWithValidSelections(successfulViewModel);
+            var successfulViewModel = BuildViewModel();
+            PopulateWithValidSelections(successfulViewModel);
 
             string? validationMessage = await successfulViewModel.SaveRentalAsync();
             Assert.That(validationMessage, Is.Null);
 
-            var invalidViewModel = this.BuildViewModel();
+            var invalidViewModel = BuildViewModel();
             string? invalidResult = await invalidViewModel.SaveRentalAsync();
             Assert.That(invalidResult, Is.EqualTo("Validation failed."));
 
-            this.rentalService.CreateRentalException = new Exception("Database connection lost.");
+            rentalService.CreateRentalException = new Exception("Database connection lost.");
 
-            var failingViewModel = this.BuildViewModel();
-            this.PopulateWithValidSelections(failingViewModel);
+            var failingViewModel = BuildViewModel();
+            PopulateWithValidSelections(failingViewModel);
 
             string? exceptionMessage = await failingViewModel.SaveRentalAsync();
             Assert.That(exceptionMessage, Is.EqualTo("Database connection lost."));
@@ -161,11 +159,11 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public void Setters_RaisePropertyChangedForBindableFields()
         {
-            var viewModel = this.BuildViewModel();
+            var viewModel = BuildViewModel();
             var changedProperties = new List<string?>();
             viewModel.PropertyChanged += (_, eventArgs) => changedProperties.Add(eventArgs.PropertyName);
 
-            viewModel.SelectedGameToRent = this.BuildActiveGame(999);
+            viewModel.SelectedGameToRent = BuildActiveGame(999);
             viewModel.SelectedRenter = new UserDTO { Id = Guid.NewGuid(), DisplayName = "Listener" };
             viewModel.StartDate = DateTimeOffset.Now.AddDays(1);
             viewModel.EndDate = DateTimeOffset.Now.AddDays(5);
@@ -182,23 +180,23 @@ namespace BoardGames.Tests.ViewModels
         private CreateRentalViewModel BuildViewModel()
         {
             return new CreateRentalViewModel(
-                this.gameService,
-                this.rentalService,
-                this.userService,
-                this.currentUserContext);
+                gameService,
+                rentalService,
+                userService,
+                currentUserContext);
         }
 
         private void AssertInvalidRentalInputs(CreateRentalViewModel viewModel, Action<CreateRentalViewModel> invalidate)
         {
-            this.PopulateWithValidSelections(viewModel);
+            PopulateWithValidSelections(viewModel);
             invalidate(viewModel);
             Assert.That(viewModel.ValidateRentalInputs(), Is.False);
         }
 
         private void PopulateWithValidSelections(CreateRentalViewModel viewModel)
         {
-            viewModel.SelectedGameToRent = this.BuildActiveGame(100);
-            viewModel.SelectedRenter = new UserDTO { Id = this.renterUserId, DisplayName = "Renter" };
+            viewModel.SelectedGameToRent = BuildActiveGame(100);
+            viewModel.SelectedRenter = new UserDTO { Id = renterUserId, DisplayName = "Renter" };
             viewModel.StartDate = DateTimeOffset.Now.AddDays(1);
             viewModel.EndDate = DateTimeOffset.Now.AddDays(7);
         }
@@ -208,7 +206,7 @@ namespace BoardGames.Tests.ViewModels
             return new GameDTO
             {
                 Id = gameId,
-                Owner = new UserDTO { Id = this.ownerUserId },
+                Owner = new UserDTO { Id = ownerUserId },
                 Name = "Test Game",
                 Price = 10m,
                 IsActive = true,

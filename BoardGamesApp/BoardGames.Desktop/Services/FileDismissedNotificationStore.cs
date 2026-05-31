@@ -1,6 +1,7 @@
-// <copyright file="FileDismissedNotificationStore.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace BoardGames.Desktop.Services
 {

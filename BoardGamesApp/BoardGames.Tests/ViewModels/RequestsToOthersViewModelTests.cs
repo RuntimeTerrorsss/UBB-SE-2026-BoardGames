@@ -1,12 +1,11 @@
-// <copyright file="RequestsToOthersViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
-using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
+using BoardRentAndProperty.Services;
+using BoardRentAndProperty.Tests.Fakes;
+using BoardRentAndProperty.Utilities;
+using BoardRentAndProperty.ViewModels;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

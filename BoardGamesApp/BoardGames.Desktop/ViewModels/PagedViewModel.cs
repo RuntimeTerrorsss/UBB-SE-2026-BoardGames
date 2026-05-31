@@ -1,17 +1,12 @@
-// <copyright file="PagedViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-
     public abstract class PagedViewModel<T> : INotifyPropertyChanged
     {
         protected const int DefaultPageSize = 10;
@@ -62,7 +57,9 @@ namespace BoardGames.Desktop.ViewModels
 
         public int TotalCount => allPageableItems?.Count ?? NoItemsCount;
 
-        public int PageCount => Math.Max(FirstPageNumber, (int)Math.Ceiling((double)TotalCount / PageSize));
+        public int PageCount => Math.Max(
+            FirstPageNumber,
+            (int)Math.Ceiling((double)TotalCount / PageSize));
 
         public int DisplayedCount => currentPageItems?.Count ?? NoItemsCount;
 
@@ -86,12 +83,9 @@ namespace BoardGames.Desktop.ViewModels
 
         protected abstract void Reload();
 
-        protected void SetAllItems(IEnumerable<T> updatedItems)
+        protected void SetAllItems(ImmutableList<T> updatedItems)
         {
-            allPageableItems = updatedItems != null
-                ? ImmutableList.CreateRange(updatedItems)
-                : ImmutableList<T>.Empty;
-
+            allPageableItems = updatedItems ?? ImmutableList<T>.Empty;
             OnPropertyChanged(nameof(TotalCount));
             OnPropertyChanged(nameof(PageCount));
 
@@ -119,6 +113,8 @@ namespace BoardGames.Desktop.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

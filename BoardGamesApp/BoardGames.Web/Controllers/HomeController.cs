@@ -1,31 +1,44 @@
-// <copyright file="HomeController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using System.Diagnostics;
+using BoardGames.Data.Enums;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.DTO.Services;
 using BoardGames.Web.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace BoardGames.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        public IActionResult Index()
+        private readonly ILogger<HomeController> _logger;
+        private readonly InterfaceSearchAndFilterService _searchService;
+
+        public HomeController(ILogger<HomeController> logger, InterfaceSearchAndFilterService searchService)
         {
-            return this.RedirectToAction("Index", "Search");
+            _logger = logger;
+            _searchService = searchService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var filter = new FilterCriteria();
+            if (IsLoggedIn)
+            {
+                filter.UserId = CurrentUserId;
+            }
+
+            var games = await _searchService.SearchGamesByFilter(filter);
+            return View(games);
         }
 
         public IActionResult Privacy()
         {
-            return this.View();
+            return View();
         }
 
-        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return this.View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

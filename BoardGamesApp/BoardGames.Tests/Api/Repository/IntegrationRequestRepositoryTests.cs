@@ -1,13 +1,9 @@
-// <copyright file="IntegrationRequestRepositoryTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using BoardGames.Data.Enums;
-using BoardGames.Data.Models;
-using BoardGames.Data.Repositories;
+using BoardRentAndProperty.Api.Models;
+using BoardRentAndProperty.Api.Repositories;
+using BoardRentAndProperty.Contracts.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -23,25 +19,25 @@ namespace BoardGames.Tests.Api.Repository
         [SetUp]
         public void SetUp()
         {
-            this.requestRepository = new RequestRepository(this.DbContextFactory);
-            this.notificationRepository = new NotificationRepository(this.DbContextFactory);
+            requestRepository = new RequestRepository(DbContextFactory);
+            notificationRepository = new NotificationRepository(DbContextFactory);
         }
 
         [Test]
         public void AddRequest_ThenGetById_PreservesAllRequestFields()
         {
-            int gameId = this.SeedGame(OwnerAccountId, "First Game");
+            int gameId = SeedGame(OwnerAccountId, "First Game");
             var newRequest = new Request(
                 0,
                 new Game { Id = gameId },
-                new User { Id = RenterAccountId, DisplayName = "Renter" },
-                new User { Id = OwnerAccountId, DisplayName = "Owner" },
+                new Account { Id = RenterAccountId, DisplayName = "Renter" },
+                new Account { Id = OwnerAccountId, DisplayName = "Owner" },
                 DateTime.UtcNow.AddDays(2),
                 DateTime.UtcNow.AddDays(4));
 
-            this.requestRepository.Add(newRequest);
+            requestRepository.Add(newRequest);
 
-            var fetchedRequest = this.requestRepository.Get(newRequest.Id);
+            var fetchedRequest = requestRepository.Get(newRequest.Id);
 
             Assert.That(fetchedRequest.Id, Is.EqualTo(newRequest.Id));
             Assert.That(fetchedRequest.Game!.Id, Is.EqualTo(gameId));
@@ -52,16 +48,16 @@ namespace BoardGames.Tests.Api.Repository
         [Test]
         public void GetRequestsByGame_WithMultipleGames_ReturnsOnlyMatchingGameRequests()
         {
-            int firstGameId = this.SeedGame(OwnerAccountId, "First Game");
-            int secondGameId = this.SeedGame(OwnerAccountId, "Second Game");
+            int firstGameId = SeedGame(OwnerAccountId, "First Game");
+            int secondGameId = SeedGame(OwnerAccountId, "Second Game");
 
             var requestForFirstGame = BuildRequest(firstGameId, 50, RequestStatus.Open);
             var requestForSecondGame = BuildRequest(secondGameId, 60, RequestStatus.Open);
 
-            this.requestRepository.Add(requestForFirstGame);
-            this.requestRepository.Add(requestForSecondGame);
+            requestRepository.Add(requestForFirstGame);
+            requestRepository.Add(requestForSecondGame);
 
-            var requestsForFirstGame = this.requestRepository.GetRequestsByGame(firstGameId);
+            var requestsForFirstGame = requestRepository.GetRequestsByGame(firstGameId);
 
             Assert.That(requestsForFirstGame, Is.All.Matches<Request>(request => request.Game!.Id == firstGameId));
             Assert.That(requestsForFirstGame, Has.Some.Matches<Request>(request => request.Id == requestForFirstGame.Id));
@@ -71,28 +67,28 @@ namespace BoardGames.Tests.Api.Repository
         [Test]
         public void ApproveAtomically_RemovesOnlyLinkedNotificationsAndCreatesRental()
         {
-            int gameId = this.SeedGame(OwnerAccountId, "Approval Game");
+            int gameId = SeedGame(OwnerAccountId, "Approval Game");
             var approvedRequest = BuildRequest(gameId, 50, RequestStatus.Open);
             var conflictingRequest = BuildRequest(gameId, 51, RequestStatus.Open);
             var unrelatedRequest = BuildRequest(gameId, 70, RequestStatus.Open);
 
-            this.requestRepository.Add(approvedRequest);
-            this.requestRepository.Add(conflictingRequest);
-            this.requestRepository.Add(unrelatedRequest);
+            requestRepository.Add(approvedRequest);
+            requestRepository.Add(conflictingRequest);
+            requestRepository.Add(unrelatedRequest);
 
             var approvedNotification = BuildNotification("Approved Notification", approvedRequest.Id);
             var conflictingNotification = BuildNotification("Conflicting Notification", conflictingRequest.Id);
             var unrelatedNotification = BuildNotification("Unrelated Notification", unrelatedRequest.Id);
 
-            this.notificationRepository.Add(approvedNotification);
-            this.notificationRepository.Add(conflictingNotification);
-            this.notificationRepository.Add(unrelatedNotification);
+            notificationRepository.Add(approvedNotification);
+            notificationRepository.Add(conflictingNotification);
+            notificationRepository.Add(unrelatedNotification);
 
-            int rentalId = this.requestRepository.ApproveAtomically(
+            int rentalId = requestRepository.ApproveAtomically(
                 approvedRequest,
                 ImmutableList.Create(conflictingRequest));
 
-            using var dbContext = this.DbContextFactory.CreateDbContext();
+            using var dbContext = DbContextFactory.CreateDbContext();
             var remainingNotificationIds = dbContext.Notifications
                 .Select(notification => notification.Id)
                 .ToList();
@@ -128,19 +124,19 @@ namespace BoardGames.Tests.Api.Repository
             return new Request(
                 0,
                 new Game { Id = gameId },
-                new User { Id = RenterAccountId, DisplayName = "Renter" },
-                new User { Id = OwnerAccountId, DisplayName = "Owner" },
+                new Account { Id = RenterAccountId, DisplayName = "Renter" },
+                new Account { Id = OwnerAccountId, DisplayName = "Owner" },
                 startDate,
                 endDate,
                 status,
-                offeringUserId.HasValue ? new User { Id = offeringUserId.Value, DisplayName = "Offering User" } : null);
+                offeringUserId.HasValue ? new Account { Id = offeringUserId.Value, DisplayName = "Offering User" } : null);
         }
 
         private static Notification BuildNotification(string title, int? relatedRequestId = null)
         {
             return new Notification
             {
-                Recipient = new User { Id = OwnerAccountId, DisplayName = "Owner" },
+                Recipient = new Account { Id = OwnerAccountId, DisplayName = "Owner" },
                 Timestamp = new DateTime(2035, 1, 1, 8, 0, 0, DateTimeKind.Utc),
                 Title = title,
                 Body = $"{title} body",

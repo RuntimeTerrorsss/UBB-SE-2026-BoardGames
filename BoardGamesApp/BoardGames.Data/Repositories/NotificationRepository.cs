@@ -1,8 +1,7 @@
-// <copyright file="NotificationRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,13 +23,13 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Notification> GetAll()
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             return NotificationsWithRecipient(dbContext).ToImmutableList();
         }
 
         public void Add(Notification notification)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
 
             notification.Recipient = ResolveUser(dbContext, notification.Recipient);
             if (notification.RelatedRequest != null)
@@ -44,7 +43,7 @@ namespace BoardGames.Data.Repositories
 
         public Notification Delete(int id)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var notification = NotificationsWithRecipient(dbContext).FirstOrDefault(repositoryNotification => repositoryNotification.Id == id);
             if (notification == null)
             {
@@ -58,7 +57,7 @@ namespace BoardGames.Data.Repositories
 
         public void Update(int id, Notification updated)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var existing = NotificationsWithRecipient(dbContext).FirstOrDefault(notification => notification.Id == id);
             if (existing == null)
             {
@@ -83,7 +82,7 @@ namespace BoardGames.Data.Repositories
 
         public Notification Get(int id)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             var notification = NotificationsWithRecipient(dbContext).FirstOrDefault(repositoryNotification => repositoryNotification.Id == id);
             if (notification == null)
             {
@@ -95,7 +94,7 @@ namespace BoardGames.Data.Repositories
 
         public ImmutableList<Notification> GetNotificationsByUser(Guid accountId)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
 
             var user = dbContext.Users.FirstOrDefault(u => u.Id == accountId);
 
@@ -110,9 +109,10 @@ namespace BoardGames.Data.Repositories
                 .ToImmutableList();
         }
 
+
         public (ImmutableList<Notification> Items, int TotalCount) GetPagedNotificationsByUser(Guid accountId, int page, int pageSize)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
 
             var user = dbContext.Users.FirstOrDefault(u => u.Id == accountId);
             if (user == null || user.PamUserId == 0)
@@ -134,9 +134,10 @@ namespace BoardGames.Data.Repositories
             return (items, totalCount);
         }
 
+
         public void DeleteNotificationsLinkedToRequest(int relatedRequestId)
         {
-            using var dbContext = this.dbContextFactory.CreateDbContext();
+            using var dbContext = dbContextFactory.CreateDbContext();
             dbContext.Notifications
                 .Where(notification => EF.Property<int?>(notification, RelatedRequestIdShadowProperty) == (int?)relatedRequestId)
                 .ExecuteDelete();

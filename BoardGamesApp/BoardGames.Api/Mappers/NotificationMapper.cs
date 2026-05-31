@@ -1,7 +1,3 @@
-// <copyright file="NotificationMapper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Data.Models;
 using BoardGames.Shared.DTO;
 using DataNotificationType = BoardGames.Data.Enums.NotificationType;
@@ -28,7 +24,7 @@ namespace BoardGames.Api.Mappers
             return new NotificationDTO
             {
                 Id = notification.Id,
-                Recipient = this.recipientMapper.ToDTO(notification.Recipient),
+                Recipient = recipientMapper.ToDTO(notification.Recipient),
                 Timestamp = notification.Timestamp,
                 Title = notification.Title,
                 Body = notification.Body,
@@ -47,7 +43,7 @@ namespace BoardGames.Api.Mappers
             return new Notification
             {
                 Id = dto.Id,
-                Recipient = this.recipientMapper.ToModel(dto.Recipient),
+                Recipient = recipientMapper.ToModel(dto.Recipient),
                 Timestamp = dto.Timestamp,
                 Title = dto.Title,
                 Body = dto.Body,

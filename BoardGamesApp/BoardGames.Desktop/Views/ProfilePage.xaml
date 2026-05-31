@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <Page
-    x:Class="BoardGames.Desktop.Views.ProfilePage"
+    x:Class="BoardRentAndProperty.Views.ProfilePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:BoardGames.Desktop.Views"
+    xmlns:local="using:BoardRentAndProperty.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewmodels="using:BoardGames.Desktop.ViewModels"
+    xmlns:viewmodels="using:BoardRentAndProperty.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:ProfileViewModel}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
@@ -18,6 +18,9 @@
             <Grid Background="#555" Height="50">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0" Spacing="15">
                     <TextBlock Text="My profile" Foreground="White" VerticalAlignment="Center"/>
+                    <Button Content="Admin Panel" Background="#FF8C00" Foreground="White"
+                            Visibility="{Binding AdminButtonVisibility}"
+                            Command="{Binding NavigateToAdminPanelCommand}"/>
                 </StackPanel>
                 <Button Content="Sign out" Background="Red" Foreground="White" HorizontalAlignment="Right" Margin="0,5,10,5" Command="{Binding SignOutCommand}"/>
             </Grid>

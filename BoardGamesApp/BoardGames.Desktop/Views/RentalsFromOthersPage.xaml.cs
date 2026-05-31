@@ -1,6 +1,11 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using BoardGames.Desktop.Views;
 using BoardGames.Desktop.ViewModels;
 
-namespace BoardGames.Desktop.Views
+namespace BoardRentAndProperty.Views
 {
     public sealed partial class RentalsFromOthersPage : Page
     {

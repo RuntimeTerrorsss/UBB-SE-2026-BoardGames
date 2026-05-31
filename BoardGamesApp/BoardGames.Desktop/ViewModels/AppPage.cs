@@ -1,21 +1,14 @@
-// <copyright file="AppPage.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Desktop.ViewModels
 {
     public enum AppPage
     {
-        Filter,
-        GameDetails,
-        ConfirmRental,
-        Login,
-        Register,
-        Games,
+        Listings,
+        RequestsToOthers,
+        RentalsFromOthers,
+        RequestsFromOthers,
+        RentalsToOthers,
         Notifications,
-        Dashboard,
-        Chat,
-        Account,
+        Profile,
         Admin,
         Logout,
     }

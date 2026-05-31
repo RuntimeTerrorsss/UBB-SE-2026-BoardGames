@@ -1,13 +1,13 @@
-// <copyright file="AuthServiceTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BoardGames.Shared.ProxyServices;
 using BoardGames.Tests.Fakes;
+using BoardRentAndProperty.Api.Models;
+using BoardRentAndProperty.Api.Services;
+using BoardRentAndProperty.Api.Utilities;
+using BoardRentAndProperty.Contracts.DataTransferObjects;
 using NUnit.Framework;
+using AuthService = BoardRentAndProperty.Api.Services.AuthService;
 
 namespace BoardGames.Tests.Api.Services
 {
@@ -21,23 +21,23 @@ namespace BoardGames.Tests.Api.Services
         [SetUp]
         public void SetUp()
         {
-            this.accountRepository = new FakeAccountRepository();
-            this.failedLoginRepository = new FakeFailedLoginRepository();
-            this.service = new AuthService(this.accountRepository, this.failedLoginRepository);
+            accountRepository = new FakeAccountRepository();
+            failedLoginRepository = new FakeFailedLoginRepository();
+            service = new AuthService(accountRepository, failedLoginRepository);
         }
 
         [Test]
         public async Task RegisterAsync_UsernameAlreadyExists_ReturnsFailResult()
         {
-            var registrationRequest = new RegisterDTO
+            var registrationRequest = new RegisterDataTransferObject
             {
                 Username = "existing_user",
                 Password = "Password123!",
             };
 
-            this.accountRepository.AccountsByUsername["existing_user"] = new Account { Username = "existing_user" };
+            accountRepository.AccountsByUsername["existing_user"] = new Account { Username = "existing_user" };
 
-            var registrationResult = await this.service.RegisterAsync(registrationRequest);
+            var registrationResult = await service.RegisterAsync(registrationRequest);
 
             Assert.That(registrationResult.Success, Is.False);
             Assert.That(registrationResult.Error, Does.Contain("Username is already taken"));
@@ -47,7 +47,7 @@ namespace BoardGames.Tests.Api.Services
         public async Task RegisterAsync_ValidData_AddsAccountAndAssignsStandardRole()
         {
             Guid createdAccountId = Guid.Empty;
-            var registrationRequest = new RegisterDTO
+            var registrationRequest = new RegisterDataTransferObject
             {
                 Username = "new_user",
                 DisplayName = "New User",
@@ -55,23 +55,23 @@ namespace BoardGames.Tests.Api.Services
                 Password = "Password123!",
             };
 
-            this.accountRepository.AccountsByUsername["new_user"] = null;
+            accountRepository.AccountsByUsername["new_user"] = null;
 
-            var registrationResult = await this.service.RegisterAsync(registrationRequest);
+            var registrationResult = await service.RegisterAsync(registrationRequest);
 
             Assert.That(registrationResult.Success, Is.True);
-            createdAccountId = this.accountRepository.LastAddedAccount!.Id;
+            createdAccountId = accountRepository.LastAddedAccount!.Id;
             Assert.That(createdAccountId, Is.Not.EqualTo(Guid.Empty));
-            Assert.That(this.accountRepository.AddCallCount, Is.EqualTo(1));
-            Assert.That(this.accountRepository.AddRoleCallCount, Is.EqualTo(1));
-            Assert.That(this.accountRepository.LastRoleAccountId, Is.EqualTo(createdAccountId));
-            Assert.That(this.accountRepository.LastRoleName, Is.EqualTo("Standard User"));
+            Assert.That(accountRepository.AddCallCount, Is.EqualTo(1));
+            Assert.That(accountRepository.AddRoleCallCount, Is.EqualTo(1));
+            Assert.That(accountRepository.LastRoleAccountId, Is.EqualTo(createdAccountId));
+            Assert.That(accountRepository.LastRoleName, Is.EqualTo("Standard User"));
         }
 
         [Test]
         public async Task LoginAsync_SuspendedAccount_ReturnsFailResult()
         {
-            var loginRequest = new LoginDTO
+            var loginRequest = new LoginDataTransferObject
             {
                 UsernameOrEmail = "suspended_user",
                 Password = "AnyPassword123!",
@@ -83,9 +83,9 @@ namespace BoardGames.Tests.Api.Services
                 IsSuspended = true,
             };
 
-            this.accountRepository.AccountsByUsername["suspended_user"] = suspendedAccount;
+            accountRepository.AccountsByUsername["suspended_user"] = suspendedAccount;
 
-            var loginResult = await this.service.LoginAsync(loginRequest);
+            var loginResult = await service.LoginAsync(loginRequest);
 
             Assert.That(loginResult.Success, Is.False);
             Assert.That(loginResult.Error, Is.EqualTo("This account has been suspended."));
@@ -106,19 +106,19 @@ namespace BoardGames.Tests.Api.Services
                 IsSuspended = false,
             };
 
-            var loginRequest = new LoginDTO
+            var loginRequest = new LoginDataTransferObject
             {
                 UsernameOrEmail = "test_user",
                 Password = wrongPassword,
             };
 
-            this.accountRepository.AccountsByUsername["test_user"] = account;
+            accountRepository.AccountsByUsername["test_user"] = account;
 
-            var loginResult = await this.service.LoginAsync(loginRequest);
+            var loginResult = await service.LoginAsync(loginRequest);
 
             Assert.That(loginResult.Success, Is.False);
-            Assert.That(this.failedLoginRepository.IncrementCallCount, Is.EqualTo(1));
-            Assert.That(this.failedLoginRepository.LastAccountId, Is.EqualTo(accountId));
+            Assert.That(failedLoginRepository.IncrementCallCount, Is.EqualTo(1));
+            Assert.That(failedLoginRepository.LastAccountId, Is.EqualTo(accountId));
         }
 
         [Test]
@@ -135,27 +135,27 @@ namespace BoardGames.Tests.Api.Services
                 Roles = new List<Role> { new Role { Name = "Administrator" } },
             };
 
-            var loginRequest = new LoginDTO
+            var loginRequest = new LoginDataTransferObject
             {
                 UsernameOrEmail = "valid_user",
                 Password = password,
             };
 
-            this.accountRepository.AccountsByUsername["valid_user"] = account;
+            accountRepository.AccountsByUsername["valid_user"] = account;
 
-            var loginResult = await this.service.LoginAsync(loginRequest);
+            var loginResult = await service.LoginAsync(loginRequest);
 
             Assert.That(loginResult.Success, Is.True);
             Assert.That(loginResult.Data, Is.Not.Null);
             Assert.That(loginResult.Data!.Role.Name, Is.EqualTo("Administrator"));
-            Assert.That(this.failedLoginRepository.ResetCallCount, Is.EqualTo(1));
-            Assert.That(this.failedLoginRepository.LastAccountId, Is.EqualTo(accountId));
+            Assert.That(failedLoginRepository.ResetCallCount, Is.EqualTo(1));
+            Assert.That(failedLoginRepository.LastAccountId, Is.EqualTo(accountId));
         }
 
         [Test]
         public async Task ForgotPasswordAsync_Always_ReturnsAdministratorContactMessage()
         {
-            var serviceResult = await this.service.ForgotPasswordAsync();
+            var serviceResult = await service.ForgotPasswordAsync();
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(serviceResult.Data, Does.Contain("admin@boardrent.com"));
@@ -164,7 +164,7 @@ namespace BoardGames.Tests.Api.Services
         [Test]
         public async Task LogoutAsync_WhenCalled_ReturnsSuccess()
         {
-            var serviceResult = await this.service.LogoutAsync();
+            var serviceResult = await service.LogoutAsync();
 
             Assert.That(serviceResult.Success, Is.True);
             Assert.That(serviceResult.Data, Is.True);

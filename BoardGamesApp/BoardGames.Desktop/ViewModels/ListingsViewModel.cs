@@ -1,26 +1,20 @@
-// <copyright file="ListingsViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Immutable;
-    using System.Threading.Tasks;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-    using BoardGames.Desktop.Commands;
-    using AppConstants = BoardGames.Desktop.Constants.Constants;
-
-    public class ListingsViewModel : PagedViewModel<GameSummaryDTO>
+    public class ListingsViewModel : PagedViewModel<GameDTO>
     {
         private const int NoActiveRentalsCount = 0;
-        private const string DeleteSuccessMessageTemplate = "There are {0} active rentals for this game. It was removed successfully.";
+        private const string DeleteSuccessMessageTemplate =
+            "There are {0} active rentals for this game. It was removed successfully.";
 
         private readonly IGameService gameListingService;
         private readonly IDesktopAuthorizationService authorizationService;
-        private bool showOnlyMyGames;
 
         public ListingsViewModel(IGameService gameListingService, IDesktopAuthorizationService authorizationService)
         {
@@ -34,56 +28,35 @@ namespace BoardGames.Desktop.ViewModels
         {
         }
 
-        public string PageTitle => authorizationService.IsAdministrator ? "Games" : "My Games";
-
-        public bool IsAdministrator => authorizationService.IsAdministrator;
-
-        public bool ShowOnlyMyGames
-        {
-            get => showOnlyMyGames;
-            set
-            {
-                if (showOnlyMyGames != value)
-                {
-                    showOnlyMyGames = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(FilterButtonLabel));
-                    _ = ReloadAsync();
-                }
-            }
-        }
-
-        public string FilterButtonLabel => showOnlyMyGames ? "Show all games" : "Show only my games";
+        public string PageTitle => authorizationService.IsAdministrator ? "Games" : "My Listings";
 
         public Task LoadGamesAsync() => ReloadAsync();
 
-        public void ToggleMyGamesFilter()
+        protected override void Reload()
         {
-            ShowOnlyMyGames = !ShowOnlyMyGames;
+            _ = ReloadAsync();
         }
-
-        protected override void Reload() => _ = ReloadAsync();
 
         private async Task ReloadAsync()
         {
             if (!authorizationService.IsLoggedIn)
             {
-                SetAllItems(ImmutableList<GameSummaryDTO>.Empty);
+                SetAllItems(ImmutableList<GameDTO>.Empty);
                 return;
             }
 
-            var gameListingsResult = authorizationService.IsAdministrator && !showOnlyMyGames
+            var gameListingsResult = authorizationService.IsAdministrator
                 ? await gameListingService.GetAllGamesAsync()
                 : await gameListingService.GetGamesForOwnerAsync(authorizationService.CurrentAccountId);
 
             this.SetAllItems(gameListingsResult.Success && gameListingsResult.Data != null
-                ? gameListingsResult.Data
-                : ImmutableList<GameSummaryDTO>.Empty);
+                ? gameListingsResult.Data.ToImmutableList()
+                : ImmutableList<GameDTO>.Empty);
         }
 
         public override string ShowingText => $"Showing {DisplayedCount} of {TotalCount} games";
 
-        public async Task DeleteGameAsync(GameSummaryDTO gameToDelete)
+        public async Task DeleteGameAsync(GameDTO gameToDelete)
         {
             if (!CanManageGame(gameToDelete))
             {
@@ -93,33 +66,41 @@ namespace BoardGames.Desktop.ViewModels
             var deleteResult = await gameListingService.DeleteGameAsync(gameToDelete.Id);
             if (!deleteResult.Success)
             {
-                throw new InvalidOperationException(deleteResult.Error ?? "Unexpected error occurred.");
+                throw new InvalidOperationException(deleteResult.Error ?? Constants.DialogMessages.UnexpectedErrorOccurred);
             }
 
             await ReloadAsync();
         }
 
-        public async Task<ViewOperationResult> TryDeleteGameAsync(GameSummaryDTO gameToDelete)
+        public async Task<ViewOperationResult> TryDeleteGameAsync(GameDTO gameToDelete)
         {
             try
             {
                 await DeleteGameAsync(gameToDelete);
                 return ViewOperationResult.Success(
-                    AppConstants.DialogTitles.GameRemoved,
+                    Constants.DialogTitles.GameRemoved,
                     string.Format(DeleteSuccessMessageTemplate, NoActiveRentalsCount));
             }
-            catch (Exception ex)
+            catch (InvalidOperationException gameHasActiveRentalsException)
             {
                 return ViewOperationResult.Failure(
-                    AppConstants.DialogTitles.CannotDeleteGame,
-                    ex.Message);
+                    Constants.DialogTitles.CannotDeleteGame,
+                    gameHasActiveRentalsException.Message);
+            }
+            catch (Exception unexpectedException)
+            {
+                return ViewOperationResult.Failure(
+                    Constants.DialogTitles.CannotDeleteGame,
+                    string.IsNullOrWhiteSpace(unexpectedException.Message)
+                        ? Constants.DialogMessages.UnexpectedErrorOccurred
+                        : unexpectedException.Message);
             }
         }
 
-        private bool CanManageGame(GameSummaryDTO gameToManage)
+        private bool CanManageGame(GameDTO gameToManage)
         {
             return authorizationService.IsAdministrator
-                || gameToManage.OwnerAccountId == authorizationService.CurrentAccountId;
+                || gameToManage.Owner?.Id == authorizationService.CurrentAccountId;
         }
 
         private sealed class FixedDesktopAuthorizationService : IDesktopAuthorizationService
@@ -139,7 +120,7 @@ namespace BoardGames.Desktop.ViewModels
 
             public bool CanAccessPage(Type pageType) => true;
 
-            public bool CanAccessRoute(AppPage page) => true;
+            public bool CanAccessMenuPage(AppPage page) => true;
         }
     }
 }

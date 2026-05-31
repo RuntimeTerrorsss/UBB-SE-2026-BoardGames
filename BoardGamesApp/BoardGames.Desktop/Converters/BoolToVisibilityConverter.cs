@@ -1,4 +1,8 @@
+﻿// <copyright file="BoolToVisibilityConverter.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 

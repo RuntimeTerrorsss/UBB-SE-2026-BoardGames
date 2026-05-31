@@ -1,7 +1,4 @@
-// <copyright file="ApiUrlHelper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices

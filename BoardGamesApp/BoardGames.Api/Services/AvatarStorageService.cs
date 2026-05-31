@@ -1,3 +1,9 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+
 namespace BoardGames.Api.Services
 {
     public class AvatarStorageService : IAvatarStorageService
@@ -11,9 +17,9 @@ namespace BoardGames.Api.Services
         public AvatarStorageService(IWebHostEnvironment environment, IConfiguration configuration)
         {
             var folderRelative = configuration["Storage:AvatarFolder"] ?? DefaultAvatarFolder;
-            this.urlPrefix = configuration["Storage:AvatarUrlPrefix"] ?? DefaultUrlPrefix;
-            this.avatarFolderAbsolute = Path.Combine(environment.ContentRootPath, folderRelative);
-            Directory.CreateDirectory(this.avatarFolderAbsolute);
+            urlPrefix = configuration["Storage:AvatarUrlPrefix"] ?? DefaultUrlPrefix;
+            avatarFolderAbsolute = Path.Combine(environment.ContentRootPath, folderRelative);
+            Directory.CreateDirectory(avatarFolderAbsolute);
         }
 
         public async Task<string> SaveAsync(Guid accountId, Stream content, string fileExtension)
@@ -21,15 +27,15 @@ namespace BoardGames.Api.Services
             string normalizedExtension = NormalizeExtension(fileExtension);
             string fileName = $"{accountId}{normalizedExtension}";
 
-            this.DeleteExistingFilesForAccount(accountId);
+            DeleteExistingFilesForAccount(accountId);
 
-            string destinationPath = Path.Combine(this.avatarFolderAbsolute, fileName);
+            string destinationPath = Path.Combine(avatarFolderAbsolute, fileName);
             await using (var fileStream = File.Create(destinationPath))
             {
                 await content.CopyToAsync(fileStream);
             }
 
-            return $"{this.urlPrefix}/{fileName}";
+            return $"{urlPrefix}/{fileName}";
         }
 
         public void Delete(string relativeUrl)
@@ -45,7 +51,7 @@ namespace BoardGames.Api.Services
                 return;
             }
 
-            string absolutePath = Path.Combine(this.avatarFolderAbsolute, fileName);
+            string absolutePath = Path.Combine(avatarFolderAbsolute, fileName);
             if (File.Exists(absolutePath))
             {
                 File.Delete(absolutePath);
@@ -55,7 +61,7 @@ namespace BoardGames.Api.Services
         private void DeleteExistingFilesForAccount(Guid accountId)
         {
             string accountPrefix = accountId.ToString();
-            foreach (string existing in Directory.EnumerateFiles(this.avatarFolderAbsolute, accountPrefix + ".*"))
+            foreach (string existing in Directory.EnumerateFiles(avatarFolderAbsolute, accountPrefix + ".*"))
             {
                 try
                 {

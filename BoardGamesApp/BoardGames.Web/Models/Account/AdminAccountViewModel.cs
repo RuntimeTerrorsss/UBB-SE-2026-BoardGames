@@ -1,7 +1,3 @@
-// <copyright file="AdminAccountViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System.Text.Json.Serialization;
 
 namespace BoardGames.Web.Models.Account
@@ -9,16 +5,16 @@ namespace BoardGames.Web.Models.Account
     public class AdminAccountViewModel
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; } = string.Empty;
+        public string Id { get; set; }
 
         [JsonPropertyName("username")]
-        public string Username { get; set; } = string.Empty;
+        public string Username { get; set; }
 
         [JsonPropertyName("email")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
 
         [JsonPropertyName("role")]
-        public RoleViewModel Role { get; set; } = new RoleViewModel();
+        public RoleViewModel Role { get; set; }
 
         [JsonPropertyName("isSuspended")]
         public bool IsSuspended { get; set; }

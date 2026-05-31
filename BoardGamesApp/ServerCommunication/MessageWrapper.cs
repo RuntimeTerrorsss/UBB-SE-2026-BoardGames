@@ -1,15 +1,15 @@
-// <copyright file="MessageWrapper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ServerCommunication
 {
     public class MessageWrapper
     {
         public string Type { get; set; } = string.Empty;
-
         public byte[] Payload { get; set; } = Array.Empty<byte>();
 
         public byte[] Serialize()
@@ -20,7 +20,7 @@ namespace ServerCommunication
         public T? Deserialize<T>()
             where T : MessageBase
         {
-            return JsonSerializer.Deserialize<T>(this.Payload);
+            return JsonSerializer.Deserialize<T>(Payload);
         }
     }
 }

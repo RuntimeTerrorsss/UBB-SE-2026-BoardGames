@@ -1,9 +1,13 @@
+﻿// <copyright file="IRentalService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BoardGames.Sharing.DTO;
+using BookingBoardGames.Sharing.DTO;
 
-namespace BoardGames.Api.Legacy.Services
+namespace BoardGames.Api.Services
 {
     public interface IRentalService
     {

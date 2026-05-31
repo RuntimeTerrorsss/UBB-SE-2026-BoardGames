@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <UserControl
-	x:Class="BoardGames.Desktop.Views.ChatViews.LeftPanelView"
+	x:Class="BookingBoardGames.Src.Views.ChatViews.LeftPanelView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:dtos="using:BoardGames.Desktop.DTO"
-	xmlns:local="using:BoardGames.Desktop.Views.ChatViews"
+	xmlns:dtos="using:BookingBoardGames.Src.DTO"
+	xmlns:local="using:BookingBoardGames.Src.Views.ChatViews"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:vms="using:BoardGames.Desktop.ViewModels"
+	xmlns:vms="using:BookingBoardGames.Src.ViewModels"
 	mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
 		<Grid.RowDefinitions>
-			
+			<!--  Header: title + search bar  -->
 			<RowDefinition Height="Auto" />
-			
+			<!--  Conversation list / empty / no-match states  -->
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		
+		<!--
+			Header area
+		-->
 		<StackPanel
 			Grid.Row="0"
 			Padding="12,14,12,8"
@@ -29,22 +31,24 @@
 				Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 				Text="Messages" />
 
-			
+			<!--  Search bar  -->
 			<TextBox
 				x:Name="SearchBox"
 				CornerRadius="6"
-				PlaceholderText="Search conversationsâ€¦"
+				PlaceholderText="Search conversations…"
 				Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 		</StackPanel>
 
-		
+		<!--  Thin separator under header  -->
 		<Border
 			Grid.Row="0"
 			Height="1"
 			VerticalAlignment="Bottom"
 			Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-		
+		<!--
+			No conversations at all
+		-->
 		<StackPanel
 			x:Name="EmptyStatePanel"
 			Grid.Row="1"
@@ -54,7 +58,7 @@
 			Spacing="10"
 			Visibility="Collapsed">
 
-			
+			<!--  Icon placeholder  -->
 			<FontIcon
 				HorizontalAlignment="Center"
 				FontSize="40"
@@ -76,7 +80,10 @@
 				TextWrapping="Wrap" />
 		</StackPanel>
 
-		
+		<!--
+			Search returned no matches
+			(dummy: set Visibility="Collapsed" to hide)
+		-->
 		<StackPanel
 			x:Name="NoMatchesPanel"
 			Grid.Row="1"
@@ -99,7 +106,11 @@
 				Text="No matches" />
 		</StackPanel>
 
-		
+		<!--
+			State 3 — Normal: conversation list
+			CP-04: ScrollViewer is implicit inside ListView
+			CP-06: ordered by most recent (dummy data below)
+		-->
 		<ListView
 			x:Name="ConversationList"
 			Grid.Row="1"

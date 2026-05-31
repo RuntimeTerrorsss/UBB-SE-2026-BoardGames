@@ -1,7 +1,3 @@
-// <copyright file="NotificationsController.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Collections.Generic;
 using BoardGames.Api.Services;
@@ -25,7 +21,7 @@ namespace BoardGames.Api.Controllers
         [HttpGet("user/{accountId:guid}")]
         public ActionResult<IReadOnlyList<NotificationDTO>> GetForUser(Guid accountId)
         {
-            return this.Ok(this.notificationService.GetNotificationsForUser(accountId));
+            return Ok(notificationService.GetNotificationsForUser(accountId));
         }
 
         [HttpGet("{notificationId:int}")]
@@ -33,7 +29,7 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                return this.Ok(this.notificationService.GetNotificationByIdentifier(notificationId));
+                return Ok(notificationService.GetNotificationByIdentifier(notificationId));
             }
             catch (KeyNotFoundException)
             {
@@ -46,8 +42,8 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                this.notificationService.UpdateNotificationByIdentifier(notificationId, body);
-                return this.NoContent();
+                notificationService.UpdateNotificationByIdentifier(notificationId, body);
+                return NoContent();
             }
             catch (KeyNotFoundException)
             {
@@ -60,7 +56,7 @@ namespace BoardGames.Api.Controllers
         {
             try
             {
-                return this.Ok(this.notificationService.DeleteNotificationByIdentifier(notificationId));
+                return Ok(notificationService.DeleteNotificationByIdentifier(notificationId));
             }
             catch (KeyNotFoundException)
             {

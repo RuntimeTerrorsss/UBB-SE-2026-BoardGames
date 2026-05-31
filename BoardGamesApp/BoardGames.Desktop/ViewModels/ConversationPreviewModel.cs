@@ -1,3 +1,12 @@
+﻿// <copyright file="ConversationPreviewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Desktop.ViewModels;
 

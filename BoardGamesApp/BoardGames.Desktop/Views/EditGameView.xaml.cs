@@ -1,15 +1,13 @@
-// <copyright file="EditGameView.xaml.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
-using BoardGames.Desktop.ViewModels;
+using System;
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using System;
+using BoardGames.Desktop.Views;
+using BoardGames.Desktop.ViewModels;
 
-namespace BoardGames.Desktop.Views
+namespace BoardRentAndProperty.Views
 {
     public sealed partial class EditGameView : Page
     {
@@ -20,18 +18,6 @@ namespace BoardGames.Desktop.Views
             this.InitializeComponent();
 
             ViewModel = App.Services.GetRequiredService<EditGameViewModel>();
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs routedEventArgs)
-        {
-            if (Frame.CanGoBack)
-            {
-                Frame.GoBack();
-            }
-            else
-            {
-                App.NavigateTo(AppPage.Games, clearBackStack: true);
-            }
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs navigationEventArgs)
@@ -89,7 +75,6 @@ namespace BoardGames.Desktop.Views
                 {
                     Frame.GoBack();
                 }
-
                 return;
             }
 
@@ -133,7 +118,6 @@ namespace BoardGames.Desktop.Views
             {
                 await previewBitmapImage.SetSourceAsync(imageRandomAccessStream);
             }
-
             ImagePreview.Source = previewBitmapImage;
         }
     }

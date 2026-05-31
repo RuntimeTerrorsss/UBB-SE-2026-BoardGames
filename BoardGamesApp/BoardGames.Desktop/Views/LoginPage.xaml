@@ -1,5 +1,5 @@
 <Page
-    x:Class="BoardGames.Desktop.Views.LoginPage"
+    x:Class="BoardRentAndProperty.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -14,15 +14,13 @@
 
             <TextBlock Text="Sign in" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,10" />
 
-            <TextBlock Text="{Binding InfoMessage}" Foreground="ForestGreen" HorizontalAlignment="Center" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
             <TextBox Header="Username or email"
                      Text="{Binding UsernameOrEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-            <PasswordBox x:Name="PasswordBox"
-                         Header="Password"
-                         PasswordChanged="PasswordBox_PasswordChanged" />
+            <PasswordBox Header="Password"
+                         Password="{Binding Password, Mode=TwoWay}" />
 
             <CheckBox Content="Remember me"
                       IsChecked="{Binding RememberMe, Mode=TwoWay}" />
@@ -39,7 +37,7 @@
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
                     <TextBlock Text="Don't have an account?" VerticalAlignment="Center"/>
-                    <HyperlinkButton Content="Create an account" Command="{Binding NavigateToRegisterCommand}" />
+                    <HyperlinkButton Content="Create an account" Command="{Binding NavigateToRegisterCommand}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

@@ -1,6 +1,12 @@
-﻿// <copyright file="PaymentHistoryViewModelConstants.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+﻿// <copyright file="PaymentHistoryViewModelConstants.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BoardGames.Data.Constants
 {

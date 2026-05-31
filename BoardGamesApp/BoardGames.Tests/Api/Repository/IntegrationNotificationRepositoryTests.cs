@@ -1,12 +1,8 @@
-// <copyright file="IntegrationNotificationRepositoryTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System;
 using System.Linq;
-using BoardGames.Data.Enums;
-using BoardGames.Data.Models;
-using BoardGames.Data.Repositories;
+using BoardRentAndProperty.Api.Models;
+using BoardRentAndProperty.Api.Repositories;
+using BoardRentAndProperty.Contracts.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -22,33 +18,33 @@ namespace BoardGames.Tests.Api.Repository
         [SetUp]
         public void SetUp()
         {
-            this.notificationRepository = new NotificationRepository(this.DbContextFactory);
-            this.requestRepository = new RequestRepository(this.DbContextFactory);
+            notificationRepository = new NotificationRepository(DbContextFactory);
+            requestRepository = new RequestRepository(DbContextFactory);
         }
 
         [Test]
         public void DeleteNotificationsLinkedToRequest_RemovesOnlyMatchingNotifications()
         {
-            int gameId = this.SeedGame(OwnerAccountId, "Notification Cleanup Game");
+            int gameId = SeedGame(OwnerAccountId, "Notification Cleanup Game");
             var targetRequest = BuildRequest(gameId, 80);
             var otherRequest = BuildRequest(gameId, 90);
 
-            this.requestRepository.Add(targetRequest);
-            this.requestRepository.Add(otherRequest);
+            requestRepository.Add(targetRequest);
+            requestRepository.Add(otherRequest);
 
             var firstMatchingNotification = BuildNotification("Match One", targetRequest.Id);
             var secondMatchingNotification = BuildNotification("Match Two", targetRequest.Id);
             var otherLinkedNotification = BuildNotification("Other Link", otherRequest.Id);
             var unlinkedNotification = BuildNotification("No Link");
 
-            this.notificationRepository.Add(firstMatchingNotification);
-            this.notificationRepository.Add(secondMatchingNotification);
-            this.notificationRepository.Add(otherLinkedNotification);
-            this.notificationRepository.Add(unlinkedNotification);
+            notificationRepository.Add(firstMatchingNotification);
+            notificationRepository.Add(secondMatchingNotification);
+            notificationRepository.Add(otherLinkedNotification);
+            notificationRepository.Add(unlinkedNotification);
 
-            this.notificationRepository.DeleteNotificationsLinkedToRequest(targetRequest.Id);
+            notificationRepository.DeleteNotificationsLinkedToRequest(targetRequest.Id);
 
-            using var dbContext = this.DbContextFactory.CreateDbContext();
+            using var dbContext = DbContextFactory.CreateDbContext();
             var remainingNotifications = dbContext.Notifications
                 .OrderBy(notification => notification.Id)
                 .Select(notification => new
@@ -77,8 +73,8 @@ namespace BoardGames.Tests.Api.Repository
             return new Request(
                 0,
                 new Game { Id = gameId },
-                new User { Id = RenterAccountId, DisplayName = "Renter" },
-                new User { Id = OwnerAccountId, DisplayName = "Owner" },
+                new Account { Id = RenterAccountId, DisplayName = "Renter" },
+                new Account { Id = OwnerAccountId, DisplayName = "Owner" },
                 startDate,
                 startDate.AddDays(2),
                 RequestStatus.Open);
@@ -88,7 +84,7 @@ namespace BoardGames.Tests.Api.Repository
         {
             return new Notification
             {
-                Recipient = new User { Id = OwnerAccountId, DisplayName = "Owner" },
+                Recipient = new Account { Id = OwnerAccountId, DisplayName = "Owner" },
                 Timestamp = new DateTime(2035, 1, 1, 9, 0, 0, DateTimeKind.Utc),
                 Title = title,
                 Body = $"{title} body",

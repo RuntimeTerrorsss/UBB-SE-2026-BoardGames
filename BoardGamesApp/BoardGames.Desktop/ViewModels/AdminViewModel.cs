@@ -1,24 +1,20 @@
-// <copyright file="AdminViewModel.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Desktop.ViewModels
 {
     using System;
     using System.Collections.Immutable;
     using System.Threading.Tasks;
-    using BoardGames.Desktop.Commands;
     using BoardGames.Desktop.Services;
     using BoardGames.Shared.DTO;
     using BoardGames.Shared.ProxyServices;
+    using CommunityToolkit.Mvvm.Input;
 
-    public class AdminViewModel : PagedViewModel<AccountProfileDTO>
+    public class AdminViewModel : PagedViewModel<AccountProfileDataTransferObject>
     {
         private const string AdminAccessDeniedMessage = "Unauthorized access. Administrator role is required.";
 
         private readonly IAdminService adminService;
         private readonly IDesktopAuthorizationService authorizationService;
-        private AccountProfileDTO selectedAccount;
+        private AccountProfileDataTransferObject selectedAccount;
         private string errorMessage;
         private bool isLoading;
 
@@ -30,8 +26,8 @@ namespace BoardGames.Desktop.ViewModels
             SuspendAccountCommand = new AsyncRelayCommand(this.SuspendAccountAsync, this.CanModifySelectedAccount);
             UnsuspendAccountCommand = new AsyncRelayCommand(this.UnsuspendAccountAsync, this.CanModifySelectedAccount);
             UnlockAccountCommand = new AsyncRelayCommand(this.UnlockAccountAsync, this.CanModifySelectedAccount);
-            NextPageCommand = new RelayCommand(_ => this.ExecuteNextPage());
-            PreviousPageCommand = new RelayCommand(_ => this.ExecutePreviousPage());
+            NextPageCommand = new RelayCommand(this.ExecuteNextPage);
+            PreviousPageCommand = new RelayCommand(this.ExecutePreviousPage);
         }
 
         public AdminViewModel(IAdminService adminService)
@@ -39,17 +35,13 @@ namespace BoardGames.Desktop.ViewModels
         {
         }
 
-        public AsyncRelayCommand SuspendAccountCommand { get; }
+        public IAsyncRelayCommand SuspendAccountCommand { get; }
+        public IAsyncRelayCommand UnsuspendAccountCommand { get; }
+        public IAsyncRelayCommand UnlockAccountCommand { get; }
+        public IRelayCommand NextPageCommand { get; }
+        public IRelayCommand PreviousPageCommand { get; }
 
-        public AsyncRelayCommand UnsuspendAccountCommand { get; }
-
-        public AsyncRelayCommand UnlockAccountCommand { get; }
-
-        public RelayCommand NextPageCommand { get; }
-
-        public RelayCommand PreviousPageCommand { get; }
-
-        public AccountProfileDTO SelectedAccount
+        public AccountProfileDataTransferObject SelectedAccount
         {
             get => selectedAccount;
             set
@@ -57,7 +49,7 @@ namespace BoardGames.Desktop.ViewModels
                 if (selectedAccount != value)
                 {
                     selectedAccount = value;
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedAccount));
                     SuspendAccountCommand.NotifyCanExecuteChanged();
                     UnsuspendAccountCommand.NotifyCanExecuteChanged();
                     UnlockAccountCommand.NotifyCanExecuteChanged();
@@ -68,16 +60,33 @@ namespace BoardGames.Desktop.ViewModels
         public string ErrorMessage
         {
             get => errorMessage;
-            set { if (errorMessage != value) { errorMessage = value; OnPropertyChanged(); } }
+            set
+            {
+                if (errorMessage != value)
+                {
+                    errorMessage = value;
+                    OnPropertyChanged(nameof(ErrorMessage));
+                }
+            }
         }
 
         public bool IsLoading
         {
             get => isLoading;
-            set { if (isLoading != value) { isLoading = value; OnPropertyChanged(); } }
+            set
+            {
+                if (isLoading != value)
+                {
+                    isLoading = value;
+                    OnPropertyChanged(nameof(IsLoading));
+                }
+            }
         }
 
-        protected override void Reload() => _ = LoadAccountsAsync();
+        protected override void Reload()
+        {
+            _ = LoadAccountsAsync();
+        }
 
         public async Task LoadAccountsAsync()
         {
@@ -95,7 +104,7 @@ namespace BoardGames.Desktop.ViewModels
 
             if (serviceResult.Success && serviceResult.Data != null)
             {
-                this.SetAllItems(serviceResult.Data);
+                this.SetAllItems(serviceResult.Data.ToImmutableList());
             }
             else
             {
@@ -126,6 +135,7 @@ namespace BoardGames.Desktop.ViewModels
         {
             if (!authorizationService.IsAdministrator)
             {
+                ErrorMessage = AdminAccessDeniedMessage;
                 return;
             }
 
@@ -136,7 +146,7 @@ namespace BoardGames.Desktop.ViewModels
             }
             else
             {
-                ErrorMessage = result.Error ?? "Failed to suspend.";
+                ErrorMessage = result.Error;
             }
         }
 
@@ -144,6 +154,7 @@ namespace BoardGames.Desktop.ViewModels
         {
             if (!authorizationService.IsAdministrator)
             {
+                ErrorMessage = AdminAccessDeniedMessage;
                 return;
             }
 
@@ -154,7 +165,7 @@ namespace BoardGames.Desktop.ViewModels
             }
             else
             {
-                ErrorMessage = result.Error ?? "Failed to unsuspend.";
+                ErrorMessage = result.Error;
             }
         }
 
@@ -162,6 +173,7 @@ namespace BoardGames.Desktop.ViewModels
         {
             if (!authorizationService.IsAdministrator)
             {
+                ErrorMessage = AdminAccessDeniedMessage;
                 return;
             }
 
@@ -185,7 +197,7 @@ namespace BoardGames.Desktop.ViewModels
 
             public bool CanAccessPage(Type pageType) => true;
 
-            public bool CanAccessRoute(AppPage page) => true;
+            public bool CanAccessMenuPage(AppPage page) => true;
         }
     }
 }

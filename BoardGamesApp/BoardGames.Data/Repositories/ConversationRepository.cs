@@ -1,7 +1,12 @@
-// <copyright file="ConversationRepository.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
+// <copyright file="ConversationRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BoardGames.Data;
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +18,12 @@ namespace BoardGames.Data.Repositories
 
         public ConversationRepository(AppDbContext appContext)
         {
-            this.context = appContext;
+            context = appContext;
         }
 
         public async Task<List<Conversation>> GetConversationsForUser(int userId)
         {
-            return await this.context.Conversations
+            return await context.Conversations
                 .AsNoTracking()
                 .Include(conversation => conversation.Participants)
                 .Include(conversation => conversation.Messages)
@@ -28,7 +33,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task<Conversation> GetConversationById(int conversationId)
         {
-            var found = await this.context.Conversations
+            var found = await context.Conversations
                 .Include(conversation => conversation.Participants)
                 .Include(conversation => conversation.Messages)
                 .FirstOrDefaultAsync(conversation => conversation.ConversationId == conversationId);
@@ -43,7 +48,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task<IReadOnlyList<int>> GetParticipantUserIds(int conversationId)
         {
-            return await this.context.ConversationParticipants
+            return await context.ConversationParticipants
                 .Where(participant => participant.ConversationId == conversationId)
                 .Select(participant => participant.UserId)
                 .ToListAsync();
@@ -61,8 +66,8 @@ namespace BoardGames.Data.Repositories
                 Messages = new List<Message>(),
             };
 
-            this.context.Conversations.Add(conversation);
-            await this.context.SaveChangesAsync();
+            context.Conversations.Add(conversation);
+            await context.SaveChangesAsync();
 
             return conversation.ConversationId;
         }
@@ -74,26 +79,26 @@ namespace BoardGames.Data.Repositories
                 throw new ArgumentException("Participants must be two distinct valid user ids.");
             }
 
-            var conversationsForA = await this.context.ConversationParticipants
+            var conversationsForA = await context.ConversationParticipants
                 .Where(participant => participant.UserId == userIdA)
                 .Select(participant => participant.ConversationId)
                 .ToListAsync();
 
-            var existingConversationId = await this.context.ConversationParticipants
+            var existingConversationId = await context.ConversationParticipants
                 .Where(participant => conversationsForA.Contains(participant.ConversationId) && participant.UserId == userIdB)
                 .Select(participant => participant.ConversationId)
                 .FirstOrDefaultAsync();
 
-            return existingConversationId != 0 ? existingConversationId : await this.CreateConversation(userIdA, userIdB);
+            return existingConversationId != 0 ? existingConversationId : await CreateConversation(userIdA, userIdB);
         }
 
         public async Task<Message> HandleNewMessage(Message message)
         {
             message.MessageId = 0;
-            this.context.Messages.Add(message);
-            await this.context.SaveChangesAsync();
+            context.Messages.Add(message);
+            await context.SaveChangesAsync();
 
-            return await this.context.Messages
+            return await context.Messages
                 .Include(newMessage => newMessage.Sender)
                 .Include(newMessage => newMessage.Receiver)
                 .Include(newMessage => newMessage.Conversation)
@@ -102,7 +107,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task<Message?> HandleMessageUpdate(Message message)
         {
-            var tracked = await this.context.Messages
+            var tracked = await context.Messages
                 .FirstOrDefaultAsync(trackedMessage => trackedMessage.MessageId == message.MessageId);
 
             if (tracked is null)
@@ -110,14 +115,13 @@ namespace BoardGames.Data.Repositories
                 return null;
             }
 
-            this.context.Entry(tracked).CurrentValues.SetValues(message);
+            context.Entry(tracked).CurrentValues.SetValues(message);
 
             if (tracked is RentalRequestMessage rentalTracked && message is RentalRequestMessage rentalIncoming)
             {
                 rentalTracked.IsRequestResolved = rentalIncoming.IsRequestResolved;
                 rentalTracked.IsRequestAccepted = rentalIncoming.IsRequestAccepted;
                 rentalTracked.RequestContent = rentalIncoming.RequestContent;
-                rentalTracked.RentalRequestId = rentalIncoming.RentalRequestId;
             }
             else if (tracked is CashAgreementMessage cashTracked && message is CashAgreementMessage cashIncoming)
             {
@@ -126,9 +130,9 @@ namespace BoardGames.Data.Repositories
                 cashTracked.IsCashAgreementAcceptedBySeller = cashIncoming.IsCashAgreementAcceptedBySeller;
             }
 
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
-            return await this.context.Messages
+            return await context.Messages
                 .Include(newMessage => newMessage.Sender)
                 .Include(newMessage => newMessage.Receiver)
                 .Include(newMessage => newMessage.Conversation)
@@ -137,7 +141,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task HandleReadReceipt(ReadReceiptDTO readReceipt)
         {
-            var participant = await this.context.ConversationParticipants
+            var participant = await context.ConversationParticipants
                 .FirstOrDefaultAsync(
                     receiverParticipant => receiverParticipant.ConversationId == readReceipt.ConversationId
                          && receiverParticipant.UserId == readReceipt.ReaderId);
@@ -148,12 +152,12 @@ namespace BoardGames.Data.Repositories
             }
 
             participant.LastMessageReadTime = readReceipt.ReceiptTimeStamp;
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<Message?> HandleRentalRequestFinalization(int messageId)
         {
-            var rentalMessage = await this.context.Messages
+            var rentalMessage = await context.Messages
                 .OfType<RentalRequestMessage>()
                 .FirstOrDefaultAsync(requestMessage => requestMessage.MessageId == messageId);
 
@@ -164,9 +168,9 @@ namespace BoardGames.Data.Repositories
 
             rentalMessage.IsRequestResolved = true;
             rentalMessage.IsRequestAccepted = true;
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
-            return await this.context.Messages
+            return await context.Messages
                 .Include(requestMessage => requestMessage.Sender)
                 .Include(requestMessage => requestMessage.Receiver)
                 .Include(requestMessage => requestMessage.Conversation)
@@ -175,67 +179,15 @@ namespace BoardGames.Data.Repositories
 
         public async Task<RentalRequestMessage?> FindRentalRequestMessageByRequestId(int requestId)
         {
-            string token = $"[req:{requestId}]";
+            string prefix = $"[req:{requestId}]";
             return await context.Messages
                 .OfType<RentalRequestMessage>()
-                .FirstOrDefaultAsync(m => m.RequestContent != null && m.RequestContent.Contains(token));
-        }
-
-        public async Task<RentalRequestMessage?> GetRentalRequestMessageById(int messageId)
-        {
-            return await this.context.Messages
-                .OfType<RentalRequestMessage>()
-                .FirstOrDefaultAsync(m => m.MessageId == messageId);
-        }
-
-        public async Task FinalizeRentalRequestByMessageId(int messageId, bool accepted)
-        {
-            var tracked = await this.context.Messages
-                .OfType<RentalRequestMessage>()
-                .FirstOrDefaultAsync(m => m.MessageId == messageId);
-
-            if (tracked is null)
-            {
-                return;
-            }
-
-            tracked.IsRequestResolved = true;
-            tracked.IsRequestAccepted = accepted;
-            await this.context.SaveChangesAsync();
-        }
-
-        public async Task<RentalRequestMessage?> AcceptRentalRequestByRequestId(int requestId, int rentalId)
-        {
-            var message = await this.FindRentalRequestMessageByRequestId(requestId);
-            if (message is null)
-            {
-                return null;
-            }
-
-            var tracked = await this.context.Messages
-                .OfType<RentalRequestMessage>()
-                .FirstOrDefaultAsync(m => m.MessageId == message.MessageId);
-
-            if (tracked is null)
-            {
-                return null;
-            }
-
-            tracked.IsRequestAccepted = true;
-            tracked.IsRequestResolved = false;
-            tracked.RentalRequestId = rentalId;
-            string content = tracked.RequestContent ?? string.Empty;
-            if (rentalId > 0 && !content.Contains($"[rental:{rentalId}]", StringComparison.Ordinal))
-            {
-                tracked.RequestContent = $"[rental:{rentalId}]{content}";
-            }
-            await this.context.SaveChangesAsync();
-            return tracked;
+                .FirstOrDefaultAsync(m => m.RequestContent != null && m.RequestContent.StartsWith(prefix));
         }
 
         public async Task<Message?> CreateCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId)
         {
-            var parent = await this.context.Messages
+            var parent = await context.Messages
                 .OfType<RentalRequestMessage>()
                 .FirstOrDefaultAsync(parentMessage => parentMessage.MessageId == messageIdOfParentRentalRequestMessage);
 
@@ -256,10 +208,10 @@ namespace BoardGames.Data.Repositories
                 Receiver = null!,
             };
 
-            this.context.Messages.Add(cashMessage);
-            await this.context.SaveChangesAsync();
+            context.Messages.Add(cashMessage);
+            await context.SaveChangesAsync();
 
-            return await this.context.Messages
+            return await context.Messages
                 .Include(cashMessage => cashMessage.Sender)
                 .Include(cashMessage => cashMessage.Receiver)
                 .Include(cashMessage => cashMessage.Conversation)
