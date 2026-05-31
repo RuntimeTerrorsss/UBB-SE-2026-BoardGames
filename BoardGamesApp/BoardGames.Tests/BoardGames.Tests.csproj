@@ -75,7 +75,6 @@
     <Compile Remove="DefaultTest.cs" />
     <Compile Remove="Fakes\**\*.cs" />
     <Compile Remove="Services\**\*.cs" />
-    <Compile Remove="UnitTests\**\*.cs" />
     <Compile Remove="ViewModels\**\*.cs" />
   </ItemGroup>
 
