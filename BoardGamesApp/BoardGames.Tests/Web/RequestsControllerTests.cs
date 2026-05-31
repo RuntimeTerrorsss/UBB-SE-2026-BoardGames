@@ -7,6 +7,7 @@
 //using System.Net;
 //using System.Security.Claims;
 //using System.Threading.Tasks;
+//using BoardGames.Api.Controllers;
 //using BoardGames.Shared.DTO;
 //using BoardGames.Web.Controllers;
 //using BoardGames.Web.Infrastructure;
@@ -23,6 +24,7 @@
 //        private readonly Mock<IRequestProxyService> requestProxy;
 //        private readonly Mock<IGameProxyService> gameProxy;
 //        private readonly Mock<IChatProxyService> chatProxy;
+//        private readonly Mock<IRentalProxyService> rentalProxy;
 //        private readonly Guid accountId;
 
 //        private readonly GameDTO availableGame = new GameDTO
@@ -37,6 +39,7 @@
 //            this.requestProxy = new Mock<IRequestProxyService>();
 //            this.gameProxy = new Mock<IGameProxyService>();
 //            this.chatProxy = new Mock<IChatProxyService>();
+//            this.rentalProxy = new Mock<IRentalProxyService>();
 //            this.accountId = Guid.NewGuid();
 //        }
 
@@ -45,7 +48,8 @@
 //            var controller = new RequestsController(
 //                this.requestProxy.Object,
 //                this.gameProxy.Object,
-//                this.chatProxy.Object);
+//                this.chatProxy.Object,
+//                this.rentalProxy.Object);
 
 //            var identity = new ClaimsIdentity(
 //                new[]
