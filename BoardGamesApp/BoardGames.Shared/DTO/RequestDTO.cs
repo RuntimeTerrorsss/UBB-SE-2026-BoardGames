@@ -1,3 +1,7 @@
+// <copyright file="RequestDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 
 namespace BoardGames.Shared.DTO
@@ -10,19 +14,29 @@ namespace BoardGames.Shared.DTO
         private const string EndDateLabelPrefix = "End: ";
 
         public int Id { get; set; }
-        public GameDTO Game { get; set; }
+
+        public GameSummaryDTO Game { get; set; }
+
         public UserDTO Renter { get; set; }
+
         public UserDTO Owner { get; set; }
+
         public DateTime StartDate { get; set; }
+
         public DateTime EndDate { get; set; }
 
         public RequestStatus Status { get; set; } = RequestStatus.Open;
+
         public UserDTO OfferingUser { get; set; }
 
         public string StartDateDisplay => StartDate.ToString(ShortDateDisplayFormat);
+
         public string EndDateDisplay => EndDate.ToString(ShortDateDisplayFormat);
+
         public string StartDateDisplayLong => $"{StartDateLabelPrefix}{StartDate.ToString(LongDateDisplayFormat)}";
+
         public string EndDateDisplayLong => $"{EndDateLabelPrefix}{EndDate.ToString(LongDateDisplayFormat)}";
+
         public bool CanOffer => Status == RequestStatus.Open;
 
         public RequestDTO()

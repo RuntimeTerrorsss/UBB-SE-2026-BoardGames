@@ -1,3 +1,7 @@
+// <copyright file="DashboardService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,25 +22,25 @@ namespace BoardGames.Api.Services
             this.accountRepository = accountRepository;
         }
 
-        public async Task<List<PaymentDataTransferObject>> GetPaymentHistoryForUser(Guid accountId)
+        public async Task<List<PaymentDTO>> GetPaymentHistoryForUser(Guid accountId)
         {
-            var user = await accountRepository.GetByIdAsync(accountId);
+            var user = await this.accountRepository.GetByIdAsync(accountId);
             if (user is null)
             {
-                return new List<PaymentDataTransferObject>();
+                return new List<PaymentDTO>();
             }
 
             int pamUserId = user.PamUserId;
-            var allPayments = await historyRepository.GetAllPayments();
+            var allPayments = await this.historyRepository.GetAllPayments();
 
             return allPayments
-                .Where(p => p.ClientId == pamUserId || p.OwnerId == pamUserId)
-                .Select(p => MapToDTO(p, pamUserId))
-                .OrderByDescending(p => p.SortDate)
+                .Where(payment => payment.ClientId == pamUserId || payment.OwnerId == pamUserId)
+                .Select(payment => MapToDTO(payment, pamUserId))
+                .OrderByDescending(payment => payment.SortDate)
                 .ToList();
         }
 
-        private static PaymentDataTransferObject MapToDTO(HistoryPayment payment, int pamUserId)
+        private static PaymentDTO MapToDTO(HistoryPayment payment, int pamUserId)
         {
             bool isRenter = payment.ClientId == pamUserId;
             string role = isRenter ? "Renter" : "Owner";
@@ -46,11 +50,11 @@ namespace BoardGames.Api.Services
             DateTime sortDate = payment.DateOfTransaction ?? DateTime.MinValue;
             if (payment.RentalStartDate.HasValue && payment.RentalEndDate.HasValue)
             {
-                period = $"{payment.RentalStartDate.Value:d} – {payment.RentalEndDate.Value:d}";
+                period = $"{payment.RentalStartDate.Value:d} â€“ {payment.RentalEndDate.Value:d}";
                 sortDate = payment.RentalStartDate.Value;
             }
 
-            return new PaymentDataTransferObject
+            return new PaymentDTO
             {
                 PaymentId = payment.TransactionIdentifier,
                 ProductName = payment.GameName,

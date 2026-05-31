@@ -1,23 +1,22 @@
-namespace BoardRentAndProperty.Views
-{
-    using System;
-    using System.Collections.Generic;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Desktop.ViewModels;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
+using System;
+using System.Collections.Generic;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Extensions.DependencyInjection;
+using BoardGames.Desktop.Services;
+using BoardGames.Desktop.ViewModels;
+using BoardGames.Desktop.Views.ChatViews;
 
+namespace BoardGames.Desktop.Views
+{
     public sealed partial class MenuBarPage : Page
     {
-        private static readonly Dictionary<AppPage, Type> PageTypeMap = new ()
+        private static readonly Dictionary<AppPage, Type> PageTypeMap = new()
         {
+            { AppPage.Dashboard,           typeof(DashboardView) },
+            { AppPage.Chat,                typeof(ChatPageView) },
             { AppPage.Listings,            typeof(ListingsPage) },
-            { AppPage.RequestsFromOthers,  typeof(RequestsFromOthersPage) },
-            { AppPage.RentalsFromOthers,   typeof(RentalsFromOthersPage) },
-            { AppPage.RequestsToOthers,    typeof(RequestsToOthersPage) },
-            { AppPage.RentalsToOthers,     typeof(RentalsToOthersPage) },
             { AppPage.Notifications,       typeof(NotificationsPage) },
             { AppPage.Profile,             typeof(ProfilePage) },
             { AppPage.Admin,               typeof(AdminPage) },
@@ -38,13 +37,18 @@ namespace BoardRentAndProperty.Views
 
         public MenuBarViewModel ViewModel { get; }
 
+        private void PerformLogout()
+        {
+            this.Frame?.Navigate(typeof(LoginPage));
+        }
+
         public void NavigateToNotifications()
         {
             if (!this.authorizationService.CanAccessPage(typeof(NotificationsPage)))
             {
                 if (!this.authorizationService.IsLoggedIn)
                 {
-                    App.OnUserLoggedOut();
+                    PerformLogout();
                 }
 
                 return;
@@ -61,7 +65,7 @@ namespace BoardRentAndProperty.Views
 
             if (!this.authorizationService.IsLoggedIn)
             {
-                App.OnUserLoggedOut();
+                PerformLogout();
                 return;
             }
 
@@ -75,7 +79,7 @@ namespace BoardRentAndProperty.Views
         {
             if (page == AppPage.Logout)
             {
-                App.OnUserLoggedOut();
+                PerformLogout();
                 return;
             }
 
@@ -83,7 +87,7 @@ namespace BoardRentAndProperty.Views
             {
                 if (!this.authorizationService.IsLoggedIn)
                 {
-                    App.OnUserLoggedOut();
+                    PerformLogout();
                 }
 
                 return;
@@ -109,7 +113,7 @@ namespace BoardRentAndProperty.Views
 
             if (!this.authorizationService.IsLoggedIn)
             {
-                App.OnUserLoggedOut();
+                PerformLogout();
                 return;
             }
 

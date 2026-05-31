@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+// <copyright file="AccountRepository.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,30 +18,36 @@ namespace BoardGames.Data.Repositories
 
         public async Task<User?> GetByIdAsync(Guid id)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             return await dbContext.Users.Include(user => user.Roles)
                 .FirstOrDefaultAsync(user => user.Id == id);
         }
 
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             return await dbContext.Users.Include(user => user.Roles)
                 .FirstOrDefaultAsync(user => user.Username == username);
         }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             return await dbContext.Users.Include(user => user.Roles)
                 .FirstOrDefaultAsync(user => user.Email == email);
+        }
+
+        public async Task<User?> GetByPamUserIdAsync(int pamUserId)
+        {
+            using var dbContext = this.dbContextFactory.CreateDbContext();
+            return await dbContext.Users.FirstOrDefaultAsync(user => user.PamUserId == pamUserId);
         }
 
         public async Task<List<User>> GetAllAsync(int page, int pageSize)
         {
             const int pageOffset = 1;
 
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             return await dbContext.Users
                 .Include(user => user.Roles)
                 .OrderBy(user => user.CreatedAt)
@@ -52,14 +58,14 @@ namespace BoardGames.Data.Repositories
 
         public async Task AddAsync(User user)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             dbContext.Users.Add(user);
             await dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(User user)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
             var existing = await dbContext.Users.FindAsync(user.Id);
             if (existing == null)
             {
@@ -85,7 +91,7 @@ namespace BoardGames.Data.Repositories
 
         public async Task AddRoleAsync(Guid accountId, string roleName)
         {
-            using var dbContext = dbContextFactory.CreateDbContext();
+            using var dbContext = this.dbContextFactory.CreateDbContext();
 
             var role = await dbContext.Roles.FirstOrDefaultAsync(repositoryRole => repositoryRole.Name == roleName);
             if (role == null)

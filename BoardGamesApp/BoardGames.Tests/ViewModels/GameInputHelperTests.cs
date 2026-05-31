@@ -1,6 +1,8 @@
+// <copyright file="GameInputHelperTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
-using BoardRentAndProperty.Api.Constants;
-using BoardRentAndProperty.Api.Services;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels

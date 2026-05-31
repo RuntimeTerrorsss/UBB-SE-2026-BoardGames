@@ -1,11 +1,3 @@
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using BoardGames.Desktop.Services;
-using BoardGames.Shared.ProxyServices;
-using BoardGames.Shared.DTO;
 using BoardGames.Desktop.Services;
 
 namespace BoardGames.Desktop.ViewModels
@@ -21,6 +13,7 @@ namespace BoardGames.Desktop.ViewModels
         public ObservableCollection<GameDTO> AvailableGamesToRequest { get; set; } = new();
 
         private GameDTO selectedGameToRequest;
+
         public GameDTO SelectedGame
         {
             get => selectedGameToRequest;
@@ -32,6 +25,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private DateTimeOffset? requestedStartDate;
+
         public DateTimeOffset? StartDate
         {
             get => requestedStartDate;
@@ -43,6 +37,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         private DateTimeOffset? requestedEndDate;
+
         public DateTimeOffset? EndDate
         {
             get => requestedEndDate;
@@ -94,7 +89,7 @@ namespace BoardGames.Desktop.ViewModels
                     Constants.DialogMessages.CreateRequestValidationError);
             }
 
-            var requestDataTransferObject = new CreateRequestDataTransferObject
+            var requestDTO = new CreateRequestDTO
             {
                 GameId = SelectedGame.Id,
                 RenterAccountId = CurrentUserId,
@@ -103,7 +98,7 @@ namespace BoardGames.Desktop.ViewModels
                 EndDate = EndDate.Value.DateTime,
             };
 
-            var requestCreationResult = await rentalRequestService.CreateRequestAsync(requestDataTransferObject);
+            var requestCreationResult = await rentalRequestService.CreateRequestAsync(requestDTO);
 
             if (requestCreationResult.Success)
             {
@@ -142,6 +137,7 @@ namespace BoardGames.Desktop.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

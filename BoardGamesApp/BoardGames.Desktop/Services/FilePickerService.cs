@@ -1,7 +1,9 @@
+// <copyright file="FilePickerService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Services
 {
-    using System;
-    using System.Threading.Tasks;
     using Windows.Storage;
     using Windows.Storage.Pickers;
     using WinRT.Interop;

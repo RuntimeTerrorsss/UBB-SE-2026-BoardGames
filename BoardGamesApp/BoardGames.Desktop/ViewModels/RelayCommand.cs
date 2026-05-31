@@ -1,9 +1,8 @@
-﻿// <copyright file="RelayCommand.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Diagnostics;
 
 namespace BoardGames.Desktop.ViewModels
 {
@@ -38,13 +37,20 @@ namespace BoardGames.Desktop.ViewModels
 
     public class RelayCommandNoParam : ICommand
     {
-        private readonly Action executeAct;
+        private readonly Action? executeAct;
+        private readonly Func<Task>? executeAsyncAct;
         private readonly Func<bool> canExecuteFunc;
 
         public RelayCommandNoParam(Action execute, Func<bool> canExecute = null)
         {
             executeAct = execute ?? throw new ArgumentNullException(nameof(execute));
             canExecuteFunc = canExecute;
+        }
+
+        public RelayCommandNoParam(Func<Task> executeAsync, Func<bool> canExecute = null)
+        {
+            this.executeAsyncAct = executeAsync ?? throw new ArgumentNullException(nameof(executeAsync));
+            this.canExecuteFunc = canExecute;
         }
 
         public bool CanExecute(object parameter)
@@ -54,7 +60,25 @@ namespace BoardGames.Desktop.ViewModels
 
         public void Execute(object parameter)
         {
-            executeAct();
+            if (this.executeAsyncAct != null)
+            {
+                _ = this.RunAsync(this.executeAsyncAct);
+                return;
+            }
+
+            this.executeAct!();
+        }
+
+        private async Task RunAsync(Func<Task> action)
+        {
+            try
+            {
+                await action().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"RelayCommand async execution failed: {ex}");
+            }
         }
 
         public event EventHandler CanExecuteChanged;

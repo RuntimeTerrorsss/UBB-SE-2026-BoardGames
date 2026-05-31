@@ -1,3 +1,7 @@
+// <copyright file="IAccountService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Threading.Tasks;
 using BoardGames.Shared.Common;
@@ -8,9 +12,13 @@ namespace BoardGames.Api.Services
     public interface IAccountService
     {
         Task<ServiceResult<AccountProfileDTO>> GetProfileAsync(Guid accountId);
+
         Task<ServiceResult<bool>> UpdateProfileAsync(Guid accountId, AccountProfileDTO profileUpdateData);
+
         Task<ServiceResult<bool>> ChangePasswordAsync(Guid accountId, string currentPassword, string newPassword);
+
         Task<ServiceResult<string>> SetAvatarUrlAsync(Guid accountId, string avatarRelativeUrl);
+
         Task<ServiceResult<bool>> RemoveAvatarAsync(Guid accountId);
     }
 }

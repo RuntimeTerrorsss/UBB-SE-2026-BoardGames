@@ -1,39 +1,59 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Shared.ProxyServices;
+// <copyright file="RequestProxyServiceAdapter.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using GUI_BRAP.Infrastructure;
-using GUI_BRAP.ProxyServices;
+using System.Net.Http.Json;
 
 namespace BoardGames.Web.Infrastructure
 {
     public sealed class RequestProxyServiceAdapter : IRequestProxyService
     {
-        private readonly IRequestService requestService;
+        private readonly HttpClient httpClient;
 
-        public RequestProxyServiceAdapter(IRequestService requestService)
+        public RequestProxyServiceAdapter(HttpClient httpClient)
         {
-            this.requestService = requestService;
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            if (this.httpClient.BaseAddress is null)
+            {
+                throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
+            }
         }
 
         public async Task<IReadOnlyList<RequestDTO>> GetOpenRequestsForOwnerAsync(Guid ownerAccountId, CancellationToken cancellationToken = default)
-            => (await requestService.GetOpenRequestsForOwnerAsync(ownerAccountId, cancellationToken)).ThrowIfFailed();
+        {
+            using var response = await this.httpClient.GetAsync($"requests/owner/{ownerAccountId}/open", cancellationToken);
+            return await HttpProxyClient.ReadAsync<List<RequestDTO>>(response, cancellationToken);
+        }
 
         public async Task<IReadOnlyList<RequestDTO>> GetRequestsForRenterAsync(Guid renterAccountId, CancellationToken cancellationToken = default)
-            => (await requestService.GetRequestsForRenterAsync(renterAccountId, cancellationToken)).ThrowIfFailed();
+        {
+            using var response = await this.httpClient.GetAsync($"requests/renter/{renterAccountId}", cancellationToken);
+            return await HttpProxyClient.ReadAsync<List<RequestDTO>>(response, cancellationToken);
+        }
 
-        public async Task CreateRequestAsync(CreateRequestDataTransferObject body, CancellationToken cancellationToken = default)
-            => (await requestService.CreateRequestAsync(body, cancellationToken)).ThrowIfFailed();
+        public async Task CreateRequestAsync(CreateRequestDTO body, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.PostAsJsonAsync("requests", body, cancellationToken);
+            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
+        }
 
-        public async Task OfferGameAsync(int requestId, RequestActionDataTransferObject body, CancellationToken cancellationToken = default)
-            => (await requestService.OfferGameAsync(requestId, body, cancellationToken)).ThrowIfFailed();
+        public async Task OfferGameAsync(int requestId, RequestActionDTO body, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.PutAsJsonAsync($"requests/{requestId}/offer", body, cancellationToken);
+            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
+        }
 
-        public async Task DenyRequestAsync(int requestId, RequestActionDataTransferObject body, CancellationToken cancellationToken = default)
-            => (await requestService.DenyRequestAsync(requestId, body, cancellationToken)).ThrowIfFailed();
+        public async Task DenyRequestAsync(int requestId, RequestActionDTO body, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.PutAsJsonAsync($"requests/{requestId}/deny", body, cancellationToken);
+            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
+        }
 
-        public async Task CancelRequestAsync(int requestId, RequestActionDataTransferObject body, CancellationToken cancellationToken = default)
-            => (await requestService.CancelRequestAsync(requestId, body, cancellationToken)).ThrowIfFailed();
+        public async Task CancelRequestAsync(int requestId, RequestActionDTO body, CancellationToken cancellationToken = default)
+        {
+            using var response = await this.httpClient.PutAsJsonAsync($"requests/{requestId}/cancel", body, cancellationToken);
+            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
+        }
     }
 }

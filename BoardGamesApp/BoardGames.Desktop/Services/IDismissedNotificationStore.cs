@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// <copyright file="IDismissedNotificationStore.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Desktop.Services
 {

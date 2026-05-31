@@ -1,518 +1,146 @@
-@model RentalDTO
-@using BoardGames.Shared.DTO
+@model GameDTO
+@using BoardGames.Web.Helpers
+
 @{
-    ViewData["Title"] = Model.Name;
-    var unavailableRanges = ViewBag.UnavailableRanges as TimeRange[] ?? Array.Empty<TimeRange>();
-    var unavailableJson = System.Text.Json.JsonSerializer.Serialize(
-        unavailableRanges.Select(r => new
-        {
-            start = r.StartTime.ToString("yyyy-MM-dd"),
-            end = r.EndTime.ToString("yyyy-MM-dd")
-        })
-    );
+    ViewData["Title"] = Model?.Name ?? "Game Details";
+    ViewData["BackUrl"] = Url.Action("Index", "Search");
+    ViewData["BackText"] = "Back";
 }
 
-<style>
-    .details-page {
-        background: #f0ede8;
-        min-height: 100vh;
-        padding: 30px;
-        font-family: 'Segoe UI', sans-serif;
-    }
+<partial name="_PageBack" />
 
-    .top-bar {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 20px;
-    }
-
-    .btn-back {
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 6px 14px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-    .game-title {
-        font-size: 28px;
-        font-weight: bold;
-        margin: 0;
-    }
-
-    .main-content {
-        display: grid;
-        grid-template-columns: 3fr 2fr;
-        gap: 30px;
-    }
-
-    /* LEFT */
-    .game-image {
-        width: 220px;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-
-    .info-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 15px;
-    }
-
-    .divider {
-        border: none;
-        border-top: 1px solid #ccc;
-        margin: 16px 0;
-    }
-
-    .section-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    .avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    /* RIGHT - Booking panel */
-    .booking-panel {
-        background: #fff;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        padding: 20px;
-    }
-
-        .booking-panel h3 {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-    .price-display {
-        display: flex;
-        align-items: baseline;
-        gap: 6px;
-        margin-bottom: 12px;
-    }
-
-        .price-display .price-num {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .price-display .per-day {
-            font-size: 14px;
-            color: #666;
-        }
-
-    /* Calendar */
-    .calendar-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-        .calendar-header span {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .calendar-header button {
-            background: none;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 2px 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-        margin-bottom: 12px;
-    }
-
-        .calendar-grid .day-name {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: #555;
-            padding: 4px 0;
-        }
-
-        .calendar-grid .day-cell {
-            text-align: center;
-            padding: 8px 4px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            color: white;
-            background: #1a7a1a;
-            transition: opacity 0.15s;
-            user-select: none;
-        }
-
-            .calendar-grid .day-cell:hover {
-                opacity: 0.8;
-            }
-
-            .calendar-grid .day-cell.unavailable {
-                background: #c0392b;
-                cursor: not-allowed;
-            }
-
-            .calendar-grid .day-cell.selected {
-                background: #B8860B;
-                outline: 2px solid #8B6508;
-            }
-
-            .calendar-grid .day-cell.empty {
-                background: transparent;
-                cursor: default;
-            }
-
-            .calendar-grid .day-cell.past {
-                background: #bbb;
-                cursor: not-allowed;
-                opacity: 0.5;
-            }
-
-    .legend {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 12px;
-    }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-    }
-
-    .legend-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
-
-    .total-price-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top: 1px solid #ddd;
-        padding-top: 12px;
-        margin-top: 4px;
-    }
-
-        .total-price-row .label {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .total-price-row .amount {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-    .btn-book {
-        display: block;
-        width: 100%;
-        padding: 14px;
-        margin-top: 14px;
-        font-size: 16px;
-        background: #0078d4;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-        .btn-book:hover {
-            background: #005fa3;
-        }
-</style>
-
-<div class="details-page">
-    @if (TempData["Error"] != null)
+<div class="game-details-header mb-4">
+    <h1 class="page-title mb-1">@Model?.Name</h1>
+    @if (!string.IsNullOrWhiteSpace(Model?.Owner?.DisplayName))
     {
-        <div class="alert alert-danger mb-3">@TempData["Error"]</div>
+        <p class="text-muted mb-0">@Model.Owner.DisplayName</p>
     }
-
-    <!-- TOP BAR -->
-    <div class="top-bar">
-        <a href="javascript:history.back()" class="btn-back">← Back</a>
-        <h1 class="game-title">@Model.Name</h1>
-    </div>
-
-    <div class="main-content">
-        <!-- LEFT SIDE -->
-        <div>
-            <!-- Image + info -->
-            <div style="display:flex; gap:20px; margin-bottom:16px;">
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl" class="game-image" alt="@Model.Name" />
-                }
-                else
-                {
-                    <div class="game-image" style="background:#ddd; display:flex; align-items:center; justify-content:center; color:#999;">No image</div>
-                }
-                <div style="display:flex; flex-direction:column; gap:10px; justify-content:center;">
-                    <div class="info-row"><span>📍</span><span>@Model.City</span></div>
-                    <div class="info-row"><span>👥</span><span>@Model.MinimumNrPlayers – @Model.MaximumNumberPlayers players</span></div>
-                    <div class="info-row"><span>💰</span><span>@Model.Price RON/day</span></div>
-                </div>
-            </div>
-
-            <hr class="divider" />
-
-            <!-- Description -->
-            <div>
-                <div class="section-title">Description</div>
-                <p>@Model.Description</p>
-            </div>
-
-            <hr class="divider" />
-
-            <!-- User profile -->
-            <div>
-                <div class="section-title">User's profile</div>
-                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
-                {
-                    <img src="@Model.AvatarUrl" class="avatar" alt="avatar" />
-                }
-                else
-                {
-                    <div class="avatar" style="background:#ccc; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>
-                }
-                <div style="margin-top:8px; font-weight:600;">@Model.DisplayName</div>
-                <div style="font-size:12px; color:#666;">Since @Model.CreatedAt.ToShortDateString()</div>
-                <a href="@Url.Action("StartChatWithOwner", "Chats", new { ownerUserId = Model.UserId })"
-                   class="btn btn-outline-secondary btn-sm mt-2">Chat with user</a>
-            </div>
-        </div>
-
-        <!-- RIGHT SIDE - Booking Panel -->
-        <div class="booking-panel">
-            <h3>Book this game</h3>
-            <div class="price-display">
-                <span class="price-num">@Model.Price RON</span>
-                <span class="per-day">/ day</span>
-            </div>
-            <hr class="divider" />
-            <div style="font-weight:600; margin-bottom:10px;">Choose dates</div>
-
-            <!-- Calendar -->
-            <div class="calendar-header">
-                <button onclick="prevMonth()">▲</button>
-                <span id="monthLabel"></span>
-                <button onclick="nextMonth()">▼</button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-dot" style="background:#c0392b;"></div>
-                    <span>Unavailable</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-dot" style="background:#1a7a1a;"></div>
-                    <span>Available</span>
-                </div>
-            </div>
-
-            <hr class="divider" />
-            <div class="total-price-row">
-                <span class="label">Total price</span>
-                <span class="amount" id="totalPrice">0 RON</span>
-            </div>
-
-            <form asp-action="ConfirmBooking" asp-route-id="@Model.GameId" method="get" id="bookingForm">
-                <input type="hidden" name="startDate" id="startDateInput" />
-                <input type="hidden" name="endDate" id="endDateInput" />
-                <button type="button" class="btn-book" onclick="submitBooking()">Book now</button>
-            </form>
-        </div>
-    </div>
 </div>
 
-<script>
-    const pricePerDay = @Model.Price;
-    const unavailableRanges = @Html.Raw(unavailableJson);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+<div class="row g-4">
+    <div class="col-lg-7">
+        <img src="@GameImageHelper.GetDisplaySource(Model)" class="game-details-image rounded mb-4" alt="@Model?.Name" />
 
-    function parseLocalDate(isoDate) {
-        const parts = isoDate.split("-").map(Number);
-        return new Date(parts[0], parts[1] - 1, parts[2]);
+        <div class="game-details-section">
+            <h2 class="h5 fw-semibold mb-3">Details</h2>
+            <p class="text-secondary">@Model?.Description</p>
+            @if (!string.IsNullOrWhiteSpace(Model?.City))
+            {
+                <p class="text-secondary mb-1">@Model.City</p>
+            }
+            <p class="text-secondary mb-1">@Model?.MinimumPlayerNumber – @Model?.MaximumPlayerNumber players</p>
+            <p class="fw-semibold mb-0">@Model?.Price.ToString("0.##") RON / day</p>
+        </div>
+    </div>
+
+    @if (Model?.IsActive == true)
+    {
+        <div class="col-lg-5">
+            <div class="game-details-rental-panel">
+                <h2 class="h4 fw-semibold mb-3">Request rental</h2>
+                <p class="fw-semibold mb-2">Choose dates</p>
+
+                <form asp-controller="Games" asp-action="Book" asp-route-id="@Model.Id" method="get" id="rentalRequestForm">
+                    <div id="rentalDateCalendar"></div>
+                    <input type="hidden" id="StartDate" name="StartDate" required />
+                    <input type="hidden" id="EndDate" name="EndDate" required />
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                        <span class="fw-semibold">Estimated total</span>
+                        <span class="fw-bold" id="estimatedTotal">0 RON</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" id="btnRequest" disabled>Send request</button>
+                    <div id="availabilityMessage" class="small text-muted mt-2"></div>
+                </form>
+            </div>
+        </div>
     }
+</div>
 
-    function formatLocalDate(date) {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-    }
+@{
+    bool canEditFromDetails = User.Identity?.IsAuthenticated == true
+        && !User.IsAdministrator()
+        && Model?.Owner?.Id == User.GetAccountId();
+}
+@if (canEditFromDetails)
+{
+    <div class="page-actions mt-4">
+        <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+    </div>
+}
 
-    let currentYear = today.getFullYear();
-    let currentMonth = today.getMonth();
-    let selectedStart = null;
-    let selectedEnd = null;
+@section Scripts {
+    <link rel="stylesheet" href="~/css/rental-date-picker.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/game-details.css" asp-append-version="true" />
+    <script src="~/js/rental-date-picker.js" asp-append-version="true"></script>
+    <script>
+		const bookedDates = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.BookedDates ?? new List<BookedDateRangeDTO>()));
+		const pendingRequestDates = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PendingRequestDates ?? new List<BookedDateRangeDTO>()));
+        const pricePerDay = @((Model?.Price ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture));
+        const startDateInput = document.getElementById('StartDate');
+        const endDateInput = document.getElementById('EndDate');
+        const btnRequest = document.getElementById('btnRequest');
+        const msgDiv = document.getElementById('availabilityMessage');
+        const estimatedTotal = document.getElementById('estimatedTotal');
 
-    const monthNames = ["January","February","March","April","May","June",
-                        "July","August","September","October","November","December"];
-    const dayNames = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+		const rentalPicker = new RentalDatePicker(document.getElementById('rentalDateCalendar'), {
+			bookedRanges: bookedDates,
+			pendingRequestRanges: pendingRequestDates,
+			startInput: startDateInput,
+			endInput: endDateInput,
+			onChange: checkAvailability
+		});
 
-    function isUnavailable(date) {
-        return unavailableRanges.some(r => {
-            const s = parseLocalDate(r.start);
-            const e = parseLocalDate(r.end);
-            return date >= s && date <= e;
-        });
-    }
+        function checkAvailability() {
+            msgDiv.textContent = '';
+            msgDiv.classList.remove('text-danger', 'text-success');
+            btnRequest.disabled = true;
+            estimatedTotal.textContent = '0 RON';
 
-    function isPast(date) {
-        return date < today;
-    }
+            const startVal = startDateInput.value;
+            const endVal = endDateInput.value;
 
-    function isInSelectedRange(date) {
-        if (!selectedStart) return false;
-        const end = selectedEnd || selectedStart;
-        return date >= selectedStart && date <= end;
-    }
-
-    function renderCalendar() {
-        const grid = document.getElementById("calendarGrid");
-        const label = document.getElementById("monthLabel");
-        grid.innerHTML = "";
-
-        label.textContent = monthNames[currentMonth] + " " + currentYear;
-
-        // Day names header
-        dayNames.forEach(d => {
-            const cell = document.createElement("div");
-            cell.className = "day-name";
-            cell.textContent = d;
-            grid.appendChild(cell);
-        });
-
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-        // Empty cells before first day
-        for (let i = 0; i < firstDay; i++) {
-            const empty = document.createElement("div");
-            empty.className = "day-cell empty";
-            grid.appendChild(empty);
-        }
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const date = new Date(currentYear, currentMonth, d);
-            const cell = document.createElement("div");
-            cell.textContent = d;
-            cell.className = "day-cell";
-
-            if (isPast(date)) {
-                cell.classList.add("past");
-            } else if (isUnavailable(date)) {
-                cell.classList.add("unavailable");
-            } else {
-                if (isInSelectedRange(date)) {
-                    cell.classList.add("selected");
-                }
-                cell.addEventListener("click", () => onDayClick(date));
+            if (!startVal || !endVal) {
+                return;
             }
 
-            grid.appendChild(cell);
-        }
+            const start = new Date(startVal + 'T00:00:00');
+            const end = new Date(endVal + 'T00:00:00');
 
-        updateTotalPrice();
-    }
-
-        function onDayClick(date) {
-        if (!selectedStart) {
-            // Nu avem nimic selectat -> setăm start
-            selectedStart = date;
-            selectedEnd = null;
-        } else if (!selectedEnd) {
-            // Avem start, nu avem end -> setăm end
-            if (date < selectedStart) {
-                selectedEnd = selectedStart;
-                selectedStart = date;
-            } else if (date.getTime() === selectedStart.getTime()) {
-                selectedEnd = date;
-            } else {
-                selectedEnd = date;
+            if (start > end) {
+                showError('End date cannot be earlier than the start date.');
+                return;
             }
 
-            // Verifică interval
-            let cur = new Date(selectedStart);
-            while (cur <= selectedEnd) {
-                if (isUnavailable(cur)) {
-                    selectedStart = null;
-                    selectedEnd = null;
-                    alert("Selected range includes unavailable dates.");
-                    renderCalendar();
-                    return;
-                }
-                cur.setDate(cur.getDate() + 1);
-            }
-        } else {
-            // Avem ambele -> resetăm și începem din nou
-            selectedStart = date;
-            selectedEnd = null;
+            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            estimatedTotal.textContent = `${(days * pricePerDay).toFixed(2)} RON`;
+
+			if (RentalDatePickerHelpers.rangesOverlap(start, end, bookedDates)) {
+				showError('These dates are unavailable.');
+				return;
+			}
+
+			if (RentalDatePickerHelpers.rangesOverlap(start, end, pendingRequestDates)) {
+				showError('You already have an open request for these dates.');
+				return;
+			}
+
+            showSuccess('Dates are available.');
         }
 
-        renderCalendar();
-    }
-
-    function updateTotalPrice() {
-        const el = document.getElementById("totalPrice");
-        const end = selectedEnd || selectedStart;
-        if (selectedStart && end) {
-            const diffMs = end - selectedStart;
-            const days = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
-            el.textContent = (days * pricePerDay).toFixed(2) + " RON";
-        } else {
-            el.textContent = "0 RON";
+        function showError(msg) {
+            msgDiv.textContent = msg;
+            msgDiv.classList.remove('text-success');
+            msgDiv.classList.add('text-danger');
+            btnRequest.disabled = true;
         }
-    }
 
-    function prevMonth() {
-        currentMonth--;
-        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        renderCalendar();
-    }
-
-    function nextMonth() {
-        currentMonth++;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        renderCalendar();
-    }
-
-    function submitBooking() {
-        if (!selectedStart) {
-            alert("Please select at least one date.");
-            return;
+        function showSuccess(msg) {
+            msgDiv.textContent = msg;
+            msgDiv.classList.remove('text-danger');
+            msgDiv.classList.add('text-success');
+            btnRequest.disabled = false;
         }
-        const end = selectedEnd || selectedStart;
-        document.getElementById("startDateInput").value = formatLocalDate(selectedStart);
-        document.getElementById("endDateInput").value = formatLocalDate(end);
-        document.getElementById("bookingForm").submit();
-    }
-
-    renderCalendar();
-</script>
+    </script>
+}

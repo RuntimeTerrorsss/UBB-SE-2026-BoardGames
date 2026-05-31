@@ -1,8 +1,8 @@
 <Page
-    x:Class="BookingBoardGames.Src.Views.Pages.FeedPage"
+    x:Class="BoardGames.Desktop.Views.Pages.FeedPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:BookingBoardGames.Src.Views.Controls">
+    xmlns:controls="using:BoardGames.Desktop.Views.Controls">
 
     <Grid Padding="24">
 
@@ -12,7 +12,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- SEARCH BAR -->
+        
         <Border
             Grid.Row="0"
             CornerRadius="30"
@@ -30,7 +30,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- GAME NAME -->
+                
                 <StackPanel>
                     <TextBlock Text="Game" FontSize="12" FontWeight="Bold"/>
                     <TextBox
@@ -38,7 +38,7 @@
                 PlaceholderText="filter games"/>
                 </StackPanel>
 
-                <!-- WHERE -->
+                
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="Where" FontSize="12" FontWeight="Bold"/>
                     <TextBox
@@ -46,14 +46,14 @@
                 PlaceholderText="filter city"/>
                 </StackPanel>
 
-                <!-- WHEN (CALENDAR) -->
+                
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="When" FontSize="12" FontWeight="Bold"/>
                     <DatePicker
                 x:Name="DateSearchPicker"/>
                 </StackPanel>
 
-                <!-- SEARCH BUTTON -->
+                
                 <Button
                     Grid.Column="3"
                     Width="45"
@@ -69,7 +69,7 @@
 
         </Border>
 
-        <!-- TITLE -->
+        
         <TextBlock
             Grid.Row="1"
             Text="Recommended Games"
@@ -78,8 +78,7 @@
             HorizontalAlignment="Left"
             Margin="0,20,0,20"/>
 
-
-        <!-- MAIN CONTENT -->
+        
         <Grid Grid.Row="2" ColumnSpacing="30">
 
             <Grid.ColumnDefinitions>
@@ -108,7 +107,7 @@
 
             </StackPanel>
 
-            <!-- FILTER PANEL -->
+            
             <Border
                 Grid.Column="0"
                 Padding="16"
@@ -123,14 +122,14 @@
                         FontSize="20"
                         FontWeight="Bold"/>
 
-                    <!-- Price slider -->
+                    
                     <TextBlock Text="Price per day"/>
                     <Slider
                         x:Name="PriceSlider"
                         Minimum="0"
                         Maximum="100"/>
 
-                    <!-- Players slider -->
+                    
                     <TextBlock Text="Number of players"/>
                     <Slider
                         x:Name="PlayersSlider"
@@ -149,7 +148,7 @@
 
                     </RadioButtons>
 
-                    <!-- Buttons -->
+                    
                     <StackPanel Orientation="Horizontal" Spacing="10">
 
                         <Button
@@ -166,7 +165,7 @@
 
             </Border>
 
-            <!-- FEED -->
+            
             <Grid Grid.Column="1">
 
                 <Grid.RowDefinitions>
@@ -174,7 +173,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- SCROLLABLE GAME LIST -->
+                
                 <ScrollViewer Grid.Row="0">
 
                     <ItemsControl x:Name="GamesFeed">
@@ -203,7 +202,7 @@
 
                 </ScrollViewer>
 
-                <!-- PAGINATION -->
+                
                 <StackPanel
                     Grid.Row="1"
                     Orientation="Horizontal"

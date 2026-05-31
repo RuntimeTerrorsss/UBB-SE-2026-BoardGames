@@ -1,73 +1,71 @@
+using BoardGames.Data.Repositories;
+using BoardGames.Api.Services;
+// <copyright file="FakeApiRepositories.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Repositories;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.Models;
+using BoardGames.Data.Enums;
+using BoardGames.Data.Models;
 
 namespace BoardGames.Tests.Fakes
 {
     internal sealed class FakeAccountRepository : IAccountRepository
     {
-        public Dictionary<Guid, Account?> AccountsById { get; } = new Dictionary<Guid, Account?>();
-        public Dictionary<string, Account?> AccountsByUsername { get; } = new Dictionary<string, Account?>();
-        public Dictionary<string, Account?> AccountsByEmail { get; } = new Dictionary<string, Account?>();
-        public List<Account> Accounts { get; set; } = new List<Account>();
+        public Dictionary<Guid, User?> AccountsById { get; } = new Dictionary<Guid, User?>();
+        public Dictionary<string, User?> AccountsByUsername { get; } = new Dictionary<string, User?>();
+        public Dictionary<string, User?> AccountsByEmail { get; } = new Dictionary<string, User?>();
+        public List<User> Accounts { get; set; } = new List<User>();
         public int AddCallCount { get; private set; }
         public int UpdateCallCount { get; private set; }
         public int AddRoleCallCount { get; private set; }
-        public Account? LastAddedAccount { get; private set; }
-        public Account? LastUpdatedAccount { get; private set; }
+        public User? LastAddedAccount { get; private set; }
+        public User? LastUpdatedAccount { get; private set; }
         public Guid LastRoleAccountId { get; private set; }
         public string LastRoleName { get; private set; } = string.Empty;
 
-        public Task<Account?> GetByIdAsync(Guid id) =>
-            Task.FromResult(AccountsById.TryGetValue(id, out var account) ? account : null);
+        public Task<User?> GetByIdAsync(Guid id) =>
+            Task.FromResult(this.AccountsById.TryGetValue(id, out var account) ? account : null);
 
-        public Task<Account?> GetByUsernameAsync(string username) =>
-            Task.FromResult(AccountsByUsername.TryGetValue(username, out var account) ? account : null);
+        public Task<User?> GetByUsernameAsync(string username) =>
+            Task.FromResult(this.AccountsByUsername.TryGetValue(username, out var account) ? account : null);
 
-        public Task<Account?> GetByEmailAsync(string email) =>
-            Task.FromResult(AccountsByEmail.TryGetValue(email, out var account) ? account : null);
+        public Task<User?> GetByEmailAsync(string email) =>
+            Task.FromResult(this.AccountsByEmail.TryGetValue(email, out var account) ? account : null);
 
-        public Task<List<Account>> GetAllAsync(int page, int pageSize) =>
-            Task.FromResult(Accounts);
+        public Task<List<User>> GetAllAsync(int page, int pageSize) =>
+            Task.FromResult(this.Accounts);
 
-        public Task AddAsync(Account account)
+        public Task AddAsync(User account)
         {
-            AddCallCount++;
-            LastAddedAccount = account;
-            Accounts.Add(account);
-            AccountsById[account.Id] = account;
+            this.AddCallCount++;
+            this.LastAddedAccount = account;
+            this.Accounts.Add(account);
+            this.AccountsById[account.Id] = account;
             if (!string.IsNullOrEmpty(account.Username))
-            {
-                AccountsByUsername[account.Username] = account;
-            }
-
+                this.AccountsByUsername[account.Username] = account;
             if (!string.IsNullOrEmpty(account.Email))
-            {
-                AccountsByEmail[account.Email] = account;
-            }
-
+                this.AccountsByEmail[account.Email] = account;
             return Task.CompletedTask;
         }
 
-        public Task UpdateAsync(Account account)
+        public Task UpdateAsync(User account)
         {
-            UpdateCallCount++;
-            LastUpdatedAccount = account;
-            AccountsById[account.Id] = account;
+            this.UpdateCallCount++;
+            this.LastUpdatedAccount = account;
+            this.AccountsById[account.Id] = account;
             return Task.CompletedTask;
         }
 
         public Task AddRoleAsync(Guid accountId, string roleName)
         {
-            AddRoleCallCount++;
-            LastRoleAccountId = accountId;
-            LastRoleName = roleName;
+            this.AddRoleCallCount++;
+            this.LastRoleAccountId = accountId;
+            this.LastRoleName = roleName;
             return Task.CompletedTask;
         }
     }
@@ -81,61 +79,57 @@ namespace BoardGames.Tests.Fakes
         public Guid LastAccountId { get; private set; }
 
         public Task<FailedLoginAttempt?> GetByAccountIdAsync(Guid accountId) =>
-            Task.FromResult(FailedLoginAttempts.TryGetValue(accountId, out var attempt) ? attempt : null);
+            Task.FromResult(this.FailedLoginAttempts.TryGetValue(accountId, out var attempt) ? attempt : null);
 
         public Task IncrementAsync(Guid accountId)
         {
-            IncrementCallCount++;
-            LastAccountId = accountId;
+            this.IncrementCallCount++;
+            this.LastAccountId = accountId;
             return Task.CompletedTask;
         }
 
         public Task ResetAsync(Guid accountId)
         {
-            ResetCallCount++;
-            LastAccountId = accountId;
+            this.ResetCallCount++;
+            this.LastAccountId = accountId;
             return Task.CompletedTask;
         }
     }
 
     internal sealed class FakeGameRepository : IGameRepository
     {
-        public ImmutableList<Game> Games { get; set; } = ImmutableList<Game>.Empty;
-        public Dictionary<int, Game> GamesById { get; } = new Dictionary<int, Game>();
         public ImmutableList<Game> GamesByOwner { get; set; } = ImmutableList<Game>.Empty;
+        public Dictionary<int, Game> GamesById { get; } = new Dictionary<int, Game>();
         public int AddCallCount { get; private set; }
         public int UpdateCallCount { get; private set; }
         public int DeleteCallCount { get; private set; }
         public Game? LastAddedGame { get; private set; }
-        public Game? LastUpdatedGame { get; private set; }
-        public int LastUpdatedGameId { get; private set; }
-        public int LastDeletedGameId { get; private set; }
 
-        public ImmutableList<Game> GetAll() => Games;
-
-        public void Add(Game game)
+        public void AddGame(Game game)
         {
-            AddCallCount++;
-            LastAddedGame = game;
+            this.AddCallCount++;
+            this.LastAddedGame = game;
         }
 
-        public Game Delete(int id)
+        public Game DeleteGame(int id)
         {
-            DeleteCallCount++;
-            LastDeletedGameId = id;
-            return GamesById.TryGetValue(id, out var game) ? game : new Game { Id = id };
+            this.DeleteCallCount++;
+            return this.GamesById.TryGetValue(id, out var game) ? game : new Game { Id = id };
         }
 
-        public void Update(int id, Game updated)
+        public void UpdateGame(int id, Game updated)
         {
-            UpdateCallCount++;
-            LastUpdatedGameId = id;
-            LastUpdatedGame = updated;
+            this.UpdateCallCount++;
         }
 
-        public Game Get(int id) => GamesById.TryGetValue(id, out var game) ? game : new Game { Id = id };
+        public Game GetGame(int id)
+        {
+            if (this.GamesById.TryGetValue(id, out var game))
+                return game;
+            throw new KeyNotFoundException();
+        }
 
-        public ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId) => GamesByOwner;
+        public ImmutableList<Game> GetGamesByOwner(Guid ownerAccountId) => this.GamesByOwner;
     }
 
     internal sealed class FakeRentalRepository : IRentalRepository
@@ -152,37 +146,31 @@ namespace BoardGames.Tests.Fakes
         public int DeleteCallCount { get; private set; }
         public Rental? LastConfirmedRental { get; private set; }
 
-        public ImmutableList<Rental> GetAll() => Rentals;
+        public ImmutableList<Rental> GetAll() => this.Rentals;
 
-        public void Add(Rental rental)
-        {
-            AddCallCount++;
-        }
+        public void Add(Rental rental) { this.AddCallCount++; }
 
         public Rental Delete(int id)
         {
-            DeleteCallCount++;
-            return RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
+            this.DeleteCallCount++;
+            return this.RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
         }
 
-        public void Update(int id, Rental updated)
-        {
-        }
+        public void Update(int id, Rental updated) { }
 
-        public Rental Get(int id) => RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
+        public Rental Get(int id) =>
+            this.RentalsById.TryGetValue(id, out var rental) ? rental : new Rental { Id = id };
 
         public void AddConfirmed(Rental confirmedRental)
         {
-            AddConfirmedCallCount++;
-            LastConfirmedRental = confirmedRental;
+            this.AddConfirmedCallCount++;
+            this.LastConfirmedRental = confirmedRental;
         }
 
-        public ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId) => RentalsByOwner;
-
-        public ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId) => RentalsByRenter;
-
+        public ImmutableList<Rental> GetRentalsByOwner(Guid ownerAccountId) => this.RentalsByOwner;
+        public ImmutableList<Rental> GetRentalsByRenter(Guid renterAccountId) => this.RentalsByRenter;
         public ImmutableList<Rental> GetRentalsByGame(int gameId) =>
-            RentalsByGameId.TryGetValue(gameId, out var rentals) ? rentals : RentalsByGame;
+            this.RentalsByGameId.TryGetValue(gameId, out var rentals) ? rentals : this.RentalsByGame;
     }
 
     internal sealed class FakeRequestRepository : IRequestRepository
@@ -201,56 +189,46 @@ namespace BoardGames.Tests.Fakes
         public Request? LastAddedRequest { get; private set; }
         public int LastDeletedRequestId { get; private set; }
 
-        public ImmutableList<Request> GetAll() => Requests;
+        public ImmutableList<Request> GetAll() => this.Requests;
 
         public void Add(Request request)
         {
-            AddCallCount++;
-            LastAddedRequest = request;
-            RequestsById[request.Id] = request;
+            this.AddCallCount++;
+            this.LastAddedRequest = request;
+            this.RequestsById[request.Id] = request;
         }
 
         public Request Delete(int id)
         {
-            DeleteCallCount++;
-            LastDeletedRequestId = id;
-            return RequestsById.TryGetValue(id, out var request) ? request : new Request { Id = id };
+            this.DeleteCallCount++;
+            this.LastDeletedRequestId = id;
+            return this.RequestsById.TryGetValue(id, out var request) ? request : new Request { Id = id };
         }
 
-        public void Update(int id, Request updated)
-        {
-            UpdateCallCount++;
-        }
+        public void Update(int id, Request updated) { this.UpdateCallCount++; }
 
         public Request Get(int id)
         {
-            if (RequestsById.TryGetValue(id, out var request))
-            {
+            if (this.RequestsById.TryGetValue(id, out var request))
                 return request;
-            }
-
             throw new KeyNotFoundException();
         }
 
         public void UpdateStatus(int requestId, RequestStatus status, Guid? offeringAccountId)
         {
-            UpdateStatusCallCount++;
+            this.UpdateStatusCallCount++;
         }
 
-        public ImmutableList<Request> GetRequestsByOwner(Guid ownerAccountId) => RequestsByOwner;
-
-        public ImmutableList<Request> GetRequestsByRenter(Guid renterAccountId) => RequestsByRenter;
-
-        public ImmutableList<Request> GetRequestsByGame(int gameId) => RequestsByGame;
+        public ImmutableList<Request> GetRequestsByOwner(Guid ownerAccountId) => this.RequestsByOwner;
+        public ImmutableList<Request> GetRequestsByRenter(Guid renterAccountId) => this.RequestsByRenter;
+        public ImmutableList<Request> GetRequestsByGame(int gameId) => this.RequestsByGame;
 
         public ImmutableList<Request> GetOverlappingRequests(
-            int gameId,
-            int excludeRequestId,
-            DateTime bufferedStartDate,
-            DateTime bufferedEndDate) => OverlappingRequests;
+            int gameId, int excludeRequestId, DateTime bufferedStartDate, DateTime bufferedEndDate) =>
+            this.OverlappingRequests;
 
         public int ApproveAtomically(Request approvedRequest, ImmutableList<Request> overlappingRequests) =>
-            ApproveAtomicallyResult;
+            this.ApproveAtomicallyResult;
     }
 
     internal sealed class FakeNotificationRepository : INotificationRepository
@@ -263,30 +241,28 @@ namespace BoardGames.Tests.Fakes
         public int LastLinkedRequestId { get; private set; }
         public Notification? LastAddedNotification { get; private set; }
 
-        public ImmutableList<Notification> GetAll() => Notifications;
+        public ImmutableList<Notification> GetAll() => this.Notifications;
 
         public void Add(Notification notification)
         {
-            AddCallCount++;
-            LastAddedNotification = notification;
+            this.AddCallCount++;
+            this.LastAddedNotification = notification;
         }
 
         public Notification Delete(int id) =>
-            NotificationsById.TryGetValue(id, out var notification) ? notification : new Notification { Id = id };
+            this.NotificationsById.TryGetValue(id, out var notification) ? notification : new Notification { Id = id };
 
-        public void Update(int id, Notification updated)
-        {
-        }
+        public void Update(int id, Notification updated) { }
 
         public Notification Get(int id) =>
-            NotificationsById.TryGetValue(id, out var notification) ? notification : new Notification { Id = id };
+            this.NotificationsById.TryGetValue(id, out var notification) ? notification : new Notification { Id = id };
 
-        public ImmutableList<Notification> GetNotificationsByUser(Guid accountId) => NotificationsByUser;
+        public ImmutableList<Notification> GetNotificationsByUser(Guid accountId) => this.NotificationsByUser;
 
         public void DeleteNotificationsLinkedToRequest(int relatedRequestId)
         {
-            DeleteLinkedCallCount++;
-            LastLinkedRequestId = relatedRequestId;
+            this.DeleteLinkedCallCount++;
+            this.LastLinkedRequestId = relatedRequestId;
         }
     }
 
@@ -297,12 +273,12 @@ namespace BoardGames.Tests.Fakes
         public string LastDeletedPath { get; private set; } = string.Empty;
 
         public Task<string> SaveAsync(Guid accountId, Stream content, string fileExtension) =>
-            Task.FromResult(SavedPath);
+            Task.FromResult(this.SavedPath);
 
         public void Delete(string relativeUrl)
         {
-            DeleteCallCount++;
-            LastDeletedPath = relativeUrl;
+            this.DeleteCallCount++;
+            this.LastDeletedPath = relativeUrl;
         }
     }
 }

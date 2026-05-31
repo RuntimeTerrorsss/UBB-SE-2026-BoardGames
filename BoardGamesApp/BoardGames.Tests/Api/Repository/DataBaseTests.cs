@@ -1,9 +1,12 @@
+using BoardGames.Data;
+// <copyright file="DataBaseTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using BoardRentAndProperty.Api.Data;
-using BoardRentAndProperty.Api.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -17,19 +20,20 @@ namespace BoardGames.Tests.Api.Repository
         protected static readonly Guid RenterAccountId = new Guid("00000000-0000-0000-0000-000000000012");
 
         protected string ConnectionString { get; private set; } = string.Empty;
+
         protected IDbContextFactory<AppDbContext> DbContextFactory { get; private set; } = null!;
 
         [OneTimeSetUp]
         public void InitializeDatabase()
         {
-            ConnectionString = ResolveConnectionString();
-            if (string.IsNullOrWhiteSpace(ConnectionString))
+            this.ConnectionString = ResolveConnectionString();
+            if (string.IsNullOrWhiteSpace(this.ConnectionString))
             {
                 Assert.Ignore("Connection string is missing.");
             }
 
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer(ConnectionString)
+                .UseSqlServer(this.ConnectionString)
                 .Options;
 
             try
@@ -46,7 +50,7 @@ namespace BoardGames.Tests.Api.Repository
                 Assert.Ignore("SQL Server is not reachable.");
             }
 
-            DbContextFactory = new PooledDbContextFactory<AppDbContext>(options);
+            this.DbContextFactory = new PooledDbContextFactory<AppDbContext>(options);
         }
 
         [SetUp]
@@ -54,7 +58,7 @@ namespace BoardGames.Tests.Api.Repository
         {
             try
             {
-                using var dbContext = DbContextFactory.CreateDbContext();
+                using var dbContext = this.DbContextFactory.CreateDbContext();
                 dbContext.Database.ExecuteSqlRaw(
                     "DELETE FROM Notifications;" +
                     "DELETE FROM Rentals;" +
@@ -73,7 +77,7 @@ namespace BoardGames.Tests.Api.Repository
 
         protected int SeedGame(Guid ownerAccountId, string gameName = "Seed Game")
         {
-            using var dbContext = DbContextFactory.CreateDbContext();
+            using var dbContext = this.DbContextFactory.CreateDbContext();
 
             var game = new Game
             {
@@ -104,12 +108,12 @@ namespace BoardGames.Tests.Api.Repository
 
             while (!string.IsNullOrWhiteSpace(currentDirectory))
             {
-                string candidatePath = Path.Combine(currentDirectory, "BoardRentAndProperty.Api", "appsettings.json");
+                string candidatePath = Path.Combine(currentDirectory, "BoardGames.Api", "appsettings.json");
                 if (File.Exists(candidatePath))
                 {
                     using var jsonDocument = JsonDocument.Parse(File.ReadAllText(candidatePath));
                     if (jsonDocument.RootElement.TryGetProperty("ConnectionStrings", out var connectionStrings)
-                        && connectionStrings.TryGetProperty("BoardRentAndProperty", out var connectionStringValue))
+                        && connectionStrings.TryGetProperty("BoardGames.Desktop", out var connectionStringValue))
                     {
                         return connectionStringValue.GetString() ?? string.Empty;
                     }

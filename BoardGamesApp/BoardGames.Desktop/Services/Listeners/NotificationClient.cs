@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="NotificationClient.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
 using ServerCommunication;
 
@@ -22,7 +22,8 @@ namespace BoardGames.Desktop.Services.Listeners
         private readonly UdpClient udpSocketClient;
 
         private readonly CancellationTokenSource listenCancellationSource = new();
-        private CancellationToken ListenCancellationToken => listenCancellationSource.Token;
+
+        private CancellationToken ListenCancellationToken => this.listenCancellationSource.Token;
 
         private const int MaxRetries = 5;
         private static readonly TimeSpan InitialRetryDelay = TimeSpan.FromSeconds(1);
@@ -32,13 +33,13 @@ namespace BoardGames.Desktop.Services.Listeners
 
         private NotificationConnectionStatus connectionStatus = NotificationConnectionStatus.Stopped;
 
-        public NotificationConnectionStatus ConnectionStatus => connectionStatus;
+        public NotificationConnectionStatus ConnectionStatus => this.connectionStatus;
 
         public event EventHandler<NotificationConnectionStatusChangedEventArgs>? ConnectionStatusChanged;
 
         public NotificationClient()
         {
-            udpSocketClient = new UdpClient(AutoAssignLocalUdpPort);
+            this.udpSocketClient = new UdpClient(AutoAssignLocalUdpPort);
         }
 
         private void HandleMessagePacket(MessageWrapper wrappedMessage)
@@ -48,7 +49,7 @@ namespace BoardGames.Desktop.Services.Listeners
                 switch (wrappedMessage.Type)
                 {
                     case nameof(SendNotificationMessage):
-                        HandleSendNotificationMessage(wrappedMessage);
+                        this.HandleSendNotificationMessage(wrappedMessage);
                         break;
                     default:
                         Console.WriteLine($"Message type cannot be handled: {wrappedMessage.Type}");
@@ -75,31 +76,29 @@ namespace BoardGames.Desktop.Services.Listeners
                 UserId = deserializedMessage.UserId,
                 Timestamp = deserializedMessage.Timestamp,
                 Title = deserializedMessage.Title,
-                Body = deserializedMessage.Body
+                Body = deserializedMessage.Body,
             };
 
-            foreach (var subscriber in incomingNotificationSubscribers)
+            foreach (var subscriber in this.incomingNotificationSubscribers)
             {
                 subscriber.OnNext(incomingNotification);
             }
         }
 
-        public void StopListening() => listenCancellationSource.Cancel();
+        public void StopListening() => this.listenCancellationSource.Cancel();
 
         public async Task ListenAsync()
         {
             int currentRetryCount = InitialRetryCount;
             var currentRetryDelay = InitialRetryDelay;
-            // entering listen loop - attempt to connect
-            UpdateConnectionStatus(NotificationConnectionStatus.Reconnecting);
+            this.UpdateConnectionStatus(NotificationConnectionStatus.Reconnecting);
 
-            while (!ListenCancellationToken.IsCancellationRequested)
+            while (!this.ListenCancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var receivedResult = await udpSocketClient.ReceiveAsync(ListenCancellationToken);
-                    // successfully received data - consider connected
-                    UpdateConnectionStatus(NotificationConnectionStatus.Connected);
+                    var receivedResult = await this.udpSocketClient.ReceiveAsync(this.ListenCancellationToken);
+                    this.UpdateConnectionStatus(NotificationConnectionStatus.Connected);
                     currentRetryCount = InitialRetryCount;
                     currentRetryDelay = InitialRetryDelay;
 
@@ -111,54 +110,54 @@ namespace BoardGames.Desktop.Services.Listeners
                         continue;
                     }
 
-                    HandleMessagePacket(wrappedMessage);
+                    this.HandleMessagePacket(wrappedMessage);
                 }
                 catch (SocketException socketException)
                 {
                     currentRetryCount++;
-                    // indicate reconnecting while retrying
-                    UpdateConnectionStatus(NotificationConnectionStatus.Reconnecting);
+                    this.UpdateConnectionStatus(NotificationConnectionStatus.Reconnecting);
 
                     if (currentRetryCount > MaxRetries)
                     {
                         Console.WriteLine($"UDP client: max retries ({MaxRetries}) reached, stopping. Last error: {socketException.Message}");
-                        UpdateConnectionStatus(NotificationConnectionStatus.Offline);
+                        this.UpdateConnectionStatus(NotificationConnectionStatus.Offline);
                         break;
                     }
+
                     Console.WriteLine($"UDP client: SocketException ({socketException.Message}), retry {currentRetryCount}/{MaxRetries} in {currentRetryDelay.TotalSeconds}s");
                     try
                     {
-                        await Task.Delay(currentRetryDelay, ListenCancellationToken);
+                        await Task.Delay(currentRetryDelay, this.ListenCancellationToken);
                     }
                     catch (OperationCanceledException)
                     {
                         break;
                     }
+
                     currentRetryDelay = TimeSpan.FromTicks(Math.Min(currentRetryDelay.Ticks * RetryBackoffMultiplier, MaxRetryDelay.Ticks));
                 }
                 catch (OperationCanceledException)
                 {
-                    UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
+                    this.UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
                     break;
                 }
                 catch (ObjectDisposedException)
                 {
-                    UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
+                    this.UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
                     break;
                 }
             }
 
-            // loop finished - ensure stopped if not already offline
-            if (ConnectionStatus != NotificationConnectionStatus.Offline)
+            if (this.ConnectionStatus != NotificationConnectionStatus.Offline)
             {
-                UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
+                this.UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
             }
         }
 
         public IDisposable Subscribe(IObserver<IncomingNotification> newObserver)
         {
-            incomingNotificationSubscribers.Add(newObserver);
-            return new Unsubscriber(incomingNotificationSubscribers, newObserver);
+            this.incomingNotificationSubscribers.Add(newObserver);
+            return new Unsubscriber(this.incomingNotificationSubscribers, newObserver);
         }
 
         public void SendNotification(int recipientUserId, string notificationTitle, string notificationBody)
@@ -168,40 +167,44 @@ namespace BoardGames.Desktop.Services.Listeners
                 UserId = recipientUserId,
                 Timestamp = DateTime.UtcNow,
                 Title = notificationTitle,
-                Body = notificationBody
+                Body = notificationBody,
             };
 
             byte[] serializedData = CommunicationHelper.SerializeMessage(outgoingNotificationMessage);
-            udpSocketClient.Send(serializedData, serializedData.Length, ServerEndpoint);
+            this.udpSocketClient.Send(serializedData, serializedData.Length, this.ServerEndpoint);
         }
 
         public void SubscribeToServer(int subscribingUserId)
         {
             var subscriptionMessage = new SubscribeToServerMessage { UserId = subscribingUserId };
             byte[] serializedData = CommunicationHelper.SerializeMessage(subscriptionMessage);
-            udpSocketClient.Send(serializedData, serializedData.Length, ServerEndpoint);
+            this.udpSocketClient.Send(serializedData, serializedData.Length, this.ServerEndpoint);
         }
 
         public void Dispose()
         {
-            if (isDisposed)
+            if (this.isDisposed)
             {
                 return;
             }
 
-            isDisposed = true;
-            listenCancellationSource.Cancel();
-            udpSocketClient.Close();
-            listenCancellationSource.Dispose();
+            this.isDisposed = true;
+            this.listenCancellationSource.Cancel();
+            this.udpSocketClient.Close();
+            this.listenCancellationSource.Dispose();
 
-            UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
+            this.UpdateConnectionStatus(NotificationConnectionStatus.Stopped);
         }
 
         private void UpdateConnectionStatus(NotificationConnectionStatus newStatus)
         {
-            if (connectionStatus == newStatus) return;
-            connectionStatus = newStatus;
-            ConnectionStatusChanged?.Invoke(this, new NotificationConnectionStatusChangedEventArgs(newStatus));
+            if (this.connectionStatus == newStatus)
+            {
+                return;
+            }
+
+            this.connectionStatus = newStatus;
+            this.ConnectionStatusChanged?.Invoke(this, new NotificationConnectionStatusChangedEventArgs(newStatus));
         }
 
         private sealed class Unsubscriber : IDisposable
@@ -211,11 +214,11 @@ namespace BoardGames.Desktop.Services.Listeners
 
             public Unsubscriber(List<IObserver<IncomingNotification>> subscribers, IObserver<IncomingNotification> observer)
             {
-                subscribersList = subscribers;
-                subscriberToRemove = observer;
+                this.subscribersList = subscribers;
+                this.subscriberToRemove = observer;
             }
 
-            public void Dispose() => subscribersList.Remove(subscriberToRemove);
+            public void Dispose() => this.subscribersList.Remove(this.subscriberToRemove);
         }
     }
 }

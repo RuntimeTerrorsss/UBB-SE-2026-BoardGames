@@ -1,3 +1,7 @@
+// <copyright file="IDesktopAuthorizationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using BoardGames.Desktop.ViewModels;
 
@@ -13,6 +17,6 @@ namespace BoardGames.Desktop.Services
 
         bool CanAccessPage(Type pageType);
 
-        bool CanAccessMenuPage(AppPage page);
+        bool CanAccessRoute(AppPage page);
     }
 }

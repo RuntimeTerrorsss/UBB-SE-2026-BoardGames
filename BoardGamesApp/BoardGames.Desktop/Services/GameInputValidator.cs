@@ -1,5 +1,7 @@
-using System;
-using System.Collections.Generic;
+// <copyright file="GameInputValidator.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.Constants;
 using BoardGames.Shared.DTO;
 

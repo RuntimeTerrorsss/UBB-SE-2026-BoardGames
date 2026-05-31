@@ -1,20 +1,18 @@
+// <copyright file="RegisterViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System.Collections.ObjectModel;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
-    using BoardGames.Shared.ProxyServices;
-    using BoardGames.Desktop.Constants;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Desktop.Services;
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
-
     public partial class RegisterViewModel : BaseViewModel
     {
         private readonly IAuthService authService;
-        private readonly ISessionContext sessionContext;
 
         [ObservableProperty]
         private string displayName = string.Empty;
@@ -64,115 +62,95 @@ namespace BoardGames.Desktop.ViewModels
         [ObservableProperty]
         private string phoneNumberError = string.Empty;
 
-        public RegisterViewModel(IAuthService authService, ISessionContext sessionContext)
-        {
-            this.authService = authService;
-            this.sessionContext = sessionContext;
-        }
+        [ObservableProperty]
+        private string successMessage = string.Empty;
 
         public RegisterViewModel(IAuthService authService)
-            : this(authService, new SessionContext())
         {
+            this.authService = authService;
+            AvailableCountries = new ObservableCollection<string>
+            {
+                string.Empty,
+                "Romania",
+                "Hungary",
+                "Germany",
+                "France",
+                "Italy",
+            };
         }
 
-        public Action OnRegistrationSuccess { get; set; }
+        public ObservableCollection<string> AvailableCountries { get; }
 
-        public Action OnNavigateBackRequest { get; set; }
+        public Action<string>? OnRegistrationSuccess { get; set; }
 
-        public IReadOnlyList<string> AvailableCountries => DomainConstants.CountryList;
-
-        private void ClearErrors()
-        {
-            this.DisplayNameError = string.Empty;
-            this.UsernameError = string.Empty;
-            this.EmailError = string.Empty;
-            this.PasswordError = string.Empty;
-            this.ConfirmPasswordError = string.Empty;
-            this.PhoneNumberError = string.Empty;
-            this.ErrorMessage = string.Empty;
-        }
+        public Action? OnNavigateToLogin { get; set; }
 
         [RelayCommand]
         private async Task RegisterAsync()
         {
-            ClearErrors();
+            SuccessMessage = string.Empty;
+            ErrorMessage = string.Empty;
 
-            this.IsLoading = true;
-
-            RegisterDataTransferObject registrationRequest = new RegisterDataTransferObject
+            if (!Validate())
             {
-                DisplayName = this.DisplayName,
-                Username = this.Username,
-                Email = this.Email,
-                Password = this.Password,
-                ConfirmPassword = this.ConfirmPassword,
-                PhoneNumber = this.PhoneNumber,
-                Country = this.Country,
-                City = this.City,
-                StreetName = this.StreetName,
-                StreetNumber = this.StreetNumber,
-            };
-
-            var registrationResult = await authService.RegisterAsync(registrationRequest);
-
-            if (registrationResult.Success)
-            {
-                var loginResult = await authService.LoginAsync(new LoginDataTransferObject
-                {
-                    UsernameOrEmail = registrationRequest.Username,
-                    Password = registrationRequest.Password,
-                });
-
-                if (loginResult.Success && loginResult.Data != null)
-                {
-                    sessionContext.Populate(loginResult.Data);
-                    OnRegistrationSuccess?.Invoke();
-                }
-                else
-                {
-                    this.ErrorMessage = loginResult.Error ?? "Registration succeeded but auto-login failed.";
-                }
-            }
-            else
-            {
-                const int MaximumSplitSubstrings = 2;
-                string[] parsedFieldErrors = (registrationResult.Error ?? string.Empty)
-                    .Split(';', StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string fieldError in parsedFieldErrors)
-                {
-                    string[] errorComponents = fieldError.Split('|', MaximumSplitSubstrings);
-
-                    if (errorComponents.Length == MaximumSplitSubstrings)
-                    {
-                        string fieldName = errorComponents[0];
-                        string errorMessageText = errorComponents[1];
-
-                        switch (fieldName)
-                        {
-                            case "DisplayName": this.DisplayNameError = errorMessageText; break;
-                            case "Username": this.UsernameError = errorMessageText; break;
-                            case "Email": this.EmailError = errorMessageText; break;
-                            case "Password": this.PasswordError = errorMessageText; break;
-                            case "ConfirmPassword": this.ConfirmPasswordError = errorMessageText; break;
-                            case "PhoneNumber": this.PhoneNumberError = errorMessageText; break;
-                            default: this.ErrorMessage = errorMessageText; break;
-                        }
-                    }
-                    else
-                    {
-                        this.ErrorMessage = fieldError;
-                    }
-                }
+                return;
             }
 
-            this.IsLoading = false;
+            IsLoading = true;
+
+            try
+            {
+                var request = new RegisterDTO
+                {
+                    DisplayName = DisplayName.Trim(),
+                    Username = Username.Trim(),
+                    Email = Email.Trim(),
+                    Password = Password,
+                    ConfirmPassword = ConfirmPassword,
+                    PhoneNumber = PhoneNumber.Trim(),
+                    Country = Country.Trim(),
+                    City = City.Trim(),
+                    StreetName = StreetName.Trim(),
+                    StreetNumber = StreetNumber.Trim(),
+                };
+
+                var result = await authService.RegisterAsync(request);
+                if (!result.Success)
+                {
+                    ErrorMessage = result.Error ?? "Registration failed.";
+                    return;
+                }
+
+                SuccessMessage = "Account created successfully.";
+                OnRegistrationSuccess?.Invoke("Account created successfully. Please sign in.");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         [RelayCommand]
         private void GoToLogin()
         {
-            OnNavigateBackRequest?.Invoke();
+            OnNavigateToLogin?.Invoke();
+        }
+
+        private bool Validate()
+        {
+            DisplayNameError = string.IsNullOrWhiteSpace(DisplayName) ? "Display name is required." : string.Empty;
+            UsernameError = string.IsNullOrWhiteSpace(Username) ? "Username is required." : string.Empty;
+            EmailError = string.IsNullOrWhiteSpace(Email) || !Email.Contains('@') ? "A valid email is required." : string.Empty;
+            PasswordError = Password.Length < 6 ? "Password must be at least 6 characters." : string.Empty;
+            ConfirmPasswordError = Password != ConfirmPassword ? "Passwords do not match." : string.Empty;
+            PhoneNumberError = string.Empty;
+
+            return string.IsNullOrEmpty(DisplayNameError)
+                && string.IsNullOrEmpty(UsernameError)
+                && string.IsNullOrEmpty(EmailError)
+                && string.IsNullOrEmpty(PasswordError)
+                && string.IsNullOrEmpty(ConfirmPasswordError)
+                && string.IsNullOrEmpty(PhoneNumberError);
         }
     }
 }

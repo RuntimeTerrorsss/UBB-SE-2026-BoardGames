@@ -1,184 +1,85 @@
-using System;
-using BoardGames.Web.Models.Rentals;
-using BoardGames.Data;
-using BoardGames.Data.Interfaces;
+// <copyright file="RentalsController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.DTO.Services;
+using BoardGames.Web.Helpers;
+using BoardGames.Web.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
-    public class RentalsController : BaseController
+    [Authorize]
+    public class RentalsController : Controller
     {
-        private const int NewPaymentPlaceholderId = -1;
+        private readonly IRentalProxyService rentalProxyService;
 
-        private readonly IRentalService _rentalService;
-        private readonly ICardPaymentService _cardPaymentService;
-        private readonly ICashPaymentService _cashPaymentService;
-        private readonly IConversationService _conversationService;
-        private readonly IUserRepository _userRepository;
-
-        public RentalsController(
-            IRentalService rentalService,
-            ICardPaymentService cardPaymentService,
-            ICashPaymentService cashPaymentService,
-            IConversationService conversationService,
-            IUserRepository userRepository)
+        public RentalsController(IRentalProxyService rentalProxyService)
         {
-            _rentalService = rentalService;
-            _cardPaymentService = cardPaymentService;
-            _cashPaymentService = cashPaymentService;
-            _conversationService = conversationService;
-            _userRepository = userRepository;
+            this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
+        }
+
+        public async Task<IActionResult> My()
+        {
+            Guid renterId = this.User.GetAccountId();
+            var rentals = await this.rentalProxyService.GetRentalsForRenterAsync(renterId);
+            return this.View(rentals);
+        }
+
+        public async Task<IActionResult> Others()
+        {
+            Guid ownerId = this.User.GetAccountId();
+            var rentals = await this.rentalProxyService.GetRentalsForOwnerAsync(ownerId);
+            return this.View(rentals);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Checkout(int rentalId, int messageId)
+        public async Task<IActionResult> Checkout(int rentalId, int requestId, int messageId)
         {
-            var redirect = RequireLogin();
-            if (redirect != null) return redirect;
-
-            int userId = CurrentUserId ?? -1;
-            RentalDataTransferObject rental;
-            try
+            Guid accountId = this.User.GetAccountId();
+            var summary = await this.rentalProxyService.GetCheckoutSummaryAsync(rentalId, accountId);
+            if (summary is null)
             {
-                rental = await _cardPaymentService.GetRequestDataTransferObject(rentalId);
-            }
-            catch (InvalidOperationException)
-            {
-                return NotFound();
+                return this.NotFound();
             }
 
-            if (rental.ClientId != userId)
-            {
-                return Forbid();
-            }
-
-            var user = await _userRepository.GetById(userId);
-
-            var model = new RentalCheckoutViewModel
-            {
-                RentalId = rental.Id,
-                MessageId = messageId,
-                GameId = rental.GameId,
-                GameName = rental.GameName,
-                OwnerName = rental.OwnerName,
-                ClientId = rental.ClientId,
-                OwnerId = rental.OwnerId,
-                StartDate = rental.StartDate,
-                EndDate = rental.EndDate,
-                TotalPrice = rental.Price,
-                Country = user?.Country ?? string.Empty,
-                City = user?.City ?? string.Empty,
-                Street = user?.Street ?? string.Empty,
-                StreetNumber = user?.StreetNumber ?? string.Empty,
-            };
-
-            return View(model);
+            this.ViewBag.RequestId = requestId;
+            this.ViewBag.MessageId = messageId;
+            return this.View(summary);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Checkout(RentalCheckoutViewModel model)
+        public async Task<IActionResult> CompletePayment(
+            int rentalId,
+            int requestId,
+            int messageId,
+            string cardNumber,
+            string cardholderName,
+            string expiryDate,
+            string cardVerificationValue)
         {
-            var redirect = RequireLogin();
-            if (redirect != null) return redirect;
-
-            int userId = CurrentUserId ?? -1;
-            if (model.ClientId != userId)
+            try
             {
-                return Forbid();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            if (model.SaveAddress)
-            {
-                await _userRepository.SaveAddress(userId, new Address(
-                    model.Country,
-                    model.City,
-                    model.Street,
-                    model.StreetNumber));
-            }
-
-            if (string.Equals(model.PaymentMethod, "Cash", StringComparison.OrdinalIgnoreCase))
-            {
-                return RedirectToAction(nameof(CashPayment), new
+                await this.rentalProxyService.CompleteCardPaymentAsync(new CompleteRentalCardPaymentDTO
                 {
-                    rentalId = model.RentalId,
-                    messageId = model.MessageId,
+                    RentalId = rentalId,
+                    RequestId = requestId,
+                    MessageId = messageId,
+                    RenterAccountId = this.User.GetAccountId(),
+                    CardNumber = cardNumber,
+                    CardholderName = cardholderName,
+                    ExpiryDate = expiryDate,
+                    CardVerificationValue = cardVerificationValue,
                 });
-            }
 
-            return RedirectToAction("CardPayment", "Payment", new
-            {
-                requestIdentifier = model.RentalId,
-                clientIdentifier = model.ClientId,
-                ownerIdentifier = model.OwnerId,
-                messageId = model.MessageId,
-            });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> CashPayment(int rentalId, int messageId)
-        {
-            var redirect = RequireLogin();
-            if (redirect != null) return redirect;
-
-            RentalDataTransferObject rental;
-            try
-            {
-                rental = await _cardPaymentService.GetRequestDataTransferObject(rentalId);
-            }
-            catch (InvalidOperationException)
-            {
-                return NotFound();
-            }
-
-            if (rental.ClientId != (CurrentUserId ?? -1))
-            {
-                return Forbid();
-            }
-
-            ViewBag.Rental = rental;
-            ViewBag.MessageId = messageId;
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmCashPayment(int rentalId, int messageId)
-        {
-            var redirect = RequireLogin();
-            if (redirect != null) return redirect;
-
-            int userId = CurrentUserId ?? -1;
-            var rental = await _cardPaymentService.GetRequestDataTransferObject(rentalId);
-
-            if (rental.ClientId != userId)
-            {
-                return Forbid();
-            }
-
-            try
-            {
-                decimal rentalPrice = await _rentalService.GetRentalPrice(rentalId);
-                await _cashPaymentService.AddCashPaymentAsync(
-                    new CashPaymentDTO(NewPaymentPlaceholderId, rentalId, rental.ClientId, rental.OwnerId, rentalPrice));
-
-                _conversationService.Initialize(userId);
-                await _conversationService.OnCardPaymentSelected(messageId);
-
-                TempData["Success"] = "Cash payment recorded and added to your payment history.";
-                return RedirectToAction("Index", "PaymentHistory");
+                return this.RedirectToAction("Index", "Chats", new { paymentCompleted = true });
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Cash payment failed: {ex.Message}";
-                return RedirectToAction(nameof(CashPayment), new { rentalId, messageId });
+                this.TempData["PaymentError"] = ex.Message;
+                return this.RedirectToAction(nameof(Checkout), new { rentalId, requestId, messageId });
             }
         }
     }

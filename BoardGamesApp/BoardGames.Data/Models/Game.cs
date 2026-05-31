@@ -1,7 +1,9 @@
-using System.Collections.Generic;
+// <copyright file="Game.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BoardGames.Data.Models;
 
 namespace BoardGames.Data.Models
 {
@@ -12,19 +14,19 @@ namespace BoardGames.Data.Models
 
         public Game(int id, string name, decimal pricePerDay, int minimumPlayerNumber, int maximumPlayerNumber, string description, int ownerId, byte[]? image, bool isActive)
         {
-            Id = id;
-            Name = name;
-            PricePerDay = pricePerDay;
-            MinimumPlayerNumber = minimumPlayerNumber;
-            MaximumPlayerNumber = maximumPlayerNumber;
-            Description = description;
-            OwnerId = ownerId;
-            Image = image;
-            IsActive = isActive;
+            this.Id = id;
+            this.Name = name;
+            this.PricePerDay = pricePerDay;
+            this.MinimumPlayerNumber = minimumPlayerNumber;
+            this.MaximumPlayerNumber = maximumPlayerNumber;
+            this.Description = description;
+            this.OwnerId = ownerId;
+            this.Image = image;
+            this.IsActive = isActive;
         }
 
         [Key]
-        [Column("id")] 
+        [Column("id")]
         public int Id { get; set; }
 
         [Column("name")]
@@ -47,7 +49,6 @@ namespace BoardGames.Data.Models
 
         [Column("is_active")]
         public bool IsActive { get; set; }
-
 
         [Column("owner_id")]
         public int OwnerId { get; set; }

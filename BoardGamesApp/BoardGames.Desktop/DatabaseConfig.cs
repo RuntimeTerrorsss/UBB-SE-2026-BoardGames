@@ -1,9 +1,3 @@
-﻿// <copyright file="DatabaseConfig.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
-
-using System;
-using Microsoft.Data.SqlClient;
 
 namespace BoardGames.Desktop
 {
@@ -21,8 +15,8 @@ namespace BoardGames.Desktop
 
             string[] candidates =
             {
-                $"Server=(localdb)\\MSSQLLocalDB;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
-                $"Server=.\\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
+                $"Server=(localdb)\\Beatrice;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
+                $"Server=.\\Beatrice;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
             };
 
             foreach (string candidate in candidates)

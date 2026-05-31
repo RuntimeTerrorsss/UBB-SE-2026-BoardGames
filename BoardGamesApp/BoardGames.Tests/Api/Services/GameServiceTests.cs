@@ -1,165 +1,348 @@
 using System;
-using System.Collections.Immutable;
-using BoardGames.Tests.Fakes;
-using BoardRentAndProperty.Api.Mappers;
-using BoardRentAndProperty.Api.Models;
-using BoardRentAndProperty.Api.Services;
-using BoardRentAndProperty.Contracts.DataTransferObjects;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BoardGames.Api.Mappers;
+using BoardGames.Api.Services;
+using BoardGames.Data.Models;
+using BoardGames.Data.Repositories;
+using BoardGames.Shared.DTO;
+using Moq;
 using NUnit.Framework;
-using GameService = BoardRentAndProperty.Api.Services.GameService;
 
 namespace BoardGames.Tests.Api.Services
 {
     [TestFixture]
-    public sealed class GameServiceTests
+    public class GameServiceTests
     {
-        private const int SampleGameIdentifier = 42;
-
-        private readonly Guid sampleOwnerIdentifier = Guid.NewGuid();
-        private FakeGameRepository gameRepository = null!;
-        private FakeRentalRepository rentalRepository = null!;
-        private FakeApiRequestService requestService = null!;
-        private GameService service = null!;
+        private Mock<InterfaceGamesRepository> mockGameRepository;
+        private Mock<IRentalRepository> mockRentalRepository;
+        private Mock<IRequestService> mockRequestService;
+        private GameService gameService;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
-            gameRepository = new FakeGameRepository();
-            rentalRepository = new FakeRentalRepository();
-            requestService = new FakeApiRequestService();
+            mockGameRepository = new Mock<InterfaceGamesRepository>();
+            mockRentalRepository = new Mock<IRentalRepository>();
+            mockRequestService = new Mock<IRequestService>();
 
-            service = new GameService(
-                gameRepository,
-                rentalRepository,
-                new GameMapper(new UserMapper()),
-                requestService);
+            var gameMapper = new GameMapper(new UserMapper());
+
+            gameService = new GameService(
+                mockGameRepository.Object,
+                mockRentalRepository.Object,
+                gameMapper,
+                mockRequestService.Object);
         }
 
         [Test]
-        public void DeleteGameByIdentifier_WithOneActiveRental_ThrowsInvalidOperationException()
+        public async Task GetAllActiveGames_GamesExist_ReturnsSummaryList()
         {
-            var activeRental = new Rental(
-                1,
-                new Game { Id = SampleGameIdentifier },
-                new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
-                DateTime.Now.AddDays(-1),
-                DateTime.Now.AddDays(3));
+            var games = new List<Game> { new Game { Id = 1, Name = "Game1", IsActive = true } };
+            mockGameRepository.Setup(r => r.GetAll()).ReturnsAsync(games);
 
-            rentalRepository.RentalsByGame = ImmutableList.Create(activeRental);
+            var result = await gameService.GetAllActiveGames();
 
-            Action deleteAction = () => service.DeleteGameByIdentifier(SampleGameIdentifier);
-
-            var exception = Assert.Throws<InvalidOperationException>(() => deleteAction());
-            Assert.That(exception!.Message, Does.Contain("1 active rental"));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result.First().Name, Is.EqualTo("Game1"));
         }
 
         [Test]
-        public void AddGame_WithValidDto_CallsRepositoryAddOnce()
+        public async Task GetAllActiveGames_NoGames_ReturnsEmptyList()
         {
-            var gameDto = new GameDTO
+            mockGameRepository.Setup(r => r.GetAll()).ReturnsAsync(new List<Game>());
+
+            var result = await gameService.GetAllActiveGames();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public void GetGamesForOwner_ValidOwner_ReturnsSummaryList()
+        {
+            var ownerId = Guid.NewGuid();
+            var games = new List<Game> { new Game { Id = 1, Name = "Game1", Owner = new User { Id = ownerId } } };
+            mockGameRepository.Setup(r => r.GetGamesByOwner(ownerId)).Returns(games);
+
+            var result = gameService.GetGamesForOwner(ownerId);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GetGamesForOwner_OwnerWithNoGames_ReturnsEmptyList()
+        {
+            var ownerId = Guid.NewGuid();
+            mockGameRepository.Setup(r => r.GetGamesByOwner(ownerId)).Returns(new List<Game>());
+
+            var result = gameService.GetGamesForOwner(ownerId);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public void GetActiveGamesForOwner_ValidOwner_ReturnsActiveOnly()
+        {
+            var ownerId = Guid.NewGuid();
+            var games = new List<Game>
             {
-                Id = SampleGameIdentifier,
-                Name = "Chess Classic",
-                Price = 15m,
+                new Game { Id = 1, IsActive = true, Owner = new User { Id = ownerId } },
+                new Game { Id = 2, IsActive = false, Owner = new User { Id = ownerId } }
+            };
+            mockGameRepository.Setup(r => r.GetGamesByOwner(ownerId)).Returns(games);
+
+            var result = gameService.GetActiveGamesForOwner(ownerId);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result.First().Id, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task GetAllGamesAdmin_GamesExist_ReturnsAllGamesIncludingInactive()
+        {
+            var games = new List<Game> { new Game { Id = 1, IsActive = false } };
+            mockGameRepository.Setup(r => r.GetAllIncludingInactive()).ReturnsAsync(games);
+
+            var result = await gameService.GetAllGamesAdmin();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task GetGameById_ExistingGame_ReturnsDetailDTO()
+        {
+            var game = new Game { Id = 1, Name = "Game1" };
+            mockGameRepository.Setup(r => r.GetGameById(1)).ReturnsAsync(game);
+
+            var result = await gameService.GetGameById(1);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Id, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GetGameById_NonExistingGame_ThrowsKeyNotFoundException()
+        {
+            mockGameRepository.Setup(r => r.GetGameById(99)).ReturnsAsync((Game)null);
+
+            Assert.ThrowsAsync<KeyNotFoundException>(() => gameService.GetGameById(99));
+        }
+
+        [Test]
+        public async Task GetGameImage_ExistingGame_ReturnsImageBytes()
+        {
+            var imageBytes = new byte[] { 1, 2, 3 };
+            var game = new Game { Id = 1, Image = imageBytes };
+            mockGameRepository.Setup(r => r.GetGameById(1)).ReturnsAsync(game);
+
+            var result = await gameService.GetGameImage(1);
+
+            Assert.That(result, Is.EqualTo(imageBytes));
+        }
+
+        [Test]
+        public void GetGameImage_NonExistingGame_ThrowsKeyNotFoundException()
+        {
+            mockGameRepository.Setup(r => r.GetGameById(99)).ReturnsAsync((Game)null);
+
+            Assert.ThrowsAsync<KeyNotFoundException>(() => gameService.GetGameImage(99));
+        }
+
+        [Test]
+        public void CreateGame_ValidData_ReturnsDetailDTO()
+        {
+            var ownerId = Guid.NewGuid();
+            var dto = new GameCreateDTO
+            {
+                Name = "ValidName",
+                Price = 10,
                 MinimumPlayerNumber = 2,
                 MaximumPlayerNumber = 4,
-                Description = "A classic strategy board game for two players.",
-                Owner = new UserDTO { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                Description = new string('A', 20)
             };
 
-            service.AddGame(gameDto);
+            var result = gameService.CreateGame(dto, ownerId);
 
-            Assert.That(gameRepository.AddCallCount, Is.EqualTo(1));
-            Assert.That(gameRepository.LastAddedGame, Is.Not.Null);
+            mockGameRepository.Verify(r => r.AddGame(It.IsAny<Game>()), Times.Once);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Name, Is.EqualTo("ValidName"));
         }
 
         [Test]
-        public void AddGame_WithInvalidDto_ThrowsArgumentException()
+        public void CreateGame_InvalidData_ThrowsArgumentException()
         {
-            var gameDto = new GameDTO
+            var ownerId = Guid.NewGuid();
+            var dto = new GameCreateDTO
             {
-                Id = SampleGameIdentifier,
-                Name = string.Empty,
-                Price = 0m,
+                Name = "",
+                Price = -5,
                 MinimumPlayerNumber = 0,
                 MaximumPlayerNumber = 0,
-                Description = string.Empty,
+                Description = ""
             };
 
-            Action addAction = () => service.AddGame(gameDto);
-
-            Assert.Throws<ArgumentException>(() => addAction());
+            Assert.Throws<ArgumentException>(() => gameService.CreateGame(dto, ownerId));
         }
 
         [Test]
-        public void DeleteGameByIdentifier_WithMultipleActiveRentals_ExceptionMessageContainsRentalCount()
+        public void UpdateGame_ValidDataAndOwner_UpdatesSuccessfully()
         {
-            var firstRental = new Rental(
-                1,
-                new Game { Id = SampleGameIdentifier },
-                new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
-                DateTime.Now.AddDays(-1),
-                DateTime.Now.AddDays(3));
-            var secondRental = new Rental(
-                2,
-                new Game { Id = SampleGameIdentifier },
-                new Account { Id = Guid.NewGuid(), DisplayName = "Renter" },
-                new Account { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
-                DateTime.Now.AddDays(4),
-                DateTime.Now.AddDays(6));
+            var ownerId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
 
-            rentalRepository.RentalsByGame = ImmutableList.Create(firstRental, secondRental);
-
-            Action deleteAction = () => service.DeleteGameByIdentifier(SampleGameIdentifier);
-
-            var exception = Assert.Throws<InvalidOperationException>(() => deleteAction());
-            Assert.That(exception!.Message, Does.Contain("2 active rentals"));
-        }
-
-        [Test]
-        public void GetGameByIdentifier_WithValidId_ReturnsGameDto()
-        {
-            gameRepository.GamesById[SampleGameIdentifier] = new Game { Id = SampleGameIdentifier };
-
-            var retrievedGame = service.GetGameByIdentifier(SampleGameIdentifier);
-
-            Assert.That(retrievedGame.Id, Is.EqualTo(SampleGameIdentifier));
-        }
-
-        [Test]
-        public void UpdateGameByIdentifier_WithValidDto_CallsRepositoryUpdateWithCorrectId()
-        {
-            var gameDto = new GameDTO
+            var dto = new GameUpdateDTO
             {
-                Id = SampleGameIdentifier,
-                Name = "Updated Game",
-                Price = 12m,
+                Name = "UpdatedName",
+                Price = 15,
                 MinimumPlayerNumber = 2,
                 MaximumPlayerNumber = 4,
-                Description = "A valid updated description for the game.",
-                Owner = new UserDTO { Id = sampleOwnerIdentifier, DisplayName = "Owner" },
+                Description = new string('A', 20)
             };
 
-            service.UpdateGameByIdentifier(SampleGameIdentifier, gameDto);
+            gameService.UpdateGame(1, dto, ownerId, false);
 
-            Assert.That(gameRepository.UpdateCallCount, Is.EqualTo(1));
-            Assert.That(gameRepository.LastUpdatedGameId, Is.EqualTo(SampleGameIdentifier));
+            mockGameRepository.Verify(r => r.UpdateGame(1, It.IsAny<Game>()), Times.Once);
         }
 
         [Test]
-        public void DeleteGameByIdentifier_WithNoActiveRentals_DeletesGameAndNotifiesRequestService()
+        public void UpdateGame_InvalidData_ThrowsArgumentException()
         {
-            rentalRepository.RentalsByGame = ImmutableList<Rental>.Empty;
-            gameRepository.GamesById[SampleGameIdentifier] = new Game { Id = SampleGameIdentifier };
+            var ownerId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
 
-            service.DeleteGameByIdentifier(SampleGameIdentifier);
+            var dto = new GameUpdateDTO { Name = "" };
 
-            Assert.That(requestService.OnGameDeactivatedCallCount, Is.EqualTo(1));
-            Assert.That(requestService.LastDeactivatedGameId, Is.EqualTo(SampleGameIdentifier));
-            Assert.That(gameRepository.DeleteCallCount, Is.EqualTo(1));
-            Assert.That(gameRepository.LastDeletedGameId, Is.EqualTo(SampleGameIdentifier));
+            Assert.Throws<ArgumentException>(() => gameService.UpdateGame(1, dto, ownerId, false));
+        }
+
+        [Test]
+        public void UpdateGame_UnauthorizedUser_ThrowsUnauthorizedAccessException()
+        {
+            var ownerId = Guid.NewGuid();
+            var requesterId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
+
+            var dto = new GameUpdateDTO
+            {
+                Name = "UpdatedName",
+                Price = 15,
+                MinimumPlayerNumber = 2,
+                MaximumPlayerNumber = 4,
+                Description = new string('A', 20)
+            };
+
+            Assert.Throws<UnauthorizedAccessException>(() => gameService.UpdateGame(1, dto, requesterId, false));
+        }
+
+        [Test]
+        public void UpdateGame_AdminUser_UpdatesSuccessfully()
+        {
+            var ownerId = Guid.NewGuid();
+            var adminId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
+
+            var dto = new GameUpdateDTO
+            {
+                Name = "UpdatedName",
+                Price = 15,
+                MinimumPlayerNumber = 2,
+                MaximumPlayerNumber = 4,
+                Description = new string('A', 20)
+            };
+
+            gameService.UpdateGame(1, dto, adminId, true);
+
+            mockGameRepository.Verify(r => r.UpdateGame(1, It.IsAny<Game>()), Times.Once);
+        }
+
+        [Test]
+        public void DeleteGame_OwnerNoActiveRentals_DeletesSuccessfully()
+        {
+            var ownerId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
+            mockRentalRepository.Setup(r => r.GetRentalsByGame(1)).Returns(new List<Rental>());
+
+            var result = gameService.DeleteGame(1, ownerId, false);
+
+            mockGameRepository.Verify(r => r.DeleteGame(1), Times.Once);
+            mockRequestService.Verify(r => r.OnGameDeactivated(1), Times.Once);
+            Assert.That(result.Id, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void DeleteGame_UnauthorizedUser_ThrowsUnauthorizedAccessException()
+        {
+            var ownerId = Guid.NewGuid();
+            var requesterId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
+
+            Assert.Throws<UnauthorizedAccessException>(() => gameService.DeleteGame(1, requesterId, false));
+        }
+
+        [Test]
+        public void DeleteGame_ActiveRentals_ThrowsInvalidOperationException()
+        {
+            var ownerId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
+
+            var activeRental = new Rental { EndDate = DateTime.Now.AddDays(1) };
+            mockRentalRepository.Setup(r => r.GetRentalsByGame(1)).Returns(new List<Rental> { activeRental });
+
+            Assert.Throws<InvalidOperationException>(() => gameService.DeleteGame(1, ownerId, false));
+        }
+
+        [Test]
+        public void DeleteGame_AdminUser_DeletesSuccessfully()
+        {
+            var ownerId = Guid.NewGuid();
+            var adminId = Guid.NewGuid();
+            var game = new Game { Id = 1, Owner = new User { Id = ownerId } };
+            mockGameRepository.Setup(r => r.GetGame(1)).Returns(game);
+            mockRentalRepository.Setup(r => r.GetRentalsByGame(1)).Returns(new List<Rental>());
+
+            gameService.DeleteGame(1, adminId, true);
+
+            mockGameRepository.Verify(r => r.DeleteGame(1), Times.Once);
+        }
+
+        [Test]
+        public async Task SearchGames_ValidCriteria_ReturnsMatches()
+        {
+            var criteria = new GameSearchCriteriaDTO { Name = "SearchTerm" };
+            var games = new List<Game> { new Game { Id = 1, Name = "SearchTerm Game" } };
+            mockGameRepository.Setup(r => r.GetGamesByFilter(It.IsAny<FilterCriteria>())).ReturnsAsync(games);
+
+            var result = await gameService.SearchGames(criteria);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result.First().Name, Is.EqualTo("SearchTerm Game"));
+        }
+        
+        [Test]
+        public async Task SearchGames_NoMatches_ReturnsEmptyList()
+        {
+            var criteria = new GameSearchCriteriaDTO { Name = "NoMatch" };
+            mockGameRepository.Setup(r => r.GetGamesByFilter(It.IsAny<FilterCriteria>())).ReturnsAsync(new List<Game>());
+
+            var result = await gameService.SearchGames(criteria);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
         }
     }
 }

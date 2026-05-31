@@ -1,3 +1,7 @@
+// <copyright file="RequestServiceErrors.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Services
 {
     internal static class CancelRequestErrorCodes
@@ -11,20 +15,20 @@ namespace BoardGames.Desktop.Services
         OwnerCannotRent,
         DatesUnavailable,
         GameDoesNotExist,
-        InvalidDateRange
+        InvalidDateRange,
     }
 
     public enum ApproveRequestError
     {
         Unauthorized,
         NotFound,
-        TransactionFailed
+        TransactionFailed,
     }
 
     public enum DenyRequestError
     {
         Unauthorized,
-        NotFound
+        NotFound,
     }
 
     public enum OfferError
@@ -32,12 +36,12 @@ namespace BoardGames.Desktop.Services
         NotFound,
         NotOwner,
         RequestNotOpen,
-        TransactionFailed
+        TransactionFailed,
     }
 
     public enum CancelRequestError
     {
         Unauthorized = CancelRequestErrorCodes.Unauthorized,
-        NotFound = CancelRequestErrorCodes.NotFound
+        NotFound = CancelRequestErrorCodes.NotFound,
     }
 }

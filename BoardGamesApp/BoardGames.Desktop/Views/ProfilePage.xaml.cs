@@ -1,10 +1,13 @@
-namespace BoardRentAndProperty.Views
+// <copyright file="ProfilePage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Desktop.Views
 {
-    using System;
     using BoardGames.Desktop.ViewModels;
-    using CommunityToolkit.Mvvm.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
+    using Microsoft.Extensions.DependencyInjection;
 
     public sealed partial class ProfilePage : Page
     {
@@ -12,7 +15,7 @@ namespace BoardRentAndProperty.Views
         {
             this.InitializeComponent();
 
-            this.ViewModel = Ioc.Default.GetService<ProfileViewModel>();
+            this.ViewModel = App.Services.GetRequiredService<ProfileViewModel>();
             this.DataContext = this.ViewModel;
 
             this.ViewModel.OnSignOutSuccess = () =>

@@ -1,12 +1,10 @@
-using System;
-
 namespace BoardGames.Api.Services
 {
     internal static class DateRangeValidationHelper
     {
         public static bool HasValidFutureDateRange(DateTime startDate, DateTime endDate)
         {
-            if (startDate.Date >= endDate.Date)
+            if (startDate.Date > endDate.Date)
             {
                 return false;
             }

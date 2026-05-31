@@ -1,12 +1,13 @@
-using System;
-using System.IO;
+// <copyright file="CreateGameView.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Desktop.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using BoardGames.Desktop.Views;
-using BoardGames.Desktop.ViewModels;
 
-namespace BoardRentAndProperty.Views
+namespace BoardGames.Desktop.Views
 {
     public sealed partial class CreateGameView : Page
     {
@@ -17,6 +18,18 @@ namespace BoardRentAndProperty.Views
             this.InitializeComponent();
 
             ViewModel = App.Services.GetRequiredService<CreateGameViewModel>();
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs routedEventArgs)
+        {
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
+            else
+            {
+                App.NavigateTo(AppPage.Games, clearBackStack: true);
+            }
         }
 
         private async void SaveButton_Click(object sender, RoutedEventArgs routedEventArgs)
@@ -30,6 +43,7 @@ namespace BoardRentAndProperty.Views
                 {
                     Frame.GoBack();
                 }
+
                 return;
             }
 
@@ -73,6 +87,7 @@ namespace BoardRentAndProperty.Views
             {
                 await previewBitmapImage.SetSourceAsync(imageRandomAccessStream);
             }
+
             ImagePreview.Source = previewBitmapImage;
         }
     }

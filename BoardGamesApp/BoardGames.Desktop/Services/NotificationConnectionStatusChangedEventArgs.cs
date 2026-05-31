@@ -1,4 +1,6 @@
-using System;
+// <copyright file="NotificationConnectionStatusChangedEventArgs.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Desktop.Services
 {
@@ -6,7 +8,7 @@ namespace BoardGames.Desktop.Services
     {
         public NotificationConnectionStatusChangedEventArgs(NotificationConnectionStatus connectionStatus)
         {
-            ConnectionStatus = connectionStatus;
+            this.ConnectionStatus = connectionStatus;
         }
 
         public NotificationConnectionStatus ConnectionStatus { get; }

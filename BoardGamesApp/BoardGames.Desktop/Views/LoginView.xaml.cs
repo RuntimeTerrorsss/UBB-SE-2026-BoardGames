@@ -1,27 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using BoardGames.Desktop.ViewModels;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
-namespace BookingBoardGames.Src.Views
+namespace BoardGames.Desktop.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class LoginView : Page
     {
         public LoginViewModel ViewModel { get; }
@@ -34,13 +14,11 @@ namespace BookingBoardGames.Src.Views
             ViewModel.NavigateToRegister += () => Frame.Navigate(typeof(RegisterView));
 
             DataContext = ViewModel;
+            PasswordInput.PasswordChanged += (passwordInputSender, passwordChangedEventArgs) => ViewModel.Password = PasswordInput.Password;
 
-            // PasswordBox can't use Binding
-            PasswordInput.PasswordChanged += (s, e) => ViewModel.Password = PasswordInput.Password;
-
-            ViewModel.PropertyChanged += (s, e) =>
+            ViewModel.PropertyChanged += (viewModelSender, propertyChangedEventArgs) =>
             {
-                switch (e.PropertyName)
+                switch (propertyChangedEventArgs.PropertyName)
                 {
                     case nameof(ViewModel.IdentifierError):
                         ErrorText.Text = ViewModel.IdentifierError;
@@ -61,7 +39,7 @@ namespace BookingBoardGames.Src.Views
 
                     case nameof(ViewModel.IsLoading):
                         LoginButton.IsEnabled = !ViewModel.IsLoading;
-                        LoginButton.Content = ViewModel.IsLoading ? "Signing in…" : "Sign in";
+                        LoginButton.Content = ViewModel.IsLoading ? "Signing inâ€¦" : "Sign in";
                         break;
                 }
             };

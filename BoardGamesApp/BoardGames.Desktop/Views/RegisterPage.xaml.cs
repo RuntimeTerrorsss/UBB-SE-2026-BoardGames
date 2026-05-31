@@ -1,10 +1,14 @@
-namespace BoardRentAndProperty.Views
+// <copyright file="RegisterPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Desktop.Views
 {
-    using System;
     using BoardGames.Desktop.ViewModels;
-    using CommunityToolkit.Mvvm.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Navigation;
 
     public sealed partial class RegisterPage : Page
     {
@@ -12,7 +16,7 @@ namespace BoardRentAndProperty.Views
         {
             this.InitializeComponent();
 
-            this.ViewModel = Ioc.Default.GetService<RegisterViewModel>();
+            this.ViewModel = App.Services.GetRequiredService<RegisterViewModel>();
             this.DataContext = this.ViewModel;
 
             this.InitializeNavigationCallbacks();
@@ -22,15 +26,34 @@ namespace BoardRentAndProperty.Views
 
         private void InitializeNavigationCallbacks()
         {
-            this.ViewModel.OnRegistrationSuccess = () =>
+            this.ViewModel.OnRegistrationSuccess = successMessage =>
             {
-                App.OnUserLoggedIn();
+                App.NavigateTo(AppPage.Login, successMessage);
             };
 
-            this.ViewModel.OnNavigateBackRequest = () =>
+            this.ViewModel.OnNavigateToLogin = () =>
             {
-                App.NavigateBack();
+                App.NavigateTo(AppPage.Login);
             };
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs navigationEventArgs)
+        {
+            base.OnNavigatedTo(navigationEventArgs);
+            this.PasswordBox.Password = string.Empty;
+            this.ConfirmPasswordBox.Password = string.Empty;
+            this.ViewModel.Password = string.Empty;
+            this.ViewModel.ConfirmPassword = string.Empty;
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs eventArgs)
+        {
+            this.ViewModel.Password = this.PasswordBox.Password;
+        }
+
+        private void ConfirmPasswordBox_PasswordChanged(object sender, RoutedEventArgs eventArgs)
+        {
+            this.ViewModel.ConfirmPassword = this.ConfirmPasswordBox.Password;
         }
     }
 }

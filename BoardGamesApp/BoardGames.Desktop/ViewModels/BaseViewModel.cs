@@ -1,3 +1,7 @@
+// <copyright file="BaseViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BoardGames.Desktop.ViewModels
@@ -8,6 +12,6 @@ namespace BoardGames.Desktop.ViewModels
         private bool isLoading;
 
         [ObservableProperty]
-        private string errorMessage;
+        private string errorMessage = string.Empty;
     }
 }

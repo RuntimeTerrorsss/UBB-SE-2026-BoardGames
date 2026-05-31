@@ -1,10 +1,13 @@
-using System;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
+// <copyright file="ImageFailureHandler.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
 namespace BoardGames.Desktop.Views
 {
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Media.Imaging;
+
     internal static class ImageFailureHandler
     {
         private const string DefaultGameImageKey = "DefaultGameImage";

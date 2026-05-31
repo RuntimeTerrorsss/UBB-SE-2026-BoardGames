@@ -1,30 +1,7 @@
-// <copyright file="ChatView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using BookingBoardGames.Src.Views;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
-namespace BookingBoardGames.Src.Views.ChatViews
+namespace BoardGames.Desktop.Views.ChatViews
 {
     public sealed partial class ChatView : UserControl
     {
@@ -221,7 +198,7 @@ namespace BookingBoardGames.Src.Views.ChatViews
             picker.FileTypeFilter.Add(".png");
 
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(
-                (Application.Current as BookingBoardGames.App)?.Window);
+                (Application.Current as BoardGames.App)?.Window);
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
             var file = await picker.PickSingleFileAsync();

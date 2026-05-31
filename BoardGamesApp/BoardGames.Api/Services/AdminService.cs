@@ -1,3 +1,7 @@
+// <copyright file="AdminService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,8 +9,8 @@ using System.Threading.Tasks;
 using BoardGames.Api.Security;
 using BoardGames.Data.Models;
 using BoardGames.Data.Repositories;
-using BoardGames.Shared.DTO;
 using BoardGames.Shared.Common;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Services
 {
@@ -23,14 +27,14 @@ namespace BoardGames.Api.Services
 
         public async Task<ServiceResult<List<AccountProfileDTO>>> GetAllAccountsAsync(int pageNumber, int pageSize)
         {
-            List<Account> accountEntities = await accountRepository.GetAllAsync(pageNumber, pageSize);
+            List<Account> accountEntities = await this.accountRepository.GetAllAsync(pageNumber, pageSize);
 
             List<AccountProfileDTO> accountProfileDtos = new List<AccountProfileDTO>();
 
             foreach (Account accountEntity in accountEntities)
             {
                 Role? firstRole = accountEntity.Roles?.FirstOrDefault();
-                FailedLoginAttempt? failedAttempt = await failedLoginRepository.GetByAccountIdAsync(accountEntity.Id);
+                FailedLoginAttempt? failedAttempt = await this.failedLoginRepository.GetByAccountIdAsync(accountEntity.Id);
 
                 bool isLocked = failedAttempt != null
                     && failedAttempt.LockedUntil.HasValue
@@ -64,28 +68,28 @@ namespace BoardGames.Api.Services
 
         public async Task<ServiceResult<bool>> SuspendAccountAsync(Guid accountId)
         {
-            Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
+            Account? accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
             }
 
             accountEntity.IsSuspended = true;
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<bool>> UnsuspendAccountAsync(Guid accountId)
         {
-            Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
+            Account? accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
             }
 
             accountEntity.IsSuspended = false;
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
@@ -94,23 +98,25 @@ namespace BoardGames.Api.Services
         {
             var (isPasswordValid, passwordErrorMessage) = PasswordValidator.Validate(newPassword);
             if (!isPasswordValid)
+            {
                 return ServiceResult<bool>.Fail(passwordErrorMessage ?? "Password is invalid");
+            }
 
-            Account? accountEntity = await accountRepository.GetByIdAsync(accountId);
+            Account? accountEntity = await this.accountRepository.GetByIdAsync(accountId);
             if (accountEntity == null)
             {
                 return ServiceResult<bool>.Fail("Account not found.");
             }
 
             accountEntity.PasswordHash = PasswordHasher.HashPassword(newPassword);
-            await accountRepository.UpdateAsync(accountEntity);
+            await this.accountRepository.UpdateAsync(accountEntity);
 
             return ServiceResult<bool>.Ok(true);
         }
 
         public async Task<ServiceResult<bool>> UnlockAccountAsync(Guid accountId)
         {
-            await failedLoginRepository.ResetAsync(accountId);
+            await this.failedLoginRepository.ResetAsync(accountId);
             return ServiceResult<bool>.Ok(true);
         }
     }

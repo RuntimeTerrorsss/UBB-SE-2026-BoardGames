@@ -1,14 +1,13 @@
-using System;
+using Moq;
+using Xunit;
+// <copyright file="MapServiceTests.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using BookingBoardGames.Sharing.Services;
-using Moq;
-using Moq.Protected;
-using Xunit;
-
 
 namespace BoardGames.Tests.UnitTests
 {
@@ -19,8 +18,8 @@ namespace BoardGames.Tests.UnitTests
 
         public MapServiceTests()
         {
-            _mockHttpMessageHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            _httpClient = new HttpClient(_mockHttpMessageHandler.Object);
+            this._mockHttpMessageHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            this._httpClient = new HttpClient(this._mockHttpMessageHandler.Object);
         }
 
         #region Constructor Logic
@@ -28,12 +27,7 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public void MapService_ParameterlessConstructor_InitializesCorrectly()
         {
-
-
-
             var service = new MapService();
-
-
 
             Assert.NotNull(service);
         }
@@ -41,13 +35,14 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public void MapService_ConstructorWithClient_SetsUserAgentHeader()
         {
+            var service = new MapService(this._httpClient);
 
             var service = new MapService(_httpClient);
 
 
             Assert.True(_httpClient.DefaultRequestHeaders.Contains("User-Agent"));
             var userAgent = _httpClient.DefaultRequestHeaders.UserAgent.ToString();
-            Assert.Equal("BookingBoardgames/1.0", userAgent);
+            Assert.Equal("BoardGames/1.0", userAgent);
         }
 
         #endregion
@@ -57,12 +52,9 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_DefaultCoordinates_ReturnsNull()
         {
-
-            var service = new MapService(_httpClient);
-
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(0.0, 0.0);
-
 
             Assert.Null(result);
         }
@@ -70,8 +62,7 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_HttpErrorResponse_ReturnsNull()
         {
-
-            _mockHttpMessageHandler
+            this._mockHttpMessageHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
@@ -79,14 +70,12 @@ namespace BoardGames.Tests.UnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.InternalServerError
+                    StatusCode = HttpStatusCode.InternalServerError,
                 });
 
-            var service = new MapService(_httpClient);
-
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.77, 23.62);
-
 
             Assert.Null(result);
         }
@@ -94,8 +83,7 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_InvalidJsonResponse_ReturnsNull()
         {
-
-            _mockHttpMessageHandler
+            this._mockHttpMessageHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
@@ -104,14 +92,12 @@ namespace BoardGames.Tests.UnitTests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent("{ invalid json }")
+                    Content = new StringContent("{ invalid json }"),
                 });
 
-            var service = new MapService(_httpClient);
-
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.77, 23.62);
-
 
             Assert.Null(result);
         }
@@ -123,7 +109,6 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_HasCity_SelectsCity()
         {
-
             var jsonResponse = @"
             {
                 ""address"": {
@@ -136,12 +121,10 @@ namespace BoardGames.Tests.UnitTests
                 }
             }";
 
-            SetupMockHttpMessageHandler(jsonResponse);
-            var service = new MapService(_httpClient);
-
+            this.SetupMockHttpMessageHandler(jsonResponse);
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.77, 23.62);
-
 
             Assert.NotNull(result);
             Assert.Equal("Romania", result.Country);
@@ -153,7 +136,6 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_NoCityHasTown_SelectsTown()
         {
-
             var jsonResponse = @"
             {
                 ""address"": {
@@ -164,12 +146,10 @@ namespace BoardGames.Tests.UnitTests
                 }
             }";
 
-            SetupMockHttpMessageHandler(jsonResponse);
-            var service = new MapService(_httpClient);
-
+            this.SetupMockHttpMessageHandler(jsonResponse);
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.72, 23.52);
-
 
             Assert.NotNull(result);
             Assert.Equal("Floresti", result.City);
@@ -179,7 +159,6 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_NoCityNoTownHasVillage_SelectsVillage()
         {
-
             var jsonResponse = @"
             {
                 ""address"": {
@@ -188,12 +167,10 @@ namespace BoardGames.Tests.UnitTests
                 }
             }";
 
-            SetupMockHttpMessageHandler(jsonResponse);
-            var service = new MapService(_httpClient);
-
+            this.SetupMockHttpMessageHandler(jsonResponse);
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.85, 23.53);
-
 
             Assert.NotNull(result);
             Assert.Equal("Chinteni", result.City);
@@ -203,7 +180,6 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_NoCityNoTownNoVillage_ReturnsEmptyStringForCity()
         {
-
             var jsonResponse = @"
             {
                 ""address"": {
@@ -211,12 +187,10 @@ namespace BoardGames.Tests.UnitTests
                 }
             }";
 
-            SetupMockHttpMessageHandler(jsonResponse);
-            var service = new MapService(_httpClient);
-
+            this.SetupMockHttpMessageHandler(jsonResponse);
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.00, 23.00);
-
 
             Assert.NotNull(result);
             Assert.Equal(string.Empty, result.City);
@@ -225,7 +199,6 @@ namespace BoardGames.Tests.UnitTests
         [Fact]
         public async Task GetAddressFromMapAsync_PropertiesAreNullInJson_ReturnsEmptyStrings()
         {
-
             var jsonResponse = @"
             {
                 ""address"": {
@@ -236,12 +209,10 @@ namespace BoardGames.Tests.UnitTests
                 }
             }";
 
-            SetupMockHttpMessageHandler(jsonResponse);
-            var service = new MapService(_httpClient);
-
+            this.SetupMockHttpMessageHandler(jsonResponse);
+            var service = new MapService(this._httpClient);
 
             var result = await service.GetAddressFromMapAsync(46.00, 23.00);
-
 
             Assert.NotNull(result);
             Assert.Equal(string.Empty, result.Country);
@@ -256,7 +227,7 @@ namespace BoardGames.Tests.UnitTests
 
         private void SetupMockHttpMessageHandler(string jsonResponse)
         {
-            _mockHttpMessageHandler
+            this._mockHttpMessageHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
@@ -265,7 +236,7 @@ namespace BoardGames.Tests.UnitTests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(jsonResponse)
+                    Content = new StringContent(jsonResponse),
                 });
         }
 

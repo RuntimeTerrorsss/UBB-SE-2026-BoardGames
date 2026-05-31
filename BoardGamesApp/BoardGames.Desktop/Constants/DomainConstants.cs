@@ -1,3 +1,7 @@
+// <copyright file="DomainConstants.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.Generic;
 
 namespace BoardGames.Desktop.Constants
@@ -15,7 +19,7 @@ namespace BoardGames.Desktop.Constants
         public const int GameDefaultMinimumPlayers = 1;
         public const int GameDefaultMaximumPlayers = 4;
 
-        public const string ApplicationName = "BoardRentAndProperty";
+        public const string ApplicationName = "BoardGames.Desktop";
 
         public static readonly IReadOnlyList<string> CountryList = new[]
         {

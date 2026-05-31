@@ -1,14 +1,18 @@
+// <copyright file="AccountController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Data.Models;
+using BoardGames.Shared.ProxyServices;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Account;
-using BoardGames.Data.Interfaces;
-using BoardGames.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
     [AllowAnonymous]
-    public class AccountController : BaseController
+    public class AccountController : Controller
     {
         private readonly IUserService userService;
 
@@ -20,46 +24,55 @@ namespace BoardGames.Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View(new LoginViewModel());
+            return this.View(new LoginViewModel());
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken] 
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                return View(loginViewModel);
+                return this.View(loginViewModel);
             }
 
-            var user = await userService.LoginAsync(loginViewModel.Identifier, loginViewModel.Password);
+            var user = await this.userService.LoginAsync(loginViewModel.Identifier, loginViewModel.Password);
 
             if (user != null)
             {
-                SessionHelper.SetUser(HttpContext.Session, user.Id, user.Username, user.DisplayName);
-                return RedirectToAction("Index", "Home");
+                var claims = new List<System.Security.Claims.Claim>
+                {
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new System.Security.Claims.Claim("PamUserId", user.PamUserId.ToString()),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, user.Username),
+                    new System.Security.Claims.Claim("DisplayName", user.DisplayName ?? string.Empty),
+                };
+
+                var identity = new System.Security.Claims.ClaimsIdentity(claims, Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+                await this.HttpContext.SignInAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme, new System.Security.Claims.ClaimsPrincipal(identity));
+                return this.RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError(string.Empty, "Username/email or password incorrect.");
-            return View(loginViewModel);
+            this.ModelState.AddModelError(string.Empty, "Username/email or password incorrect.");
+            return this.View(loginViewModel);
         }
 
         [HttpPost]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            SessionHelper.Clear(HttpContext.Session);
-            return RedirectToAction("Login");
+            await this.HttpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+            return this.RedirectToAction("Login");
         }
 
         [HttpGet]
-        public IActionResult Register() => View();
+        public IActionResult Register() => this.View();
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel registeringUserViewModel)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                return View(registeringUserViewModel);
+                return this.View(registeringUserViewModel);
             }
 
             var user = new User
@@ -69,23 +82,32 @@ namespace BoardGames.Web.Controllers
                 Email = registeringUserViewModel.Email,
                 PasswordHash = registeringUserViewModel.Password,
                 City = registeringUserViewModel.City,
-                Country = registeringUserViewModel.Country
+                Country = registeringUserViewModel.Country,
             };
-            var success = await userService.RegisterUserAsync(user);
+            var success = await this.userService.RegisterUserAsync(user);
 
             if (!success)
             {
-                ModelState.AddModelError(string.Empty, "Registration failed. The username or email may already be taken.");
-                return View(registeringUserViewModel);
+                this.ModelState.AddModelError(string.Empty, "Registration failed. The username or email may already be taken.");
+                return this.View(registeringUserViewModel);
             }
 
-            var loggedInUser = await userService.LoginAsync(user.Username, registeringUserViewModel.Password);
+            var loggedInUser = await this.userService.LoginAsync(user.Username, registeringUserViewModel.Password);
             if (loggedInUser != null)
             {
-                SessionHelper.SetUser(HttpContext.Session, loggedInUser.Id, loggedInUser.Username, loggedInUser.DisplayName);
+                var claims = new List<System.Security.Claims.Claim>
+                {
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, loggedInUser.Id.ToString()),
+                    new System.Security.Claims.Claim("PamUserId", loggedInUser.PamUserId.ToString()),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, loggedInUser.Username),
+                    new System.Security.Claims.Claim("DisplayName", loggedInUser.DisplayName ?? string.Empty),
+                };
+
+                var identity = new System.Security.Claims.ClaimsIdentity(claims, Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+                await this.HttpContext.SignInAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme, new System.Security.Claims.ClaimsPrincipal(identity));
             }
 
-            return RedirectToAction("Index", "Home");
+            return this.RedirectToAction("Index", "Home");
         }
     }
 }

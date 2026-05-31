@@ -1,87 +1,104 @@
-using BoardGames.Web.Models.Search;
-using BoardGames.Data.Enums;
+// <copyright file="SearchController.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.DTO;
-using BoardGames.Shared.DTO.Services;
+using BoardGames.Web.Helpers;
+using BoardGames.Web.Infrastructure;
+using BoardGames.Web.Models.Search;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Web.Controllers
 {
-    public class SearchController : BaseController
+    public class SearchController : Controller
     {
-        private readonly InterfaceSearchAndFilterService searchService;
+        private readonly IGameProxyService gameProxyService;
 
-        public SearchController(InterfaceSearchAndFilterService searchService)
+        public SearchController(IGameProxyService gameProxyService)
         {
-            this.searchService = searchService;
+            this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var filter = new FilterCriteria();
-            if (IsLoggedIn)
-            {
-                filter.UserId = CurrentUserId;
-            }
-
-            var results = await searchService.SearchGamesByFilter(filter);
-            var distinct = results.DistinctBy(game => game.Name).ToArray();
-
             var model = new SearchFilterViewModel();
-            model.TotalPages = (int)Math.Ceiling(distinct.Length / (double)model.PageSize);
-            model.TotalPages = Math.Max(1, model.TotalPages);
-            model.Results = distinct.Take(model.PageSize).ToList();
-
-            return View(model);
+            return await this.Filter(model);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Filter(SearchFilterViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
                 model.ErrorMessage = "Please correct the filter values.";
-                return View("Index", model);
+                return this.View("Index", model);
             }
 
             if (model.StartDate.HasValue && model.EndDate.HasValue && model.StartDate > model.EndDate)
             {
                 model.ErrorMessage = "Start date must be before end date.";
-                return View("Index", model);
+                return this.View("Index", model);
             }
 
-            var filter = new FilterCriteria
+            try
             {
-                Name = model.Name,
-                City = model.City,
-                MaximumPrice = model.MaximumPrice,
-                PlayerCount = model.MinimumPlayers,
-                UserId = IsLoggedIn ? CurrentUserId : null,
-                SortOption = model.SortOption switch
+                IReadOnlyList<GameDTO> results;
+                if (this.User.Identity?.IsAuthenticated == true && !this.HasSearchFilters(model))
                 {
-                    "price_asc" => SortOption.PriceAscending,
-                    "price_desc" => SortOption.PriceDescending,
-                    "location" => SortOption.Location,
-                    _ => SortOption.None
-                },
-                AvailabilityRange = model.StartDate.HasValue && model.EndDate.HasValue
-                    ? new TimeRange(model.StartDate.Value, model.EndDate.Value)
-                    : null
-            };
+                    results = await this.gameProxyService.GetAvailableGamesForRenterAsync(this.User.GetAccountId());
+                }
+                else
+                {
+                    var criteria = new GameSearchCriteriaDTO
+                    {
+                        Name = model.Name,
+                        City = model.City,
+                        MaximumPrice = model.MaximumPrice,
+                        PlayerCount = model.MinimumPlayers,
+                        AvailableFrom = model.StartDate,
+                        AvailableTo = model.EndDate,
+                        SortBy = model.SortOption,
+                        ExcludeOwnerAccountId = this.User.Identity?.IsAuthenticated == true
+                            ? this.User.GetAccountId()
+                            : null,
+                    };
 
-            var results = await searchService.SearchGamesByFilter(filter);
-            var distinct = results.DistinctBy(game => game.Name).ToArray();
+                    results = await this.gameProxyService.SearchGamesAsync(criteria);
+                }
+                var distinct = results.DistinctBy(game => game.Name).ToArray();
 
-            model.TotalPages = (int)Math.Ceiling(distinct.Length / (double)model.PageSize);
-            model.TotalPages = Math.Max(1, model.TotalPages);
-            model.Page = Math.Clamp(model.Page, 1, model.TotalPages);
+                model.TotalPages = (int)Math.Ceiling(distinct.Length / (double)model.PageSize);
+                model.TotalPages = Math.Max(1, model.TotalPages);
+                model.Page = Math.Clamp(model.Page, 1, model.TotalPages);
 
-            model.Results = distinct
-                .Skip((model.Page - 1) * model.PageSize)
-                .Take(model.PageSize)
-                .ToList();
+                model.Results = distinct
+                    .Skip((model.Page - 1) * model.PageSize)
+                    .Take(model.PageSize)
+                    .ToList();
 
-            return View("Index", model);
+                return this.View("Index", model);
+            }
+            catch (ProxyServiceException ex)
+            {
+                model.ErrorMessage = ex.Message;
+                model.Results = new List<GameDTO>();
+                return this.View("Index", model);
+            }
+        }
+
+        private bool HasSearchFilters(SearchFilterViewModel model)
+        {
+            return !string.IsNullOrWhiteSpace(model.Name)
+                || !string.IsNullOrWhiteSpace(model.City)
+                || model.MaximumPrice.HasValue
+                || model.MinimumPlayers.HasValue
+                || model.StartDate.HasValue
+                || model.EndDate.HasValue
+                || (!string.IsNullOrWhiteSpace(model.SortOption) && model.SortOption != "none");
         }
     }
 }

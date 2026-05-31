@@ -1,3 +1,7 @@
+// <copyright file="ConstantsBridge.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Data.Constants
 {
     internal static class App

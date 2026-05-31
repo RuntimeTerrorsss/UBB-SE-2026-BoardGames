@@ -1,6 +1,9 @@
-namespace BoardRentAndProperty.Views
+// <copyright file="AdminPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+namespace BoardGames.Desktop.Views
 {
-    using System;
     using System.ComponentModel;
     using BoardGames.Desktop.Services;
     using BoardGames.Desktop.ViewModels;
@@ -79,12 +82,12 @@ namespace BoardRentAndProperty.Views
                 PrimaryButtonText = "Reset",
                 CloseButtonText = "Cancel",
                 DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
             };
 
             PasswordBox newPasswordBox = new PasswordBox
             {
-                PlaceholderText = "Enter new password"
+                PlaceholderText = "Enter new password",
             };
 
             resetPasswordDialog.Content = newPasswordBox;

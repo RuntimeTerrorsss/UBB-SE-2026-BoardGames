@@ -1,30 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--
-    Hosts three mutually exclusive states via Visibility:
-      - WelcomePlaceholder  (CP-12): conversations exist but none selected
-      - EmptyPlaceholder    (CP-10): no conversations at all → handled in LeftPanel,
-                                     right panel shows nothing / is hidden
-      - ChatView            (CP-08/11): a conversation is selected
 
-    For dummy purposes, WelcomePlaceholder is visible and ChatView is collapsed.
-    Flip them to test the chat layout.
--->
 <UserControl
-    x:Class="BookingBoardGames.Src.Views.ChatViews.RightPanelView"
+    x:Class="BoardGames.Desktop.Views.ChatViews.RightPanelView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:BookingBoardGames.Src.Views.ChatViews"
+    xmlns:local="using:BoardGames.Desktop.Views.ChatViews"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <!-- 
-             CP-12: Welcome placeholder
-             Shown when conversations exist but none is selectedâ
-             Set visibility to Collapsed when a chat is selected
-         -->
+        
         <StackPanel
             x:Name="WelcomePlaceholder"
             VerticalAlignment="Center"
@@ -32,7 +19,7 @@
             Spacing="14"
             Visibility="Visible">
 
-            <!-- App logo placeholder -->
+            
             <Border
                 Width="72"
                 Height="72"
@@ -54,10 +41,7 @@
                 HorizontalAlignment="Center" />
         </StackPanel>
 		
-		<!--
-             Active chat
-             Set Visibility="Visible" when a conversation is selected.
-         -->
+		
         <local:ChatView
             x:Name="ActiveChat"
             Visibility="Collapsed" />

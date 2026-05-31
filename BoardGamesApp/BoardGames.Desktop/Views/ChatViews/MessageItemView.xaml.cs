@@ -1,22 +1,7 @@
-// <copyright file="MessageItemView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 using BoardGames.Desktop.ViewModels;
-using BookingBoardGames.Data.Enum;
-using BookingBoardGames.Sharing.DTO;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Documents;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 
-namespace BookingBoardGames.Src.Views.ChatViews
+namespace BoardGames.Desktop.Views.ChatViews
 {
     public sealed partial class MessageItemView : UserControl
     {

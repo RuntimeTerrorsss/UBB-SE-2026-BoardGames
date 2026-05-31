@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using BoardGames.Shared.DTO;
+// <copyright file="NotificationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
+using System.Net.Http.Json;
+using BoardGames.Shared.DTO;
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -18,7 +16,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<NotificationDTO>> GetNotificationByIdentifierAsync(int notificationId, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<NotificationDTO>(
                 token => client.GetAsync($"api/notifications/{notificationId}", token),
                 (response, token) => ApiResponseReader.ReadJsonAsync<NotificationDTO>(response, token),
@@ -27,7 +25,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<NotificationDTO>> DeleteNotificationByIdentifierAsync(int notificationId, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<NotificationDTO>(
                 token => client.DeleteAsync($"api/notifications/{notificationId}", token),
                 async (response, token) =>
@@ -45,7 +43,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> UpdateNotificationByIdentifierAsync(int notificationId, NotificationDTO notification, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PutAsJsonAsync($"api/notifications/{notificationId}", notification, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -54,7 +52,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult<IReadOnlyList<NotificationDTO>>> GetNotificationsForUserAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync<IReadOnlyList<NotificationDTO>>(
                 token => client.GetAsync($"api/notifications/user/{accountId}", token),
                 async (response, token) =>
@@ -69,7 +67,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> DeleteNotificationsLinkedToRequestAsync(int relatedRequestId, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.DeleteAsync($"api/notifications/request/{relatedRequestId}", token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
@@ -78,7 +76,7 @@ namespace BoardGames.Shared.ProxyServices
 
         public Task<ServiceResult> PersistNotificationAsync(NotificationDTO notification, CancellationToken cancellationToken = default)
         {
-            var client = CreateClient();
+            var client = this.CreateClient();
             return ApiResponseReader.SendAsync(
                 token => client.PutAsJsonAsync("api/notifications/0", notification, token),
                 (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),

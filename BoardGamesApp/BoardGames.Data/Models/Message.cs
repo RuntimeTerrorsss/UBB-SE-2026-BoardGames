@@ -1,4 +1,7 @@
-using System;
+// <copyright file="Message.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -16,10 +19,10 @@ public abstract class Message
     [SetsRequiredMembers]
     public Message(int conversationId, int messageSenderId, int messageReceiverId)
     {
-        ConversationId = conversationId;
-        MessageSenderId = messageSenderId;
-        MessageReceiverId = messageReceiverId;
-        MessageSentTime = DateTime.UtcNow;
+        this.ConversationId = conversationId;
+        this.MessageSenderId = messageSenderId;
+        this.MessageReceiverId = messageReceiverId;
+        this.MessageSentTime = DateTime.UtcNow;
     }
 
     public Message() { }
@@ -59,11 +62,12 @@ public class TextMessage : Message
     public TextMessage(int conversationId, int messageSenderId, int messageReceiverId, string textMessageContent)
         : base(conversationId, messageSenderId, messageReceiverId)
     {
-        TextMessageContent = textMessageContent;
-        MessageContentAsString = textMessageContent;
+        this.TextMessageContent = textMessageContent;
+        this.MessageContentAsString = textMessageContent;
     }
 
-    public TextMessage() : base() { }
+    public TextMessage()
+        : base() { }
 
     [Column("text_message_content")]
     public string? TextMessageContent { get; set; }
@@ -75,10 +79,11 @@ public class ImageMessage : Message
     public ImageMessage(int conversationId, int messageSenderId, int messageReceiverId, string messageImageUrl)
         : base(conversationId, messageSenderId, messageReceiverId)
     {
-        MessageImageUrl = messageImageUrl;
+        this.MessageImageUrl = messageImageUrl;
     }
 
-    public ImageMessage() : base() { }
+    public ImageMessage()
+        : base() { }
 
     [Column("message_image_url")]
     public string? MessageImageUrl { get; set; }
@@ -90,11 +95,12 @@ public class SystemMessage : Message
     public SystemMessage(int conversationId, int messageSenderId, int messageReceiverId, string messageContent)
         : base(conversationId, messageSenderId, messageReceiverId)
     {
-        MessageContent = messageContent;
-        MessageContentAsString = messageContent;
+        this.MessageContent = messageContent;
+        this.MessageContentAsString = messageContent;
     }
 
-    public SystemMessage() : base() { }
+    public SystemMessage()
+        : base() { }
 
     [Column("message_content")]
     public string? MessageContent { get; set; }
@@ -106,16 +112,17 @@ public class RentalRequestMessage : Message
     public RentalRequestMessage(int conversationId, int messageSenderId, int messageReceiverId, int rentalRequestId, string? requestContent = null)
         : base(conversationId, messageSenderId, messageReceiverId)
     {
-        RentalRequestId = rentalRequestId;
-        RequestContent = requestContent;
-        IsRequestResolved = false;
-        IsRequestAccepted = false;
+        this.RentalRequestId = rentalRequestId;
+        this.RequestContent = requestContent;
+        this.IsRequestResolved = false;
+        this.IsRequestAccepted = false;
     }
 
-    public RentalRequestMessage() : base() { }
+    public RentalRequestMessage()
+        : base() { }
 
     [Column("rental_request_id")]
-    public int RentalRequestId { get; set; }
+    public int? RentalRequestId { get; set; }
 
     [Column("is_request_resolved")]
     public bool IsRequestResolved { get; set; }
@@ -136,13 +143,14 @@ public class CashAgreementMessage : Message
     public CashAgreementMessage(int conversationId, int messageSenderId, int messageReceiverId, int cashPaymentId)
         : base(conversationId, messageSenderId, messageReceiverId)
     {
-        CashPaymentId = cashPaymentId;
-        IsCashAgreementResolved = false;
-        IsCashAgreementAcceptedByBuyer = false;
-        IsCashAgreementAcceptedBySeller = false;
+        this.CashPaymentId = cashPaymentId;
+        this.IsCashAgreementResolved = false;
+        this.IsCashAgreementAcceptedByBuyer = false;
+        this.IsCashAgreementAcceptedBySeller = false;
     }
 
-    public CashAgreementMessage() : base() { }
+    public CashAgreementMessage()
+        : base() { }
 
     [Column("cash_payment_id")]
     public int CashPaymentId { get; set; }

@@ -1,0 +1,104 @@
+<Page
+    x:Class="BoardGames.Desktop.Views.GameDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:controls="using:BoardGames.Desktop.Views.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="32" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Back" Command="{Binding BackCommand}" VerticalAlignment="Center" />
+
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="{Binding Game.Name}" FontSize="36" FontWeight="Bold" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="{Binding Game.OwnerDisplayName}" FontSize="16" Opacity="0.8" />
+                </StackPanel>
+
+                <Button
+                    Grid.Column="2"
+                    Content="Login"
+                    Command="{Binding LoginCommand}"
+                    Visibility="{Binding LoginButtonVisibility}"
+                    VerticalAlignment="Center" />
+            </Grid>
+
+            <StackPanel Grid.Row="1" Spacing="8">
+                <ProgressRing IsActive="{Binding IsLoading}" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#F87171" TextWrapping="WrapWholeWords" />
+                <TextBlock Text="{Binding SuccessMessage}" Foreground="#4ADE80" TextWrapping="WrapWholeWords" />
+            </StackPanel>
+
+            <Grid Grid.Row="2" ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="18">
+                    <Border Height="280" CornerRadius="12" Background="#23304A">
+                        <Image Source="{Binding GameImage}" Stretch="UniformToFill" />
+                    </Border>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Details" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Game.Description}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{Binding Game.City}" Foreground="#C9D2E3" />
+                        <TextBlock Text="{Binding PlayerRangeText}" Foreground="#C9D2E3" />
+                        <TextBlock Text="{Binding PriceText}" FontWeight="SemiBold" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Border
+                    Grid.Column="1"
+                    Padding="20"
+                    CornerRadius="12"
+                    Background="#141C2C"
+                    BorderBrush="#24304A"
+                    BorderThickness="1"
+                    VerticalAlignment="Top">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Request rental" FontSize="24" FontWeight="SemiBold" />
+
+                        <TextBlock Text="Choose dates" FontWeight="SemiBold" />
+
+                        <controls:RentalDatePicker
+                            x:Name="RentalCalendar"
+                            HorizontalAlignment="Stretch" />
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Estimated total" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding TotalPriceText}" FontWeight="Bold" />
+                        </Grid>
+
+                        <Button
+                            Content="Send request"
+                            Command="{Binding SubmitRequestCommand}"
+                            IsEnabled="{Binding CanSubmit}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>

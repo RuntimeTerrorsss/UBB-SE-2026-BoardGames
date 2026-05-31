@@ -1,3 +1,7 @@
+// <copyright file="DomainConstants.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Data.Constants
 {
     public static class DomainConstants
@@ -13,6 +17,6 @@ namespace BoardGames.Data.Constants
         public const int GameDefaultMinimumPlayers = 1;
         public const int GameDefaultMaximumPlayers = 4;
 
-        public const string ApplicationName = "BoardRentAndProperty";
+        public const string ApplicationName = "BoardGames.Desktop";
     }
 }

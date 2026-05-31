@@ -1,0 +1,130 @@
+.rental-date-picker {
+    border: 1px solid #dee2e6;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: #fff;
+    max-width: 360px;
+}
+
+.rental-date-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.rental-date-picker-header button {
+    border: none;
+    background: transparent;
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0.25rem 0.5rem;
+    color: #4361ee;
+    cursor: pointer;
+}
+
+.rental-date-picker-month {
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.rental-date-picker-weekdays,
+.rental-date-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.rental-date-picker-weekdays span {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    padding: 0.25rem 0;
+}
+
+.rental-date-picker-day {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 0.35rem;
+    background: #f8f9fa;
+    color: #212529;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.rental-date-picker-day:hover:not(:disabled) {
+    background: #e7ecff;
+}
+
+.rental-date-picker-day.is-empty {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.rental-date-picker-day.is-past {
+    background: #f1f3f5;
+    color: #adb5bd;
+    cursor: not-allowed;
+}
+
+.rental-date-picker-day.is-unavailable {
+    background: #dc3545 !important;
+    color: #fff !important;
+    cursor: not-allowed;
+}
+
+.rental-date-picker-day.is-pending-request {
+    background: #ffc107 !important;
+    color: #1a1a2e !important;
+    cursor: not-allowed;
+}
+
+.rental-date-picker-day.is-selected {
+    background: #4361ee !important;
+    color: #fff !important;
+}
+
+.rental-date-picker-day.is-in-range {
+    background: #c7d2fe;
+    color: #1a1a2e;
+}
+
+.rental-date-picker-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.rental-date-picker-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.rental-date-picker-legend .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.rental-date-picker-legend .swatch-unavailable {
+    background: #dc3545;
+}
+
+.rental-date-picker-legend .swatch-selected {
+    background: #4361ee;
+}
+
+.rental-date-picker-legend .swatch-pending {
+    background: #ffc107;
+}
+
+.rental-date-picker-selection {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #495057;
+}

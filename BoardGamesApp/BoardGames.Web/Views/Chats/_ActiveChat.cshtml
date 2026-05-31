@@ -1,7 +1,6 @@
 @using BoardGames.Web.Helpers
-@using BoardGames.Data.Enums
-@using BoardGames.Web.Helpers
-@model BoardGames.Shared.DTO.ConversationDTO
+@using BoardGames.Shared.DTO
+@model ConversationDTO
 @{
     var otherAvatarUrl = ViewBag.OtherUserAvatarUrl as string;
 }
@@ -71,12 +70,30 @@
                                             data-message-id="@message.Id" data-conversation-id="@Model.Id">Cancel request</button>
                                 </div>
                             }
-                            else if (isMine && message.IsAccepted && !message.IsResolved)
+                            else if (!isMine && message.IsAccepted && !message.IsResolved)
                             {
                                 <div class="text-center">
-                                    <a asp-controller="Rentals" asp-action="Checkout"
-                                       asp-route-rentalId="@message.RequestId" asp-route-messageId="@message.Id"
-                                       class="btn btn-success btn-sm">Proceed to payment</a>
+                                    <span class="badge bg-primary mb-2 d-block">Pending payment</span>
+                                </div>
+                            }
+                            else if (isMine && message.IsAccepted && !message.IsResolved)
+                            {
+                                var reqId = BoardGames.Shared.Helpers.RentalRequestMessageHelper.ResolveRequestId(message.RequestId, message.Content);
+                                var rentalId = BoardGames.Shared.Helpers.RentalRequestMessageHelper.ResolveRentalId(message.RentalId, message.Content);
+                                <div class="text-center">
+                                    <span class="badge bg-info text-dark mb-2 d-block">Accepted — complete payment</span>
+                                    @if (rentalId > 0)
+                                    {
+                                        <a asp-controller="Rentals" asp-action="Checkout"
+                                           asp-route-rentalId="@rentalId"
+                                           asp-route-requestId="@reqId"
+                                           asp-route-messageId="@message.Id"
+                                           class="btn btn-success btn-sm">Proceed to payment</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="small text-muted">Waiting for rental details… refresh the chat.</span>
+                                    }
                                 </div>
                             }
                             else if (message.IsResolved && !message.IsAccepted)

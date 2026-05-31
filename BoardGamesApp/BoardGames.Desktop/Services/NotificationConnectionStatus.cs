@@ -1,3 +1,7 @@
+// <copyright file="NotificationConnectionStatus.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Desktop.Services
 {
     public enum NotificationConnectionStatus
@@ -5,6 +9,6 @@ namespace BoardGames.Desktop.Services
         Stopped,
         Connected,
         Reconnecting,
-        Offline
+        Offline,
     }
 }

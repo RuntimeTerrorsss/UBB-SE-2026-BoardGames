@@ -1,8 +1,6 @@
-﻿// <copyright file="GeographicDistance.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="GeographicDistance.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
 // </copyright>
-
-using System;
 
 namespace BoardGames.Data.Enums
 {
@@ -21,9 +19,6 @@ namespace BoardGames.Data.Enums
         /// Calculates the great-circle distance, in kilometers, between two geographic coordinates using the Haversine
         /// formula.
         /// </summary>
-        /// <remarks>This method assumes a spherical Earth and does not account for elevation differences
-        /// or ellipsoidal effects. The result is an approximation suitable for most general-purpose distance
-        /// calculations.</remarks>
         /// <param name="latitudeFirstCity">The latitude of the first location, in decimal degrees. Must be between -90 and 90.</param>
         /// <param name="longitudeFirstCity">The longitude of the first location, in decimal degrees. Must be between -180 and 180.</param>
         /// <param name="latitudeSecondCity">The latitude of the second location, in decimal degrees. Must be between -90 and 90.</param>
@@ -42,9 +37,9 @@ namespace BoardGames.Data.Enums
             var lat2Rad = DegreesToRadians(latitudeSecondCity);
 
             var haversineValue =
-                Math.Sin(deltaLatitude / 2) * Math.Sin(deltaLatitude / 2) +
-                Math.Cos(lat1Rad) * Math.Cos(lat2Rad) *
-                Math.Sin(deltaLongitude / 2) * Math.Sin(deltaLongitude / 2);
+                (Math.Sin(deltaLatitude / 2) * Math.Sin(deltaLatitude / 2)) +
+                (Math.Cos(lat1Rad) * Math.Cos(lat2Rad) *
+                Math.Sin(deltaLongitude / 2) * Math.Sin(deltaLongitude / 2));
 
             var centralAngle =
                 2 * Math.Atan2(Math.Sqrt(haversineValue), Math.Sqrt(1 - haversineValue));
