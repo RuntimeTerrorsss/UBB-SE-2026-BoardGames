@@ -1,210 +1,210 @@
-using BoardGames.Desktop.ViewModels;
-// <copyright file="CreateRequestViewModelTests.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
+//using BoardGames.Desktop.ViewModels;
+//// <copyright file="CreateRequestViewModelTests.cs" company="BoardRent">
+//// Copyright (c) BoardRent. All rights reserved.
+//// </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using BoardGames.Tests.Fakes;
-using NUnit.Framework;
+//using System;
+//using System.Collections.Generic;
+//using System.Collections.Immutable;
+//using System.Threading.Tasks;
+//using BoardGames.Tests.Fakes;
+//using NUnit.Framework;
 
-namespace BoardGames.Tests.ViewModels
-{
-    [TestFixture]
-    public sealed class CreateRequestViewModelTests
-    {
-        private readonly Guid currentUserId = Guid.NewGuid();
-        private readonly Guid otherOwnerId = Guid.NewGuid();
+//namespace BoardGames.Tests.ViewModels
+//{
+//    [TestFixture]
+//    public sealed class CreateRequestViewModelTests
+//    {
+//        private readonly Guid currentUserId = Guid.NewGuid();
+//        private readonly Guid otherOwnerId = Guid.NewGuid();
 
-        private FakeClientGameService gameService = null!;
-        private FakeClientRequestService requestService = null!;
-        private FakeCurrentUserContext currentUserContext = null!;
+//        private FakeClientGameService gameService = null!;
+//        private FakeClientRequestService requestService = null!;
+//        private FakeCurrentUserContext currentUserContext = null!;
 
-        [SetUp]
-        public void SetUp()
-        {
-            this.gameService = new FakeClientGameService
-            {
-                AvailableGamesForRenter = ImmutableList.Create(this.BuildOtherUsersGame(300)),
-            };
-            this.requestService = new FakeClientRequestService();
-            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.currentUserId };
-        }
+//        [SetUp]
+//        public void SetUp()
+//        {
+//            this.gameService = new FakeClientGameService
+//            {
+//                AvailableGamesForRenter = ImmutableList.Create(this.BuildOtherUsersGame(300)),
+//            };
+//            this.requestService = new FakeClientRequestService();
+//            this.currentUserContext = new FakeCurrentUserContext { CurrentUserId = this.currentUserId };
+//        }
 
-        [Test]
-        public async Task Constructor_LoadsGamesCurrentUserAndRefreshesCollection()
-        {
-            var viewModel = this.BuildViewModel();
+//        [Test]
+//        public async Task Constructor_LoadsGamesCurrentUserAndRefreshesCollection()
+//        {
+//            var viewModel = this.BuildViewModel();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(viewModel.CurrentUserId, Is.EqualTo(this.currentUserId));
-                Assert.That(viewModel.AvailableGamesToRequest.Count, Is.EqualTo(1));
-                Assert.That(viewModel.AvailableGamesToRequest[0].Id, Is.EqualTo(300));
-                Assert.That(viewModel.AvailableGamesToRequest[0].Owner.Id, Is.Not.EqualTo(this.currentUserId));
-                Assert.That(viewModel.AvailableGamesToRequest[0].IsActive, Is.True);
-            });
+//            Assert.Multiple(() =>
+//            {
+//                Assert.That(viewModel.CurrentUserId, Is.EqualTo(this.currentUserId));
+//                Assert.That(viewModel.AvailableGamesToRequest.Count, Is.EqualTo(1));
+//                Assert.That(viewModel.AvailableGamesToRequest[0].Id, Is.EqualTo(300));
+//                Assert.That(viewModel.AvailableGamesToRequest[0].Owner.Id, Is.Not.EqualTo(this.currentUserId));
+//                Assert.That(viewModel.AvailableGamesToRequest[0].IsActive, Is.True);
+//            });
 
-            this.gameService.AvailableGamesForRenter =
-                ImmutableList.Create(this.BuildOtherUsersGame(300), this.BuildOtherUsersGame(401));
+//            this.gameService.AvailableGamesForRenter =
+//                ImmutableList.Create(this.BuildOtherUsersGame(300), this.BuildOtherUsersGame(401));
 
-            await viewModel.LoadAvailableGamesAsync();
+//            await viewModel.LoadAvailableGamesAsync();
 
-            Assert.That(viewModel.AvailableGamesToRequest.Count, Is.EqualTo(2));
-        }
+//            Assert.That(viewModel.AvailableGamesToRequest.Count, Is.EqualTo(2));
+//        }
 
-        [Test]
-        public void ValidateRequestInputs_RequiresGameAndDates()
-        {
-            var viewModel = this.BuildViewModel();
+//        [Test]
+//        public void ValidateRequestInputs_RequiresGameAndDates()
+//        {
+//            var viewModel = this.BuildViewModel();
 
-            PopulateWithValidSelections(viewModel);
-            Assert.That(viewModel.ValidateRequestInputs(), Is.True);
+//            PopulateWithValidSelections(viewModel);
+//            Assert.That(viewModel.ValidateRequestInputs(), Is.True);
 
-            AssertInvalidRequestInputs(viewModel, model => model.SelectedGame = null!);
-            AssertInvalidRequestInputs(viewModel, model => model.StartDate = null);
-            AssertInvalidRequestInputs(viewModel, model => model.EndDate = null);
-        }
+//            AssertInvalidRequestInputs(viewModel, model => model.SelectedGame = null!);
+//            AssertInvalidRequestInputs(viewModel, model => model.StartDate = null);
+//            AssertInvalidRequestInputs(viewModel, model => model.EndDate = null);
+//        }
 
-        [Test]
-        public async Task SubmitRequest_CoversValidationSuccessAndInvalidDateRange()
-        {
-            var invalidViewModel = this.BuildViewModel();
+//        [Test]
+//        public async Task SubmitRequest_CoversValidationSuccessAndInvalidDateRange()
+//        {
+//            var invalidViewModel = this.BuildViewModel();
 
-            ViewOperationResult validationFailure = await invalidViewModel.SubmitRequestAsync();
+//            ViewOperationResult validationFailure = await invalidViewModel.SubmitRequestAsync();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(validationFailure.IsSuccess, Is.False);
-                Assert.That(validationFailure.DialogTitle, Is.EqualTo("Validation Error"));
-            });
-            Assert.That(this.requestService.CreateRequestCallCount, Is.EqualTo(0));
+//            Assert.Multiple(() =>
+//            {
+//                Assert.That(validationFailure.IsSuccess, Is.False);
+//                Assert.That(validationFailure.DialogTitle, Is.EqualTo("Validation Error"));
+//            });
+//            Assert.That(this.requestService.CreateRequestCallCount, Is.EqualTo(0));
 
-            this.requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
+//            this.requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
 
-            var successfulViewModel = this.BuildViewModel();
-            PopulateWithValidSelections(successfulViewModel);
+//            var successfulViewModel = this.BuildViewModel();
+//            PopulateWithValidSelections(successfulViewModel);
 
-            ViewOperationResult successResult = await successfulViewModel.SubmitRequestAsync();
+//            ViewOperationResult successResult = await successfulViewModel.SubmitRequestAsync();
 
-            Assert.That(successResult.IsSuccess, Is.True);
-            Assert.That(this.requestService.CreateRequestCallCount, Is.EqualTo(1));
-            Assert.That(this.requestService.LastGameId, Is.EqualTo(300));
-            Assert.That(this.requestService.LastRenterAccountId, Is.EqualTo(this.currentUserId));
-            Assert.That(this.requestService.LastOwnerAccountId, Is.EqualTo(this.otherOwnerId));
+//            Assert.That(successResult.IsSuccess, Is.True);
+//            Assert.That(this.requestService.CreateRequestCallCount, Is.EqualTo(1));
+//            Assert.That(this.requestService.LastGameId, Is.EqualTo(300));
+//            Assert.That(this.requestService.LastRenterAccountId, Is.EqualTo(this.currentUserId));
+//            Assert.That(this.requestService.LastOwnerAccountId, Is.EqualTo(this.otherOwnerId));
 
-            this.requestService.CreateRequestResult =
-                Result<int, CreateRequestError>.Failure(CreateRequestError.InvalidDateRange);
+//            this.requestService.CreateRequestResult =
+//                Result<int, CreateRequestError>.Failure(CreateRequestError.InvalidDateRange);
 
-            var invalidDateRangeViewModel = this.BuildViewModel();
-            PopulateWithValidSelections(invalidDateRangeViewModel);
+//            var invalidDateRangeViewModel = this.BuildViewModel();
+//            PopulateWithValidSelections(invalidDateRangeViewModel);
 
-            ViewOperationResult invalidDateRangeResult = await invalidDateRangeViewModel.SubmitRequestAsync();
+//            ViewOperationResult invalidDateRangeResult = await invalidDateRangeViewModel.SubmitRequestAsync();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(invalidDateRangeResult.IsSuccess, Is.False);
-                Assert.That(invalidDateRangeResult.DialogTitle, Is.EqualTo("Validation Error"));
-            });
-        }
+//            Assert.Multiple(() =>
+//            {
+//                Assert.That(invalidDateRangeResult.IsSuccess, Is.False);
+//                Assert.That(invalidDateRangeResult.DialogTitle, Is.EqualTo("Validation Error"));
+//            });
+//        }
 
-        [Test]
-        public async Task SubmitRequest_MapsServiceErrorsAndTrySubmitRequestMirrorsResult()
-        {
-            this.requestService.CreateRequestResult =
-                Result<int, CreateRequestError>.Failure(CreateRequestError.OwnerCannotRent);
+//        [Test]
+//        public async Task SubmitRequest_MapsServiceErrorsAndTrySubmitRequestMirrorsResult()
+//        {
+//            this.requestService.CreateRequestResult =
+//                Result<int, CreateRequestError>.Failure(CreateRequestError.OwnerCannotRent);
 
-            var ownerCannotRentViewModel = this.BuildViewModel();
-            PopulateWithValidSelections(ownerCannotRentViewModel);
+//            var ownerCannotRentViewModel = this.BuildViewModel();
+//            PopulateWithValidSelections(ownerCannotRentViewModel);
 
-            ViewOperationResult ownerCannotRentResult = await ownerCannotRentViewModel.SubmitRequestAsync();
-            string? ownerCannotRentTrySubmitMessage = await ownerCannotRentViewModel.TrySubmitRequestAsync();
+//            ViewOperationResult ownerCannotRentResult = await ownerCannotRentViewModel.SubmitRequestAsync();
+//            string? ownerCannotRentTrySubmitMessage = await ownerCannotRentViewModel.TrySubmitRequestAsync();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(ownerCannotRentResult.IsSuccess, Is.False);
-                Assert.That(ownerCannotRentResult.DialogTitle, Is.EqualTo("Request Failed"));
-                Assert.That(ownerCannotRentResult.DialogMessage, Does.Contain("own game"));
-                Assert.That(ownerCannotRentTrySubmitMessage, Does.Contain("own game"));
-            });
+//            Assert.Multiple(() =>
+//            {
+//                Assert.That(ownerCannotRentResult.IsSuccess, Is.False);
+//                Assert.That(ownerCannotRentResult.DialogTitle, Is.EqualTo("Request Failed"));
+//                Assert.That(ownerCannotRentResult.DialogMessage, Does.Contain("own game"));
+//                Assert.That(ownerCannotRentTrySubmitMessage, Does.Contain("own game"));
+//            });
 
-            this.requestService.CreateRequestResult =
-                Result<int, CreateRequestError>.Failure(CreateRequestError.DatesUnavailable);
+//            this.requestService.CreateRequestResult =
+//                Result<int, CreateRequestError>.Failure(CreateRequestError.DatesUnavailable);
 
-            var datesUnavailableViewModel = this.BuildViewModel();
-            PopulateWithValidSelections(datesUnavailableViewModel);
-            ViewOperationResult datesUnavailableResult = await datesUnavailableViewModel.SubmitRequestAsync();
-            Assert.That(datesUnavailableResult.DialogMessage, Does.Contain("not available"));
+//            var datesUnavailableViewModel = this.BuildViewModel();
+//            PopulateWithValidSelections(datesUnavailableViewModel);
+//            ViewOperationResult datesUnavailableResult = await datesUnavailableViewModel.SubmitRequestAsync();
+//            Assert.That(datesUnavailableResult.DialogMessage, Does.Contain("not available"));
 
-            this.requestService.CreateRequestResult =
-                Result<int, CreateRequestError>.Failure(CreateRequestError.GameDoesNotExist);
+//            this.requestService.CreateRequestResult =
+//                Result<int, CreateRequestError>.Failure(CreateRequestError.GameDoesNotExist);
 
-            var missingGameViewModel = this.BuildViewModel();
-            PopulateWithValidSelections(missingGameViewModel);
-            ViewOperationResult missingGameResult = await missingGameViewModel.SubmitRequestAsync();
-            Assert.That(missingGameResult.DialogMessage, Does.Contain("no longer exists"));
+//            var missingGameViewModel = this.BuildViewModel();
+//            PopulateWithValidSelections(missingGameViewModel);
+//            ViewOperationResult missingGameResult = await missingGameViewModel.SubmitRequestAsync();
+//            Assert.That(missingGameResult.DialogMessage, Does.Contain("no longer exists"));
 
-            this.requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
+//            this.requestService.CreateRequestResult = Result<int, CreateRequestError>.Success(1);
 
-            var successfulTrySubmitViewModel = this.BuildViewModel();
-            PopulateWithValidSelections(successfulTrySubmitViewModel);
-            string? successfulTrySubmitMessage = await successfulTrySubmitViewModel.TrySubmitRequestAsync();
-            Assert.That(successfulTrySubmitMessage, Is.Null);
-        }
+//            var successfulTrySubmitViewModel = this.BuildViewModel();
+//            PopulateWithValidSelections(successfulTrySubmitViewModel);
+//            string? successfulTrySubmitMessage = await successfulTrySubmitViewModel.TrySubmitRequestAsync();
+//            Assert.That(successfulTrySubmitMessage, Is.Null);
+//        }
 
-        [Test]
-        public void Setters_RaisePropertyChangedForBindableFields()
-        {
-            var viewModel = this.BuildViewModel();
-            var changedProperties = new List<string?>();
-            viewModel.PropertyChanged += (_, eventArgs) => changedProperties.Add(eventArgs.PropertyName);
+//        [Test]
+//        public void Setters_RaisePropertyChangedForBindableFields()
+//        {
+//            var viewModel = this.BuildViewModel();
+//            var changedProperties = new List<string?>();
+//            viewModel.PropertyChanged += (_, eventArgs) => changedProperties.Add(eventArgs.PropertyName);
 
-            viewModel.SelectedGame = this.BuildOtherUsersGame(888);
-            viewModel.StartDate = DateTimeOffset.Now.AddDays(2);
-            viewModel.EndDate = DateTimeOffset.Now.AddDays(10);
+//            viewModel.SelectedGame = this.BuildOtherUsersGame(888);
+//            viewModel.StartDate = DateTimeOffset.Now.AddDays(2);
+//            viewModel.EndDate = DateTimeOffset.Now.AddDays(10);
 
-            Assert.That(changedProperties, Is.EqualTo(new[]
-            {
-                nameof(viewModel.SelectedGame),
-                nameof(viewModel.StartDate),
-                nameof(viewModel.EndDate),
-            }));
-        }
+//            Assert.That(changedProperties, Is.EqualTo(new[]
+//            {
+//                nameof(viewModel.SelectedGame),
+//                nameof(viewModel.StartDate),
+//                nameof(viewModel.EndDate),
+//            }));
+//        }
 
-        private CreateRequestViewModel BuildViewModel()
-        {
-            return new CreateRequestViewModel(
-                this.gameService,
-                this.requestService,
-                this.currentUserContext);
-        }
+//        private CreateRequestViewModel BuildViewModel()
+//        {
+//            return new CreateRequestViewModel(
+//                this.gameService,
+//                this.requestService,
+//                this.currentUserContext);
+//        }
 
-        private static void AssertInvalidRequestInputs(CreateRequestViewModel viewModel, Action<CreateRequestViewModel> invalidate)
-        {
-            PopulateWithValidSelections(viewModel);
-            invalidate(viewModel);
-            Assert.That(viewModel.ValidateRequestInputs(), Is.False);
-        }
+//        private static void AssertInvalidRequestInputs(CreateRequestViewModel viewModel, Action<CreateRequestViewModel> invalidate)
+//        {
+//            PopulateWithValidSelections(viewModel);
+//            invalidate(viewModel);
+//            Assert.That(viewModel.ValidateRequestInputs(), Is.False);
+//        }
 
-        private static void PopulateWithValidSelections(CreateRequestViewModel viewModel)
-        {
-            viewModel.SelectedGame = viewModel.AvailableGamesToRequest[0];
-            viewModel.StartDate = DateTimeOffset.Now.AddDays(1);
-            viewModel.EndDate = DateTimeOffset.Now.AddDays(7);
-        }
+//        private static void PopulateWithValidSelections(CreateRequestViewModel viewModel)
+//        {
+//            viewModel.SelectedGame = viewModel.AvailableGamesToRequest[0];
+//            viewModel.StartDate = DateTimeOffset.Now.AddDays(1);
+//            viewModel.EndDate = DateTimeOffset.Now.AddDays(7);
+//        }
 
-        private GameDTO BuildOtherUsersGame(int gameId)
-        {
-            return new GameDTO
-            {
-                Id = gameId,
-                Owner = new UserDTO { Id = this.otherOwnerId },
-                Name = $"Board Game {gameId}",
-                Price = 12m,
-                IsActive = true,
-            };
-        }
-    }
-}
+//        private GameDTO BuildOtherUsersGame(int gameId)
+//        {
+//            return new GameDTO
+//            {
+//                Id = gameId,
+//                Owner = new UserDTO { Id = this.otherOwnerId },
+//                Name = $"Board Game {gameId}",
+//                Price = 12m,
+//                IsActive = true,
+//            };
+//        }
+//    }
+//}

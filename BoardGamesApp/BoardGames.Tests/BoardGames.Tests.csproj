@@ -52,13 +52,18 @@
     <PackageReference Include="MSTest.TestFramework" Version="4.2.3" />
     <PackageReference Include="Uno.UI" Version="5.6.99" />
     <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
   </ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
 		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
 		<ProjectReference Include="..\BoardGames.Desktop\BoardGames.Desktop.csproj" />
-	</ItemGroup>
+        <ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
+        
+
+    </ItemGroup>
 
   <ItemGroup>
     <None Update="App.config">

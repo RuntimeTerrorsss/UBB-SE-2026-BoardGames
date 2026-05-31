@@ -80,7 +80,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    await DevDataSeeder.SeedAsync(app.Services);
+    if (!app.Environment.IsEnvironment("Testing"))
+    {
+        await DevDataSeeder.SeedAsync(app.Services);
+    }
 }
 
 app.UseStaticFiles();
@@ -97,3 +100,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
