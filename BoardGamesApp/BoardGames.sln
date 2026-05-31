@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11801.241 oobstable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.Api", "BoardGames.Api\BoardGames.Api.csproj", "{C37DD24D-E0AE-4F80-B510-7AB9F0AA03EC}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationServer", "Notif
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerCommunication", "ServerCommunication\ServerCommunication.csproj", "{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.WebTests", "BoardGames.WebTests\BoardGames.WebTests.csproj", "{0E99C406-D559-4358-93E6-067EDC11D3F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,6 +139,18 @@ Global
 		{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}.Release|x64.Build.0 = Release|Any CPU
 		{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}.Release|x86.ActiveCfg = Release|Any CPU
 		{89A29340-E3FD-4D3A-937F-60DFDB5C8A5A}.Release|x86.Build.0 = Release|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Debug|x64.Build.0 = Debug|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Debug|x86.Build.0 = Debug|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Release|x64.ActiveCfg = Release|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Release|x64.Build.0 = Release|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Release|x86.ActiveCfg = Release|Any CPU
+		{0E99C406-D559-4358-93E6-067EDC11D3F2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
