@@ -28,12 +28,14 @@
 //        private readonly Mock<IRequestProxyService> requestProxy;
 //        private readonly Mock<IGameProxyService> gameProxy;
 //        private readonly Mock<IChatProxyService> chatProxy;
+//        private readonly Mock<IRentalProxyService> rentalProxy;
 
 //        public RequestsControllerCreateTests()
 //        {
 //            this.requestProxy = new Mock<IRequestProxyService>();
 //            this.gameProxy = new Mock<IGameProxyService>();
 //            this.chatProxy = new Mock<IChatProxyService>();
+//            this.rentalProxy = new Mock<IRentalProxyService>();
 //        }
 
 //        [Fact]
@@ -243,7 +245,8 @@
 //            var controller = new RequestsController(
 //                this.requestProxy.Object,
 //                this.gameProxy.Object,
-//                this.chatProxy.Object);
+//                this.chatProxy.Object,
+//                this.rentalProxy.Object);
 
 //            var claims = new List<Claim>
 //            {
