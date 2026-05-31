@@ -159,6 +159,8 @@ namespace BoardGames.Api.Services
 
         private static MessageDataTransferObject MapEntityToDto(Message message)
         {
+            int defaultMissingIdentifier = -1;
+
             MessageType messageType = message switch
             {
                 TextMessage => MessageType.MessageText,

@@ -57,8 +57,8 @@ namespace BoardGames.Desktop.ViewModels
             if (rentalsTask.Result.Success && rentalsTask.Result.Data != null)
             {
                 foreach (var rental in rentalsTask.Result.Data
-                    .Where(r => !r.IsExpired)
-                    .OrderBy(r => r.StartDate)
+                    .Where(currentRental => !currentRental.IsExpired)
+                    .OrderBy(currentRental => currentRental.StartDate)
                     .Take(5))
                 {
                     UpcomingRentals.Add(rental);
