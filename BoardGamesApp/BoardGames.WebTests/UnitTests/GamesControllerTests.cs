@@ -1,4 +1,4 @@
-﻿// <copyright file="GamesControllerTests.cs" company="BoardRent">
+// <copyright file="GamesControllerTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -21,18 +21,20 @@ namespace BoardGames.Tests.Web
     {
         private readonly Mock<IGameProxyService> gameProxy;
         private readonly Mock<IRentalProxyService> rentalProxy;
+        private readonly Mock<IRequestProxyService> requestProxy;
         private readonly Guid accountId;
 
         public GamesControllerTests()
         {
             this.gameProxy = new Mock<IGameProxyService>();
             this.rentalProxy = new Mock<IRentalProxyService>();
+            this.requestProxy = new Mock<IRequestProxyService>();
             this.accountId = Guid.NewGuid();
         }
 
         private GamesController CreateController()
         {
-            var controller = new GamesController(this.gameProxy.Object, this.rentalProxy.Object);
+            var controller = new GamesController(this.gameProxy.Object, this.rentalProxy.Object, this.requestProxy.Object);
 
             var identity = new ClaimsIdentity(
                 new[]

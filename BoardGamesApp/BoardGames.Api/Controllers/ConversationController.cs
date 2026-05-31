@@ -69,8 +69,23 @@ namespace BoardGames.Api.Controllers
         [HttpPost("messages")]
         public async Task<ActionResult<MessageDataTransferObject>> SendMessage([FromBody] MessageDataTransferObject messageDto)
         {
-            var persisted = await this.conversationService.SendMessage(messageDto);
-            return this.Ok(persisted);
+            try
+            {
+                var persisted = await this.conversationService.SendMessage(messageDto);
+                return this.Ok(persisted);
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return this.StatusCode(403, ex.Message);
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.NotFound();
+            }
         }
 
         [HttpPut("messages")]

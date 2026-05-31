@@ -11,13 +11,24 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.12.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
+    <ProjectReference Include="..\BoardGames.Web\BoardGames.Web.csproj" />
+    <ProjectReference Include="..\NotificationServer\NotificationServer.csproj" />
+    <ProjectReference Include="..\ServerCommunication\ServerCommunication.csproj" />
   </ItemGroup>
 
 </Project>

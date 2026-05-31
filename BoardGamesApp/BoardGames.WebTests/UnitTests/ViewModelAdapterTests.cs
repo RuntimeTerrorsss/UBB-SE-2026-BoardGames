@@ -60,7 +60,7 @@ namespace BoardGames.Tests.Web
         [Fact]
         public void ToAccountProfileDTO_MapsAllFields()
         {
-            var model = new Web.Models.Account.ProfileViewModel
+            var model = new BoardGames.Web.Models.Account.ProfileViewModel
             {
                 DisplayName = "Jane Doe",
                 Email = "jane@example.com",

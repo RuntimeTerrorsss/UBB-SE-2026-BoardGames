@@ -55,6 +55,26 @@ namespace BoardGames.Api.Services
 
         public async Task<MessageDataTransferObject> SendMessage(MessageDataTransferObject dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Content))
+            {
+                throw new ArgumentException("Message content cannot be empty or whitespace.");
+            }
+
+            var sender = await this.accountRepository.GetByPamUserIdAsync(dto.SenderId);
+            if (sender == null || sender.IsSuspended)
+            {
+                throw new UnauthorizedAccessException("Sender account is suspended or invalid.");
+            }
+
+            try
+            {
+                await this.conversationRepository.GetConversationById(dto.ConversationId);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new KeyNotFoundException("Conversation not found.");
+            }
+
             var entity = MapDtoToEntity(dto);
             entity.MessageId = NewMessageIdentifier;
             var persisted = await conversationRepository.HandleNewMessage(entity);
