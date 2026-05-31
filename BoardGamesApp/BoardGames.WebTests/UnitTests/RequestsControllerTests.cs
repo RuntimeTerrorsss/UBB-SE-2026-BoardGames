@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestsControllerTests.cs" company="BoardRent">
+// <copyright file="RequestsControllerTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -13,6 +13,7 @@ using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Xunit;
 
@@ -63,6 +64,7 @@ namespace BoardGames.Tests.Web
                     User = new ClaimsPrincipal(identity),
                 },
             };
+            controller.TempData = new TempDataDictionary(controller.HttpContext, Mock.Of<ITempDataProvider>());
 
             return controller;
         }

@@ -94,7 +94,7 @@ namespace BoardGames.Tests.Web
 
             var result = await controller.ResolveRentalRequest(1, 100, true);
 
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<OkObjectResult>(result);
             this.requestProxy.Verify(
                 s => s.OfferGameAsync(requestId, It.Is<RequestActionDTO>(a => a.AccountId == accountId), It.IsAny<CancellationToken>()),
                 Times.Once);
@@ -146,7 +146,7 @@ namespace BoardGames.Tests.Web
 
             var result = await controller.ResolveRentalRequest(1, 100, false);
 
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<OkObjectResult>(result);
             this.requestProxy.Verify(
                 s => s.DenyRequestAsync(requestId, It.Is<RequestActionDTO>(a => a.AccountId == accountId), It.IsAny<CancellationToken>()),
                 Times.Once);

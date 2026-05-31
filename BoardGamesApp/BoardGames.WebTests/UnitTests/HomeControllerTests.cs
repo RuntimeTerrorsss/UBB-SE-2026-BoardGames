@@ -11,14 +11,14 @@ namespace BoardGames.Tests.Web
     public class HomeControllerTests
     {
         [Fact]
-        public void Index_RedirectsToGamesIndex()
+        public void Index_RedirectsToSearchIndex()
         {
             var controller = new HomeController();
 
             var result = controller.Index() as RedirectToActionResult;
 
             Assert.NotNull(result);
-            Assert.Equal("Games", result!.ControllerName);
+            Assert.Equal("Search", result!.ControllerName);
             Assert.Equal("Index", result.ActionName);
         }
 

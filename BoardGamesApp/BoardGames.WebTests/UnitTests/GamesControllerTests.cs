@@ -30,6 +30,10 @@ namespace BoardGames.Tests.Web
             this.rentalProxy = new Mock<IRentalProxyService>();
             this.requestProxy = new Mock<IRequestProxyService>();
             this.accountId = Guid.NewGuid();
+
+            this.requestProxy
+                .Setup(r => r.GetRequestsForRenterAsync(It.IsAny<Guid>(), default))
+                .ReturnsAsync(new List<RequestDTO>());
         }
 
         private GamesController CreateController()
