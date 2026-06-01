@@ -21,7 +21,7 @@ namespace BoardGames.Tests.ViewModels
 
             Assert.That(viewModel.NavigationItems.Select(item => item.Label), Is.EqualTo(new[]
             {
-                "Search Games",
+                "Homepage",
                 "Login",
                 "Register",
             }));
@@ -39,8 +39,8 @@ namespace BoardGames.Tests.ViewModels
 
             Assert.That(viewModel.NavigationItems.Select(item => item.Label), Is.EqualTo(new[]
             {
-                "Search Games",
-                "Games",
+                "Homepage",
+                "My Games",
                 "Notifications",
                 "Dashboard",
                 "Chat",

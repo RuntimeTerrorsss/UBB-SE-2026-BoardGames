@@ -1,4 +1,4 @@
-// <copyright file="RentalsFromOthersViewModelTests.cs" company="BoardRent">
+﻿// <copyright file="RentalsFromOthersViewModelTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

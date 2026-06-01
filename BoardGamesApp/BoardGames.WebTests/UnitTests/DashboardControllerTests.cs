@@ -1,4 +1,4 @@
-// <copyright file="DashboardControllerTests.cs" company="BoardRent">
+﻿// <copyright file="DashboardControllerTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

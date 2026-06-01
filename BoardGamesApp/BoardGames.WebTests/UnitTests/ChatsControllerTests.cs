@@ -1,7 +1,11 @@
-// <copyright file="ChatsControllerTests.cs" company="BoardRent">
+﻿// <copyright file="ChatsControllerTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Security.Claims;
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Controllers;

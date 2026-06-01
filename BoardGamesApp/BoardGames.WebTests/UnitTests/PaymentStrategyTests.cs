@@ -1,4 +1,4 @@
-// <copyright file="PaymentStrategyTests.cs" company="BoardRent">
+﻿// <copyright file="PaymentStrategyTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

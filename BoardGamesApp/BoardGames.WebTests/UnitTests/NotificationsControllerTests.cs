@@ -1,4 +1,4 @@
-// <copyright file="NotificationsControllerTests.cs" company="BoardRent">
+﻿// <copyright file="NotificationsControllerTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

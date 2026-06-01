@@ -1,4 +1,4 @@
-// <copyright file="RequestsControllerCreateTests.cs" company="BoardRent">
+﻿// <copyright file="RequestsControllerCreateTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -179,9 +179,9 @@ namespace BoardGames.Tests.Web
             Assert.Equal("The requested resource was not found.", viewModel.ErrorMessage);
         }
 
-        // ───────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // Client-side validation
-        // ───────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         [Fact]
         public async Task Create_Post_StartDateInPast_ReturnsViewWithModelError()

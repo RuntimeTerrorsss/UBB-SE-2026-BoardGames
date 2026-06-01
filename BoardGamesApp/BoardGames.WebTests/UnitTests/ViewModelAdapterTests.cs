@@ -2,6 +2,7 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System.Collections.Generic;
 using BoardGames.Shared.DTO;
 using BoardGames.Web.Helpers;
 using BoardGames.Web.Models.Dashboard;

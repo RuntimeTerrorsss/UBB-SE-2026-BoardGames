@@ -43,7 +43,7 @@ namespace BoardGames.Api.Common
                 return controller.ApiForbidden(error, "forbidden");
             }
 
-            if (Contains(error, "already taken") || Contains(error, "already exists"))
+            if (Contains(error, "already taken") || Contains(error, "already exists") || Contains(error, "already registered"))
             {
                 return controller.ApiConflict(error, "resource_conflict");
             }

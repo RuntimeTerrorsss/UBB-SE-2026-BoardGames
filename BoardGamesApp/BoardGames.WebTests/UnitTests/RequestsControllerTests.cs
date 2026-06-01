@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Xunit;
+using RequestsController = BoardGames.Web.Controllers.RequestsController;
+
 
 namespace BoardGames.Tests.Web
 {

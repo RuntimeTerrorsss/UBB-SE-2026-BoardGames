@@ -1,4 +1,4 @@
-// <copyright file="ClaimsPrincipalExtensionsTests.cs" company="BoardRent">
+﻿// <copyright file="ClaimsPrincipalExtensionsTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

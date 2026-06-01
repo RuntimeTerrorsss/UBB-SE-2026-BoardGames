@@ -1,4 +1,4 @@
-// <copyright file="SessionContextTests.cs" company="BoardRent">
+﻿// <copyright file="SessionContextTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 

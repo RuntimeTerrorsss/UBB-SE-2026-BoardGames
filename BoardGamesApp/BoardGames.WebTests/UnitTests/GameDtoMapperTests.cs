@@ -1,4 +1,4 @@
-// <copyright file="GameDtoMapperTests.cs" company="BoardRent">
+﻿// <copyright file="GameDtoMapperTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
