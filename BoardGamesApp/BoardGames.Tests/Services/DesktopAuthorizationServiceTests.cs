@@ -15,86 +15,132 @@ namespace BoardGames.Tests.Services
     public sealed class DesktopAuthorizationServiceTests
     {
         [Test]
-        public void CanAccessPage_WhenAnonymous_AllowsPublicPagesOnly()
+        public void CanAccessPage_AnonymousUser_AllowsOnlyPublicPages()
         {
-            var authorizationService = BuildService(new FakeSessionContext { IsLoggedIn = false });
+            var sessionContext = new FakeSessionContext
+            {
+                AccountId = Guid.Empty,
+                IsLoggedIn = false,
+                Role = AppRoles.StandardUser,
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
 
-            Assert.That(authorizationService.CanAccessPage(typeof(SearchGamesPage)), Is.True);
-            Assert.That(authorizationService.CanAccessPage(typeof(LoginPage)), Is.True);
-            Assert.That(authorizationService.CanAccessPage(typeof(RegisterPage)), Is.True);
-            Assert.That(authorizationService.CanAccessPage(typeof(ShellPage)), Is.True);
-            Assert.That(authorizationService.CanAccessPage(typeof(PlaceholderPage)), Is.False);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(systemUnderTest.CanAccessPage(typeof(ShellPage)), Is.True);
+                Assert.That(systemUnderTest.CanAccessPage(typeof(SearchGamesPage)), Is.True);
+                Assert.That(systemUnderTest.CanAccessPage(typeof(GameDetailsPage)), Is.True);
+                Assert.That(systemUnderTest.CanAccessPage(typeof(LoginPage)), Is.True);
+                Assert.That(systemUnderTest.CanAccessPage(typeof(RegisterPage)), Is.True);
+                Assert.That(systemUnderTest.CanAccessPage(typeof(PlaceholderPage)), Is.False);
+            }
         }
 
         [Test]
-        public void CanAccessRoute_WhenAnonymous_AllowsOnlyFilterLoginAndRegister()
+        public void CanAccessPage_LoggedInUser_AllowsPlaceholderPage()
         {
-            var authorizationService = BuildService(new FakeSessionContext { IsLoggedIn = false });
-
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Filter), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Login), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Register), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Games), Is.False);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Notifications), Is.False);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Dashboard), Is.False);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Chat), Is.False);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Account), Is.False);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Admin), Is.False);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Logout), Is.False);
-        }
-
-        [Test]
-        public void CanAccessRoute_WhenLoggedInStandardUser_AllowsProtectedRoutesExceptAdmin()
-        {
-            var authorizationService = BuildService(new FakeSessionContext
+            var sessionContext = new FakeSessionContext
             {
                 AccountId = Guid.NewGuid(),
                 IsLoggedIn = true,
                 Role = AppRoles.StandardUser,
-            });
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
 
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Games), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Notifications), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Dashboard), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Chat), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Account), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Logout), Is.True);
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Admin), Is.False);
+            Assert.That(systemUnderTest.CanAccessPage(typeof(PlaceholderPage)), Is.True);
         }
 
         [Test]
-        public void CanAccessRoute_WhenLoggedInAdministrator_AllowsAdminRoute()
+        public void CanAccessRoute_AnonymousUser_AllowsOnlyPublicRoutes()
         {
-            var authorizationService = BuildService(new FakeSessionContext
+            var sessionContext = new FakeSessionContext
+            {
+                AccountId = Guid.Empty,
+                IsLoggedIn = false,
+                Role = AppRoles.StandardUser,
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Filter), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.GameDetails), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Login), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Register), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Games), Is.False);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Notifications), Is.False);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Dashboard), Is.False);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Chat), Is.False);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Account), Is.False);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Admin), Is.False);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Logout), Is.False);
+            }
+        }
+
+        [Test]
+        public void CanAccessRoute_StandardUser_AllowsProtectedRoutesButDeniesAdmin()
+        {
+            var sessionContext = new FakeSessionContext
+            {
+                AccountId = Guid.NewGuid(),
+                IsLoggedIn = true,
+                Role = AppRoles.StandardUser,
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Games), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Notifications), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Dashboard), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Chat), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Account), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Logout), Is.True);
+                Assert.That(systemUnderTest.CanAccessRoute(AppPage.Admin), Is.False);
+            }
+        }
+
+        [Test]
+        public void CanAccessRoute_Administrator_AllowsAdminRoute()
+        {
+            var sessionContext = new FakeSessionContext
             {
                 AccountId = Guid.NewGuid(),
                 IsLoggedIn = true,
                 Role = AppRoles.Administrator,
-            });
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
 
-            Assert.That(authorizationService.CanAccessRoute(AppPage.Admin), Is.True);
-            Assert.That(authorizationService.IsAdministrator, Is.True);
+            Assert.That(systemUnderTest.CanAccessRoute(AppPage.Admin), Is.True);
         }
 
         [Test]
-        public void SessionDerivedProperties_ReflectCurrentSessionValues()
+        public void IsAdministrator_RoleIsAdministrator_ReturnsTrue()
+        {
+            var sessionContext = new FakeSessionContext
+            {
+                AccountId = Guid.NewGuid(),
+                IsLoggedIn = true,
+                Role = AppRoles.Administrator,
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
+
+            Assert.That(systemUnderTest.IsAdministrator, Is.True);
+        }
+
+        [Test]
+        public void CurrentAccountId_SessionContainsAccountId_ReturnsAccountId()
         {
             var accountId = Guid.NewGuid();
-            var authorizationService = BuildService(new FakeSessionContext
+            var sessionContext = new FakeSessionContext
             {
                 AccountId = accountId,
                 IsLoggedIn = true,
                 Role = AppRoles.StandardUser,
-            });
+            };
+            var systemUnderTest = new DesktopAuthorizationService(sessionContext);
 
-            Assert.That(authorizationService.CurrentAccountId, Is.EqualTo(accountId));
-            Assert.That(authorizationService.IsLoggedIn, Is.True);
-            Assert.That(authorizationService.IsAdministrator, Is.False);
-        }
-
-        private static DesktopAuthorizationService BuildService(FakeSessionContext sessionContext)
-        {
-            return new DesktopAuthorizationService(sessionContext);
+            Assert.That(systemUnderTest.CurrentAccountId, Is.EqualTo(accountId));
         }
     }
 }

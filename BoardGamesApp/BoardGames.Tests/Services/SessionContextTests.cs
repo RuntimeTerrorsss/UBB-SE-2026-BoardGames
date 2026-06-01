@@ -13,36 +13,55 @@ namespace BoardGames.Tests.Services
     public sealed class SessionContextTests
     {
         [Test]
-        public void Populate_WithCompleteProfile_CopiesAllFields()
+        public void Populate_ValidProfile_CopiesFieldsAndMarksLoggedIn()
         {
-            var sessionContext = new SessionContext();
-            var accountProfile = BuildAccountProfile();
+            var systemUnderTest = new SessionContext();
+            var accountId = Guid.NewGuid();
+            var accountProfile = new AccountProfileDTO
+            {
+                Id = accountId,
+                PamUserId = 7,
+                Username = "player-one",
+                DisplayName = "Player One",
+                Email = "player@example.com",
+                Role = new RoleDTO { Name = AppRoles.Administrator },
+                AvatarUrl = "/avatars/player.png",
+                IsSuspended = true,
+                IsLocked = true,
+                PhoneNumber = "0700000000",
+                Country = "Romania",
+                City = "Cluj-Napoca",
+                StreetName = "Memorandumului",
+                StreetNumber = "10",
+            };
 
-            sessionContext.Populate(accountProfile);
+            systemUnderTest.Populate(accountProfile);
 
-            Assert.That(sessionContext.IsLoggedIn, Is.True);
-            Assert.That(sessionContext.AccountId, Is.EqualTo(accountProfile.Id));
-            Assert.That(sessionContext.PamUserId, Is.EqualTo(accountProfile.PamUserId));
-            Assert.That(sessionContext.Username, Is.EqualTo(accountProfile.Username));
-            Assert.That(sessionContext.DisplayName, Is.EqualTo(accountProfile.DisplayName));
-            Assert.That(sessionContext.Email, Is.EqualTo(accountProfile.Email));
-            Assert.That(sessionContext.Role, Is.EqualTo(accountProfile.Role!.Name));
-            Assert.That(sessionContext.AvatarUrl, Is.EqualTo(accountProfile.AvatarUrl));
-            Assert.That(sessionContext.IsSuspended, Is.EqualTo(accountProfile.IsSuspended));
-            Assert.That(sessionContext.IsLocked, Is.EqualTo(accountProfile.IsLocked));
-            Assert.That(sessionContext.PhoneNumber, Is.EqualTo(accountProfile.PhoneNumber));
-            Assert.That(sessionContext.Country, Is.EqualTo(accountProfile.Country));
-            Assert.That(sessionContext.City, Is.EqualTo(accountProfile.City));
-            Assert.That(sessionContext.StreetName, Is.EqualTo(accountProfile.StreetName));
-            Assert.That(sessionContext.StreetNumber, Is.EqualTo(accountProfile.StreetNumber));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(systemUnderTest.IsLoggedIn, Is.True);
+                Assert.That(systemUnderTest.AccountId, Is.EqualTo(accountId));
+                Assert.That(systemUnderTest.PamUserId, Is.EqualTo(7));
+                Assert.That(systemUnderTest.Username, Is.EqualTo("player-one"));
+                Assert.That(systemUnderTest.DisplayName, Is.EqualTo("Player One"));
+                Assert.That(systemUnderTest.Email, Is.EqualTo("player@example.com"));
+                Assert.That(systemUnderTest.Role, Is.EqualTo(AppRoles.Administrator));
+                Assert.That(systemUnderTest.AvatarUrl, Is.EqualTo("/avatars/player.png"));
+                Assert.That(systemUnderTest.IsSuspended, Is.True);
+                Assert.That(systemUnderTest.IsLocked, Is.True);
+                Assert.That(systemUnderTest.PhoneNumber, Is.EqualTo("0700000000"));
+                Assert.That(systemUnderTest.Country, Is.EqualTo("Romania"));
+                Assert.That(systemUnderTest.City, Is.EqualTo("Cluj-Napoca"));
+                Assert.That(systemUnderTest.StreetName, Is.EqualTo("Memorandumului"));
+                Assert.That(systemUnderTest.StreetNumber, Is.EqualTo("10"));
+            }
         }
 
         [Test]
-        public void Populate_WithMissingOptionalFields_UsesSafeDefaults()
+        public void Populate_ProfileWithNullStrings_UsesEmptyStringsAndDefaultRole()
         {
-            var sessionContext = new SessionContext();
-
-            sessionContext.Populate(new AccountProfileDTO
+            var systemUnderTest = new SessionContext();
+            var accountProfile = new AccountProfileDTO
             {
                 Id = Guid.NewGuid(),
                 Username = null!,
@@ -55,76 +74,76 @@ namespace BoardGames.Tests.Services
                 City = null!,
                 StreetName = null!,
                 StreetNumber = null!,
-            });
+            };
 
-            Assert.That(sessionContext.Username, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.DisplayName, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.Email, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.Role, Is.EqualTo(AppRoles.StandardUser));
-            Assert.That(sessionContext.AvatarUrl, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.PhoneNumber, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.Country, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.City, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.StreetName, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.StreetNumber, Is.EqualTo(string.Empty));
+            systemUnderTest.Populate(accountProfile);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(systemUnderTest.IsLoggedIn, Is.True);
+                Assert.That(systemUnderTest.Username, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.DisplayName, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.Email, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.Role, Is.EqualTo(AppRoles.StandardUser));
+                Assert.That(systemUnderTest.AvatarUrl, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.PhoneNumber, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.Country, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.City, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.StreetName, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.StreetNumber, Is.EqualTo(string.Empty));
+            }
         }
 
         [Test]
-        public void IsLoggedIn_BeforeAndAfterPopulate_ReflectsAccountState()
+        public void Populate_NullProfile_ThrowsArgumentNullException()
         {
-            var sessionContext = new SessionContext();
+            var systemUnderTest = new SessionContext();
 
-            Assert.That(sessionContext.IsLoggedIn, Is.False);
-
-            sessionContext.Populate(new AccountProfileDTO { Id = Guid.NewGuid() });
-
-            Assert.That(sessionContext.IsLoggedIn, Is.True);
+            Assert.Throws<ArgumentNullException>(new Action(() => systemUnderTest.Populate(null!)));
         }
 
         [Test]
-        public void Clear_AfterPopulate_ResetsAllFields()
+        public void Clear_PopulatedSession_ResetsAllFieldsAndMarksLoggedOut()
         {
-            var sessionContext = new SessionContext();
-            sessionContext.Populate(BuildAccountProfile());
-
-            sessionContext.Clear();
-
-            Assert.That(sessionContext.IsLoggedIn, Is.False);
-            Assert.That(sessionContext.AccountId, Is.EqualTo(Guid.Empty));
-            Assert.That(sessionContext.PamUserId, Is.Null);
-            Assert.That(sessionContext.Username, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.DisplayName, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.Email, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.Role, Is.EqualTo(AppRoles.StandardUser));
-            Assert.That(sessionContext.AvatarUrl, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.IsSuspended, Is.False);
-            Assert.That(sessionContext.IsLocked, Is.False);
-            Assert.That(sessionContext.PhoneNumber, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.Country, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.City, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.StreetName, Is.EqualTo(string.Empty));
-            Assert.That(sessionContext.StreetNumber, Is.EqualTo(string.Empty));
-        }
-
-        private static AccountProfileDTO BuildAccountProfile()
-        {
-            return new AccountProfileDTO
+            var systemUnderTest = new SessionContext();
+            systemUnderTest.Populate(new AccountProfileDTO
             {
                 Id = Guid.NewGuid(),
-                PamUserId = 41,
-                Username = "alice",
-                DisplayName = "Alice Example",
-                Email = "alice@example.com",
+                PamUserId = 4,
+                Username = "player-two",
+                DisplayName = "Player Two",
+                Email = "player2@example.com",
                 Role = new RoleDTO { Name = AppRoles.Administrator },
-                AvatarUrl = "/images/alice.png",
+                AvatarUrl = "/avatars/player2.png",
                 IsSuspended = true,
                 IsLocked = true,
-                PhoneNumber = "0712345678",
+                PhoneNumber = "0711111111",
                 Country = "Romania",
-                City = "Cluj-Napoca",
-                StreetName = "Memorandumului",
-                StreetNumber = "12A",
-            };
+                City = "Sibiu",
+                StreetName = "Cetatii",
+                StreetNumber = "3",
+            });
+
+            systemUnderTest.Clear();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(systemUnderTest.IsLoggedIn, Is.False);
+                Assert.That(systemUnderTest.AccountId, Is.EqualTo(Guid.Empty));
+                Assert.That(systemUnderTest.PamUserId, Is.Null);
+                Assert.That(systemUnderTest.Username, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.DisplayName, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.Email, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.Role, Is.EqualTo(AppRoles.StandardUser));
+                Assert.That(systemUnderTest.AvatarUrl, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.IsSuspended, Is.False);
+                Assert.That(systemUnderTest.IsLocked, Is.False);
+                Assert.That(systemUnderTest.PhoneNumber, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.Country, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.City, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.StreetName, Is.EqualTo(string.Empty));
+                Assert.That(systemUnderTest.StreetNumber, Is.EqualTo(string.Empty));
+            }
         }
     }
 }

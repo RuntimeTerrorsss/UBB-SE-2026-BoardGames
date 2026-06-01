@@ -11,7 +11,7 @@ namespace BoardGames.Tests.ViewModels
     public sealed class BaseViewModelTests
     {
         [Test]
-        public void IsLoading_WhenValueChanges_RaisesPropertyChanged()
+        public void IsLoading_ValueChanges_RaisesPropertyChanged()
         {
             var viewModel = new BaseViewModel();
             bool propertyChangedRaised = false;
@@ -31,7 +31,7 @@ namespace BoardGames.Tests.ViewModels
         }
 
         [Test]
-        public void ErrorMessage_WhenAssigned_StoresTheNewValue()
+        public void ErrorMessage_ValueAssigned_StoresTheNewValue()
         {
             var viewModel = new BaseViewModel();
             string expectedMessage = "Invalid credentials provided.";
@@ -42,7 +42,7 @@ namespace BoardGames.Tests.ViewModels
         }
 
         [Test]
-        public void Constructor_WhenCreated_UsesDefaultValues()
+        public void Constructor_DefaultState_UsesDefaultValues()
         {
             var viewModel = new BaseViewModel();
 

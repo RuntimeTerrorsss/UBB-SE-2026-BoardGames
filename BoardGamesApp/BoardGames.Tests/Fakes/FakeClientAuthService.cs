@@ -2,6 +2,7 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
@@ -13,13 +14,16 @@ namespace BoardGames.Tests.Fakes
     {
         public ServiceResult RegisterResult { get; set; } = ServiceResult.Ok();
 
-        public ServiceResult<AccountProfileDTO> LoginResult { get; set; }
-            = ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO());
+        public ServiceResult<AccountProfileDTO> LoginResult { get; set; } =
+            ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO());
 
         public ServiceResult LogoutResult { get; set; } = ServiceResult.Ok();
 
-        public ServiceResult<string> ForgotPasswordResult { get; set; }
-            = ServiceResult<string>.Ok(string.Empty);
+        public ServiceResult<string> ForgotPasswordResult { get; set; } = ServiceResult<string>.Ok(string.Empty);
+
+        public Exception? RegisterException { get; set; }
+
+        public Exception? LoginException { get; set; }
 
         public int RegisterCallCount { get; private set; }
 
@@ -33,24 +37,34 @@ namespace BoardGames.Tests.Fakes
         {
             this.RegisterCallCount++;
             this.LastRegisterRequest = request;
+
+            if (this.RegisterException is not null)
+            {
+                throw this.RegisterException;
+            }
+
             return Task.FromResult(this.RegisterResult);
         }
 
-        public Task<ServiceResult<AccountProfileDTO>> LoginAsync(LoginDTO request, CancellationToken cancellationToken = default)
+        public Task<ServiceResult<AccountProfileDTO>> LoginAsync(
+            LoginDTO request,
+            CancellationToken cancellationToken = default)
         {
             this.LoginCallCount++;
             this.LastLoginRequest = request;
+
+            if (this.LoginException is not null)
+            {
+                throw this.LoginException;
+            }
+
             return Task.FromResult(this.LoginResult);
         }
 
-        public Task<ServiceResult> LogoutAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(this.LogoutResult);
-        }
+        public Task<ServiceResult> LogoutAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(this.LogoutResult);
 
-        public Task<ServiceResult<string>> ForgotPasswordAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(this.ForgotPasswordResult);
-        }
+        public Task<ServiceResult<string>> ForgotPasswordAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(this.ForgotPasswordResult);
     }
 }
