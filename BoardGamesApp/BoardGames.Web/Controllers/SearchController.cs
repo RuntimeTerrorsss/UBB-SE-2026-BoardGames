@@ -47,7 +47,7 @@ namespace BoardGames.Web.Controllers
             try
             {
                 IReadOnlyList<GameDTO> results;
-                if (this.User.Identity?.IsAuthenticated == true && !this.HasSearchFilters(model))
+                if (this.User?.Identity?.IsAuthenticated == true && !this.HasSearchFilters(model))
                 {
                     results = await this.gameProxyService.GetAvailableGamesForRenterAsync(this.User.GetAccountId());
                 }
@@ -62,7 +62,7 @@ namespace BoardGames.Web.Controllers
                         AvailableFrom = model.StartDate,
                         AvailableTo = model.EndDate,
                         SortBy = model.SortOption,
-                        ExcludeOwnerAccountId = this.User.Identity?.IsAuthenticated == true
+                        ExcludeOwnerAccountId = this.User?.Identity?.IsAuthenticated == true
                             ? this.User.GetAccountId()
                             : null,
                     };

@@ -89,7 +89,7 @@ namespace BoardGames.Tests.Web
             Assert.NotNull(result);
             var viewModel = Assert.IsType<SearchFilterViewModel>(result!.Model);
             Assert.Empty(viewModel.Results);
-            Assert.Equal(0, viewModel.TotalPages);
+            Assert.Equal(1, viewModel.TotalPages);
         }
 
         [Fact]

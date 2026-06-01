@@ -13,6 +13,7 @@ using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Xunit;
 using RequestsController = BoardGames.Web.Controllers.RequestsController;
@@ -65,6 +66,7 @@ namespace BoardGames.Tests.Web
                     User = new ClaimsPrincipal(identity),
                 },
             };
+            controller.TempData = new TempDataDictionary(controller.HttpContext, Mock.Of<ITempDataProvider>());
 
             return controller;
         }
