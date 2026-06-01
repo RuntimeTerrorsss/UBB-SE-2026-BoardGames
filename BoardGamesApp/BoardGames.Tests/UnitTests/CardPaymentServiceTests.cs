@@ -1,10 +1,11 @@
-//using BoardGames.Data.Repositories;
-//using Xunit;
-//using BoardGames.Api.Legacy.Services;
-//using Moq;
 //// <copyright file="CardPaymentServiceTests.cs" company="BoardRent">
 //// Copyright (c) BoardRent. All rights reserved.
 //// </copyright>
+//using BoardGames.Data.Repositories;
+//using Xunit;
+//using BoardGames.Api.Services;
+//using Moq;
+
 
 //using System;
 //using System.Threading.Tasks;
