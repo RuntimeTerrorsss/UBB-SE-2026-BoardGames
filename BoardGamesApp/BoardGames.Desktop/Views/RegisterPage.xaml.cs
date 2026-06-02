@@ -2,14 +2,14 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using BoardGames.Desktop.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+
 namespace BoardGames.Desktop.Views
 {
-    using BoardGames.Desktop.ViewModels;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
-
     public sealed partial class RegisterPage : Page
     {
         public RegisterPage()

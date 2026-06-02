@@ -126,7 +126,7 @@ namespace BoardGames.WebTests.IntegrationTests
                 Renter = renter, 
                 StartDate = DateTime.UtcNow.AddDays(1), 
                 EndDate = DateTime.UtcNow.AddDays(5),
-                Status = BoardGames.Data.Enums.RequestStatus.Open
+                Status = BoardGames.Data.Enums.RequestStatus.Open,
             };
 
             dbContext.Users.AddRange(owner, renter);

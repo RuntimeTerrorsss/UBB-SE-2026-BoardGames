@@ -2,17 +2,17 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Desktop.Commands;
+using AppConstants = BoardGames.Desktop.Constants.Constants;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Immutable;
-    using System.Threading.Tasks;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-    using BoardGames.Desktop.Commands;
-    using AppConstants = BoardGames.Desktop.Constants.Constants;
-
     public class ListingsViewModel : PagedViewModel<GameSummaryDTO>
     {
         private const int NoActiveRentalsCount = 0;

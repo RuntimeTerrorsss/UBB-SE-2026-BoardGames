@@ -2,18 +2,18 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+using BoardGames.Web.Helpers;
+using BoardGames.Web.Infrastructure;
+using BoardGames.Web.Models.Account;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 namespace BoardGames.Web.Controllers
 {
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Web.Helpers;
-    using BoardGames.Web.Infrastructure;
-    using BoardGames.Web.Models.Account;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-
     [Authorize]
     public class ProfileController : Controller
     {

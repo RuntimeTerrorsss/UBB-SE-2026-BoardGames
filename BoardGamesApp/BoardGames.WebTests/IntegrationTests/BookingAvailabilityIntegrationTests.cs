@@ -63,7 +63,7 @@ namespace BoardGames.WebTests.IntegrationTests
                 Client = renter,
                 Owner = owner,
                 StartDate = baseDate,
-                EndDate = baseDate.AddDays(5)
+                EndDate = baseDate.AddDays(5),
             };
             db.Rentals.Add(rental);
             await db.SaveChangesAsync();

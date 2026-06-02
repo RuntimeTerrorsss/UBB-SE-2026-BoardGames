@@ -64,7 +64,7 @@ namespace BoardGames.WebTests.IntegrationTests
                 Participants = new List<ConversationParticipant>
                 {
                     new ConversationParticipant { UserId = sender.PamUserId },
-                    new ConversationParticipant { UserId = receiver.PamUserId }
+                    new ConversationParticipant { UserId = receiver.PamUserId },
                 }
             };
             db.Conversations.Add(conversation);

@@ -2,12 +2,12 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using AppConstants = BoardGames.Desktop.Constants.Constants;
+
 namespace BoardGames.Desktop.Views
 {
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using AppConstants = BoardGames.Desktop.Constants.Constants;
-
     internal static class DialogHelper
     {
         public static async Task ShowMessageAsync(XamlRoot xamlRoot, string title, object content)

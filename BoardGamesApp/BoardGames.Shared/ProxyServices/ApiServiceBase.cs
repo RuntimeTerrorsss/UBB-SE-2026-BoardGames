@@ -2,14 +2,14 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+
 namespace BoardGames.Shared.ProxyServices
 {
-    using System;
-    using System.Net.Http;
-    using System.Net.Http.Json;
-    using System.Threading.Tasks;
-    using BoardGames.Shared.DTO;
-
     public abstract class ApiServiceBase
     {
         private readonly IHttpClientFactory httpClientFactory;
