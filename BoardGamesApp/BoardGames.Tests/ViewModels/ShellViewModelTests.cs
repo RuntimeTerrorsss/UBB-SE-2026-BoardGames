@@ -2,11 +2,10 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-using System;
 using System.Linq;
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.ViewModels;
-using BoardGames.Tests.Fakes;
+using Moq;
 using NUnit.Framework;
 
 namespace BoardGames.Tests.ViewModels
@@ -15,97 +14,107 @@ namespace BoardGames.Tests.ViewModels
     public sealed class ShellViewModelTests
     {
         [Test]
-        public void Refresh_WhenAnonymous_ShowsSearchGamesLoginAndRegister()
+        public void Constructor_AnonymousUser_ShowsFilterLoginAndRegister()
         {
-            var viewModel = BuildViewModel(new FakeSessionContext { IsLoggedIn = false });
+            var authorizationService = CreateAuthorizationService(isLoggedIn: false, isAdministrator: false);
 
-            Assert.That(viewModel.NavigationItems.Select(item => item.Label), Is.EqualTo(new[]
+            var systemUnderTest = new ShellViewModel(authorizationService.Object);
+
+            using (Assert.EnterMultipleScope())
             {
-                "Search Games",
-                "Login",
-                "Register",
-            }));
+                Assert.That(systemUnderTest.NavigationItems.Select(item => item.Route), Is.EqualTo(new[]
+                {
+                    AppPage.Filter,
+                    AppPage.Login,
+                    AppPage.Register,
+                }));
+                Assert.That(systemUnderTest.SelectedItem?.Route, Is.EqualTo(AppPage.Filter));
+                Assert.That(systemUnderTest.CurrentRoute, Is.EqualTo(AppPage.Filter));
+            }
         }
 
         [Test]
-        public void Refresh_WhenLoggedInStandardUser_ShowsProtectedRoutesWithoutAdmin()
+        public void Refresh_LoggedInStandardUser_ShowsProtectedMenuWithoutAdmin()
         {
-            var viewModel = BuildViewModel(new FakeSessionContext
-            {
-                AccountId = Guid.NewGuid(),
-                IsLoggedIn = true,
-                Role = AppRoles.StandardUser,
-            });
+            var authorizationService = CreateAuthorizationService(isLoggedIn: true, isAdministrator: false);
+            var systemUnderTest = new ShellViewModel(authorizationService.Object);
 
-            Assert.That(viewModel.NavigationItems.Select(item => item.Label), Is.EqualTo(new[]
+            systemUnderTest.Refresh();
+
+            using (Assert.EnterMultipleScope())
             {
-                "Search Games",
-                "Games",
-                "Notifications",
-                "Dashboard",
-                "Chat",
-                "Account",
-                "Logout",
-            }));
-            Assert.That(viewModel.NavigationItems.Any(item => item.Route == AppPage.Admin), Is.False);
+                Assert.That(systemUnderTest.NavigationItems.Select(item => item.Route), Is.EqualTo(new[]
+                {
+                    AppPage.Filter,
+                    AppPage.Games,
+                    AppPage.Notifications,
+                    AppPage.Dashboard,
+                    AppPage.Chat,
+                    AppPage.Account,
+                    AppPage.Logout,
+                }));
+                Assert.That(systemUnderTest.FindItem(AppPage.Admin), Is.Null);
+            }
         }
 
         [Test]
-        public void Refresh_WhenLoggedInAdministrator_IncludesAdminRoute()
+        public void Refresh_Administrator_AddsAdminNavigationItem()
         {
-            var viewModel = BuildViewModel(new FakeSessionContext
+            var authorizationService = CreateAuthorizationService(isLoggedIn: true, isAdministrator: true);
+            var systemUnderTest = new ShellViewModel(authorizationService.Object);
+
+            systemUnderTest.Refresh();
+
+            Assert.That(systemUnderTest.FindItem(AppPage.Admin), Is.Not.Null);
+        }
+
+        [Test]
+        public void SetCurrentRoute_VisibleRoute_SelectsMatchingNavigationItem()
+        {
+            var authorizationService = CreateAuthorizationService(isLoggedIn: true, isAdministrator: false);
+            var systemUnderTest = new ShellViewModel(authorizationService.Object);
+
+            systemUnderTest.SetCurrentRoute(AppPage.Dashboard);
+
+            using (Assert.EnterMultipleScope())
             {
-                AccountId = Guid.NewGuid(),
-                IsLoggedIn = true,
-                Role = AppRoles.Administrator,
-            });
-
-            Assert.That(viewModel.NavigationItems.Any(item => item.Route == AppPage.Admin), Is.True);
+                Assert.That(systemUnderTest.CurrentRoute, Is.EqualTo(AppPage.Dashboard));
+                Assert.That(systemUnderTest.SelectedItem?.Route, Is.EqualTo(AppPage.Dashboard));
+            }
         }
 
         [Test]
-        public void SetCurrentRoute_UpdatesCurrentRouteAndSelectedItem()
+        public void SetCurrentRoute_HiddenRoute_ClearsSelection()
         {
-            var viewModel = BuildViewModel(new FakeSessionContext { IsLoggedIn = false });
+            var authorizationService = CreateAuthorizationService(isLoggedIn: false, isAdministrator: false);
+            var systemUnderTest = new ShellViewModel(authorizationService.Object);
 
-            viewModel.SetCurrentRoute(AppPage.Register);
+            systemUnderTest.SetCurrentRoute(AppPage.Dashboard);
 
-            Assert.That(viewModel.CurrentRoute, Is.EqualTo(AppPage.Register));
-            Assert.That(viewModel.SelectedItem?.Route, Is.EqualTo(AppPage.Register));
-        }
-
-        [Test]
-        public void FindItem_WithKnownRoute_ReturnsMatchingNavigationItem()
-        {
-            var viewModel = BuildViewModel(new FakeSessionContext { IsLoggedIn = false });
-
-            var navigationItem = viewModel.FindItem(AppPage.Login);
-
-            Assert.That(navigationItem, Is.Not.Null);
-            Assert.That(navigationItem!.Label, Is.EqualTo("Login"));
-        }
-
-        [Test]
-        public void Refresh_WhenCurrentRouteStillExists_PreservesSelection()
-        {
-            var sessionContext = new FakeSessionContext
+            using (Assert.EnterMultipleScope())
             {
-                AccountId = Guid.NewGuid(),
-                IsLoggedIn = true,
-                Role = AppRoles.StandardUser,
-            };
-            var viewModel = BuildViewModel(sessionContext);
-            viewModel.SetCurrentRoute(AppPage.Chat);
-
-            viewModel.Refresh();
-
-            Assert.That(viewModel.SelectedItem?.Route, Is.EqualTo(AppPage.Chat));
+                Assert.That(systemUnderTest.CurrentRoute, Is.EqualTo(AppPage.Dashboard));
+                Assert.That(systemUnderTest.SelectedItem, Is.Null);
+            }
         }
 
-        private static ShellViewModel BuildViewModel(FakeSessionContext sessionContext)
+        [Test]
+        public void FindItem_MissingRoute_ReturnsNull()
         {
-            var authorizationService = new DesktopAuthorizationService(sessionContext);
-            return new ShellViewModel(authorizationService);
+            var authorizationService = CreateAuthorizationService(isLoggedIn: false, isAdministrator: false);
+            var systemUnderTest = new ShellViewModel(authorizationService.Object);
+
+            var result = systemUnderTest.FindItem(AppPage.Admin);
+
+            Assert.That(result, Is.Null);
+        }
+
+        private static Mock<IDesktopAuthorizationService> CreateAuthorizationService(bool isLoggedIn, bool isAdministrator)
+        {
+            var authorizationService = new Mock<IDesktopAuthorizationService>();
+            authorizationService.SetupGet(service => service.IsLoggedIn).Returns(isLoggedIn);
+            authorizationService.SetupGet(service => service.IsAdministrator).Returns(isAdministrator);
+            return authorizationService;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace BoardGames.Api.Controllers
                 return this.MapCreateError(result.Error);
             }
 
-            return this.Ok(new { Id = result.Value });
+            return this.StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status201Created, new { Id = result.Value });
         }
 
         [HttpPut("{requestId:int}/approve")]

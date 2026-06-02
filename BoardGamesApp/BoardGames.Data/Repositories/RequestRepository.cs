@@ -167,7 +167,8 @@ namespace BoardGames.Data.Repositories
             return executionStrategy.Execute(() =>
             {
                 using var dbContext = this.dbContextFactory.CreateDbContext();
-                using var transaction = dbContext.Database.BeginTransaction();
+                var isInMemory = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+                using var transaction = isInMemory ? null : dbContext.Database.BeginTransaction();
                 try
                 {
                     var relatedRequestIdsToDelete = overlappingRequests
@@ -176,10 +177,11 @@ namespace BoardGames.Data.Repositories
                         .Distinct()
                         .ToArray();
 
-                    dbContext.Notifications
+                    var notificationsToDelete = dbContext.Notifications
                         .Where(notification => relatedRequestIdsToDelete.Contains(
                             EF.Property<int?>(notification, RelatedRequestIdShadowProperty)))
-                        .ExecuteDelete();
+                        .ToList();
+                    dbContext.Notifications.RemoveRange(notificationsToDelete);
 
                     var newRental = new Rental
                     {
@@ -207,12 +209,12 @@ namespace BoardGames.Data.Repositories
                     }
 
                     dbContext.SaveChanges();
-                    transaction.Commit();
+                    if (transaction != null) transaction.Commit();
                     return newRental.Id;
                 }
                 catch
                 {
-                    transaction.Rollback();
+                    if (transaction != null) transaction.Rollback();
                     throw;
                 }
             });

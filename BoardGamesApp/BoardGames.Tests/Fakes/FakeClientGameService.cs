@@ -30,6 +30,11 @@ namespace BoardGames.Tests.Fakes
             return Task.FromResult(ServiceResult.Ok());
         }
 
+        public Task<ServiceResult> CreateGameAsync(GameCreateDTO game, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ServiceResult.Ok());
+        }
+
         public Task<ServiceResult> UpdateGameAsync(int gameId, GameSummaryDTO game, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(ServiceResult.Ok());

@@ -137,9 +137,11 @@ namespace BoardGames.Data.Repositories
         public void DeleteNotificationsLinkedToRequest(int relatedRequestId)
         {
             using var dbContext = this.dbContextFactory.CreateDbContext();
-            dbContext.Notifications
+            var notifications = dbContext.Notifications
                 .Where(notification => EF.Property<int?>(notification, RelatedRequestIdShadowProperty) == (int?)relatedRequestId)
-                .ExecuteDelete();
+                .ToList();
+            dbContext.Notifications.RemoveRange(notifications);
+            dbContext.SaveChanges();
         }
 
         private static User? ResolveUser(AppDbContext dbContext, User? user)

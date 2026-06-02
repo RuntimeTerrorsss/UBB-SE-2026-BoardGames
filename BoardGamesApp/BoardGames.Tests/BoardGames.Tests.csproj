@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
@@ -52,12 +52,16 @@
     <PackageReference Include="MSTest.TestFramework" Version="4.2.3" />
     <PackageReference Include="Uno.UI" Version="5.6.99" />
     <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
   </ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
 		<ProjectReference Include="..\BoardGames.Data\BoardGames.Data.csproj" />
 		<ProjectReference Include="..\BoardGames.Desktop\BoardGames.Desktop.csproj" />
+		<ProjectReference Include="..\BoardGames.Api\BoardGames.Api.csproj" />
+		<ProjectReference Include="..\BoardGames.Web\BoardGames.Web.csproj" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -71,7 +75,6 @@
     <Compile Remove="DefaultTest.cs" />
     <Compile Remove="Fakes\**\*.cs" />
     <Compile Remove="Services\**\*.cs" />
-    <Compile Remove="UnitTests\**\*.cs" />
     <Compile Remove="ViewModels\**\*.cs" />
   </ItemGroup>
 
@@ -80,6 +83,7 @@
     <Compile Include="Fakes\FakeClientGameService.cs" />
     <Compile Include="Fakes\FakeCurrentUserContext.cs" />
     <Compile Include="Fakes\FakeSessionContext.cs" />
+    <Compile Include="Services\CurrentUserContextTests.cs" />
     <Compile Include="Services\DesktopAuthorizationServiceTests.cs" />
     <Compile Include="Services\SessionContextTests.cs" />
     <Compile Include="ViewModels\BaseViewModelTests.cs" />

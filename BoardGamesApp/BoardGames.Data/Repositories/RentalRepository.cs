@@ -127,7 +127,7 @@ namespace BoardGames.Data.Repositories
         public ImmutableList<Rental> GetRentalsByGame(int gameId)
         {
             return this.RentalsWithNavigations()
-                .Where(rental => rental.Game != null && rental.Game.Id == gameId)
+                .Where(rental => rental.GameId == gameId)
                 .ToImmutableList();
         }
 

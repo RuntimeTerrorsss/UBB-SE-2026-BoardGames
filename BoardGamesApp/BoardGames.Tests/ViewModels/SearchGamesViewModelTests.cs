@@ -38,10 +38,11 @@ namespace BoardGames.Tests.ViewModels
             Assert.That(this.systemUnderTest.LoginButtonVisibility, Is.EqualTo(Visibility.Visible));
         }
 
+        // When the session is anonymous, LoadAsync routes through SearchGamesAsync (not GetAllGamesAsync).
         [Test]
-        public async Task LoadAsync_WithNoFilters_CallsGetAllGames()
+        public async Task LoadAsync_WithNoFilters_CallsSearchGames()
         {
-            this.gameService.AllGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(new[]
+            this.gameService.SearchGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(new[]
             {
                 BuildGameSummary(1, "Catan"),
                 BuildGameSummary(2, "Carcassonne"),
@@ -49,8 +50,8 @@ namespace BoardGames.Tests.ViewModels
 
             await this.systemUnderTest.LoadAsync();
 
-            Assert.That(this.gameService.GetAllGamesCallCount, Is.EqualTo(1));
-            Assert.That(this.gameService.SearchGamesCallCount, Is.EqualTo(0));
+            Assert.That(this.gameService.SearchGamesCallCount, Is.EqualTo(1));
+            Assert.That(this.gameService.GetAllGamesCallCount, Is.EqualTo(0));
             Assert.That(this.systemUnderTest.Games, Has.Count.EqualTo(2));
         }
 
@@ -95,7 +96,7 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task LoadAsync_WhenServiceFails_ClearsGamesAndShowsError()
         {
-            this.gameService.AllGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail("Backend unavailable.");
+            this.gameService.SearchGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail("Backend unavailable.");
 
             await this.systemUnderTest.LoadAsync();
 
@@ -108,7 +109,7 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task LoadAsync_WithSuccessfulResponse_FillsGamesAndSummary()
         {
-            this.gameService.AllGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(new[]
+            this.gameService.SearchGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(new[]
             {
                 BuildGameSummary(1, "Catan"),
                 BuildGameSummary(2, "Azul"),
@@ -126,7 +127,7 @@ namespace BoardGames.Tests.ViewModels
         [Test]
         public async Task LoadAsync_WithNoGames_ShowsEmptyStateMessage()
         {
-            this.gameService.AllGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(Array.Empty<GameSummaryDTO>());
+            this.gameService.SearchGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(Array.Empty<GameSummaryDTO>());
 
             await this.systemUnderTest.LoadAsync();
 
@@ -135,9 +136,9 @@ namespace BoardGames.Tests.ViewModels
         }
 
         [Test]
-        public async Task ClearAsync_ResetsFiltersAndReloadsAllGames()
+        public async Task ClearAsync_ResetsFiltersAndReloadsGames()
         {
-            this.gameService.AllGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(new[]
+            this.gameService.SearchGamesResult = ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(new[]
             {
                 BuildGameSummary(1, "Wingspan"),
             });
@@ -160,7 +161,9 @@ namespace BoardGames.Tests.ViewModels
             Assert.That(this.systemUnderTest.AvailableTo, Is.Null);
             Assert.That(this.systemUnderTest.SelectedSortOption, Is.EqualTo("None"));
             Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(string.Empty));
-            Assert.That(this.gameService.GetAllGamesCallCount, Is.EqualTo(1));
+            // Anonymous session: ClearAsync calls LoadGamesAsync(useSearch: false)
+            // which routes to SearchGamesAsync because !sessionContext.IsLoggedIn
+            Assert.That(this.gameService.SearchGamesCallCount, Is.EqualTo(1));
         }
 
         [Test]

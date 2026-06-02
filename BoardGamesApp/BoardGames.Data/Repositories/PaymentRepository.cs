@@ -1,4 +1,4 @@
-﻿// <copyright file="PaymentRepository.cs" company="BoardRent">
+// <copyright file="PaymentRepository.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -68,29 +68,15 @@ namespace BoardGames.Data.Repositories
                 return null;
             }
 
-            var previousPayment = new Payment
-            {
-                TransactionIdentifier = existingPayment.TransactionIdentifier,
-                RequestId = existingPayment.RequestId,
-                ClientId = existingPayment.ClientId,
-                OwnerId = existingPayment.OwnerId,
-                PaidAmount = existingPayment.PaidAmount,
-                ReceiptFilePath = existingPayment.ReceiptFilePath,
-                DateOfTransaction = existingPayment.DateOfTransaction,
-                DateConfirmedBuyer = existingPayment.DateConfirmedBuyer,
-                DateConfirmedSeller = existingPayment.DateConfirmedSeller,
-                PaymentMethod = existingPayment.PaymentMethod,
-                PaymentState = existingPayment.PaymentState,
-            };
-
             existingPayment.ReceiptFilePath = payment.ReceiptFilePath ?? string.Empty;
             existingPayment.DateOfTransaction = payment.DateOfTransaction ?? DateTime.Now;
             existingPayment.DateConfirmedBuyer = payment.DateConfirmedBuyer;
             existingPayment.DateConfirmedSeller = payment.DateConfirmedSeller;
+            existingPayment.PaidAmount = payment.PaidAmount;
 
             await this.context.SaveChangesAsync();
 
-            return previousPayment;
+            return existingPayment;
         }
     }
 }

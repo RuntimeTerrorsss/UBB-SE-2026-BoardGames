@@ -1,4 +1,4 @@
-// <copyright file="FakeSessionContext.cs" company="BoardRent">
+﻿// <copyright file="FakeSessionContext.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -20,8 +20,6 @@ namespace BoardGames.Tests.Fakes
 
         public string Email { get; set; } = string.Empty;
 
-        public string Role { get; set; } = AppRoles.StandardUser;
-
         public string AvatarUrl { get; set; } = string.Empty;
 
         public bool IsSuspended { get; set; }
@@ -38,29 +36,31 @@ namespace BoardGames.Tests.Fakes
 
         public string StreetNumber { get; set; } = string.Empty;
 
+        public string Role { get; set; } = AppRoles.StandardUser;
+
         public bool IsLoggedIn { get; set; }
 
         public int PopulateCallCount { get; private set; }
 
         public int ClearCallCount { get; private set; }
 
-        public void Populate(AccountProfileDTO accountProfile)
+        public void Populate(AccountProfileDTO profile)
         {
             this.PopulateCallCount++;
-            this.AccountId = accountProfile.Id;
-            this.PamUserId = accountProfile.PamUserId;
-            this.Username = accountProfile.Username ?? string.Empty;
-            this.DisplayName = accountProfile.DisplayName ?? string.Empty;
-            this.Email = accountProfile.Email ?? string.Empty;
-            this.Role = accountProfile.Role?.Name ?? AppRoles.StandardUser;
-            this.AvatarUrl = accountProfile.AvatarUrl ?? string.Empty;
-            this.IsSuspended = accountProfile.IsSuspended;
-            this.IsLocked = accountProfile.IsLocked;
-            this.PhoneNumber = accountProfile.PhoneNumber ?? string.Empty;
-            this.Country = accountProfile.Country ?? string.Empty;
-            this.City = accountProfile.City ?? string.Empty;
-            this.StreetName = accountProfile.StreetName ?? string.Empty;
-            this.StreetNumber = accountProfile.StreetNumber ?? string.Empty;
+            this.AccountId = profile.Id;
+            this.PamUserId = profile.PamUserId;
+            this.Username = profile.Username ?? string.Empty;
+            this.DisplayName = profile.DisplayName ?? string.Empty;
+            this.Email = profile.Email ?? string.Empty;
+            this.AvatarUrl = profile.AvatarUrl ?? string.Empty;
+            this.IsSuspended = profile.IsSuspended;
+            this.IsLocked = profile.IsLocked;
+            this.PhoneNumber = profile.PhoneNumber ?? string.Empty;
+            this.Country = profile.Country ?? string.Empty;
+            this.City = profile.City ?? string.Empty;
+            this.StreetName = profile.StreetName ?? string.Empty;
+            this.StreetNumber = profile.StreetNumber ?? string.Empty;
+            this.Role = profile.Role?.Name ?? AppRoles.StandardUser;
             this.IsLoggedIn = true;
         }
 
@@ -72,7 +72,6 @@ namespace BoardGames.Tests.Fakes
             this.Username = string.Empty;
             this.DisplayName = string.Empty;
             this.Email = string.Empty;
-            this.Role = AppRoles.StandardUser;
             this.AvatarUrl = string.Empty;
             this.IsSuspended = false;
             this.IsLocked = false;
@@ -81,6 +80,7 @@ namespace BoardGames.Tests.Fakes
             this.City = string.Empty;
             this.StreetName = string.Empty;
             this.StreetNumber = string.Empty;
+            this.Role = AppRoles.StandardUser;
             this.IsLoggedIn = false;
         }
     }

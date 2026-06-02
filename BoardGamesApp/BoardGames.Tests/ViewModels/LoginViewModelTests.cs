@@ -1,11 +1,10 @@
-// <copyright file="LoginViewModelTests.cs" company="BoardRent">
+﻿// <copyright file="LoginViewModelTests.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
 using System;
 using System.Threading.Tasks;
 using BoardGames.Desktop.Services;
-using BoardGames.Desktop.ViewModels;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
@@ -30,84 +29,216 @@ namespace BoardGames.Tests.ViewModels
         }
 
         [Test]
-        public async Task LoginAsync_WithValidCredentials_PopulatesSessionAndInvokesSuccessCallback()
+        public async Task Login_ValidCredentials_PopulatesSessionAndCallsSuccessHook()
         {
-            bool successCallbackWasCalled = false;
-            this.systemUnderTest.OnLoginSuccess = () => successCallbackWasCalled = true;
+            bool callbackWasCalled = false;
+            this.systemUnderTest.OnLoginSuccess = () => callbackWasCalled = true;
             this.systemUnderTest.UsernameOrEmail = "admin";
             this.systemUnderTest.Password = "Password123!";
 
+            var accountId = Guid.NewGuid();
+            var profile = new AccountProfileDTO
+            {
+                Id = accountId,
+                PamUserId = 42,
+                Username = "admin",
+                DisplayName = "Admin User",
+                Email = "admin@example.com",
+                Role = new RoleDTO { Name = "Administrator" },
+                AvatarUrl = "/avatars/admin.png",
+                IsSuspended = true,
+                IsLocked = true,
+                PhoneNumber = "0712345678",
+                Country = "Romania",
+                City = "Cluj-Napoca",
+                StreetName = "Memorandumului",
+                StreetNumber = "10",
+            };
+
+            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(profile);
+
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(callbackWasCalled, Is.True);
+                Assert.That(this.authService.LoginCallCount, Is.EqualTo(1));
+                Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(1));
+                Assert.That(this.sessionContext.IsLoggedIn, Is.True);
+                Assert.That(this.sessionContext.AccountId, Is.EqualTo(accountId));
+                Assert.That(this.sessionContext.PamUserId, Is.EqualTo(42));
+                Assert.That(this.sessionContext.Role, Is.EqualTo(AppRoles.Administrator));
+                Assert.That(this.sessionContext.DisplayName, Is.EqualTo("Admin User"));
+                Assert.That(this.sessionContext.City, Is.EqualTo("Cluj-Napoca"));
+            }
+        }
+
+        [Test]
+        public async Task Login_UsernameContainsWhitespace_TrimsUsernameAndKeepsRememberMe()
+        {
+            this.systemUnderTest.UsernameOrEmail = "  admin@example.com  ";
+            this.systemUnderTest.Password = "Password123!";
+            this.systemUnderTest.RememberMe = true;
+
+            this.authService.LoginResult =
+                ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO { Id = Guid.NewGuid() });
+
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.authService.LastLoginRequest, Is.Not.Null);
+                Assert.That(this.authService.LastLoginRequest!.UsernameOrEmail, Is.EqualTo("admin@example.com"));
+                Assert.That(this.authService.LastLoginRequest.RememberMe, Is.True);
+            }
+        }
+
+        [Test]
+        public async Task Login_ServiceReturnsError_ShowsErrorAndLeavesSessionEmpty()
+        {
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "wrongpass";
+
+            string serviceError = "Invalid username or password.";
+            this.authService.LoginResult =
+                ServiceResult<AccountProfileDTO>.Fail(serviceError);
+
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(serviceError));
+                Assert.That(this.systemUnderTest.IsLoading, Is.False);
+                Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
+                Assert.That(this.sessionContext.IsLoggedIn, Is.False);
+            }
+        }
+
+        [Test]
+        public async Task Login_ProfileHasNoRole_UsesDefaultRole()
+        {
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "pass";
+
+            var profile = new AccountProfileDTO
+            {
+                Id = Guid.NewGuid(),
+                Username = "user",
+                Role = null,
+            };
+
+            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(profile);
+
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
+
+            Assert.That(this.sessionContext.Role, Is.EqualTo(AppRoles.StandardUser));
+        }
+
+        [Test]
+        public async Task Login_ServiceReturnsErrorWithoutMessage_UsesGenericErrorMessage()
+        {
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "Password123!";
+            this.authService.LoginResult = new ServiceResult<AccountProfileDTO> { Success = false };
+
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo("Login failed."));
+                Assert.That(this.systemUnderTest.IsLoading, Is.False);
+                Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public async Task Login_ServiceReturnsSuccessWithoutProfile_DoesNotPopulateSession()
+        {
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "Password123!";
+            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(null!);
+
+            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo("Login failed."));
+                Assert.That(this.systemUnderTest.IsLoading, Is.False);
+                Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
+                Assert.That(this.sessionContext.IsLoggedIn, Is.False);
+            }
+        }
+
+        [Test]
+        public async Task Login_SuccessCallbackIsMissing_PopulatesSessionWithoutThrowing()
+        {
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "Password123!";
             this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO
             {
                 Id = Guid.NewGuid(),
-                Username = "admin",
-                DisplayName = "Administrator",
-                Role = new RoleDTO { Name = AppRoles.Administrator },
+                Username = "user",
             });
 
             await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
 
-            Assert.That(successCallbackWasCalled, Is.True);
-            Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(1));
-            Assert.That(this.sessionContext.Username, Is.EqualTo("admin"));
-            Assert.That(this.authService.LoginCallCount, Is.EqualTo(1));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.sessionContext.IsLoggedIn, Is.True);
+                Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(string.Empty));
+                Assert.That(this.systemUnderTest.IsLoading, Is.False);
+            }
         }
 
         [Test]
-        public async Task LoginAsync_WithBlankUsernameAndPassword_SetsValidationErrorWithoutCallingService()
+        public void Login_ServiceThrowsException_ResetsLoadingStateAndPropagatesException()
+        {
+            this.systemUnderTest.UsernameOrEmail = "user";
+            this.systemUnderTest.Password = "Password123!";
+            this.authService.LoginException = new InvalidOperationException("Login exploded.");
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(new Func<Task>(async () =>
+                await this.systemUnderTest.LoginCommand.ExecuteAsync(null)));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exception!.Message, Is.EqualTo("Login exploded."));
+                Assert.That(this.systemUnderTest.IsLoading, Is.False);
+                Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public async Task Login_EmptyFields_ShowsLocalValidationAndSkipsServiceCall()
         {
             this.systemUnderTest.UsernameOrEmail = string.Empty;
             this.systemUnderTest.Password = string.Empty;
 
             await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
 
-            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo("Please enter both username/email and password."));
-            Assert.That(this.authService.LoginCallCount, Is.EqualTo(0));
-            Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo("Please enter both username/email and password."));
+                Assert.That(this.authService.LoginCallCount, Is.EqualTo(0));
+                Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
+            }
         }
 
         [Test]
-        public async Task LoginAsync_WhenAuthServiceFails_ShowsReturnedErrorAndStopsLoading()
+        public void NavigateToRegister_CallbackIsSet_CallsNavigationHook()
         {
-            this.systemUnderTest.UsernameOrEmail = "player";
-            this.systemUnderTest.Password = "bad-password";
-            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Fail("Invalid username or password.");
-
-            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
-
-            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo("Invalid username or password."));
-            Assert.That(this.systemUnderTest.IsLoading, Is.False);
-            Assert.That(this.sessionContext.PopulateCallCount, Is.EqualTo(0));
-        }
-
-        [Test]
-        public void NavigateToRegister_WhenExecuted_InvokesNavigationCallback()
-        {
-            bool navigateToRegisterWasCalled = false;
-            this.systemUnderTest.OnNavigateToRegister = () => navigateToRegisterWasCalled = true;
+            bool navigationWasCalled = false;
+            this.systemUnderTest.OnNavigateToRegister = () => navigationWasCalled = true;
 
             this.systemUnderTest.NavigateToRegisterCommand.Execute(null);
 
-            Assert.That(navigateToRegisterWasCalled, Is.True);
+            Assert.That(navigationWasCalled, Is.True);
         }
 
         [Test]
-        public async Task LoginAsync_AfterPreviousMessages_ClearsOldErrorAndInfoOnSuccess()
+        public void NavigateToRegister_CallbackIsMissing_DoesNotThrow()
         {
-            this.systemUnderTest.ErrorMessage = "Old error";
-            this.systemUnderTest.InfoMessage = "Old info";
-            this.systemUnderTest.UsernameOrEmail = "member";
-            this.systemUnderTest.Password = "Password123!";
-            this.authService.LoginResult = ServiceResult<AccountProfileDTO>.Ok(new AccountProfileDTO
-            {
-                Id = Guid.NewGuid(),
-                Username = "member",
-            });
-
-            await this.systemUnderTest.LoginCommand.ExecuteAsync(null);
-
-            Assert.That(this.systemUnderTest.ErrorMessage, Is.EqualTo(string.Empty));
-            Assert.That(this.systemUnderTest.InfoMessage, Is.EqualTo(string.Empty));
+            Assert.That(new Action(() => this.systemUnderTest.NavigateToRegisterCommand.Execute(null)), Throws.Nothing);
         }
     }
 }
