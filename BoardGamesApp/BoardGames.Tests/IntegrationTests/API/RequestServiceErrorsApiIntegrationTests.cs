@@ -17,7 +17,7 @@ namespace BoardGames.Tests.IntegrationTests.Api
     {
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
         };
 
         private sealed class CreatedRequestResponse

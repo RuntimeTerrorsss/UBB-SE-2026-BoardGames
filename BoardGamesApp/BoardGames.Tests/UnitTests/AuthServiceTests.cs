@@ -210,7 +210,7 @@ namespace BoardGames.Tests.UnitTests
                 Id = Guid.NewGuid(),
                 Username = "user",
                 IsSuspended = false,
-                PasswordHash = hashedPassword
+                PasswordHash = hashedPassword,
             };
 
             this.mockAccountRepository

@@ -2,13 +2,13 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using BoardGames.Desktop.ViewModels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace BoardGames.Desktop.Views
 {
-    using BoardGames.Desktop.ViewModels;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.Extensions.DependencyInjection;
-
     public sealed partial class ProfilePage : Page
     {
         public ProfilePage()

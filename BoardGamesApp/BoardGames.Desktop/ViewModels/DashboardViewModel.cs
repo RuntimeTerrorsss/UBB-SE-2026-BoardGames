@@ -2,15 +2,15 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
-namespace BoardGames.Desktop.ViewModels
-{
-    using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
     using BoardGames.Desktop.Services;
     using BoardGames.Shared.DTO;
     using BoardGames.Shared.ProxyServices;
 
+namespace BoardGames.Desktop.ViewModels
+{
     public class DashboardViewModel : ViewModelBase
     {
         private readonly IRentalService rentalService;

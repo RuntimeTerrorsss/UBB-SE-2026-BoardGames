@@ -2,16 +2,16 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Commands;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Immutable;
-    using System.Threading.Tasks;
-    using BoardGames.Desktop.Commands;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-
     public class AdminViewModel : PagedViewModel<AccountProfileDTO>
     {
         private const string AdminAccessDeniedMessage = "Unauthorized access. Administrator role is required.";

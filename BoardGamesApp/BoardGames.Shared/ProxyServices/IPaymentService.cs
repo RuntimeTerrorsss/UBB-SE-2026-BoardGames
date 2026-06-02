@@ -2,15 +2,15 @@
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+
 namespace BoardGames.Shared.ProxyServices
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Net.Http.Json;
-    using System.Threading.Tasks;
-    using BoardGames.Shared.DTO;
-
     public interface IPaymentService
     {
         Task<ServiceResult<PagedResult<PaymentDTO>>> GetFilteredPaymentsAsync(Guid accountId, FilterType filter, PaymentMethod method, string search, int page);
