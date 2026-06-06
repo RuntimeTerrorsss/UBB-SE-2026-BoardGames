@@ -39,50 +39,54 @@
 }
 else
 {
-    <div class="game-card-list">
+    <div class="games-index-list">
 @foreach (var item in Model)
 {
-        <div class="@(item.IsActive ? "game-card" : "game-card game-card-inactive")">
-            <a class="d-flex align-items-center gap-3 flex-grow-1 text-decoration-none text-reset" asp-action="Details" asp-route-id="@item.Id">
-                <div class="game-card-image-wrap">
-                    <img class="game-card-image" src="@GameImageHelper.GetDisplaySource(item)" alt="@item.Name" />
+        <div class="@(item.IsActive ? "games-index-card" : "games-index-card games-index-card-inactive")">
+            <a class="games-index-primary" asp-action="Details" asp-route-id="@item.Id">
+                <div class="games-index-image-wrap">
+                    <img class="games-index-image"
+                         src="@GameImageHelper.GetDisplaySource(item)"
+                         alt="@item.Name"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='@GameImageHelper.PlaceholderImageSource'" />
                 </div>
 
-                <div class="game-card-body">
-                    <div class="game-card-title-row">
-                        <h2 class="game-card-title">@item.Name</h2>
-                        <div class="game-card-status">
+                <div class="games-index-body">
+                    <div class="games-index-title-row">
+                        <h2 class="games-index-title">@item.Name</h2>
+                        <div class="games-index-status">
                             @if (item.IsActive)
                             {
-                                <span class="badge bg-success status-badge">Active</span>
+                                <span class="badge bg-success games-index-status-badge">Active</span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary status-badge">Inactive</span>
+                                <span class="badge bg-secondary games-index-status-badge">Inactive</span>
                             }
                         </div>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(item.Description))
                     {
-                        <p class="game-card-description">@item.Description</p>
+                        <p class="games-index-description">@item.Description</p>
                     }
 
-                    <div class="game-card-meta">
+                    <div class="games-index-meta">
                         <span>Price: @item.Price</span>
                         <span>Players: @item.MinimumPlayerNumber - @item.MaximumPlayerNumber</span>
                     </div>
 
                     @if (showOwner && !string.IsNullOrWhiteSpace(item.Owner?.DisplayName))
                     {
-                        <div class="game-card-owner">Owner: @item.Owner.DisplayName</div>
+                        <div class="games-index-owner">Owner: @item.Owner.DisplayName</div>
                     }
                 </div>
             </a>
 
-            <div class="game-card-actions">
-                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            <div class="games-index-actions">
+                <a class="btn btn-warning btn-sm games-index-action-button" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <a class="btn btn-danger btn-sm games-index-action-button" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </div>
         </div>
 }

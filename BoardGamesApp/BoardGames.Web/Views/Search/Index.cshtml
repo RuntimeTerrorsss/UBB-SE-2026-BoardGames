@@ -96,13 +96,15 @@
         box-shadow: 0 2px 12px rgba(0,0,0,0.07);
         overflow: hidden;
         display: flex;
-        height: 170px;
+        align-items: stretch;
+        min-height: 220px;
         transition: box-shadow 0.2s, transform 0.15s;
         text-decoration: none;
         color: inherit;
         margin-bottom: 1rem;
         position: relative;
-        cursor: pointer;
+        gap: 1rem;
+        padding: 1rem;
     }
 
         .game-card:hover {
@@ -111,28 +113,34 @@
             color: inherit;
         }
 
-    .game-card .card-nav-link {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
+    .game-card-img-wrap {
+        width: 220px;
+        min-width: 220px;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background: #f8f9fa;
+        overflow: hidden;
     }
 
     .game-card-img {
-        width: 200px;
-        min-width: 200px;
-        height: 170px;
-        object-fit: cover;
-        background: #e9ecef;
-        flex-shrink: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        display: block;
     }
 
     .game-card-body {
-        padding: 1rem 1.25rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: 0.35rem;
         flex: 1;
+        min-width: 0;
     }
 
         .game-card-body h6 {
@@ -152,6 +160,66 @@
                 font-weight: 600;
                 color: #343a40;
             }
+
+    .game-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 991.98px) {
+        .game-card {
+            flex-direction: column;
+        }
+
+        .game-card-img-wrap {
+            width: 100%;
+            min-width: 0;
+            max-width: 320px;
+            align-self: center;
+        }
+
+        .game-card-actions {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
+
+    .btn-rent {
+        background: #4361ee;
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.45rem 1rem;
+        text-decoration: none;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+        .btn-rent:hover {
+            background: #3451d1;
+            color: #fff;
+        }
+
+    .btn-details {
+        border: 1.5px solid #dee2e6;
+        color: #495057;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.45rem 1rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+        .btn-details:hover {
+            border-color: #4361ee;
+            color: #4361ee;
+        }
 
     .no-results {
         text-align: center;
@@ -259,9 +327,11 @@
                             ? Url.Action("Details", "Games", new { id = game.Id })
                             : Url.Action("Login", "Auth", new { returnUrl = Url.Action("Details", "Games", new { id = game.Id }) });
                     <div class="game-card">
-                        <a class="card-nav-link" href="@detailsUrl" aria-label="View @game.Name details"></a>
-                        <img class="game-card-img" src="@GameImageHelper.GetDisplaySource(game)" alt="@game.Name"
-                             onerror="this.src='@GameImageHelper.PlaceholderImageSource'" />
+                        <div class="game-card-img-wrap">
+                            <img class="game-card-img" src="@GameImageHelper.GetDisplaySource(game)" alt="@game.Name"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='@GameImageHelper.PlaceholderImageSource'" />
+                        </div>
                         <div class="game-card-body">
                             <h6>@game.Name</h6>
                             <p class="meta"><span>Price:</span> @game.Price RON/day</p>

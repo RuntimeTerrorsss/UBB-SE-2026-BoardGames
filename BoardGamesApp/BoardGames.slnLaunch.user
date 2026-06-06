@@ -5,7 +5,7 @@
       {
         "Path": "BoardGames.Api\\BoardGames.Api.csproj",
         "Action": "Start",
-        "DebugTarget": "https"
+        "DebugTarget": "http"
       },
       {
         "Path": "BoardGames.Web\\BoardGames.Web.csproj",
@@ -16,25 +16,6 @@
         "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
         "Action": "Start",
         "DebugTarget": "BoardGames.Desktop (Unpackaged)"
-      }
-    ]
-  },
-  {
-    "Name": "Api + Web + Desktop",
-    "Projects": [
-      {
-        "Path": "BoardGames.Api\\BoardGames.Api.csproj",
-        "Action": "Start",
-        "DebugTarget": "https"
-      },
-      {
-        "Path": "BoardGames.Web\\BoardGames.Web.csproj",
-        "Action": "Start",
-        "DebugTarget": "https"
-      },
-      {
-        "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
-        "Action": "Start"
       }
     ]
   }

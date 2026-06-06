@@ -11,10 +11,12 @@ namespace BoardGames.Web.Infrastructure
     public sealed class AuthProxyServiceAdapter : IAuthProxyService
     {
         private readonly HttpClient httpClient;
+        private readonly IApiAuthCookieStore apiAuthCookieStore;
 
-        public AuthProxyServiceAdapter(HttpClient httpClient)
+        public AuthProxyServiceAdapter(HttpClient httpClient, IApiAuthCookieStore apiAuthCookieStore)
         {
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this.apiAuthCookieStore = apiAuthCookieStore ?? throw new ArgumentNullException(nameof(apiAuthCookieStore));
             if (this.httpClient.BaseAddress is null)
             {
                 throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
@@ -24,6 +26,7 @@ namespace BoardGames.Web.Infrastructure
         public async Task<AccountProfileDTO> LoginAsync(LoginDTO body, CancellationToken cancellationToken = default)
         {
             using var response = await this.httpClient.PostAsJsonAsync("auth/login", body, cancellationToken);
+            this.apiAuthCookieStore.StoreFrom(response);
             return await HttpProxyClient.ReadAsync<AccountProfileDTO>(response, cancellationToken);
         }
 
@@ -35,8 +38,18 @@ namespace BoardGames.Web.Infrastructure
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default)
         {
-            using var response = await this.httpClient.PostAsync("auth/logout", content: null, cancellationToken);
-            await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
+            using var request = new HttpRequestMessage(HttpMethod.Post, "auth/logout");
+            this.apiAuthCookieStore.ApplyTo(request);
+
+            try
+            {
+                using var response = await this.httpClient.SendAsync(request, cancellationToken);
+                await HttpProxyClient.EnsureSuccessAsync(response, cancellationToken);
+            }
+            finally
+            {
+                this.apiAuthCookieStore.Clear();
+            }
         }
 
         public async Task<string> ForgotPasswordAsync(CancellationToken cancellationToken = default)
