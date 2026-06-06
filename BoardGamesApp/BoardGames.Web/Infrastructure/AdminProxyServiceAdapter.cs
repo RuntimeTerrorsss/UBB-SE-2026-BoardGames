@@ -14,10 +14,12 @@ namespace BoardGames.Web.Infrastructure
         private const int DefaultPageSize = 100;
 
         private readonly HttpClient httpClient;
+        private readonly IApiAuthCookieStore apiAuthCookieStore;
 
-        public AdminProxyServiceAdapter(HttpClient httpClient)
+        public AdminProxyServiceAdapter(HttpClient httpClient, IApiAuthCookieStore apiAuthCookieStore)
         {
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this.apiAuthCookieStore = apiAuthCookieStore ?? throw new ArgumentNullException(nameof(apiAuthCookieStore));
             if (this.httpClient.BaseAddress is null)
             {
                 throw new InvalidOperationException("HttpClient BaseAddress must be configured.");
@@ -26,34 +28,53 @@ namespace BoardGames.Web.Infrastructure
 
         public async Task<IEnumerable<AdminAccountViewModel>> GetAllAccountsAsync()
         {
-            using var response = await this.httpClient.GetAsync($"admin/accounts?page={FirstPage}&pageSize={DefaultPageSize}");
+            using var request = CreateRequest(HttpMethod.Get, $"admin/accounts?page={FirstPage}&pageSize={DefaultPageSize}");
+            using var response = await this.httpClient.SendAsync(request);
             var accounts = await HttpProxyClient.ReadAsync<List<AccountProfileDTO>>(response);
             return accounts.Select(Map).ToList();
         }
 
         public async Task SuspendAccountAsync(string accountId)
         {
-            using var response = await this.httpClient.PutAsync($"admin/accounts/{Guid.Parse(accountId)}/suspend", content: null);
+            using var request = CreateRequest(HttpMethod.Put, $"admin/accounts/{Guid.Parse(accountId)}/suspend");
+            using var response = await this.httpClient.SendAsync(request);
             await HttpProxyClient.EnsureSuccessAsync(response);
         }
 
         public async Task UnsuspendAccountAsync(string accountId)
         {
-            using var response = await this.httpClient.PutAsync($"admin/accounts/{Guid.Parse(accountId)}/unsuspend", content: null);
+            using var request = CreateRequest(HttpMethod.Put, $"admin/accounts/{Guid.Parse(accountId)}/unsuspend");
+            using var response = await this.httpClient.SendAsync(request);
             await HttpProxyClient.EnsureSuccessAsync(response);
         }
 
         public async Task UnlockAccountAsync(string accountId)
         {
-            using var response = await this.httpClient.PutAsync($"admin/accounts/{Guid.Parse(accountId)}/unlock", content: null);
+            using var request = CreateRequest(HttpMethod.Put, $"admin/accounts/{Guid.Parse(accountId)}/unlock");
+            using var response = await this.httpClient.SendAsync(request);
             await HttpProxyClient.EnsureSuccessAsync(response);
         }
 
         public async Task ResetPasswordAsync(string accountId, string newPassword)
         {
             var body = new ResetPasswordDTO { NewPassword = newPassword };
-            using var response = await this.httpClient.PutAsJsonAsync($"admin/accounts/{Guid.Parse(accountId)}/reset-password", body);
+            using var request = CreateRequest(
+                HttpMethod.Put,
+                $"admin/accounts/{Guid.Parse(accountId)}/reset-password",
+                JsonContent.Create(body));
+            using var response = await this.httpClient.SendAsync(request);
             await HttpProxyClient.EnsureSuccessAsync(response);
+        }
+
+        private HttpRequestMessage CreateRequest(HttpMethod method, string relativeUrl, HttpContent? content = null)
+        {
+            var request = new HttpRequestMessage(method, relativeUrl)
+            {
+                Content = content,
+            };
+
+            this.apiAuthCookieStore.ApplyTo(request);
+            return request;
         }
 
         private static AdminAccountViewModel Map(AccountProfileDTO profile) => new()

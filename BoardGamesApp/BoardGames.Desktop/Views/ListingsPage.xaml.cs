@@ -24,16 +24,16 @@ namespace BoardGames.Desktop.Views
 
         private void EditGameButton_Click(object sender, RoutedEventArgs routedEventArgs)
         {
-            if ((sender as Button)?.Tag is GameSummaryDTO gameToEdit)
+            if ((sender as Button)?.Tag is ListingGameCardViewModel gameToEdit)
             {
-                this.Frame.Navigate(typeof(EditGameView), gameToEdit.Id);
+                this.Frame.Navigate(typeof(EditGameView), gameToEdit.Game.Id);
             }
         }
 
         private async void DeleteGameButton_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             var clickedButton = sender as Button;
-            var gameToDelete = clickedButton?.Tag as GameSummaryDTO;
+            var gameToDelete = clickedButton?.Tag as ListingGameCardViewModel;
 
             if (gameToDelete == null) return;
 

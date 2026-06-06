@@ -8,6 +8,7 @@ namespace BoardGames.Web.Infrastructure
     {
         public static IServiceCollection AddProxyServices(this IServiceCollection services, Uri apiBaseAddress)
         {
+            services.AddScoped<IApiAuthCookieStore, SessionApiAuthCookieStore>();
             services.AddHttpClient<IAuthProxyService, AuthProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
             services.AddHttpClient<IGameProxyService, GameProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);
             services.AddHttpClient<IRentalProxyService, RentalProxyServiceAdapter>(client => client.BaseAddress = apiBaseAddress);

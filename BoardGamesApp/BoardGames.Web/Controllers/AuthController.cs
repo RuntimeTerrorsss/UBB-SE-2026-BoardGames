@@ -4,6 +4,7 @@
 
 using System.Security.Claims;
 using BoardGames.Shared.DTO;
+using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
 using BoardGames.Web.Models.Account;
 using Microsoft.AspNetCore.Authentication;
@@ -72,7 +73,7 @@ namespace BoardGames.Web.Controllers
                 return this.Redirect(model.ReturnUrl);
             }
 
-            if (profile.Role?.Name?.Equals("admin", StringComparison.OrdinalIgnoreCase) == true)
+            if (profile.Role?.Name?.Equals(AppRoles.Administrator, StringComparison.OrdinalIgnoreCase) == true)
             {
                 return RedirectToAction("Index", "Admin");
             }
