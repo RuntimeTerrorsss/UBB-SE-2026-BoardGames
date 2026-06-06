@@ -1,10 +1,14 @@
-﻿namespace BoardGames.Shared.ProxyServices
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using BoardGames.Shared.DTO;
+﻿// <copyright file="IConversationService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+
+namespace BoardGames.Shared.ProxyServices
+{
     public interface IConversationService
     {
         Task<ServiceResult<List<ConversationDTO>>> GetConversationsForUserAsync(Guid accountId);

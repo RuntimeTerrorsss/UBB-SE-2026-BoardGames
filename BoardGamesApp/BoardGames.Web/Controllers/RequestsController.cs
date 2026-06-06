@@ -18,12 +18,18 @@ namespace BoardGames.Web.Controllers
         private readonly IRequestProxyService requestProxyService;
         private readonly IGameProxyService gameProxyService;
         private readonly IChatProxyService chatProxyService;
+        private readonly IRentalProxyService rentalProxyService;
 
-        public RequestsController(IRequestProxyService requestProxyService, IGameProxyService gameProxyService, IChatProxyService chatProxyService)
+        public RequestsController(
+            IRequestProxyService requestProxyService,
+            IGameProxyService gameProxyService,
+            IChatProxyService chatProxyService,
+            IRentalProxyService rentalProxyService)
         {
             this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
             this.chatProxyService = chatProxyService ?? throw new ArgumentNullException(nameof(chatProxyService));
+            this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
         }
 
         [HttpGet]
@@ -56,6 +62,25 @@ namespace BoardGames.Web.Controllers
             Guid ownerAccountId = this.User.GetAccountId();
             var openRequests = await this.requestProxyService.GetOpenRequestsForOwnerAsync(ownerAccountId);
             return View(openRequests);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> BookedDates(int gameId)
+        {
+            if (gameId <= 0)
+            {
+                return this.Json(Array.Empty<BookedDateRangeDTO>());
+            }
+
+            try
+            {
+                var bookedDates = await this.rentalProxyService.GetBookedDatesForGameAsync(gameId);
+                return this.Json(bookedDates);
+            }
+            catch (ProxyServiceException)
+            {
+                return this.Json(Array.Empty<BookedDateRangeDTO>());
+            }
         }
 
         [HttpGet]

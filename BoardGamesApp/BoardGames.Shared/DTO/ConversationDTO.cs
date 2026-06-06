@@ -10,6 +10,14 @@ namespace BoardGames.Shared.DTO
 {
     public class ConversationDTO
     {
+        public ConversationDTO()
+        {
+            MessageList = new List<MessageDataTransferObject>();
+            ParticipantUserIds = new List<int>();
+            LastRead = new Dictionary<int, DateTime>();
+            UnreadCount = new Dictionary<int, int>();
+        }
+
         public ConversationDTO(
             int conversationId,
             IReadOnlyList<int> participantUserIds,
@@ -33,6 +41,8 @@ namespace BoardGames.Shared.DTO
         public Dictionary<int, DateTime> LastRead { get; set; }
 
         public Dictionary<int, int> UnreadCount { get; set; }
+
+        public Dictionary<int, string> ParticipantDisplayNames { get; set; } = new();
 
         public void AddMessageToListDTO(MessageDataTransferObject newMessage)
         {

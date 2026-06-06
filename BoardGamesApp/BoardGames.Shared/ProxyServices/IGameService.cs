@@ -10,6 +10,8 @@ namespace BoardGames.Shared.ProxyServices
     {
         Task<ServiceResult> CreateGameAsync(GameSummaryDTO game, CancellationToken cancellationToken = default);
 
+        Task<ServiceResult> CreateGameAsync(GameCreateDTO game, CancellationToken cancellationToken = default);
+
         Task<ServiceResult> UpdateGameAsync(int gameId, GameSummaryDTO game, CancellationToken cancellationToken = default);
 
         Task<ServiceResult<GameSummaryDTO>> DeleteGameAsync(int gameId, CancellationToken cancellationToken = default);

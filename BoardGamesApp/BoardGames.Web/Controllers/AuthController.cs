@@ -17,16 +17,23 @@ namespace BoardGames.Web.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthProxyService authProxyService;
+        private readonly IApiAuthCookieStore apiAuthCookieStore;
 
-        public AuthController(IAuthProxyService authProxyService)
+        public AuthController(IAuthProxyService authProxyService, IApiAuthCookieStore apiAuthCookieStore)
         {
             this.authProxyService = authProxyService ?? throw new ArgumentNullException(nameof(authProxyService));
+            this.apiAuthCookieStore = apiAuthCookieStore ?? throw new ArgumentNullException(nameof(apiAuthCookieStore));
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Login(string? returnUrl = null, bool apiSession = false)
         {
+            if (apiSession)
+            {
+                this.ViewData["InfoMessage"] = "Your session was refreshed. Please sign in again.";
+            }
+
             return this.View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
@@ -67,6 +74,8 @@ namespace BoardGames.Web.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity),
                 authProperties);
+
+            this.apiAuthCookieStore.AlignBrowserCookieExpiration(model.RememberMe);
 
             if (!string.IsNullOrEmpty(model.ReturnUrl) && this.Url.IsLocalUrl(model.ReturnUrl))
             {
@@ -140,7 +149,9 @@ namespace BoardGames.Web.Controllers
                 new ClaimsPrincipal(identity),
                 new AuthenticationProperties { IsPersistent = false, AllowRefresh = true });
 
-            return this.RedirectToAction("Index", "Games");
+            this.apiAuthCookieStore.AlignBrowserCookieExpiration(rememberMe: false);
+
+            return this.RedirectToAction("Index", "Search");
         }
 
         [HttpGet]
@@ -174,6 +185,7 @@ namespace BoardGames.Web.Controllers
             {
             }
 
+            this.apiAuthCookieStore.Clear();
             await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return this.RedirectToAction(nameof(this.Login));
         }
@@ -189,6 +201,11 @@ namespace BoardGames.Web.Controllers
         {
             ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, profile.Id.ToString()));
+            if (profile.PamUserId.HasValue)
+            {
+                identity.AddClaim(new Claim("PamUserId", profile.PamUserId.Value.ToString()));
+            }
+
             identity.AddClaim(new Claim(ClaimTypes.Name, profile.Username ?? string.Empty));
             identity.AddClaim(new Claim("DisplayName", profile.DisplayName ?? string.Empty));
 

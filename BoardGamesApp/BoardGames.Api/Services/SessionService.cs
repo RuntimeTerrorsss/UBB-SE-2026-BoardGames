@@ -1,7 +1,3 @@
-﻿// <copyright file="SessionService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 namespace BoardGames.Api.Services
 {
     public class SessionService

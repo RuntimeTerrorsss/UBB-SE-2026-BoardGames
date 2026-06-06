@@ -1,0 +1,14 @@
+@{
+    var backUrl = ViewData["BackUrl"] as string;
+    var backText = ViewData["BackText"] as string ?? "Back";
+}
+<div class="mb-3">
+    @if (!string.IsNullOrEmpty(backUrl))
+    {
+        <a href="@backUrl" class="btn btn-outline-secondary btn-sm">&larr; @backText</a>
+    }
+    else
+    {
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.history.back();">&larr; @backText</button>
+    }
+</div>

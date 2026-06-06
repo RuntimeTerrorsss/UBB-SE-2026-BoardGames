@@ -1,8 +1,12 @@
+// <copyright file="GameInputValidator.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using BoardGames.Desktop.Constants;
+using BoardGames.Shared.DTO;
+
 namespace BoardGames.Desktop.Services
 {
-    using BoardGames.Desktop.Constants;
-    using BoardGames.Shared.DTO;
-
     public static class GameInputValidator
     {
         public static List<string> Validate(GameDTO game)

@@ -1,9 +1,13 @@
+// <copyright file="FilePickerService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
+
 namespace BoardGames.Desktop.Services
 {
-    using Windows.Storage;
-    using Windows.Storage.Pickers;
-    using WinRT.Interop;
-
     public class FilePickerService : IFilePickerService
     {
         public async Task<string> PickImageFileAsync()

@@ -10,8 +10,6 @@ namespace BoardGames.Data.Repositories
 {
     public interface InterfaceGamesRepository : IRepository<Game>
     {
-        // --- Project 1 methods ---
-
         /// <summary>
         /// Retrieves a list of games that match the specified filter criteria.
         /// </summary>
@@ -35,7 +33,6 @@ namespace BoardGames.Data.Repositories
 
         Task<decimal> GetPriceGameById(int gameId);
 
-        // --- Project 2 methods (merged from IGameRepository / IGameRepository2.cs) ---
         void AddGame(Game game);
 
         Game DeleteGame(int id);

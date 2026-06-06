@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "BoardGames.sln",
+    "projects": [
+      "BoardGames.Desktop\\BoardGames.Desktop.csproj",
+      "BoardGames.Shared\\BoardGames.Shared.csproj",
+      "ServerCommunication\\ServerCommunication.csproj"
+    ]
+  }
+}

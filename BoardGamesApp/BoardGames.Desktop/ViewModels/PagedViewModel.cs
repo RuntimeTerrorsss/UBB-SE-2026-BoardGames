@@ -1,13 +1,17 @@
+// <copyright file="PagedViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-
     public abstract class PagedViewModel<T> : INotifyPropertyChanged
     {
         protected const int DefaultPageSize = 10;
@@ -64,9 +68,21 @@ namespace BoardGames.Desktop.ViewModels
 
         public virtual string ShowingText => $"Showing {DisplayedCount} of {TotalCount}";
 
-        public virtual void NextPage() { if (CurrentPage < PageCount) CurrentPage += PageStep; }
+        public virtual void NextPage()
+        {
+            if (CurrentPage < PageCount)
+            {
+                CurrentPage += PageStep;
+            }
+        }
 
-        public virtual void PrevPage() { if (CurrentPage > FirstPageNumber) CurrentPage -= PageStep; }
+        public virtual void PrevPage()
+        {
+            if (CurrentPage > FirstPageNumber)
+            {
+                CurrentPage -= PageStep;
+            }
+        }
 
         protected abstract void Reload();
 

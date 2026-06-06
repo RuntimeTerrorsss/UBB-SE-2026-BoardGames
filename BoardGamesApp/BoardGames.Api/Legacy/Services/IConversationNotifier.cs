@@ -1,7 +1,3 @@
-// <copyright file="IConversationNotifier.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Data.Models;
 
 namespace BoardGames.Api.Legacy.Services

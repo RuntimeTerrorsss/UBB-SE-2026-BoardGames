@@ -10,6 +10,7 @@
 
     <ScrollViewer>
         <StackPanel Width="400" HorizontalAlignment="Center" Spacing="15" Margin="0,40,0,40">
+            <Button Content="← Back" HorizontalAlignment="Left" Click="BackButton_Click" />
             <TextBlock Text="Edit Listing" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
 
             <TextBox Header="Game Name (5-30 chars)*" Text="{x:Bind ViewModel.GameName, Mode=TwoWay}" MaxLength="30"/>

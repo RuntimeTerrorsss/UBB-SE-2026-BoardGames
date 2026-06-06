@@ -17,14 +17,14 @@
 
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
 
-                <!-- IMAGE -->
+                
                 <Image
                     Source="{Binding ImageSource, ElementName=root}"
                     Width="120"
                     Height="120"
                     Stretch="UniformToFill"/>
 
-                <!-- TEXT -->
+                
                 <StackPanel Grid.Column="1" Spacing="6">
 
                     <TextBlock

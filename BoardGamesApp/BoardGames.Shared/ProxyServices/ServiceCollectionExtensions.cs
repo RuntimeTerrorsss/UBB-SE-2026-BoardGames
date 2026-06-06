@@ -50,6 +50,7 @@ namespace BoardGames.Shared.ProxyServices
             services.AddTransient<INotificationService, NotificationService>();
             services.AddTransient<IConversationService, ConversationService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IRentalPaymentService, RentalPaymentService>();
 
             return services;
         }

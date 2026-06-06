@@ -1,4 +1,4 @@
-﻿// <copyright file="UdpNotificationServer.cs" company="BoardRent">
+// <copyright file="UdpNotificationServer.cs" company="BoardRent">
 // Copyright (c) BoardRent. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ using ServerCommunication;
 
 namespace NotificationServer
 {
-    internal class UdpNotificationServer
+    public class UdpNotificationServer
     {
         private const int DefaultServerPortNumber = 4544;
         private const string NotSubscribedEndpointDescription = "not subscribed";

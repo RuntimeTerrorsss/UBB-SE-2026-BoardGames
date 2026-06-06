@@ -3,6 +3,7 @@
 // </copyright>
 
 using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -24,7 +25,13 @@ namespace BoardGames.Web.Infrastructure
         public async Task<AccountProfileDTO> GetProfileAsync(Guid accountId)
         {
             using var response = await this.httpClient.GetAsync($"accounts/{accountId}");
-            return await HttpProxyClient.ReadAsync<AccountProfileDTO>(response);
+            var profile = await HttpProxyClient.ReadAsync<AccountProfileDTO>(response);
+            if (!string.IsNullOrEmpty(profile?.AvatarUrl))
+            {
+                profile.AvatarUrl = ApiUrlHelper.ToAbsoluteUrl(this.httpClient.BaseAddress!, profile.AvatarUrl);
+            }
+
+            return profile;
         }
 
         public async Task UpdateProfileAsync(Guid accountId, AccountProfileDTO updateData)

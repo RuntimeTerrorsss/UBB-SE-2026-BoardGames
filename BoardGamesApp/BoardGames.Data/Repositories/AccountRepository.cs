@@ -37,6 +37,12 @@ namespace BoardGames.Data.Repositories
                 .FirstOrDefaultAsync(user => user.Email == email);
         }
 
+        public async Task<User?> GetByPamUserIdAsync(int pamUserId)
+        {
+            using var dbContext = this.dbContextFactory.CreateDbContext();
+            return await dbContext.Users.FirstOrDefaultAsync(user => user.PamUserId == pamUserId);
+        }
+
         public async Task<List<User>> GetAllAsync(int page, int pageSize)
         {
             const int pageOffset = 1;

@@ -1,3 +1,7 @@
+// <copyright file="MainWindow.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using Microsoft.UI.Xaml;
 
 namespace BoardGames.Desktop

@@ -1,137 +1,201 @@
-using System;
+// <copyright file="ConfirmBookingViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.ComponentModel;
+using System.Configuration;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
 using BoardGames.Shared.DTO;
 using BoardGames.Shared.ProxyServices;
-using BoardGames.Desktop.Services; 
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace BoardGames.Desktop.ViewModels
 {
     public class ConfirmBookingViewModel : INotifyPropertyChanged
     {
-        private readonly IRequestService _requestService;
-        private readonly ISessionContext _sessionContext;
+        private readonly IRequestService requestService;
+        private readonly ISessionContext sessionContext;
+        private readonly Uri apiBaseUri;
 
-        private GameSummaryDTO _gameDetails;
-        private DateTime _startDate;
-        private DateTime _endDate;
-        private decimal _totalPrice;
-
-        public event Action? OnGoBackRequested;
-        public event Action? OnConfirmBookingRequested;
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public event Action<string>? OnErrorOccurred;
+        private GameDetailDTO game = new();
+        private DateTime startDate;
+        private DateTime endDate;
+        private BitmapImage? gameImage;
 
         public ConfirmBookingViewModel(IRequestService requestService, ISessionContext sessionContext)
         {
-            _requestService = requestService ?? throw new ArgumentNullException(nameof(requestService));
-            _sessionContext = sessionContext ?? throw new ArgumentNullException(nameof(sessionContext));
+            this.requestService = requestService;
+            this.sessionContext = sessionContext;
+            this.apiBaseUri = ResolveApiBaseUri();
         }
 
-        public void Initialize(GameSummaryDTO gameDetails, DateTime startDate, DateTime endDate)
+        public Action? OnGoBackRequested { get; set; }
+
+        public Action? OnConfirmBookingRequested { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public Action<string>? OnErrorOccurred { get; set; }
+
+        public GameDetailDTO Game
         {
-            GameDetails = gameDetails ?? throw new ArgumentNullException(nameof(gameDetails));
-            StartDate = startDate;
-            EndDate = endDate;
-            TotalPrice = CalculatePrice();
+            get => this.game;
+            private set
+            {
+                this.game = value;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(GameName));
+                this.OnPropertyChanged(nameof(OwnerDisplayName));
+                this.OnPropertyChanged(nameof(City));
+                this.OnPropertyChanged(nameof(PricePerDay));
+            }
         }
 
-        public GameSummaryDTO GameDetails
+        public BitmapImage? GameImage
         {
-            get => _gameDetails;
-            private set { _gameDetails = value; OnPropertyChanged(); }
+            get => this.gameImage;
+            private set
+            {
+                this.gameImage = value;
+                this.OnPropertyChanged();
+            }
         }
+
+        public string GameName => this.game.Name;
+
+        public string OwnerDisplayName => this.game.OwnerDisplayName;
+
+        public string City => this.game.City;
+
+        public decimal PricePerDay => this.game.Price;
 
         public DateTime StartDate
         {
-            get => _startDate;
+            get => this.startDate;
             private set
             {
-                _startDate = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(FormattedStartDate));
-                OnPropertyChanged(nameof(NumberOfDays));
+                this.startDate = value;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(FormattedStartDate));
+                this.OnPropertyChanged(nameof(NumberOfDays));
+                this.OnPropertyChanged(nameof(TotalPrice));
             }
         }
 
         public DateTime EndDate
         {
-            get => _endDate;
+            get => this.endDate;
             private set
             {
-                _endDate = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(FormattedEndDate));
-                OnPropertyChanged(nameof(NumberOfDays));
+                this.endDate = value;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(FormattedEndDate));
+                this.OnPropertyChanged(nameof(NumberOfDays));
+                this.OnPropertyChanged(nameof(TotalPrice));
             }
         }
 
-        public string FormattedStartDate => StartDate.ToString("dd MMM yyyy");
-        public string FormattedEndDate => EndDate.ToString("dd MMM yyyy");
+        public string FormattedStartDate => this.StartDate.ToString("d MMM yyyy");
 
-        public int NumberOfDays => (EndDate - StartDate).Days + 1;
+        public string FormattedEndDate => this.EndDate.ToString("d MMM yyyy");
 
-        public decimal TotalPrice
+        public int NumberOfDays => (this.EndDate.Date - this.StartDate.Date).Days + 1;
+
+        public string TotalPrice => $"{NumberOfDays * this.game.Price:0.##} RON";
+
+        public void Initialize(GameDetailDTO gameDetail, DateTime start, DateTime end)
         {
-            get => _totalPrice;
-            private set { _totalPrice = value; OnPropertyChanged(); }
-        }
-
-        public decimal CalculatePrice()
-        {
-            if (GameDetails == null) return 0;
-            return NumberOfDays * GameDetails.Price;
+            this.Game = gameDetail;
+            this.StartDate = start.Date;
+            this.EndDate = end.Date;
+            this.GameImage = CreateImage(gameDetail.ImageUrl, this.apiBaseUri);
         }
 
         public async Task ConfirmBookingAsync()
         {
-            try
+            if (!this.sessionContext.IsLoggedIn)
             {
-
-                if (_sessionContext.AccountId == Guid.Empty)
-                {
-                    RaiseError("User not logged in. Please log in first.");
-                    return;
-                }
-
-                if (_sessionContext.AccountId == GameDetails.OwnerAccountId)
-                {
-                    RaiseError("You cannot rent a game you already own.");
-                    return;
-                }
-
-                var requestDto = new CreateRequestDTO
-                {
-                    GameId = GameDetails.GameId,
-                    RenterAccountId = _sessionContext.AccountId,
-                    OwnerAccountId = GameDetails.OwnerAccountId,
-                    StartDate = this.StartDate,
-                    EndDate = this.EndDate
-                };
-
-                var result = await _requestService.CreateRequestAsync(requestDto);
-
-                if (result.IsSuccess)
-                {
-                    OnConfirmBookingRequested?.Invoke();
-                }
-                else
-                {
-                    RaiseError(result.ErrorMessage ?? "Failed to submit rental request.");
-                }
+                this.RaiseError("Please sign in before sending a rental request.");
+                return;
             }
-            catch (Exception exception)
+
+            if (this.sessionContext.AccountId == this.game.OwnerAccountId)
             {
-                RaiseError($"Could not confirm booking. {exception.Message}");
+                this.RaiseError("You cannot rent a game you already own.");
+                return;
+            }
+
+            var availability = await this.requestService.CheckAvailabilityAsync(this.game.Id, this.StartDate, this.EndDate);
+            if (!availability.Success)
+            {
+                this.RaiseError(availability.Error ?? "Could not check availability.");
+                return;
+            }
+
+            if (!availability.Data)
+            {
+                this.RaiseError("The selected dates are unavailable.");
+                return;
+            }
+
+            var result = await this.requestService.CreateRequestAsync(new CreateRequestDTO
+            {
+                GameId = this.game.Id,
+                RenterAccountId = this.sessionContext.AccountId,
+                OwnerAccountId = this.game.OwnerAccountId,
+                StartDate = this.StartDate,
+                EndDate = this.EndDate,
+            });
+
+            if (result.Success)
+            {
+                this.OnConfirmBookingRequested?.Invoke();
+            }
+            else
+            {
+                this.RaiseError(result.Error ?? "Failed to submit rental request.");
             }
         }
 
-        public void GoBack() => OnGoBackRequested?.Invoke();
+        public void GoBack() => this.OnGoBackRequested?.Invoke();
 
-        private void RaiseError(string message) => OnErrorOccurred?.Invoke(message);
+        private void RaiseError(string message) => this.OnErrorOccurred?.Invoke(message);
 
         private void OnPropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private static BitmapImage? CreateImage(string imageUrl, Uri apiBaseUri)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                return null;
+            }
+
+            try
+            {
+                var imageUri = Uri.TryCreate(imageUrl, UriKind.Absolute, out var absoluteUri)
+                    ? absoluteUri
+                    : new Uri(apiBaseUri, imageUrl.TrimStart('/'));
+
+                return new BitmapImage(imageUri);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static Uri ResolveApiBaseUri()
+        {
+            string? configuredBaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"]?.Trim();
+
+            if (string.IsNullOrWhiteSpace(configuredBaseUrl) || !Uri.TryCreate(configuredBaseUrl, UriKind.Absolute, out var baseUri))
+            {
+                throw new InvalidOperationException("ApiBaseUrl is not configured correctly in App.config.");
+            }
+
+            return baseUri;
+        }
     }
 }

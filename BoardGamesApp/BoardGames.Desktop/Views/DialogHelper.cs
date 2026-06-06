@@ -1,9 +1,13 @@
+// <copyright file="DialogHelper.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using AppConstants = BoardGames.Desktop.Constants.Constants;
+
 namespace BoardGames.Desktop.Views
 {
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using AppConstants = BoardGames.Desktop.Constants.Constants;
-
     internal static class DialogHelper
     {
         public static async Task ShowMessageAsync(XamlRoot xamlRoot, string title, object content)
@@ -13,7 +17,7 @@ namespace BoardGames.Desktop.Views
                 Title = title,
                 Content = content,
                 CloseButtonText = AppConstants.DialogButtons.Ok,
-                XamlRoot = xamlRoot
+                XamlRoot = xamlRoot,
             };
 
             await dialog.ShowAsync();
@@ -34,7 +38,7 @@ namespace BoardGames.Desktop.Views
                 PrimaryButtonText = primaryButtonText,
                 CloseButtonText = closeButtonText,
                 DefaultButton = defaultButton,
-                XamlRoot = xamlRoot
+                XamlRoot = xamlRoot,
             };
 
             return await dialog.ShowAsync();

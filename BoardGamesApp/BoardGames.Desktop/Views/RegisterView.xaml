@@ -32,7 +32,6 @@
                 </StackPanel>
             </Grid>
 
-
             <StackPanel Spacing="4" Margin="0,0,0,20">
                 <TextBlock Text="Email" FontSize="13" FontWeight="SemiBold"/>
                 <TextBox Text="{Binding Email, Mode=TwoWay}" PlaceholderText="Enter email"/>
@@ -50,7 +49,6 @@
                 <PasswordBox x:Name="ConfirmPasswordInput" PlaceholderText="Repeat your password"/>
                 <TextBlock x:Name="ConfirmPasswordErrorText" Foreground="Red" FontSize="11" Visibility="Collapsed"/>
             </StackPanel>
-
 
             <Grid ColumnSpacing="12" Margin="0,0,0,24">
                 <Grid.ColumnDefinitions>

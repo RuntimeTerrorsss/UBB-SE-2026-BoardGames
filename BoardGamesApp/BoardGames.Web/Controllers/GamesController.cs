@@ -7,6 +7,7 @@ using BoardGames.Web.Helpers;
 using BoardGames.Web.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BoardGames.Web.Controllers
 {
@@ -15,24 +16,40 @@ namespace BoardGames.Web.Controllers
     {
         private readonly IGameProxyService gameProxyService;
         private readonly IRentalProxyService rentalProxyService;
+        private readonly IRequestProxyService requestProxyService;
 
-        public GamesController(IGameProxyService gameProxyService, IRentalProxyService rentalProxyService)
+        public GamesController(IGameProxyService gameProxyService, IRentalProxyService rentalProxyService, IRequestProxyService requestProxyService)
         {
             this.gameProxyService = gameProxyService ?? throw new ArgumentNullException(nameof(gameProxyService));
             this.rentalProxyService = rentalProxyService ?? throw new ArgumentNullException(nameof(rentalProxyService));
+            this.requestProxyService = requestProxyService ?? throw new ArgumentNullException(nameof(requestProxyService));
         }
 
-        public async Task<IActionResult> Index()
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (this.User.IsAdministrator())
+            this.ViewBag.IsLoggedIn = this.User?.Identity?.IsAuthenticated == true;
+            this.ViewBag.CurrentUsername = this.User?.Identity?.Name;
+            this.ViewBag.CurrentDisplayName = this.User?.GetDisplayName();
+            base.OnActionExecuting(context);
+        }
+
+        public async Task<IActionResult> Index(bool mineOnly = false)
+        {
+            var ownerId = this.User.GetAccountId();
+            IReadOnlyList<GameDTO> games;
+
+            if (this.User.IsAdministrator() && !mineOnly)
             {
-                var allGames = await this.gameProxyService.GetAllGamesAsync();
-                return this.View(allGames);
+                games = await this.gameProxyService.GetAllGamesAsync();
+            }
+            else
+            {
+                games = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
             }
 
-            var ownerId = this.User.GetAccountId();
-            var myGames = await this.gameProxyService.GetGamesByOwnerAsync(ownerId);
-            return this.View(myGames);
+            this.ViewBag.ShowMineOnlyFilter = this.User.IsAdministrator();
+            this.ViewBag.MineOnly = mineOnly;
+            return this.View(games);
         }
 
         public async Task<IActionResult> Details(int id)
@@ -53,7 +70,85 @@ namespace BoardGames.Web.Controllers
                 this.ViewBag.BookedDates = new List<BookedDateRangeDTO>();
             }
 
+            var pendingRequestDates = new List<BookedDateRangeDTO>();
+            try
+            {
+                Guid renterAccountId = this.User.GetAccountId();
+                var renterRequests = await this.requestProxyService.GetRequestsForRenterAsync(renterAccountId);
+                foreach (var request in renterRequests)
+                {
+                    if (request.Game?.Id == id && request.Status == RequestStatus.Open)
+                    {
+                        pendingRequestDates.Add(new BookedDateRangeDTO
+                        {
+                            StartDate = request.StartDate,
+                            EndDate = request.EndDate,
+                        });
+                    }
+                }
+            }
+            catch (ProxyServiceException)
+            {
+                pendingRequestDates = new List<BookedDateRangeDTO>();
+            }
+
+            this.ViewBag.PendingRequestDates = pendingRequestDates;
+
             return this.View(game);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Book(int id, DateTime startDate, DateTime endDate)
+        {
+            if (startDate == default || endDate == default || endDate < startDate)
+            {
+                return this.RedirectToAction(nameof(this.Details), new { id });
+            }
+
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
+            {
+                return this.NotFound();
+            }
+
+            this.ViewBag.StartDate = startDate;
+            this.ViewBag.EndDate = endDate;
+            return this.View(game);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Book(int id, DateTime startDate, DateTime endDate, string unused = "")
+        {
+            GameDTO? game = await this.gameProxyService.GetGameByIdAsync(id);
+            if (game is null)
+            {
+                return this.NotFound();
+            }
+
+            Guid renterAccountId = this.User.GetAccountId();
+            var body = new CreateRequestDTO
+            {
+                GameId = game.Id,
+                RenterAccountId = renterAccountId,
+                OwnerAccountId = game.Owner?.Id ?? Guid.Empty,
+                StartDate = startDate,
+                EndDate = endDate,
+            };
+
+            try
+            {
+                await this.requestProxyService.CreateRequestAsync(body);
+                this.TempData["SuccessMessage"] = "Your rental request has been submitted!";
+                return this.RedirectToAction("Index", "Chats");
+            }
+            catch (ProxyServiceException ex)
+            {
+                this.ViewBag.StartDate = startDate;
+                this.ViewBag.EndDate = endDate;
+                this.ViewBag.ErrorMessage = ex.Message;
+                return this.View(game);
+            }
         }
 
         [HttpGet]
@@ -112,11 +207,6 @@ namespace BoardGames.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, GameDTO body, IFormFile? imageFile)
         {
-            if (id != body.Id)
-            {
-                return this.NotFound();
-            }
-
             if (!this.ModelState.IsValid)
             {
                 return this.View(body);
@@ -133,8 +223,6 @@ namespace BoardGames.Web.Controllers
                 return this.Forbid();
             }
 
-            body.Owner = existing.Owner;
-
             if (imageFile != null && imageFile.Length > 0)
             {
                 using var memoryStream = new MemoryStream();
@@ -145,6 +233,8 @@ namespace BoardGames.Web.Controllers
             {
                 body.Image = existing.Image;
             }
+
+            body.Owner = existing.Owner;
 
             try
             {

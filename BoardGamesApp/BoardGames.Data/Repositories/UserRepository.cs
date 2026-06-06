@@ -103,7 +103,7 @@ namespace BoardGames.Data.Repositories
                 return false;
             }
 
-            Console.WriteLine("--------------------------user can be created now");
+            Console.WriteLine("user can be created now");
 
             newUser.CreatedAt = DateTime.Now;
             await this.context.Users.AddAsync(newUser);

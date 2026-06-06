@@ -1,3 +1,5 @@
+
+
 using System.Security.Claims;
 using BoardGames.Api.Services;
 using BoardGames.Shared.Common;
@@ -25,19 +27,19 @@ namespace BoardGames.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO body)
         {
-            var result = await authService.RegisterAsync(body);
+            var result = await this.authService.RegisterAsync(body);
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(new { result.Data });
+            return this.Ok(new { result.Data });
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<AccountProfileDTO>> Login([FromBody] LoginDTO body)
         {
-            var result = await authService.LoginAsync(body);
+            var result = await this.authService.LoginAsync(body);
             if (!result.Success || result.Data is null)
             {
                 return this.FromServiceError(result.Error);
@@ -45,8 +47,6 @@ namespace BoardGames.Api.Controllers
 
             var profile = result.Data;
             string roleName = profile.Role?.Name ?? "Standard User";
-
-            // Map "Administrator" → "Admin" so [Authorize(Roles = "Admin")] on AdminController matches.
             string authorizationRole = string.Equals(roleName, "Administrator", System.StringComparison.OrdinalIgnoreCase)
                 ? "Admin"
                 : roleName;
@@ -66,35 +66,35 @@ namespace BoardGames.Api.Controllers
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            return Ok(profile);
+            return this.Ok(profile);
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var result = await authService.LogoutAsync();
+            var result = await this.authService.LogoutAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         [HttpGet("forgot-password")]
         public async Task<ActionResult<string>> ForgotPassword()
         {
-            var result = await authService.ForgotPasswordAsync();
+            var result = await this.authService.ForgotPasswordAsync();
             if (!result.Success)
             {
                 return this.FromServiceError(result.Error);
             }
 
-            return Ok(result.Data);
+            return this.Ok(result.Data);
         }
     }
 }

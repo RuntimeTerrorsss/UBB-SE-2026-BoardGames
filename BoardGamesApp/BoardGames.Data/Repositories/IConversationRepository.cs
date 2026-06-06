@@ -22,7 +22,6 @@ namespace BoardGames.Data.Repositories
 
         Task<int> CreateConversation(int senderId, int receiverId);
 
-        /// <summary>Returns the conversation id shared by the two users, creating one if none exists.</summary>
         Task<int> FindOrCreateConversationBetweenUsers(int userIdA, int userIdB);
 
         Task<Message?> HandleRentalRequestFinalization(int messageId);
@@ -30,5 +29,11 @@ namespace BoardGames.Data.Repositories
         Task<Message?> CreateCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId);
 
         Task<RentalRequestMessage?> FindRentalRequestMessageByRequestId(int requestId);
+
+        Task<RentalRequestMessage?> AcceptRentalRequestByRequestId(int requestId, int rentalId);
+
+        Task<RentalRequestMessage?> GetRentalRequestMessageById(int messageId);
+
+        Task FinalizeRentalRequestByMessageId(int messageId, bool accepted);
     }
 }

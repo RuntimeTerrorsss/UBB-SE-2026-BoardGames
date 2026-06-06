@@ -1,8 +1,12 @@
+// <copyright file="ISessionContext.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
+using BoardGames.Shared.DTO;
+
 namespace BoardGames.Desktop.Services
 {
-    using System;
-    using BoardGames.Shared.DTO;
-
     public interface ISessionContext
     {
         Guid AccountId { get; }

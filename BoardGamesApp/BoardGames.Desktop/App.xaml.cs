@@ -1,3 +1,7 @@
+// <copyright file="App.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Configuration;
 using System.Net;
 using BoardGames.Desktop.Services;
@@ -14,6 +18,8 @@ namespace BoardGames.Desktop
 {
     public partial class App : Application
     {
+        private const int ApiClientTimeoutSeconds = 30;
+
         private Frame? rootFrame;
 
         public App()
@@ -99,7 +105,7 @@ namespace BoardGames.Desktop
             serviceCollection.AddBoardRentApiClient(options =>
             {
                 options.BaseAddress = apiBaseAddress;
-                options.Timeout = TimeSpan.FromSeconds(30);
+                options.Timeout = TimeSpan.FromSeconds(ApiClientTimeoutSeconds);
                 options.CookieContainer = cookieContainer;
             });
 

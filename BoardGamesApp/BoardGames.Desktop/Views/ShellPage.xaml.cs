@@ -1,3 +1,7 @@
+// <copyright file="ShellPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Desktop.Services;
 using BoardGames.Desktop.ViewModels;
 using BoardGames.Shared.ProxyServices;
@@ -100,6 +104,7 @@ namespace BoardGames.Desktop.Views
             {
                 AppPage.Filter => (typeof(SearchGamesPage), parameter),
                 AppPage.GameDetails => (typeof(GameDetailsPage), parameter),
+                AppPage.ConfirmRental => (typeof(ConfirmBookingView), parameter),
                 AppPage.Login => (typeof(LoginPage), parameter),
                 AppPage.Register => (typeof(RegisterPage), parameter),
                 AppPage.Games => (typeof(ListingsPage), parameter),

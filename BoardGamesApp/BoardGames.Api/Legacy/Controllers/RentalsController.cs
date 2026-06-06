@@ -29,8 +29,6 @@ namespace BoardGames.Api.Legacy.Controllers
             this.conversationRepository = conversationRepository;
             this.gamesRepository = gamesRepository;
         }
-
-        /// <summary>Creates the rental record and adds a rental-request message to the renter ↔ owner conversation.</summary>
         public record BookGameWithRentalRequestBody(int ClientId, int GameId, DateTime StartDate, DateTime EndDate);
 
         [HttpGet("{id}")]
@@ -131,7 +129,7 @@ namespace BoardGames.Api.Legacy.Controllers
 
             string formattedTotal = totalPrice.ToString("0.##", CultureInfo.InvariantCulture);
             string requestSummary =
-                $"{game.Name}: {request.StartDate:dd MMM yyyy} – {request.EndDate:dd MMM yyyy}" +
+                $"{game.Name}: {request.StartDate:dd MMM yyyy} Ã¢â‚¬â€œ {request.EndDate:dd MMM yyyy}" +
                 $" ({bookingDays} day(s), total {formattedTotal}).";
 
             var rentalRequestMessage = new RentalRequestMessage

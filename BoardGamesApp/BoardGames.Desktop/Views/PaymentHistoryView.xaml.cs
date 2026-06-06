@@ -1,6 +1,3 @@
-// <copyright file="PaymentHistoryView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.ViewModels;
 
@@ -31,8 +28,6 @@ namespace BoardGames.Desktop.Views
                     this.ViewModel.OpenReceiptCommand.Execute(selectedPayment);
                 }
             }
-
-            // fallback for null
             else if (sender is Button fallbackButton && fallbackButton.Tag is PaymentDTO fallbackPayment)
             {
                 if (this.ViewModel.OpenReceiptCommand != null && this.ViewModel.OpenReceiptCommand.CanExecute(fallbackPayment))

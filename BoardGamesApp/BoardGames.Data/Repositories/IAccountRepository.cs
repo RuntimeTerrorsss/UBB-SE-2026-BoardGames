@@ -14,6 +14,8 @@ namespace BoardGames.Data.Repositories
 
         Task<User?> GetByEmailAsync(string email);
 
+        Task<User?> GetByPamUserIdAsync(int pamUserId);
+
         Task<List<User>> GetAllAsync(int page, int pageSize);
 
         Task AddAsync(User user);

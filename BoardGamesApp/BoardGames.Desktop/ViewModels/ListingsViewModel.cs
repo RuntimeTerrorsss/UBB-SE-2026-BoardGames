@@ -1,3 +1,16 @@
+// <copyright file="ListingsViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+using BoardGames.Desktop.Commands;
+using AppConstants = BoardGames.Desktop.Constants.Constants;
+
 namespace BoardGames.Desktop.ViewModels
 {
     using System;
@@ -34,9 +47,33 @@ namespace BoardGames.Desktop.ViewModels
         {
         }
 
-        public string PageTitle => authorizationService.IsAdministrator ? "Games" : "My Listings";
+        public string PageTitle => authorizationService.IsAdministrator ? "Games" : "My Games";
+
+        public bool IsAdministrator => authorizationService.IsAdministrator;
+
+        public bool ShowOnlyMyGames
+        {
+            get => showOnlyMyGames;
+            set
+            {
+                if (showOnlyMyGames != value)
+                {
+                    showOnlyMyGames = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FilterButtonLabel));
+                    _ = ReloadAsync();
+                }
+            }
+        }
+
+        public string FilterButtonLabel => showOnlyMyGames ? "Show all games" : "Show only my games";
 
         public Task LoadGamesAsync() => ReloadAsync();
+
+        public void ToggleMyGamesFilter()
+        {
+            ShowOnlyMyGames = !ShowOnlyMyGames;
+        }
 
         protected override void Reload() => _ = ReloadAsync();
 
@@ -48,7 +85,7 @@ namespace BoardGames.Desktop.ViewModels
                 return;
             }
 
-            var gameListingsResult = authorizationService.IsAdministrator
+            var gameListingsResult = authorizationService.IsAdministrator && !showOnlyMyGames
                 ? await gameListingService.GetAllGamesAsync()
                 : await gameListingService.GetGamesForOwnerAsync(authorizationService.CurrentAccountId);
 
@@ -63,10 +100,13 @@ namespace BoardGames.Desktop.ViewModels
         {
             if (!CanManageGame(gameToDelete.Game))
                 throw new UnauthorizedAccessException("You are not authorized to delete this game.");
+            }
 
             var deleteResult = await gameListingService.DeleteGameAsync(gameToDelete.Game.Id);
             if (!deleteResult.Success)
+            {
                 throw new InvalidOperationException(deleteResult.Error ?? "Unexpected error occurred.");
+            }
 
             await ReloadAsync();
         }

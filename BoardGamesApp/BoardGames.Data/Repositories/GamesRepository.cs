@@ -10,17 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BoardGames.Data.Repositories;
 
-/// <summary>
-/// Repository responsible for reading game/listing data from the database.
-/// Important:
-/// - This repository only reads data.
-/// - It is used by the service layer, not directly by the UI.
-/// How ADO.NET handles connections:
-/// - When you write using var connection = new SqlConnection(...) and call .Open(), Microsoft checks the pool, so the pool of connections is handled by .net
-/// - If there is a free connection, it gives it to you.
-/// - When your "using" block finishes, it calls .Close().
-/// - Microsoft intercepts your .Close() command. It doesn't actually destroy the connection to the database. It just wipes the data clean and parks it back in the hidden pool for.  the next person to use.
-/// </summary>
 public class GamesRepository : InterfaceGamesRepository, IGameRepository
 {
     /// <summary>
@@ -35,18 +24,11 @@ public class GamesRepository : InterfaceGamesRepository, IGameRepository
         this.appContext = context;
     }
 
-    // ==========================================
-    // Project 1 methods (original)
-    // ==========================================
-
     /// <summary>
     /// Gets a single game by its database id.
     /// </summary>
     /// <param name="gameId">The unique id of the game.</param>
     /// <returns>The game object if found; otherwise, null.</returns>
-    /// <remarks>
-    /// Use this when you already know the exact game id and need full game details.
-    /// </remarks>
     public async Task<Game?> GetGameById(int gameId)
     {
         return await this.appContext.Games.FirstOrDefaultAsync(game => game.Id == gameId);
@@ -83,17 +65,6 @@ public class GamesRepository : InterfaceGamesRepository, IGameRepository
     /// All fields may be empty/null.
     /// </param>
     /// <returns>A list of games matching the filter.</returns>
-    /// <remarks>
-    /// Use this for:
-    /// - search page
-    /// - filter panel
-    /// - search + filters combined
-    /// Behavior:
-    /// - null/empty fields are ignored
-    /// - only active games are returned
-    /// - user's own games are excluded if UserId is provided
-    /// - if an availability range is provided, only games available in that range are returned.
-    /// </remarks>
     public async Task<List<Game>> GetGamesByFilter(FilterCriteria filter)
     {
         var userId = filter.UserId ?? AnonymousUserId;
@@ -234,11 +205,6 @@ public class GamesRepository : InterfaceGamesRepository, IGameRepository
         return game;
     }
 
-    // ==========================================
-    // Helpers
-    // ==========================================
-
-    // Used to convert game data to Game object
     private static Game ConvertGameDataToGameObject(SqlDataReader reader)
     {
         return new Game

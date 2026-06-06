@@ -1,3 +1,7 @@
+// <copyright file="GameSearchCriteriaDTO.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 
 namespace BoardGames.Shared.DTO
@@ -17,5 +21,10 @@ namespace BoardGames.Shared.DTO
         public DateTime? AvailableTo { get; set; }
 
         public string? SortBy { get; set; }
+
+        /// <summary>
+        /// When set, games owned by this account are excluded (homepage / search for renters).
+        /// </summary>
+        public Guid? ExcludeOwnerAccountId { get; set; }
     }
 }

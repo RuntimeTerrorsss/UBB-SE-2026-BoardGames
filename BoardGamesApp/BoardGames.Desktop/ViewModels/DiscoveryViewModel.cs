@@ -13,20 +13,20 @@ namespace BoardGames.Desktop.ViewModels
     public class DiscoveryViewModel : INotifyPropertyChanged
     {
         private const int ItemsPerPage = 10;
-        private readonly IGameService _gameService;
+        private const int FirstPageNumber = 1;
+        private const int DefaultMinimumPlayers = 1;
+        private const int DefaultMaximumPrice = 100;
 
-        // Use the new DTO from Shared
+        private readonly IGameService _gameService;
         private ObservableCollection<GameSummaryDTO> _allFetchedGames = new();
         private ObservableCollection<GameSummaryDTO> _visibleGames = new();
 
-        private int _currentPage = 1;
+        private int _currentPage = FirstPageNumber;
         private int _totalAvailableGamesCount;
         private string _citySearchText = string.Empty;
-
-        // Filter properties (replacing the old FilterCriteria object)
         private string _searchName;
-        private int _selectedMinimumPlayers = 1;
-        private int _selectedMaximumPrice = 100;
+        private int _selectedMinimumPlayers = DefaultMinimumPlayers;
+        private int _selectedMaximumPrice = DefaultMaximumPrice;
 
         public DiscoveryViewModel(IGameService gameService)
         {
@@ -36,8 +36,6 @@ namespace BoardGames.Desktop.ViewModels
             PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
             SearchCommand = new RelayCommand(_ => ExecuteSearch());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-
-            // Load initial data
             LoadInitialGamesAsync();
         }
 
@@ -94,7 +92,6 @@ namespace BoardGames.Desktop.ViewModels
         {
             try
             {
-                // Task 9 rule: Load active games from the unified API
                 var result = await _gameService.GetAllGamesAsync();
 
                 if (result.IsSuccess)
@@ -105,7 +102,7 @@ namespace BoardGames.Desktop.ViewModels
                         _allFetchedGames.Add(game);
                     }
 
-                    ExecuteSearch(); // Apply default filters and pagination
+                    ExecuteSearch();
                 }
                 else
                 {
@@ -120,19 +117,15 @@ namespace BoardGames.Desktop.ViewModels
 
         private void ExecuteSearch()
         {
-            // Note for Task 10/Shared Owner: 
-            // We are filtering locally because POST api/games/search is missing from IGameService.
 
-            var filteredList = _allFetchedGames.Where(g =>
-                (string.IsNullOrEmpty(SearchName) || g.Name.Contains(SearchName, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(CitySearchText) || g.City.Contains(CitySearchText, StringComparison.OrdinalIgnoreCase)) &&
-                g.Price <= SelectedMaximumPrice &&
-                g.MinimumPlayerNumber >= SelectedMinimumPlayers
+            var filteredList = _allFetchedGames.Where(game =>
+                (string.IsNullOrEmpty(SearchName) || game.Name.Contains(SearchName, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(CitySearchText) || game.City.Contains(CitySearchText, StringComparison.OrdinalIgnoreCase)) &&
+                game.Price <= SelectedMaximumPrice &&
+                game.MinimumPlayerNumber >= SelectedMinimumPlayers
             ).ToList();
 
             _totalAvailableGamesCount = filteredList.Count;
-
-            // Client-side pagination logic
             var paginatedList = filteredList
                 .Skip((CurrentPage - 1) * ItemsPerPage)
                 .Take(ItemsPerPage)
@@ -152,9 +145,9 @@ namespace BoardGames.Desktop.ViewModels
         {
             SearchName = string.Empty;
             CitySearchText = string.Empty;
-            SelectedMaximumPrice = 100;
-            SelectedMinimumPlayers = 1;
-            CurrentPage = 1;
+            SelectedMaximumPrice = DefaultMaximumPrice;
+            SelectedMinimumPlayers = DefaultMinimumPlayers;
+            CurrentPage = FirstPageNumber;
 
             ExecuteSearch();
         }
@@ -170,7 +163,7 @@ namespace BoardGames.Desktop.ViewModels
 
         public void GoToPreviousPage()
         {
-            if (CurrentPage > 1)
+            if (CurrentPage > FirstPageNumber)
             {
                 CurrentPage--;
                 ExecuteSearch();

@@ -1,7 +1,3 @@
-// <copyright file="CashPaymentMapper.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using BoardGames.Shared.DTO;
 
 namespace BoardGames.Api.Legacy.Mappers

@@ -1,13 +1,17 @@
+// <copyright file="AdminPage.xaml.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System.ComponentModel;
+using BoardGames.Desktop.Services;
+using BoardGames.Desktop.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+
 namespace BoardGames.Desktop.Views
 {
-    using System.ComponentModel;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Desktop.ViewModels;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
-
     public sealed partial class AdminPage : Page, INotifyPropertyChanged
     {
         private readonly IDesktopAuthorizationService authorizationService;
@@ -78,12 +82,12 @@ namespace BoardGames.Desktop.Views
                 PrimaryButtonText = "Reset",
                 CloseButtonText = "Cancel",
                 DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
             };
 
             PasswordBox newPasswordBox = new PasswordBox
             {
-                PlaceholderText = "Enter new password"
+                PlaceholderText = "Enter new password",
             };
 
             resetPasswordDialog.Content = newPasswordBox;

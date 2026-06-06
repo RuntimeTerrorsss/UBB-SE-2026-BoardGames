@@ -1,3 +1,7 @@
+// <copyright file="RentalDTO2.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 namespace BoardGames.Shared.DTO
 {
     public class RentalDTO

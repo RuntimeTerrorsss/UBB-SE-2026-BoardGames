@@ -1,31 +1,16 @@
-// <copyright file="GameDetailsView.xaml.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
 
 using BoardGames.Desktop.ViewModels;
 
 namespace BoardGames.Desktop.Views
 {
-    /// <summary>
-    /// Provides the user interface for viewing detailed information about a game and selecting rental dates.
-    /// </summary>
     public sealed partial class GameDetailsView : Page
     {
         private DateTime? selectedDateStart;
         private DateTime? selectedDateEnd;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GameDetailsView"/> class.
-        /// </summary>
         public GameDetailsView()
         {
             this.InitializeComponent();
         }
-
-        /// <summary>
-        /// Invoked when the Page is loaded and becomes the current source of a parent Frame.
-        /// </summary>
-        /// <param name="eventArgs">Event data that can be examined by overriding code.</param>
         protected async override void OnNavigatedTo(NavigationEventArgs eventArgs)
         {
             base.OnNavigatedTo(eventArgs);

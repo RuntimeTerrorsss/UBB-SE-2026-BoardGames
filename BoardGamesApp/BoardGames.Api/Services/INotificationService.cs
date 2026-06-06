@@ -1,7 +1,3 @@
-// <copyright file="INotificationService.cs" company="BoardRent">
-// Copyright (c) BoardRent. All rights reserved.
-// </copyright>
-
 using System.Collections.Immutable;
 using BoardGames.Shared.DTO;
 

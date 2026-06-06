@@ -1,3 +1,7 @@
+// <copyright file="ApiErrorResults.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using BoardGames.Shared.Common;
 using System;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +43,7 @@ namespace BoardGames.Api.Common
                 return controller.ApiForbidden(error, "forbidden");
             }
 
-            if (Contains(error, "already taken") || Contains(error, "already exists"))
+            if (Contains(error, "already taken") || Contains(error, "already exists") || Contains(error, "already registered"))
             {
                 return controller.ApiConflict(error, "resource_conflict");
             }

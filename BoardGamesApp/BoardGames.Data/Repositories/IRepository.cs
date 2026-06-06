@@ -24,6 +24,3 @@ namespace BoardGames.Data.Repositories
         Task<List<T>> GetAll();
     }
 }
-
-
-// namespace BoardGames.Desktop.Repositories;

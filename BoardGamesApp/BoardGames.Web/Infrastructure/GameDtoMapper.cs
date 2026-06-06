@@ -6,7 +6,7 @@ using BoardGames.Shared.DTO;
 
 namespace BoardGames.Web.Infrastructure
 {
-    internal static class GameDtoMapper
+    public static class GameDtoMapper
     {
         public static GameDTO FromSummary(GameSummaryDTO summary) => new()
         {

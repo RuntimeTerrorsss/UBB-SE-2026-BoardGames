@@ -1,11 +1,15 @@
+// <copyright file="ApiServiceBase.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using BoardGames.Shared.DTO;
+
 namespace BoardGames.Shared.ProxyServices
 {
-    using System;
-    using System.Net.Http;
-    using System.Net.Http.Json;
-    using System.Threading.Tasks;
-    using BoardGames.Shared.DTO;
-
     public abstract class ApiServiceBase
     {
         private readonly IHttpClientFactory httpClientFactory;
@@ -47,7 +51,10 @@ namespace BoardGames.Shared.ProxyServices
             {
                 var response = await CreateClient().PostAsJsonAsync(url, data);
                 if (!response.IsSuccessStatusCode)
-                    return ServiceResult.Fail(response.ReasonPhrase ?? "Post Error", response.StatusCode);
+                {
+                    return ServiceResult.Fail(await ReadErrorMessageAsync(response), response.StatusCode);
+                }
+
                 return ServiceResult.Ok();
             }
             catch (Exception ex)
@@ -73,11 +80,34 @@ namespace BoardGames.Shared.ProxyServices
         {
             if (!response.IsSuccessStatusCode)
             {
-                return ServiceResult<T>.Fail(response.ReasonPhrase ?? "API Error", response.StatusCode);
+                return ServiceResult<T>.Fail(await ReadErrorMessageAsync(response), response.StatusCode);
             }
 
             var data = await response.Content.ReadFromJsonAsync<T>();
             return ServiceResult<T>.Ok(data!);
+        }
+
+        private static async Task<string> ReadErrorMessageAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                var payload = await response.Content.ReadFromJsonAsync<ApiErrorPayload>();
+                if (!string.IsNullOrWhiteSpace(payload?.Message))
+                {
+                    return payload.Message;
+                }
+            }
+            catch
+            {
+                // Fall back to reason phrase below.
+            }
+
+            return response.ReasonPhrase ?? "API Error";
+        }
+
+        private sealed class ApiErrorPayload
+        {
+            public string? Message { get; set; }
         }
     }
 }

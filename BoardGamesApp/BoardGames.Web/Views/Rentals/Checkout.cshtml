@@ -1,0 +1,53 @@
+@model BoardGames.Shared.DTO.RentalCheckoutDTO
+@{
+    ViewData["Title"] = "Checkout";
+    int requestId = (int)ViewBag.RequestId;
+    int messageId = (int)ViewBag.MessageId;
+}
+
+<div class="container py-4" style="max-width: 640px;">
+    <a asp-controller="Chats" asp-action="Index" class="btn btn-link ps-0 mb-2">&larr; Back to chat</a>
+
+    <h1 class="h3 mb-3">Delivery &amp; payment</h1>
+    <p class="text-secondary">@Model.GameName · @Model.DateRange</p>
+    <p class="mb-1"><strong>Owner:</strong> @Model.OwnerName</p>
+    <p><strong>Total:</strong> @Model.Price.ToString("C")</p>
+
+    @if (TempData["PaymentError"] is string paymentError)
+    {
+        <div class="alert alert-danger">@paymentError</div>
+    }
+
+    <form asp-action="CompletePayment" method="post" class="mt-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="rentalId" value="@Model.RentalId" />
+        <input type="hidden" name="requestId" value="@requestId" />
+        <input type="hidden" name="messageId" value="@messageId" />
+
+        <p class="small text-secondary mb-3">Enter your card details to complete the rental payment.</p>
+
+        <div class="mb-3">
+            <label class="form-label">Cardholder name</label>
+            <input class="form-control" name="cardholderName" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Card number</label>
+            <input class="form-control" name="cardNumber" placeholder="4242 4242 4242 4242" required />
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="form-label">Expiry (MM/YY)</label>
+                <input class="form-control" name="expiryDate" placeholder="MM/YY" maxlength="5" required />
+            </div>
+            <div class="col-6">
+                <label class="form-label">CVV</label>
+                <input class="form-control" name="cardVerificationValue" placeholder="123" maxlength="4" required />
+            </div>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="terms" required />
+            <label class="form-check-label" for="terms">I agree to pay @Model.Price.ToString("C") with this card</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Pay @Model.Price.ToString("C")</button>
+    </form>
+</div>

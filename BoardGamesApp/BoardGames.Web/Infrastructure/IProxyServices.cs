@@ -72,6 +72,10 @@ namespace BoardGames.Web.Infrastructure
         Task<IReadOnlyList<BookedDateRangeDTO>> GetBookedDatesForGameAsync(int gameId, CancellationToken cancellationToken = default);
 
         Task<bool> CheckAvailabilityAsync(int gameId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+
+        Task<RentalCheckoutDTO?> GetCheckoutSummaryAsync(int rentalId, Guid renterAccountId, CancellationToken cancellationToken = default);
+
+        Task CompleteCardPaymentAsync(CompleteRentalCardPaymentDTO payment, CancellationToken cancellationToken = default);
     }
 
     public interface IRequestProxyService

@@ -9,7 +9,6 @@ namespace BoardGames.Data.Repositories
 {
     public interface IRentalRepository
     {
-        // --- Project 1 methods ---
         Task<Rental?> GetById(int id);
 
         Task<TimeRange?> GetRentalTimeRange(int id);
@@ -30,7 +29,6 @@ namespace BoardGames.Data.Repositories
         /// </summary>
         Task BookGameWithRentalRequest(int clientId, int gameId, DateTime startDate, DateTime endDate);
 
-        // --- Project 2 methods (merged from IRentalRepository2) ---
         ImmutableList<Rental> GetAll();
 
         void Add(Rental rental);

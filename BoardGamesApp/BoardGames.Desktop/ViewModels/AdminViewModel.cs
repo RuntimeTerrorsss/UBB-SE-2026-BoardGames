@@ -1,13 +1,17 @@
+// <copyright file="AdminViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using BoardGames.Desktop.Commands;
+using BoardGames.Desktop.Services;
+using BoardGames.Shared.DTO;
+using BoardGames.Shared.ProxyServices;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System;
-    using System.Collections.Immutable;
-    using System.Threading.Tasks;
-    using BoardGames.Desktop.Commands;
-    using BoardGames.Desktop.Services;
-    using BoardGames.Shared.DTO;
-    using BoardGames.Shared.ProxyServices;
-
     public class AdminViewModel : PagedViewModel<AccountProfileDTO>
     {
         private const string AdminAccessDeniedMessage = "Unauthorized access. Administrator role is required.";
@@ -103,7 +107,10 @@ namespace BoardGames.Desktop.ViewModels
 
         public async Task ResetPasswordWithValueAsync(string newPassword)
         {
-            if (SelectedAccount == null) return;
+            if (SelectedAccount == null)
+            {
+                return;
+            }
 
             if (!authorizationService.IsAdministrator)
             {
@@ -117,25 +124,46 @@ namespace BoardGames.Desktop.ViewModels
 
         private async Task SuspendAccountAsync()
         {
-            if (!authorizationService.IsAdministrator) return;
+            if (!authorizationService.IsAdministrator)
+            {
+                return;
+            }
 
             var result = await adminService.SuspendAccountAsync(SelectedAccount.Id);
-            if (result.Success) await LoadAccountsAsync();
-            else ErrorMessage = result.Error ?? "Failed to suspend.";
+            if (result.Success)
+            {
+                await LoadAccountsAsync();
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Failed to suspend.";
+            }
         }
 
         private async Task UnsuspendAccountAsync()
         {
-            if (!authorizationService.IsAdministrator) return;
+            if (!authorizationService.IsAdministrator)
+            {
+                return;
+            }
 
             var result = await adminService.UnsuspendAccountAsync(SelectedAccount.Id);
-            if (result.Success) await LoadAccountsAsync();
-            else ErrorMessage = result.Error ?? "Failed to unsuspend.";
+            if (result.Success)
+            {
+                await LoadAccountsAsync();
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Failed to unsuspend.";
+            }
         }
 
         private async Task UnlockAccountAsync()
         {
-            if (!authorizationService.IsAdministrator) return;
+            if (!authorizationService.IsAdministrator)
+            {
+                return;
+            }
 
             var result = await adminService.UnlockAccountAsync(SelectedAccount.Id);
             ErrorMessage = result.Success ? "Account unlocked." : result.Error;

@@ -1,7 +1,11 @@
+// <copyright file="PriceInputParser.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
+using System.Globalization;
+
 namespace BoardGames.Desktop.ViewModels
 {
-    using System.Globalization;
-
     internal static class PriceInputParser
     {
         private const double ZeroPriceAsParseDefault = 0;

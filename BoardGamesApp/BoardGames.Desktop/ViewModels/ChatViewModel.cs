@@ -1,3 +1,7 @@
+// <copyright file="ChatViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -36,7 +40,7 @@ namespace BoardGames.Desktop.ViewModels
             {
                 currentConversation = result.Data;
                 Messages.Clear();
-                foreach (var msg in currentConversation.MessageList.OrderBy(m => m.SentAt))
+                foreach (var msg in currentConversation.MessageList.OrderBy(message => message.SentAt))
                 {
                     Messages.Add(msg);
                 }
@@ -57,7 +61,10 @@ namespace BoardGames.Desktop.ViewModels
 
         private async Task SendMessageInternal(string content, MessageType type, string imageUrl)
         {
-            if (currentConversation == null) return;
+            if (currentConversation == null)
+            {
+                return;
+            }
 
             int currentUserId = sessionContext.PamUserId ?? 0;
             if (currentUserId == 0)
@@ -84,14 +91,17 @@ namespace BoardGames.Desktop.ViewModels
             var result = await conversationService.UpdateMessageAsync(updatedMessage);
             if (result.Success)
             {
-                var index = Messages.ToList().FindIndex(m => m.Id == updatedMessage.Id);
+                var index = Messages.ToList().FindIndex(message => message.Id == updatedMessage.Id);
                 if (index != -1) Messages[index] = result.Data!;
             }
         }
 
         public async Task SendReadReceiptAsync()
         {
-            if (currentConversation == null) return;
+            if (currentConversation == null)
+            {
+                return;
+            }
 
             var dto = new ReadReceiptDTO(ConversationId, sessionContext.PamUserId ?? 0, 0, DateTime.UtcNow);
             await conversationService.SendReadReceiptAsync(dto);

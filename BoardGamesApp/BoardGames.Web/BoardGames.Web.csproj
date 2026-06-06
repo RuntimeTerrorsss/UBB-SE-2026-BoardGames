@@ -10,8 +10,9 @@
 		<ProjectReference Include="..\BoardGames.Shared\BoardGames.Shared.csproj" />
 	</ItemGroup>
 
+
 	<ItemGroup>
-		<InternalsVisibleTo Include="BoardGames.Tests" />
+		<Compile Remove="Controllers\AccountController.cs" />
 	</ItemGroup>
 
 </Project>

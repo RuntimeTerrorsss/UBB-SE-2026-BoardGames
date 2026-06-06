@@ -117,6 +117,7 @@ namespace BoardGames.Data.Repositories
                 rentalTracked.IsRequestResolved = rentalIncoming.IsRequestResolved;
                 rentalTracked.IsRequestAccepted = rentalIncoming.IsRequestAccepted;
                 rentalTracked.RequestContent = rentalIncoming.RequestContent;
+                rentalTracked.RentalRequestId = rentalIncoming.RentalRequestId;
             }
             else if (tracked is CashAgreementMessage cashTracked && message is CashAgreementMessage cashIncoming)
             {
@@ -174,10 +175,62 @@ namespace BoardGames.Data.Repositories
 
         public async Task<RentalRequestMessage?> FindRentalRequestMessageByRequestId(int requestId)
         {
-            string prefix = $"[req:{requestId}]";
+            string token = $"[req:{requestId}]";
             return await context.Messages
                 .OfType<RentalRequestMessage>()
-                .FirstOrDefaultAsync(m => m.RequestContent != null && m.RequestContent.StartsWith(prefix));
+                .FirstOrDefaultAsync(m => m.RequestContent != null && m.RequestContent.Contains(token));
+        }
+
+        public async Task<RentalRequestMessage?> GetRentalRequestMessageById(int messageId)
+        {
+            return await this.context.Messages
+                .OfType<RentalRequestMessage>()
+                .FirstOrDefaultAsync(m => m.MessageId == messageId);
+        }
+
+        public async Task FinalizeRentalRequestByMessageId(int messageId, bool accepted)
+        {
+            var tracked = await this.context.Messages
+                .OfType<RentalRequestMessage>()
+                .FirstOrDefaultAsync(m => m.MessageId == messageId);
+
+            if (tracked is null)
+            {
+                return;
+            }
+
+            tracked.IsRequestResolved = true;
+            tracked.IsRequestAccepted = accepted;
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task<RentalRequestMessage?> AcceptRentalRequestByRequestId(int requestId, int rentalId)
+        {
+            var message = await this.FindRentalRequestMessageByRequestId(requestId);
+            if (message is null)
+            {
+                return null;
+            }
+
+            var tracked = await this.context.Messages
+                .OfType<RentalRequestMessage>()
+                .FirstOrDefaultAsync(m => m.MessageId == message.MessageId);
+
+            if (tracked is null)
+            {
+                return null;
+            }
+
+            tracked.IsRequestAccepted = true;
+            tracked.IsRequestResolved = false;
+            tracked.RentalRequestId = rentalId;
+            string content = tracked.RequestContent ?? string.Empty;
+            if (rentalId > 0 && !content.Contains($"[rental:{rentalId}]", StringComparison.Ordinal))
+            {
+                tracked.RequestContent = $"[rental:{rentalId}]{content}";
+            }
+            await this.context.SaveChangesAsync();
+            return tracked;
         }
 
         public async Task<Message?> CreateCashAgreementMessage(int messageIdOfParentRentalRequestMessage, int paymentId)

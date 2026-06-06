@@ -1,6 +1,6 @@
-﻿// <copyright file="BoolToVisibilityConverter.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
 
 namespace BoardGames.Desktop.Converters
 {

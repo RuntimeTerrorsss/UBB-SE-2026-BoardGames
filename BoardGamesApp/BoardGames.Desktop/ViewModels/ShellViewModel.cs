@@ -1,3 +1,7 @@
+// <copyright file="ShellViewModel.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -25,7 +29,7 @@ namespace BoardGames.Desktop.ViewModels
         public void Refresh()
         {
             NavigationItems.Clear();
-            AddItem(AppPage.Filter, "Search Games");
+            AddItem(AppPage.Filter, "Homepage");
 
             if (!authorizationService.IsLoggedIn)
             {
@@ -34,7 +38,9 @@ namespace BoardGames.Desktop.ViewModels
             }
             else
             {
-                AddItem(AppPage.Games, "Games");
+                AddItem(
+                    AppPage.Games,
+                    authorizationService.IsAdministrator ? "Games" : "My Games");
                 AddItem(AppPage.Notifications, "Notifications");
                 AddItem(AppPage.Dashboard, "Dashboard");
                 AddItem(AppPage.Chat, "Chat");

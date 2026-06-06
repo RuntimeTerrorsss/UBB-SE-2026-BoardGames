@@ -23,6 +23,10 @@ namespace BoardGames.Desktop.ViewModels
 
     public class PaymentHistoryViewModel : ViewModelBase
     {
+        private const int FirstPageNumber = 1;
+        private const int InitialTotalPages = 1;
+        private const int SearchDebounceMilliseconds = 300;
+
         private readonly IPaymentService paymentService;
         private readonly ISessionContext sessionContext;
 
@@ -30,8 +34,8 @@ namespace BoardGames.Desktop.ViewModels
         private PaymentMethod selectedPaymentMethod;
         private string searchText = string.Empty;
         private decimal totalAmount;
-        private int currentPage = 1;
-        private int totalPages = 1;
+        private int currentPage = FirstPageNumber;
+        private int totalPages = InitialTotalPages;
         private bool isLoading;
         private string errorMessage = string.Empty;
         private CancellationTokenSource? searchCancellationTokenSource;
@@ -104,7 +108,7 @@ namespace BoardGames.Desktop.ViewModels
             searchCancellationTokenSource?.Cancel();
             searchCancellationTokenSource = new CancellationTokenSource();
             var token = searchCancellationTokenSource.Token;
-            _ = Task.Delay(300, token).ContinueWith(async _ => await ApplyFilter(true), token);
+            _ = Task.Delay(SearchDebounceMilliseconds, token).ContinueWith(async _ => await ApplyFilter(true), token);
         }
 
         private async Task OnNextPage() { CurrentPage++; await ApplyFilter(false); }
@@ -114,7 +118,7 @@ namespace BoardGames.Desktop.ViewModels
         public async Task ApplyFilter(bool resetPage)
         {
             if (!sessionContext.IsLoggedIn) return;
-            if (resetPage) CurrentPage = 1;
+            if (resetPage) CurrentPage = FirstPageNumber;
 
             IsLoading = true;
             ErrorMessage = string.Empty;
@@ -129,17 +133,20 @@ namespace BoardGames.Desktop.ViewModels
             if (result.Success && result.Data != null)
             {
                 Payments.Clear();
-                foreach (var p in result.Data.Items) Payments.Add(p);
+                foreach (var payment in result.Data.Items)
+                {
+                    Payments.Add(payment);
+                }
 
                 TotalPages = result.Data.TotalPages;
-                TotalAmount = Payments.Sum(p => p.Amount);
+                TotalAmount = Payments.Sum(payment => payment.Amount);
 
                 NextPageCommand.RaiseCanExecuteChanged();
                 PreviousPageCommand.RaiseCanExecuteChanged();
             }
             else
             {
-                ErrorMessage = result.Error ?? "Eroare la încărcarea plăților.";
+                ErrorMessage = result.Error ?? "Eroare la Ã®ncÄƒrcarea plÄƒÈ›ilor.";
             }
 
             IsLoading = false;
@@ -159,7 +166,7 @@ namespace BoardGames.Desktop.ViewModels
                 }
                 catch (Exception)
                 {
-                    ErrorMessage = "Nu s-a putut deschide chitanța.";
+                    ErrorMessage = "Nu s-a putut deschide chitanÈ›a.";
                 }
             }
         }

@@ -21,7 +21,7 @@ namespace BoardGames.Web.Infrastructure
 
         public async Task<IReadOnlyList<PaymentDTO>> GetPaymentHistoryForUserAsync(Guid accountId, CancellationToken cancellationToken = default)
         {
-            using var response = await this.httpClient.GetAsync($"api/payments/user/{accountId}/history", cancellationToken);
+            using var response = await this.httpClient.GetAsync($"payments/user/{accountId}/history", cancellationToken);
             return await HttpProxyClient.ReadAsync<List<PaymentDTO>>(response, cancellationToken);
         }
     }

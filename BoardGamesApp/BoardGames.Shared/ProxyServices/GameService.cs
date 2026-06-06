@@ -1,3 +1,7 @@
+// <copyright file="GameService.cs" company="BoardRent">
+// Copyright (c) BoardRent. All rights reserved.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -5,7 +9,6 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Shared.DTO;
-
 
 namespace BoardGames.Shared.ProxyServices
 {
@@ -17,6 +20,15 @@ namespace BoardGames.Shared.ProxyServices
         }
 
         public Task<ServiceResult> CreateGameAsync(GameSummaryDTO game, CancellationToken cancellationToken = default)
+        {
+            var client = CreateClient();
+            return ApiResponseReader.SendAsync(
+                token => client.PostAsJsonAsync("api/games", game, token),
+                (response, token) => ApiResponseReader.EnsureSuccessAsync(response, token),
+                cancellationToken);
+        }
+
+        public Task<ServiceResult> CreateGameAsync(GameCreateDTO game, CancellationToken cancellationToken = default)
         {
             var client = CreateClient();
             return ApiResponseReader.SendAsync(
@@ -92,9 +104,13 @@ namespace BoardGames.Shared.ProxyServices
                 async (response, token) =>
                 {
                     var parsed = await ApiResponseReader.ReadJsonAsync<List<GameSummaryDTO>>(response, token);
-                    return parsed.Success
-                        ? ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data ?? new List<GameSummaryDTO>())
-                        : ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
+                    if (parsed.Success && parsed.Data != null)
+                    {
+                        RebaseImageUrls(parsed.Data, client.BaseAddress);
+                        return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data);
+                    }
+
+                    return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
                 },
                 cancellationToken);
         }
@@ -107,11 +123,32 @@ namespace BoardGames.Shared.ProxyServices
                 async (response, token) =>
                 {
                     var parsed = await ApiResponseReader.ReadJsonAsync<List<GameSummaryDTO>>(response, token);
-                    return parsed.Success
-                        ? ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data ?? new List<GameSummaryDTO>())
-                        : ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
+                    if (parsed.Success && parsed.Data != null)
+                    {
+                        RebaseImageUrls(parsed.Data, client.BaseAddress);
+                        return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Ok(parsed.Data);
+                    }
+
+                    return ServiceResult<IReadOnlyList<GameSummaryDTO>>.Fail(parsed);
                 },
                 cancellationToken);
+        }
+
+        private static void RebaseImageUrls(List<GameSummaryDTO> games, Uri? baseAddress)
+        {
+            if (baseAddress == null)
+            {
+                return;
+            }
+
+            string origin = baseAddress.GetLeftPart(UriPartial.Authority);
+            foreach (var game in games)
+            {
+                if (!string.IsNullOrEmpty(game.ImageUrl) && game.ImageUrl.StartsWith("/"))
+                {
+                    game.ImageUrl = origin + game.ImageUrl;
+                }
+            }
         }
     }
 }
