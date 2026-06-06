@@ -3,11 +3,11 @@
     "Name": "New Profile",
     "Projects": [
       {
-        "Path": "BoardGames.Desktop\\BoardGames.Desktop.csproj",
+        "Path": "BoardGames.Api\\BoardGames.Api.csproj",
         "Action": "Start"
       },
       {
-        "Path": "BoardGames.Api\\BoardGames.Api.csproj",
+        "Path": "BoardGames.Web\\BoardGames.Web.csproj",
         "Action": "Start"
       }
     ]
